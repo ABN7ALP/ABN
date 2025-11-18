@@ -568,19 +568,25 @@ app.get('/api/transactions', authenticateToken, async (req, res) => {
 
 // 🔹 APIs للمشرف
 
+// APIs للمشرف - مع تحقق محسن
 app.get('/api/admin/orders', authenticateToken, async (req, res) => {
     try {
+        console.log('🔐 طلب لوحة المشرف من:', req.user.userId);
+        
         const user = await User.findById(req.user.userId);
+        console.log('👤 دور المستخدم:', user.role);
+        
         if (user.role !== 'admin') {
-            return res.status(403).json({ message: 'غير مصرح لك' });
+            console.log('❌ رفض الوصول - المستخدم ليس مشرفاً');
+            return res.status(403).json({ message: 'غير مصرح لك - يجب أن تكون مشرفاً' });
         }
 
+        console.log('✅ تم التحقق من صلاحيات المشرف');
         const orders = await Order.find()
             .populate('userId', 'username email')
             .populate('serviceId')
             .sort({ createdAt: -1 });
         
-        console.log('👑 تم جلب', orders.length, 'طلب للمشرف');
         res.json(orders);
     } catch (error) {
         console.error('❌ خطأ في جلب طلبات المشرف:', error);
@@ -624,6 +630,22 @@ app.put('/api/admin/orders/:id', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error('❌ خطأ في تحديث الطلب:', error);
         res.status(500).json({ message: 'خطأ في تحديث الطلب', error: error.message });
+    }
+});
+
+// API لفحص بيانات المستخدم الحالي
+app.get('/api/me', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId).select('-password');
+        if (!user) {
+            return res.status(404).json({ message: 'المستخدم غير موجود' });
+        }
+        
+        console.log('🔍 طلب بيانات المستخدم:', user.email, '- الدور:', user.role);
+        res.json(user);
+    } catch (error) {
+        console.error('❌ خطأ في جلب بيانات المستخدم:', error);
+        res.status(500).json({ message: 'خطأ في الخادم' });
     }
 });
 
