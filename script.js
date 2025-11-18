@@ -40,6 +40,7 @@ function initializeApp() {
 }
 
 // التحقق من التوكن
+// التحقق من التوكن
 async function verifyToken() {
     try {
         const response = await fetch(`${API_BASE}/services`, {
@@ -55,11 +56,16 @@ async function verifyToken() {
         const userData = JSON.parse(localStorage.getItem('userData'));
         currentUser = userData;
         
-        // تحديث واجهة المستخدم بناءً على الدور
+        // تحديث واجهة المستخدم بناءً على الدور - أضف من هنا
         if (currentUser && currentUser.role === 'admin') {
             const adminLink = document.getElementById('adminLink');
             if (adminLink) adminLink.style.display = 'block';
+        } else {
+            // إخفاء رابط المشرف عن المستخدمين العاديين
+            const adminLink = document.getElementById('adminLink');
+            if (adminLink) adminLink.style.display = 'none';
         }
+        // إلى هنا - نهاية الإضافة
         
     } catch (error) {
         logout();
