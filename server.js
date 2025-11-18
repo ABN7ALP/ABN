@@ -4,25 +4,70 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Middleware مهم
 app.use(cors());
 app.use(express.json());
-app.use(express.static('.'));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(__dirname));
 
-// اتصال قاعدة البيانات
+// خدمة جميع الصفحات HTML
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'login.html'));
+});
+
+app.get('/register', (req, res) => {
+    res.sendFile(path.join(__dirname, 'register.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+app.get('/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, 'profile.html'));
+});
+
+// خدمة الملفات الثابتة للصفحات بنفس الاسم
+app.get('/:page', (req, res) => {
+    const page = req.params.page;
+    if (fs.existsSync(path.join(__dirname, page))) {
+        res.sendFile(path.join(__dirname, page));
+    } else {
+        res.status(404).send('الصفحة غير موجودة');
+    }
+});
+
+// اتصال قاعدة البيانات مع معالجة الأخطاء
 const MONGODB_URI = "mongodb+srv://ds132z1998_db_user:AL2sG3m1yB6BaoRY@cluster1.ehjwrgc.mongodb.net/smmdb?retryWrites=true&w=majority";
+
+console.log('🔄 جاري الاتصال بقاعدة البيانات...');
 
 mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
 })
-.then(() => console.log('✅ تم الاتصال بقاعدة البيانات بنجاح'))
-.catch(err => console.error('❌ خطأ في الاتصال:', err));
+.then(() => {
+    console.log('✅ تم الاتصال بقاعدة البيانات بنجاح');
+})
+.catch(err => {
+    console.error('❌ خطأ في الاتصال بقاعدة البيانات:', err.message);
+    console.log('⚠️  النظام سيعمل بدون قاعدة البيانات - يمكنك تجربة الواجهة فقط');
+});
 
 // نماذج قاعدة البيانات
 const UserSchema = new mongoose.Schema({
@@ -69,6 +114,76 @@ const Service = mongoose.model('Service', ServiceSchema);
 const Order = mongoose.model('Order', OrderSchema);
 const Transaction = mongoose.model('Transaction', TransactionSchema);
 
+// بيانات تجريبية للخدمات
+const sampleServices = [
+    {
+        name: 'متابعين انستجرام',
+        platform: 'Instagram',
+        description: 'متابعين حقيقيين بجودة عالية',
+        price: 0.50,
+        minOrder: 100,
+        maxOrder: 10000
+    },
+    {
+        name: 'لايكات فيسبوك',
+        platform: 'Facebook',
+        description: 'لايكات حقيقية للصفحات والمنشورات',
+        price: 0.20,
+        minOrder: 50,
+        maxOrder: 5000
+    },
+    {
+        name: 'مشاهدات يوتيوب',
+        platform: 'YouTube',
+        description: 'مشاهدات عالية الجودة',
+        price: 0.10,
+        minOrder: 1000,
+        maxOrder: 100000
+    },
+    {
+        name: 'متابعين تويتر',
+        platform: 'Twitter',
+        description: 'متابعين نشطين',
+        price: 0.80,
+        minOrder: 100,
+        maxOrder: 5000
+    },
+    {
+        name: 'لايكات تيك توك',
+        platform: 'TikTok',
+        description: 'لايكات سريعة وجودة عالية',
+        price: 0.15,
+        minOrder: 100,
+        maxOrder: 10000
+    },
+    {
+        name: 'مشتركين تليجرام',
+        platform: 'Telegram',
+        description: 'مشتركين حقيقيين للقنوات',
+        price: 1.00,
+        minOrder: 100,
+        maxOrder: 10000
+    }
+];
+
+// إنشاء خدمات تجريبية تلقائياً
+async function createSampleServices() {
+    try {
+        const serviceCount = await Service.countDocuments();
+        if (serviceCount === 0) {
+            await Service.insertMany(sampleServices);
+            console.log('✅ تم إنشاء الخدمات التجريبية بنجاح');
+        }
+    } catch (error) {
+        console.log('⚠️  لم يتم إنشاء الخدمات التجريبية:', error.message);
+    }
+}
+
+// استدعاء الدوال بعد الاتصال بقاعدة البيانات
+mongoose.connection.once('open', async () => {
+    await createSampleServices();
+});
+
 // Middleware للمصادقة
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -78,7 +193,7 @@ const authenticateToken = (req, res, next) => {
         return res.status(401).json({ message: 'الوصول مرفوع' });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET || 'smm_secret_key', (err, user) => {
+    jwt.verify(token, 'smm_secret_key', (err, user) => {
         if (err) {
             return res.status(403).json({ message: 'رمز غير صالح' });
         }
@@ -87,17 +202,24 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// Routes
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
+// 🔹 APIs الأساسية
 
 // تسجيل مستخدم جديد
 app.post('/api/register', async (req, res) => {
     try {
+        console.log('📝 طلب تسجيل جديد:', req.body);
         const { username, email, password } = req.body;
 
-        // التحقق من وجود المستخدم
+        // 🔒 منع التسجيل كبريد المشرف
+        if (email === '11.45') {
+            return res.status(400).json({ message: 'لا يمكن استخدام هذا البريد الإلكتروني' });
+        }
+
+        // تحقق بسيط من البيانات
+        if (!username || !email || !password) {
+            return res.status(400).json({ message: 'جميع الحقول مطلوبة' });
+        }
+
         const existingUser = await User.findOne({ 
             $or: [{ email }, { username }] 
         });
@@ -106,25 +228,25 @@ app.post('/api/register', async (req, res) => {
             return res.status(400).json({ message: 'المستخدم موجود بالفعل' });
         }
 
-        // تشفير كلمة المرور
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // إنشاء مستخدم جديد
         const user = new User({
             username,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            role: 'user' // ⚠️ جميع المستخدمين الجدد يكونوا عاديين
         });
 
         await user.save();
 
-        // إنشاء token
         const token = jwt.sign(
             { userId: user._id, role: user.role },
-            process.env.JWT_SECRET || 'smm_secret_key',
+            'smm_secret_key',
             { expiresIn: '24h' }
         );
 
+        console.log('✅ تم إنشاء حساب جديد:', username);
+        
         res.status(201).json({
             message: 'تم إنشاء الحساب بنجاح',
             token,
@@ -137,6 +259,7 @@ app.post('/api/register', async (req, res) => {
             }
         });
     } catch (error) {
+        console.error('❌ خطأ في التسجيل:', error);
         res.status(500).json({ message: 'خطأ في الخادم', error: error.message });
     }
 });
@@ -278,30 +401,17 @@ app.post('/api/login', async (req, res) => {
         });
     }
 });
-
 // الحصول على الخدمات
 app.get('/api/services', async (req, res) => {
     try {
         const services = await Service.find({ active: true });
+        console.log('📦 تم جلب', services.length, 'خدمة');
         res.json(services);
     } catch (error) {
-        res.status(500).json({ message: 'خطأ في جلب الخدمات', error: error.message });
-    }
-});
-
-// إضافة خدمة جديدة (للمشرف فقط)
-app.post('/api/services', authenticateToken, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.userId);
-        if (user.role !== 'admin') {
-            return res.status(403).json({ message: 'غير مصرح لك' });
-        }
-
-        const service = new Service(req.body);
-        await service.save();
-        res.status(201).json({ message: 'تم إضافة الخدمة بنجاح', service });
-    } catch (error) {
-        res.status(500).json({ message: 'خطأ في إضافة الخدمة', error: error.message });
+        console.error('❌ خطأ في جلب الخدمات:', error);
+        
+        // إرجاع بيانات تجريبية في حالة الخطأ
+        res.json(sampleServices);
     }
 });
 
@@ -347,8 +457,8 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
 
         await transaction.save();
 
-        // هنا يمكنك إضافة كود لإرسال الطلب إلى الواتساب
-
+        console.log('🛒 تم إنشاء طلب جديد:', order._id);
+        
         res.status(201).json({ 
             message: 'تم إنشاء الطلب بنجاح',
             order: {
@@ -361,6 +471,7 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
             }
         });
     } catch (error) {
+        console.error('❌ خطأ في إنشاء الطلب:', error);
         res.status(500).json({ message: 'خطأ في إنشاء الطلب', error: error.message });
     }
 });
@@ -384,11 +495,14 @@ app.post('/api/deposit', authenticateToken, async (req, res) => {
 
         await transaction.save();
 
+        console.log('💳 تم شحن رصيد:', amount, 'للمستخدم:', user.username);
+        
         res.json({ 
             message: 'تم شحن الرصيد بنجاح',
             newBalance: user.balance 
         });
     } catch (error) {
+        console.error('❌ خطأ في شحن الرصيد:', error);
         res.status(500).json({ message: 'خطأ في شحن الرصيد', error: error.message });
     }
 });
@@ -400,8 +514,10 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
             .populate('serviceId')
             .sort({ createdAt: -1 });
         
+        console.log('📋 تم جلب', orders.length, 'طلب للمستخدم');
         res.json(orders);
     } catch (error) {
+        console.error('❌ خطأ في جلب الطلبات:', error);
         res.status(500).json({ message: 'خطأ في جلب الطلبات', error: error.message });
     }
 });
@@ -412,13 +528,16 @@ app.get('/api/transactions', authenticateToken, async (req, res) => {
         const transactions = await Transaction.find({ userId: req.user.userId })
             .sort({ createdAt: -1 });
         
+        console.log('💰 تم جلب', transactions.length, 'معاملة للمستخدم');
         res.json(transactions);
     } catch (error) {
+        console.error('❌ خطأ في جلب المعاملات:', error);
         res.status(500).json({ message: 'خطأ في جلب المعاملات', error: error.message });
     }
 });
 
-// APIs للمشرف
+// 🔹 APIs للمشرف
+
 app.get('/api/admin/orders', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.userId);
@@ -431,8 +550,10 @@ app.get('/api/admin/orders', authenticateToken, async (req, res) => {
             .populate('serviceId')
             .sort({ createdAt: -1 });
         
+        console.log('👑 تم جلب', orders.length, 'طلب للمشرف');
         res.json(orders);
     } catch (error) {
+        console.error('❌ خطأ في جلب طلبات المشرف:', error);
         res.status(500).json({ message: 'خطأ في جلب الطلبات', error: error.message });
     }
 });
@@ -445,13 +566,14 @@ app.get('/api/admin/users', authenticateToken, async (req, res) => {
         }
 
         const users = await User.find().select('-password');
+        console.log('👥 تم جلب', users.length, 'مستخدم للمشرف');
         res.json(users);
     } catch (error) {
+        console.error('❌ خطأ في جلب المستخدمين:', error);
         res.status(500).json({ message: 'خطأ في جلب المستخدمين', error: error.message });
     }
 });
 
-// تحديث حالة الطلب
 app.put('/api/admin/orders/:id', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.userId);
@@ -466,13 +588,45 @@ app.put('/api/admin/orders/:id', authenticateToken, async (req, res) => {
             { new: true }
         ).populate('userId serviceId');
 
+        console.log('🔄 تم تحديث حالة الطلب:', order._id, 'إلى:', status);
+        
         res.json({ message: 'تم تحديث حالة الطلب', order });
     } catch (error) {
+        console.error('❌ خطأ في تحديث الطلب:', error);
         res.status(500).json({ message: 'خطأ في تحديث الطلب', error: error.message });
     }
 });
 
-// تشغيل الخادم
-app.listen(PORT, () => {
-    console.log(`🚀 الخادم يعمل على http://localhost:${PORT}`);
+// API لفحص حالة الخادم
+app.get('/api/status', (req, res) => {
+    res.json({ 
+        status: 'running',
+        message: 'الخادم يعمل بشكل طبيعي',
+        timestamp: new Date().toISOString(),
+        database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    });
 });
+
+// معالجة الأخطاء غير المتوقعة
+process.on('uncaughtException', (error) => {
+    console.error('❌ خطأ غير متوقع:', error);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ خطأ في الوعد:', reason);
+});
+
+// تشغيل الخادم
+app.listen(PORT, '0.0.0.0', () => {
+    console.log('🚀 ==================================');
+    console.log('🚀 نظام SMM المتكامل يعمل بنجاح!');
+    console.log('🚀 ==================================');
+    console.log(`📡 الخادم يعمل على: http://localhost:${PORT}`);
+    console.log(`🔗 العنوان المحلي: http://127.0.0.1:${PORT}`);
+    console.log('⏰ وقت التشغيل:', new Date().toLocaleString('ar-EG'));
+    console.log('💾 حالة قاعدة البيانات:', mongoose.connection.readyState === 1 ? 'متصل ✅' : 'غير متصل ⚠️');
+    console.log('🔧 للمساعدة: تأكد من فتح المتصفح على العنوان الصحيح');
+    console.log('🚀 ==================================');
+});
+
+console.log('🔄 جاري تشغيل الخادم...');
