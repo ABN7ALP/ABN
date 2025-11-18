@@ -270,14 +270,8 @@ app.post('/api/login', async (req, res) => {
     try {
         console.log('🔐 طلب تسجيل دخول:', req.body);
         
-        // ⚠️ تحقق من وجود البيانات
-        if (!req.body) {
-            return res.status(400).json({ message: 'لا توجد بيانات في الطلب' });
-        }
-
         const { email, password } = req.body;
 
-        // ⚠️ تحقق من وجود الحقول
         if (!email || !password) {
             return res.status(400).json({ message: 'البريد الإلكتروني وكلمة المرور مطلوبان' });
         }
@@ -292,26 +286,39 @@ app.post('/api/login', async (req, res) => {
                 console.log('🔑 كلمة المرور صحيحة للمشرف');
                 
                 try {
-                    // البحث عن مستخدم المشرف أو إنشاؤه
+                    // البحث عن مستخدم المشرف
                     let adminUser = await User.findOne({ email: '11.45' });
                     
                     if (!adminUser) {
-                        console.log('👤 إنشاء مشرف جديد');
+                        console.log('👤 محاولة إنشاء مشرف جديد');
+                        
+                        // جرب أسماء مستخدمين مختلفة إذا كان "admin" مستخدم
+                        let username = 'admin';
+                        let counter = 1;
+                        
+                        while (await User.findOne({ username })) {
+                            username = `admin${counter}`;
+                            counter++;
+                            if (counter > 10) {
+                                throw new Error('لا يمكن إنشاء مشرف - جميع الأسماء محجوزة');
+                            }
+                        }
+                        
+                        console.log('✅ سيتم استخدام اسم المستخدم:', username);
+                        
                         const hashedPassword = await bcrypt.hash('11.45', 10);
                         adminUser = new User({
-                            username: 'admin',
+                            username: username,
                             email: '11.45',
                             password: hashedPassword,
                             role: 'admin',
                             balance: 1000
                         });
+                        
                         await adminUser.save();
-                        console.log('✅ تم إنشاء المشرف تلقائياً');
-                    }
-
-                    // ⚠️ تأكد من أن adminUser موجود
-                    if (!adminUser) {
-                        throw new Error('فشل في إنشاء المستخدم المشرف');
+                        console.log('✅ تم إنشاء المشرف بنجاح باسم:', username);
+                    } else {
+                        console.log('✅ تم العثور على المشرف الموجود:', adminUser.username);
                     }
 
                     const token = jwt.sign(
@@ -335,7 +342,43 @@ app.post('/api/login', async (req, res) => {
                     });
 
                 } catch (adminError) {
-                    console.error('❌ خطأ في عملية المشرف:', adminError);
+                    console.error('❌ خطأ في عملية المشرف:', adminError.message);
+                    
+                    // إذا كان الخطأ بسبب اسم مستخدم مكرر، حاول تجاوزه
+                    if (adminError.code === 11000) {
+                        console.log('🔄 محاولة إصلاح الخطأ...');
+                        
+                        // جرب العثور على المشرف بأي طريقة
+                        const existingAdmin = await User.findOne({ 
+                            $or: [
+                                { email: '11.45' },
+                                { role: 'admin' }
+                            ] 
+                        });
+                        
+                        if (existingAdmin) {
+                            console.log('✅ تم العثور على مشرف موجود:', existingAdmin.username);
+                            
+                            const token = jwt.sign(
+                                { userId: existingAdmin._id, role: existingAdmin.role },
+                                'smm_secret_key',
+                                { expiresIn: '24h' }
+                            );
+                            
+                            return res.json({
+                                message: 'تم تسجيل الدخول كمشرف بنجاح',
+                                token,
+                                user: {
+                                    id: existingAdmin._id,
+                                    username: existingAdmin.username,
+                                    email: existingAdmin.email,
+                                    balance: existingAdmin.balance,
+                                    role: existingAdmin.role
+                                }
+                            });
+                        }
+                    }
+                    
                     return res.status(500).json({ 
                         message: 'خطأ في إعداد المشرف', 
                         error: adminError.message 
@@ -349,55 +392,42 @@ app.post('/api/login', async (req, res) => {
 
         // 🔐 تسجيل الدخول العادي للمستخدمين
         console.log('👤 محاولة دخول مستخدم عادي');
-        try {
-            const user = await User.findOne({ email });
-            if (!user) {
-                console.log('❌ مستخدم غير موجود:', email);
-                return res.status(400).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
-            }
-
-            console.log('🔍 تم العثور على المستخدم:', user.username);
-
-            const validPassword = await bcrypt.compare(password, user.password);
-            if (!validPassword) {
-                console.log('❌ كلمة المرور خاطئة للمستخدم:', user.username);
-                return res.status(400).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
-            }
-
-            const token = jwt.sign(
-                { userId: user._id, role: user.role },
-                'smm_secret_key',
-                { expiresIn: '24h' }
-            );
-
-            console.log('✅ تم تسجيل الدخول بنجاح:', user.username);
-            
-            res.json({
-                message: 'تم تسجيل الدخول بنجاح',
-                token,
-                user: {
-                    id: user._id,
-                    username: user.username,
-                    email: user.email,
-                    balance: user.balance,
-                    role: user.role
-                }
-            });
-
-        } catch (userError) {
-            console.error('❌ خطأ في عملية المستخدم:', userError);
-            return res.status(500).json({ 
-                message: 'خطأ في عملية الدخول', 
-                error: userError.message 
-            });
+        
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
         }
+
+        const validPassword = await bcrypt.compare(password, user.password);
+        if (!validPassword) {
+            return res.status(400).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
+        }
+
+        const token = jwt.sign(
+            { userId: user._id, role: user.role },
+            'smm_secret_key',
+            { expiresIn: '24h' }
+        );
+
+        console.log('✅ تم تسجيل الدخول بنجاح:', user.username);
+        
+        res.json({
+            message: 'تم تسجيل الدخول بنجاح',
+            token,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                balance: user.balance,
+                role: user.role
+            }
+        });
 
     } catch (error) {
         console.error('❌ خطأ عام في تسجيل الدخول:', error);
         res.status(500).json({ 
             message: 'خطأ في الخادم', 
-            error: error.message,
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            error: error.message
         });
     }
 });
