@@ -4,7 +4,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,7 +11,32 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('.'));
+app.use(express.static(__dirname));
+
+// خدمة الملفات الثابتة للصفحات
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/login.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'login.html'));
+});
+
+app.get('/register.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'register.html'));
+});
+
+app.get('/dashboard.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
+
+app.get('/admin.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+app.get('/profile.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'profile.html'));
+});
 
 // اتصال قاعدة البيانات
 const MONGODB_URI = "mongodb+srv://ds132z1998_db_user:AL2sG3m1yB6BaoRY@cluster1.ehjwrgc.mongodb.net/smmdb?retryWrites=true&w=majority";
@@ -78,7 +102,7 @@ const authenticateToken = (req, res, next) => {
         return res.status(401).json({ message: 'الوصول مرفوع' });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET || 'smm_secret_key', (err, user) => {
+    jwt.verify(token, 'smm_secret_key', (err, user) => {
         if (err) {
             return res.status(403).json({ message: 'رمز غير صالح' });
         }
@@ -87,17 +111,12 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// Routes
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// تسجيل مستخدم جديد
+// APIs
 app.post('/api/register', async (req, res) => {
     try {
+        console.log('طلب تسجيل جديد:', req.body);
         const { username, email, password } = req.body;
 
-        // التحقق من وجود المستخدم
         const existingUser = await User.findOne({ 
             $or: [{ email }, { username }] 
         });
@@ -106,10 +125,8 @@ app.post('/api/register', async (req, res) => {
             return res.status(400).json({ message: 'المستخدم موجود بالفعل' });
         }
 
-        // تشفير كلمة المرور
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // إنشاء مستخدم جديد
         const user = new User({
             username,
             email,
@@ -118,10 +135,9 @@ app.post('/api/register', async (req, res) => {
 
         await user.save();
 
-        // إنشاء token
         const token = jwt.sign(
             { userId: user._id, role: user.role },
-            process.env.JWT_SECRET || 'smm_secret_key',
+            'smm_secret_key',
             { expiresIn: '24h' }
         );
 
@@ -137,31 +153,28 @@ app.post('/api/register', async (req, res) => {
             }
         });
     } catch (error) {
+        console.error('خطأ في التسجيل:', error);
         res.status(500).json({ message: 'خطأ في الخادم', error: error.message });
     }
 });
 
-// تسجيل الدخول
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // البحث عن المستخدم
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
         }
 
-        // التحقق من كلمة المرور
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) {
             return res.status(400).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
         }
 
-        // إنشاء token
         const token = jwt.sign(
             { userId: user._id, role: user.role },
-            process.env.JWT_SECRET || 'smm_secret_key',
+            'smm_secret_key',
             { expiresIn: '24h' }
         );
 
@@ -181,7 +194,8 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// الحصول على الخدمات
+// باقي الـ APIs بنفس الشكل...
+
 app.get('/api/services', async (req, res) => {
     try {
         const services = await Service.find({ active: true });
@@ -191,7 +205,6 @@ app.get('/api/services', async (req, res) => {
     }
 });
 
-// إضافة خدمة جديدة (للمشرف فقط)
 app.post('/api/services', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.userId);
@@ -207,7 +220,6 @@ app.post('/api/services', authenticateToken, async (req, res) => {
     }
 });
 
-// إنشاء طلب جديد
 app.post('/api/orders', authenticateToken, async (req, res) => {
     try {
         const { serviceId, quantity, link } = req.body;
@@ -224,11 +236,9 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'رصيدك غير كافي' });
         }
 
-        // خصم المبلغ من الرصيد
         user.balance -= totalPrice;
         await user.save();
 
-        // إنشاء الطلب
         const order = new Order({
             userId: req.user.userId,
             serviceId,
@@ -239,7 +249,6 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
 
         await order.save();
 
-        // تسجيل المعاملة
         const transaction = new Transaction({
             userId: req.user.userId,
             amount: -totalPrice,
@@ -248,8 +257,6 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
         });
 
         await transaction.save();
-
-        // هنا يمكنك إضافة كود لإرسال الطلب إلى الواتساب
 
         res.status(201).json({ 
             message: 'تم إنشاء الطلب بنجاح',
@@ -267,7 +274,6 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
     }
 });
 
-// شحن الرصيد
 app.post('/api/deposit', authenticateToken, async (req, res) => {
     try {
         const { amount } = req.body;
@@ -276,7 +282,6 @@ app.post('/api/deposit', authenticateToken, async (req, res) => {
         user.balance += parseFloat(amount);
         await user.save();
 
-        // تسجيل المعاملة
         const transaction = new Transaction({
             userId: req.user.userId,
             amount: parseFloat(amount),
@@ -295,7 +300,6 @@ app.post('/api/deposit', authenticateToken, async (req, res) => {
     }
 });
 
-// الحصول على طلبات المستخدم
 app.get('/api/orders', authenticateToken, async (req, res) => {
     try {
         const orders = await Order.find({ userId: req.user.userId })
@@ -308,7 +312,6 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
     }
 });
 
-// الحصول على المعاملات
 app.get('/api/transactions', authenticateToken, async (req, res) => {
     try {
         const transactions = await Transaction.find({ userId: req.user.userId })
@@ -353,7 +356,6 @@ app.get('/api/admin/users', authenticateToken, async (req, res) => {
     }
 });
 
-// تحديث حالة الطلب
 app.put('/api/admin/orders/:id', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.userId);
@@ -374,7 +376,36 @@ app.put('/api/admin/orders/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// إنشاء مستخدم مشرف تلقائياً إذا لم يكن موجود
+async function createAdminUser() {
+    try {
+        const adminExists = await User.findOne({ email: 'admin@smm.com' });
+        if (!adminExists) {
+            const hashedPassword = await bcrypt.hash('admin123', 10);
+            const adminUser = new User({
+                username: 'admin',
+                email: 'admin@smm.com',
+                password: hashedPassword,
+                role: 'admin',
+                balance: 1000
+            });
+            await adminUser.save();
+            console.log('✅ تم إنشاء المستخدم المشرف تلقائياً');
+            console.log('📧 البريد: admin@smm.com');
+            console.log('🔑 كلمة المرور: admin123');
+        }
+    } catch (error) {
+        console.log('⚠️ لم يتم إنشاء المشرف تلقائياً:', error.message);
+    }
+}
+
+// استدعاء الدالة بعد الاتصال بقاعدة البيانات
+mongoose.connection.once('open', () => {
+    createAdminUser();
+});
+
 // تشغيل الخادم
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 الخادم يعمل على http://localhost:${PORT}`);
+    console.log('✅ النظام جاهز للاستخدام');
 });
