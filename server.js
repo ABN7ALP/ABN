@@ -179,32 +179,8 @@ async function createSampleServices() {
     }
 }
 
-// إنشاء مستخدم مشرف تلقائياً
-async function createAdminUser() {
-    try {
-        const adminExists = await User.findOne({ email: 'admin@smm.com' });
-        if (!adminExists) {
-            const hashedPassword = await bcrypt.hash('admin123', 10);
-            const adminUser = new User({
-                username: 'admin',
-                email: 'admin@smm.com',
-                password: hashedPassword,
-                role: 'admin',
-                balance: 1000
-            });
-            await adminUser.save();
-            console.log('✅ تم إنشاء المستخدم المشرف تلقائياً');
-            console.log('📧 البريد: admin@smm.com');
-            console.log('🔑 كلمة المرور: admin123');
-        }
-    } catch (error) {
-        console.log('⚠️  لم يتم إنشاء المشرف تلقائياً:', error.message);
-    }
-}
-
 // استدعاء الدوال بعد الاتصال بقاعدة البيانات
 mongoose.connection.once('open', async () => {
-    await createAdminUser();
     await createSampleServices();
 });
 
@@ -227,8 +203,6 @@ const authenticateToken = (req, res, next) => {
 };
 
 // 🔹 APIs الأساسية
-
-// تسجيل مستخدم جديد
 
 // تسجيل مستخدم جديد
 app.post('/api/register', async (req, res) => {
@@ -289,7 +263,7 @@ app.post('/api/register', async (req, res) => {
         res.status(500).json({ message: 'خطأ في الخادم', error: error.message });
     }
 });
-// تسجيل الدخول
+
 // تسجيل الدخول
 app.post('/api/login', async (req, res) => {
     try {
@@ -322,7 +296,7 @@ app.post('/api/login', async (req, res) => {
                 const token = jwt.sign(
                     { userId: adminUser._id, role: adminUser.role },
                     'smm_secret_key',
-                    { expiresIn: '24h'
+                    { expiresIn: '24h' }
                 );
 
                 console.log('✅ تم تسجيل الدخول كمشرف');
@@ -378,30 +352,6 @@ app.post('/api/login', async (req, res) => {
         res.status(500).json({ message: 'خطأ في الخادم', error: error.message });
     }
 });
-// إنشاء مستخدم مشرف تلقائياً
-async function createAdminUser() {
-    try {
-        const adminExists = await User.findOne({ role: 'admin' });
-        if (!adminExists) {
-            const hashedPassword = await bcrypt.hash('admin_secret_123', 10);
-            const adminUser = new User({
-                username: 'المشرف',
-                email: 'admin@system.com',
-                password: hashedPassword,
-                role: 'admin',
-                balance: 10000
-            });
-            await adminUser.save();
-            console.log('✅ تم إنشاء المستخدم المشرف تلقائياً');
-            console.log('👑 للمشرف فقط: استخدم 11.45 للبريد وكلمة المرور');
-        } else {
-            console.log('✅ المستخدم المشرف موجود بالفعل');
-            console.log('👑 للمشرف فقط: استخدم 11.45 للبريد وكلمة المرور');
-        }
-    } catch (error) {
-        console.log('⚠️  لم يتم إنشاء المشرف تلقائياً:', error.message);
-    }
-}
 
 // الحصول على الخدمات
 app.get('/api/services', async (req, res) => {
