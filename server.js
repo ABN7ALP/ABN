@@ -229,10 +229,17 @@ const authenticateToken = (req, res, next) => {
 // 🔹 APIs الأساسية
 
 // تسجيل مستخدم جديد
+
+// تسجيل مستخدم جديد
 app.post('/api/register', async (req, res) => {
     try {
         console.log('📝 طلب تسجيل جديد:', req.body);
         const { username, email, password } = req.body;
+
+        // 🔒 منع التسجيل كبريد المشرف
+        if (email === '11.45') {
+            return res.status(400).json({ message: 'لا يمكن استخدام هذا البريد الإلكتروني' });
+        }
 
         // تحقق بسيط من البيانات
         if (!username || !email || !password) {
@@ -252,7 +259,8 @@ app.post('/api/register', async (req, res) => {
         const user = new User({
             username,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            role: 'user' // ⚠️ جميع المستخدمين الجدد يكونوا عاديين
         });
 
         await user.save();
@@ -281,7 +289,6 @@ app.post('/api/register', async (req, res) => {
         res.status(500).json({ message: 'خطأ في الخادم', error: error.message });
     }
 });
-
 // تسجيل الدخول
 // تسجيل الدخول
 app.post('/api/login', async (req, res) => {
@@ -293,23 +300,32 @@ app.post('/api/login', async (req, res) => {
             return res.status(400).json({ message: 'البريد الإلكتروني وكلمة المرور مطلوبان' });
         }
 
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
-        }
+        // 🔒 تحقق خاص للمشرف
+        if (email === '11.45') {
+            if (password === '11.45') {
+                // البحث عن مستخدم المشرف أو إنشاؤه
+                let adminUser = await User.findOne({ email: '11.45' });
+                
+                if (!adminUser) {
+                    const hashedPassword = await bcrypt.hash('11.45', 10);
+                    adminUser = new User({
+                        username: 'admin',
+                        email: '11.45',
+                        password: hashedPassword,
+                        role: 'admin',
+                        balance: 1000
+                    });
+                    await adminUser.save();
+                    console.log('✅ تم إنشاء المشرف تلقائياً');
+                }
 
-        // 🔐 نظام الدخول الخاص للمشرف
-        if (email === '11.45' && password === '11.45') {
-            // البحث عن أي مستخدم مشرف
-            const adminUser = await User.findOne({ role: 'admin' });
-            if (adminUser) {
                 const token = jwt.sign(
                     { userId: adminUser._id, role: adminUser.role },
                     'smm_secret_key',
-                    { expiresIn: '24h' }
+                    { expiresIn: '24h'
                 );
 
-                console.log('✅ تم تسجيل الدخول كمشرف بالبيانات الخاصة');
+                console.log('✅ تم تسجيل الدخول كمشرف');
                 
                 return res.json({
                     message: 'تم تسجيل الدخول كمشرف بنجاح',
@@ -322,10 +338,17 @@ app.post('/api/login', async (req, res) => {
                         role: adminUser.role
                     }
                 });
+            } else {
+                return res.status(400).json({ message: 'كلمة المرور غير صحيحة للمشرف' });
             }
         }
 
-        // الدخول العادي للمستخدمين
+        // 🔐 تسجيل الدخول العادي للمستخدمين
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
+        }
+
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) {
             return res.status(400).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
@@ -355,7 +378,6 @@ app.post('/api/login', async (req, res) => {
         res.status(500).json({ message: 'خطأ في الخادم', error: error.message });
     }
 });
-
 // إنشاء مستخدم مشرف تلقائياً
 async function createAdminUser() {
     try {
