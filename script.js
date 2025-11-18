@@ -1,8 +1,7 @@
 // المتغيرات العامة
 let currentUser = null;
 let token = localStorage.getItem('token');
-const API_BASE = 'http://localhost:3000/api';
-
+const API_BASE = '/api';
 // تهيئة التطبيق
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
