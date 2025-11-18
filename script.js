@@ -43,9 +43,16 @@ function initializeApp() {
 // التحقق من التوكن
 async function verifyToken() {
     try {
-        const response = await fetch(`${API_BASE}/services`, {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('No token found');
+        }
+
+        // جلب بيانات المستخدم من الـ API
+        const response = await fetch('/api/services', {
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             }
         });
         
@@ -53,22 +60,29 @@ async function verifyToken() {
             throw new Error('Token invalid');
         }
         
+        // حاول جلب بيانات المستخدم من localStorage أولاً
         const userData = JSON.parse(localStorage.getItem('userData'));
-        currentUser = userData;
-        
-        // تحديث واجهة المستخدم بناءً على الدور - أضف من هنا
-        if (currentUser && currentUser.role === 'admin') {
-            const adminLink = document.getElementById('adminLink');
-            if (adminLink) adminLink.style.display = 'block';
-        } else {
-            // إخفاء رابط المشرف عن المستخدمين العاديين
-            const adminLink = document.getElementById('adminLink');
-            if (adminLink) adminLink.style.display = 'none';
+        if (userData) {
+            currentUser = userData;
+            console.log('👤 المستخدم الحالي:', currentUser);
+            
+            // إذا كان مشرفاً، ظهر رابط لوحة المشرف
+            if (currentUser.role === 'admin') {
+                const adminLink = document.getElementById('adminLink');
+                if (adminLink) {
+                    adminLink.style.display = 'block';
+                    console.log('✅ تم تفعيل رابط المشرف');
+                }
+            }
+            return true;
         }
-        // إلى هنا - نهاية الإضافة
+        
+        throw new Error('No user data');
         
     } catch (error) {
+        console.error('❌ خطأ في التحقق من التوكن:', error);
         logout();
+        return false;
     }
 }
 
