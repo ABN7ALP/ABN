@@ -1,17 +1,15 @@
 // 1. استدعاء الحزم المطلوبة
 require('dotenv').config();
 const express = require('express');
-const path = require('path');
+const path = require('path'); // <--- تأكد من وجود هذا السطر
 const connectDB = require('./src/config/db');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
-// =================== التعديل الرئيسي هنا ===================
 // استدعاء النماذج في البداية لضمان تسجيلها في Mongoose
 require('./src/models/User');
 require('./src/models/Service');
 require('./src/models/Order');
-// ==========================================================
 
 // استدعاء ملفات المسارات
 const authRoutes = require('./src/routes/authRoutes');
@@ -39,9 +37,16 @@ app.use(
   })
 );
 
+// =================== الأسطر المهمة هنا ===================
+// تحديد مسار الملفات الثابتة (CSS, JS, Images)
+// المسار الصحيح هو مجلد 'public' مباشرة في جذر المشروع
 app.use(express.static(path.join(__dirname, 'public')));
+
+// تحديد محرك القوالب ومسار مجلد القوالب (views)
+// المسار الصحيح هو 'src/views'
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src/views'));
+// ==========================================================
 
 // 4. المسارات (Routes)
 app.use('/auth', authRoutes);
