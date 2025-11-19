@@ -65,7 +65,7 @@
                     <!-- Platform Selection -->
                     <div class="mb-3">
                         <label for="platform" class="form-label">اختر المنصة:</label>
-                        <select class="form-select" id="platform">
+                        <select class="form-select" id="platform-select">
                             <option selected disabled>-- اختر منصة --</option>
                             <% platforms.forEach(platform => { %>
                                 <option value="<%= platform %>"><%= platform %></option>
@@ -76,22 +76,21 @@
                     <!-- Service Selection -->
                     <div class="mb-3">
                         <label for="service" class="form-label">اختر الخدمة:</label>
-                        <select class="form-select" id="service" disabled>
+                        <select class="form-select" id="service-select" disabled>
                             <option selected disabled>-- اختر خدمة --</option>
-                            <!-- سيتم ملء الخدمات هنا باستخدام JavaScript -->
                         </select>
                     </div>
                     
                     <!-- Link Input -->
                     <div class="mb-3">
                         <label for="link" class="form-label">الرابط:</label>
-                        <input type="url" class="form-control" id="link" placeholder="https://www.instagram.com/p/...">
+                        <input type="url" class="form-control" id="link-input" placeholder="https://www.instagram.com/p/...">
                     </div>
 
                     <!-- Quantity Input -->
                     <div class="mb-3">
                         <label for="quantity" class="form-label">الكمية:</label>
-                        <input type="number" class="form-control" id="quantity" placeholder="1000">
+                        <input type="number" class="form-control" id="quantity-input" placeholder="1000" disabled>
                         <div class="form-text">الحد الأدنى: <span id="min-qty">0</span> / الحد الأقصى: <span id="max-qty">0</span></div>
                     </div>
 
@@ -112,7 +111,92 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
-        // سنضع هنا كود الجافا سكريبت لجعل الصفحة تفاعلية
+        // =================================================================
+        // الكود التفاعلي للوحة التحكم
+        // =================================================================
+
+        // 1. تخزين الخدمات القادمة من الخادم في متغير
+        // نستخدم EJS لتحويل مصفوفة الخدمات إلى JSON يمكن للجافا سكريبت قراءته
+        const allServices = <%- JSON.stringify(services) %>;
+
+        // 2. الحصول على عناصر الصفحة التي سنتعامل معها
+        const platformSelect = document.getElementById('platform-select');
+        const serviceSelect = document.getElementById('service-select');
+        const quantityInput = document.getElementById('quantity-input');
+        const linkInput = document.getElementById('link-input');
+        const minQtySpan = document.getElementById('min-qty');
+        const maxQtySpan = document.getElementById('max-qty');
+        const totalCostSpan = document.getElementById('total-cost');
+
+        // 3. دالة لتحديث قائمة الخدمات بناءً على المنصة المختارة
+        function updateServiceList() {
+            const selectedPlatform = platformSelect.value;
+            
+            // فلترة الخدمات لعرض خدمات المنصة المختارة فقط
+            const filteredServices = allServices.filter(service => service.platform === selectedPlatform);
+
+            // تفريغ قائمة الخدمات الحالية
+            serviceSelect.innerHTML = '<option selected disabled>-- اختر خدمة --</option>';
+            
+            // ملء القائمة بالخدمات الجديدة
+            filteredServices.forEach(service => {
+                const option = document.createElement('option');
+                option.value = service._id;
+                // عرض اسم الخدمة وسعرها لكل 1000
+                option.textContent = `${service.name} - ($${service.pricePer1000} لكل 1000)`;
+                serviceSelect.appendChild(option);
+            });
+
+            // تفعيل قائمة الخدمات
+            serviceSelect.disabled = false;
+            resetOrderDetails();
+        }
+
+        // 4. دالة لتحديث تفاصيل الطلب (الحد الأدنى/الأقصى)
+        function updateOrderDetails() {
+            const selectedServiceId = serviceSelect.value;
+            const selectedService = allServices.find(service => service._id === selectedServiceId);
+
+            if (selectedService) {
+                minQtySpan.textContent = selectedService.minOrder;
+                maxQtySpan.textContent = selectedService.maxOrder;
+                quantityInput.placeholder = `الكمية (بين ${selectedService.minOrder} و ${selectedService.maxOrder})`;
+                quantityInput.min = selectedService.minOrder;
+                quantityInput.max = selectedService.maxOrder;
+                quantityInput.disabled = false;
+            }
+            calculateCost();
+        }
+
+        // 5. دالة لحساب التكلفة
+        function calculateCost() {
+            const selectedServiceId = serviceSelect.value;
+            const selectedService = allServices.find(service => service._id === selectedServiceId);
+            const quantity = parseInt(quantityInput.value) || 0;
+
+            if (selectedService && quantity > 0) {
+                const cost = (quantity / 1000) * selectedService.pricePer1000;
+                totalCostSpan.textContent = `$${cost.toFixed(2)}`; // عرض التكلفة مع فاصلتين عشريتين
+            } else {
+                totalCostSpan.textContent = '$0.00';
+            }
+        }
+        
+        // 6. دالة لإعادة تعيين الحقول
+        function resetOrderDetails() {
+            quantityInput.value = '';
+            quantityInput.disabled = true;
+            quantityInput.placeholder = '1000';
+            minQtySpan.textContent = '0';
+            maxQtySpan.textContent = '0';
+            calculateCost();
+        }
+
+        // 7. ربط الأحداث بالدوال
+        platformSelect.addEventListener('change', updateServiceList);
+        serviceSelect.addEventListener('change', updateOrderDetails);
+        quantityInput.addEventListener('input', calculateCost);
+
     </script>
 </body>
 </html>
