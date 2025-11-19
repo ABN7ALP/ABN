@@ -6,10 +6,17 @@ const connectDB = require('./src/config/db');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
+// =================== التعديل الرئيسي هنا ===================
+// استدعاء النماذج في البداية لضمان تسجيلها في Mongoose
+require('./src/models/User');
+require('./src/models/Service');
+require('./src/models/Order');
+// ==========================================================
+
 // استدعاء ملفات المسارات
 const authRoutes = require('./src/routes/authRoutes');
 const dashboardRoutes = require('./src/routes/dashboardRoutes');
-const orderRoutes = require('./src/routes/orderRoutes'); // <-- إضافة جديدة
+const orderRoutes = require('./src/routes/orderRoutes');
 
 // الاتصال بقاعدة البيانات
 connectDB();
@@ -39,7 +46,7 @@ app.set('views', path.join(__dirname, 'src/views'));
 // 4. المسارات (Routes)
 app.use('/auth', authRoutes);
 app.use('/dashboard', dashboardRoutes);
-app.use('/orders', orderRoutes); // <-- إضافة جديدة
+app.use('/orders', orderRoutes);
 
 // مسار الصفحة الرئيسية (/)
 app.get('/', (req, res) => {
