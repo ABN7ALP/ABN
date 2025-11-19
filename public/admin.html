@@ -1,1 +1,229 @@
 
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة الأدمن - نظام SMM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- الشريط الجانبي -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse bg-dark">
+                <div class="position-sticky pt-3">
+                    <div class="sidebar-header text-center p-3">
+                        <h5 class="text-white">
+                            <i class="fas fa-cogs"></i> لوحة الأدمن
+                        </h5>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">
+                                <i class="fas fa-tachometer-alt"></i>
+                                الإحصائيات
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#users">
+                                <i class="fas fa-users"></i>
+                                المستخدمين
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#services">
+                                <i class="fas fa-shopping-cart"></i>
+                                إدارة الخدمات
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#orders">
+                                <i class="fas fa-list"></i>
+                                إدارة الطلبات
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#transactions">
+                                <i class="fas fa-exchange-alt"></i>
+                                المعاملات
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- المحتوى الرئيسي -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- شريط التنقل العلوي -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                    <div class="container-fluid">
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTop">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarTop">
+                            <ul class="navbar-nav me-auto">
+                                <li class="nav-item">
+                                    <span class="nav-link">لوحة تحكم الأدمن</span>
+                                </li>
+                            </ul>
+                            <div class="navbar-nav">
+                                <a class="nav-link" href="/">
+                                    <i class="fas fa-home"></i> الرئيسية
+                                </a>
+                                <a class="nav-link" href="/dashboard">
+                                    <i class="fas fa-tachometer-alt"></i> لوحة التحكم
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- محتوى لوحة الأدمن -->
+                <div class="container-fluid py-4">
+                    <!-- إحصائيات سريعة -->
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="dashboard-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h5>إجمالي المستخدمين</h5>
+                                <h3 class="text-primary" id="totalUsers">0</h3>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="dashboard-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <h5>إجمالي الطلبات</h5>
+                                <h3 class="text-info" id="totalOrders">0</h3>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="dashboard-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
+                                <h5>إجمالي الإيرادات</h5>
+                                <h3 class="text-success" id="totalRevenue">$0</h3>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="dashboard-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <h5>النمو</h5>
+                                <h3 class="text-warning">+12%</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- الطلبات الحديثة -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="dashboard-card">
+                                <h4 class="mb-4">
+                                    <i class="fas fa-clock"></i> الطلبات الحديثة
+                                </h4>
+                                <div id="recentOrders" class="list-group">
+                                    <!-- سيتم تحميل الطلبات هنا -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- إضافة خدمة جديدة -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="dashboard-card">
+                                <h4 class="mb-4">
+                                    <i class="fas fa-plus-circle"></i> إضافة خدمة جديدة
+                                </h4>
+                                <form id="addServiceForm">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="serviceName" class="form-label">اسم الخدمة</label>
+                                            <input type="text" class="form-control" id="serviceName" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="serviceCategory" class="form-label">الفئة</label>
+                                            <select class="form-select" id="serviceCategory" required>
+                                                <option value="instagram">انستجرام</option>
+                                                <option value="youtube">يوتيوب</option>
+                                                <option value="tiktok">تيك توك</option>
+                                                <option value="twitter">تويتر</option>
+                                                <option value="facebook">فيسبوك</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="servicePrice" class="form-label">السعر (لكل 1000)</label>
+                                            <input type="number" step="0.001" class="form-control" id="servicePrice" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="serviceApiId" class="form-label">API ID</label>
+                                            <input type="text" class="form-control" id="serviceApiId" required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="serviceMinOrder" class="form-label">الحد الأدنى للطلب</label>
+                                            <input type="number" class="form-control" id="serviceMinOrder" value="100" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="serviceMaxOrder" class="form-label">الحد الأقصى للطلب</label>
+                                            <input type="number" class="form-control" id="serviceMaxOrder" value="10000" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="serviceDescription" class="form-label">الوصف</label>
+                                        <textarea class="form-control" id="serviceDescription" rows="3" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-plus"></i> إضافة الخدمة
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // إنشاء مدير لوحة الأدمن
+        const adminManager = new AdminManager();
+
+        // إضافة خدمة جديدة
+        document.getElementById('addServiceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const serviceData = {
+                name: document.getElementById('serviceName').value,
+                description: document.getElementById('serviceDescription').value,
+                category: document.getElementById('serviceCategory').value,
+                price: parseFloat(document.getElementById('servicePrice').value),
+                minOrder: parseInt(document.getElementById('serviceMinOrder').value),
+                maxOrder: parseInt(document.getElementById('serviceMaxOrder').value),
+                apiId: document.getElementById('serviceApiId').value
+            };
+
+            const success = await adminManager.addService(serviceData);
+            
+            if (success) {
+                this.reset();
+                adminManager.loadStats(); // تحديث الإحصائيات
+            }
+        });
+    </script>
+</body>
+</html> 
