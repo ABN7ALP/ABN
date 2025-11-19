@@ -64,8 +64,12 @@
                                             <td><%= order.user ? order.user.name : 'مستخدم محذوف' %></td>
                                             <td><%= order.service ? order.service.name : 'خدمة محذوفة' %></td>
                                             <td style="max-width: 150px; overflow-wrap: break-word;"><a href="<%= order.link %>" target="_blank">الرابط</a></td>
-                                            <td><%= order.quantity.toLocaleString() %></td>
-                                            <td>$<%= order.charge.toFixed(2) %></td>
+                                            <td><%= (order.quantity || 0).toLocaleString() %></td>
+                                            
+                                            <!-- =================== التعديل هنا =================== -->
+                                            <td>$<%= (order.charge || 0).toFixed(2) %></td>
+                                            <!-- =================================================== -->
+
                                             <td><%= new Date(order.createdAt).toLocaleDateString('ar-EG') %></td>
                                             <td>
                                                 <span class="badge <%= getStatusBadge(order.status) %>">
