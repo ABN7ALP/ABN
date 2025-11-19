@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
 const Order = mongoose.model('Order');
+const FundRequest = mongoose.model('FundRequest'); // تم إضافة هذا السطر
 
 // @desc    عرض صفحة إدارة المستخدمين
 // @route   GET /admin/users
@@ -66,9 +67,7 @@ exports.updateOrderStatus = async (req, res) => {
 
 // @desc    تحديث رصيد المستخدم
 // @route   POST /admin/users/update-balance/:id
-// =================== الإصلاح الحاسم هنا ===================
-exports.updateUserBalance = async (req, res) => { // <--- تم إضافة 'exports.'
-// ==========================================================
+exports.updateUserBalance = async (req, res) => {
     try {
         const { amount } = req.body;
         const userId = req.params.id;
@@ -92,6 +91,56 @@ exports.updateUserBalance = async (req, res) => { // <--- تم إضافة 'expor
 
     } catch (error) {
         console.error('Error updating user balance:', error);
+        res.status(500).send('Server Error');
+    }
+};
+
+
+// =================================================================
+// الدوال الجديدة التي تمت إضافتها الآن
+// =================================================================
+
+// @desc    عرض صفحة طلبات شحن الرصيد
+// @route   GET /admin/funds
+exports.getFundsPage = async (req, res) => {
+    try {
+        const requests = await FundRequest.find()
+            .populate('user', 'name')
+            .sort({ createdAt: -1 });
+        res.render('admin/funds', { requests });
+    } catch (error) {
+        console.error('Error fetching fund requests:', error);
+        res.status(500).send('Server Error');
+    }
+};
+
+// @desc    تحديث حالة طلب شحن الرصيد
+// @route   POST /admin/funds/update-status/:id
+exports.updateFundRequestStatus = async (req, res) => {
+    try {
+        const { status } = req.body; // 'Approved' or 'Rejected'
+        const requestId = req.params.id;
+
+        const request = await FundRequest.findById(requestId);
+        if (!request || request.status !== 'Pending') {
+            return res.status(400).send('الطلب غير صالح أو تمت معالجته بالفعل');
+        }
+
+        // إذا تمت الموافقة، قم بإضافة الرصيد إلى المستخدم
+        if (status === 'Approved') {
+            await User.findByIdAndUpdate(request.user, {
+                $inc: { balance: request.amount }
+            });
+        }
+
+        // تحديث حالة الطلب نفسه
+        request.status = status;
+        await request.save();
+
+        res.redirect('/admin/funds');
+
+    } catch (error) {
+        console.error('Error updating fund request status:', error);
         res.status(500).send('Server Error');
     }
 };
