@@ -1,19 +1,34 @@
 const express = require('express');
 const router = express.Router();
-const { getUsersPage, getOrdersPage, updateOrderStatus, updateUserBalance } = require('../controllers/adminController'); // <-- إضافة updateUserBalance
+const { 
+    getUsersPage, 
+    getOrdersPage, 
+    updateOrderStatus, 
+    updateUserBalance 
+} = require('../controllers/adminController');
 const { isAdmin } = require('../middleware/adminMiddleware');
 
-router.use(isAdmin);
+// =================== التعديل الجذري هنا ===================
+// لا نستخدم router.use(isAdmin) هنا
 
-router.get('/', (req, res) => res.redirect('/admin/users'));
-router.get('/dashboard', (req, res) => res.redirect('/admin/users'));
+// المسار الرئيسي للوحة التحكم
+// نطبق الوسيط 'isAdmin' هنا مباشرة قبل دالة المسار
+router.get('/', isAdmin, (req, res) => {
+    res.redirect('/admin/users');
+});
+
+router.get('/dashboard', isAdmin, (req, res) => {
+    res.redirect('/admin/users');
+});
 
 // مسارات إدارة المستخدمين
-router.get('/users', getUsersPage);
-router.post('/users/update-balance/:id', updateUserBalance); // <-- مسار جديد لتحديث الرصيد
+// نطبق الوسيط 'isAdmin' على كل مسار بشكل منفصل
+router.get('/users', isAdmin, getUsersPage);
+router.post('/users/update-balance/:id', isAdmin, updateUserBalance);
 
 // مسارات إدارة الطلبات
-router.get('/orders', getOrdersPage);
-router.post('/orders/update-status/:id', updateOrderStatus);
+// نطبق الوسيط 'isAdmin' على كل مسار بشكل منفصل
+router.get('/orders', isAdmin, getOrdersPage);
+router.post('/orders/update-status/:id', isAdmin, updateOrderStatus);
 
 module.exports = router;
