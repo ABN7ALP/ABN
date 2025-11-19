@@ -1,21 +1,17 @@
 const Order = require('../models/Order');
 const User = require('../models/User');
+const Service = require('../models/Service'); // <-- قد يكون هذا السطر ناقصاً
 
 // @desc    عرض صفحة طلبات المستخدم
 // @route   GET /orders
 exports.getOrdersPage = async (req, res) => {
     try {
-        // جلب المستخدم الحالي لتمرير بياناته إلى الشريط العلوي
         const currentUser = await User.findById(req.session.user.id);
 
-        // جلب جميع طلبات المستخدم الحالي فقط
-        // .populate('service', 'name') لجلب اسم الخدمة من جدول الخدمات
-        // .sort({ createdAt: -1 }) لترتيب الطلبات من الأحدث إلى الأقدم
         const orders = await Order.find({ user: req.session.user.id })
-            .populate('service', 'name')
+            .populate('service', 'name') // هذا السطر هو الذي يسبب الخطأ إذا كانت النماذج غير معرفة بشكل صحيح
             .sort({ createdAt: -1 });
 
-        // دوال مساعدة لترجمة وتلوين حالة الطلب
         const translateStatus = (status) => {
             const map = {
                 'Pending': 'قيد الانتظار',
@@ -41,12 +37,12 @@ exports.getOrdersPage = async (req, res) => {
         res.render('orders', {
             user: currentUser,
             orders: orders,
-            translateStatus, // تمرير الدوال إلى ملف EJS
+            translateStatus,
             getStatusBadge,
         });
 
     } catch (error) {
         console.error('خطأ في جلب الطلبات:', error);
-        res.status(500).send('حدث خطأ في الخادم');
+        res.status(500).send('Internal Server Error'); // إرسال رسالة خطأ واضحة
     }
 };
