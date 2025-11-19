@@ -192,10 +192,95 @@
             calculateCost();
         }
 
-        // 7. ربط الأحداث بالدوال
-        platformSelect.addEventListener('change', updateServiceList);
-        serviceSelect.addEventListener('change', updateOrderDetails);
-        quantityInput.addEventListener('input', calculateCost);
+        // ... (الكود السابق في ملف dashboard.ejs) ...
+
+// 7. ربط الأحداث بالدوال
+platformSelect.addEventListener('change', updateServiceList);
+serviceSelect.addEventListener('change', updateOrderDetails);
+quantityInput.addEventListener('input', calculateCost);
+
+// =================================================================
+// 8. معالجة إرسال النموذج (Form Submission)
+// =================================================================
+const orderForm = document.querySelector('form');
+
+orderForm.addEventListener('submit', async (e) => {
+    e.preventDefault(); // منع الإرسال التقليدي للنموذج
+
+    // جمع البيانات من النموذج
+    const serviceId = serviceSelect.value;
+    const link = linkInput.value;
+    const quantity = quantityInput.value;
+
+    // عرض نافذة تأكيد باستخدام SweetAlert2
+    Swal.fire({
+        title: 'هل أنت متأكد؟',
+        html: `سيتم خصم <strong id="swal-cost">${totalCostSpan.textContent}</strong> من رصيدك.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'نعم، قم بالتأكيد!',
+        cancelButtonText: 'إلغاء'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            // إظهار نافذة "جاري المعالجة"
+            Swal.fire({
+                title: 'جاري معالجة طلبك...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // إرسال البيانات إلى الخادم
+            try {
+                const response = await fetch('/dashboard/create-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ serviceId, link, quantity }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        title: 'نجاح!',
+                        text: data.message,
+                        icon: 'success',
+                        confirmButtonText: 'حسناً'
+                    });
+                    // تحديث الرصيد المعروض في الشريط العلوي
+                    document.querySelector('.btn-success').innerHTML = `<i class="fas fa-wallet me-1"></i> الرصيد: $${data.newBalance}`;
+                    // إعادة تعيين النموذج
+                    orderForm.reset();
+                    resetOrderDetails();
+                    serviceSelect.innerHTML = '<option selected disabled>-- اختر خدمة --</option>';
+                    serviceSelect.disabled = true;
+
+                } else {
+                    // عرض رسالة الخطأ من الخادم
+                    Swal.fire({
+                        title: 'خطأ!',
+                        text: data.message,
+                        icon: 'error',
+                        confirmButtonText: 'حسناً'
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    title: 'خطأ فادح!',
+                    text: 'لا يمكن الاتصال بالخادم. يرجى المحاولة مرة أخرى.',
+                    icon: 'error',
+                    confirmButtonText: 'حسناً'
+                });
+            }
+        }
+    });
+});
+
 
     </script>
 </body>
