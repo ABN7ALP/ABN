@@ -190,6 +190,19 @@ function initializeDashboard() {
     // إعداد الأحداث
     setupDashboardEvents();
 }
+// تحقق قبل الانتقال إلى لوحة المشرف
+function checkAdminBeforeNavigate() {
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    console.log('🔍 تحقق قبل الانتقال للمشرف:', userData);
+    
+    if (!userData || userData.role !== 'admin') {
+        alert('⚠️ يجب أن تكون مشرفاً للوصول إلى لوحة المشرف');
+        return false; // يمنع الانتقال
+    }
+    
+    console.log('✅ الانتقال مسموح للمشرف');
+    return true; // يسمح بالانتقال
+}
 
 // تحديث معلومات المستخدم
 function updateUserInfo() {
