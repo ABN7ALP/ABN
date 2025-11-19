@@ -2,30 +2,31 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
-const connectDB = require('./src/config/db'); // <-- إضافة جديدة
+const connectDB = require('./src/config/db');
+
+// استدعاء ملف المسارات الجديد
+const authRoutes = require('./src/routes/authRoutes'); // <-- إضافة جديدة
 
 // الاتصال بقاعدة البيانات
-connectDB(); // <-- إضافة جديدة
+connectDB();
 
 // 2. إعداد تطبيق Express
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 3. إعدادات الوسيط (Middleware)
-app.use(express.json()); // للسماح باستقبال بيانات JSON
-app.use(express.urlencoded({ extended: true })); // للسماح باستقبال بيانات من النماذج
-
-// تحديد مسار الملفات الثابتة (CSS, JS, Images)
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-
-// تحديد محرك القوالب (Template Engine)
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src/views'));
 
-// 4. المسارات (Routes) الأساسية
+// 4. المسارات (Routes)
+// استخدام مسارات المصادقة مع البادئة /auth
+app.use('/auth', authRoutes); // <-- إضافة جديدة
+
 // مسار الصفحة الرئيسية
 app.get('/', (req, res) => {
-  // سنقوم بعرض ملف index.ejs من مجلد src/views
   res.render('index', { pageTitle: 'الرئيسية' }); 
 });
 
