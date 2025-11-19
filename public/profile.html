@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الملف الشخصي - نظام SMM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- الشريط الجانبي -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse bg-dark">
+                <div class="position-sticky pt-3">
+                    <div class="sidebar-header text-center p-3">
+                        <h5 class="text-white">
+                            <i class="fas fa-rocket"></i> نظام SMM
+                        </h5>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard">
+                                <i class="fas fa-tachometer-alt"></i>
+                                لوحة التحكم
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/profile">
+                                <i class="fas fa-user"></i>
+                                الملف الشخصي
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#security">
+                                <i class="fas fa-shield-alt"></i>
+                                الأمان
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- المحتوى الرئيسي -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- شريط التنقل العلوي -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                    <div class="container-fluid">
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTop">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarTop">
+                            <ul class="navbar-nav me-auto">
+                                <li class="nav-item">
+                                    <span class="nav-link">الملف الشخصي</span>
+                                </li>
+                            </ul>
+                            <div class="navbar-nav">
+                                <a class="nav-link" href="/">
+                                    <i class="fas fa-home"></i> الرئيسية
+                                </a>
+                                <a class="nav-link" href="/dashboard">
+                                    <i class="fas fa-tachometer-alt"></i> لوحة التحكم
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- محتوى الملف الشخصي -->
+                <div class="container-fluid py-4">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <!-- معلومات الملف الشخصي -->
+                            <div class="dashboard-card mb-4">
+                                <h4 class="mb-4">
+                                    <i class="fas fa-user-circle"></i> المعلومات الشخصية
+                                </h4>
+                                <form id="profileForm">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="profileUsername" class="form-label">اسم المستخدم</label>
+                                            <input type="text" class="form-control" id="profileUsername" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="profileEmail" class="form-label">البريد الإلكتروني</label>
+                                            <input type="email" class="form-control" id="profileEmail" required>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> حفظ التغييرات
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- تغيير كلمة المرور -->
+                            <div class="dashboard-card">
+                                <h4 class="mb-4">
+                                    <i class="fas fa-lock"></i> تغيير كلمة المرور
+                                </h4>
+                                <form id="passwordForm">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="currentPassword" class="form-label">كلمة المرور الحالية</label>
+                                            <input type="password" class="form-control" id="currentPassword" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="newPassword" class="form-label">كلمة المرور الجديدة</label>
+                                            <input type="password" class="form-control" id="newPassword" required minlength="6">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="confirmNewPassword" class="form-label">تأكيد كلمة المرور الجديدة</label>
+                                            <input type="password" class="form-control" id="confirmNewPassword" required>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-key"></i> تغيير كلمة المرور
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <!-- بطاقة المستخدم -->
+                            <div class="dashboard-card text-center mb-4">
+                                <div class="mb-3">
+                                    <i class="fas fa-user-circle fa-5x text-primary"></i>
+                                </div>
+                                <h4 id="profileDisplayName">اسم المستخدم</h4>
+                                <p class="text-muted" id="profileDisplayEmail">email@example.com</p>
+                                <div class="mt-3">
+                                    <p><strong>رقم العضو:</strong> <span id="profileUserId">-</span></p>
+                                    <p><strong>تاريخ الانضمام:</strong> <span id="profileJoinDate">-</span></p>
+                                    <p><strong>الدور:</strong> <span class="badge bg-primary" id="profileRole">مستخدم</span></p>
+                                </div>
+                            </div>
+
+                            <!-- إحصائيات سريعة -->
+                            <div class="dashboard-card">
+                                <h5 class="mb-3">إحصائيات سريعة</h5>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>إجمالي الطلبات:</span>
+                                    <strong id="profileTotalOrders">0</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>الرصيد الحالي:</span>
+                                    <strong>$<span id="profileBalance">0.00</span></strong>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>آخر نشاط:</span>
+                                    <strong id="profileLastActivity">-</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // تحميل بيانات الملف الشخصي
+        async function loadProfile() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const user = await response.json();
+
+                // تعبئة النماذج
+                document.getElementById('profileUsername').value = user.username;
+                document.getElementById('profileEmail').value = user.email;
+                document.getElementById('profileDisplayName').textContent = user.username;
+                document.getElementById('profileDisplayEmail').textContent = user.email;
+                document.getElementById('profileUserId').textContent = user._id;
+                document.getElementById('profileJoinDate').textContent = new Date(user.createdAt).toLocaleDateString('ar-EG');
+                document.getElementById('profileRole').textContent = user.role === 'admin' ? 'أدمن' : 'مستخدم';
+                document.getElementById('profileBalance').textContent = user.balance.toFixed(2);
+
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        // تحديث الملف الشخصي
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('profileUsername').value;
+            const email = document.getElementById('profileEmail').value;
+            const token = localStorage.getItem('token');
+
+            try {
+                const response = await fetch('/api/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ username, email })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('تم تحديث الملف الشخصي بنجاح');
+                    // تحديث بيانات المستخدم في localStorage
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    user.username = username;
+                    user.email = email;
+                    localStorage.setItem('user', JSON.stringify(user));
+                    smmSystem.user = user;
+                    smmSystem.updateAuthUI();
+                    loadProfile();
+                } else {
+                    alert(result.error || 'حدث خطأ أثناء التحديث');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                alert('حدث خطأ في الاتصال');
+            }
+        });
+
+        // تحميل البيانات عند فتح الصفحة
+        loadProfile();
+    </script>
+</body>
+</html>
