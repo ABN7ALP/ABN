@@ -297,47 +297,43 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
-    <script>
-        // تحقق إضافي عند دخول لوحة المشرف
-async function checkAdminAccess() {
-    try {
-        console.log('🔐 التحقق من صلاحيات المشرف...');
-        const token = localStorage.getItem('token');
-        const userData = JSON.parse(localStorage.getItem('userData'));
-        
-        console.log('📝 التوكن:', token ? 'موجود' : 'مفقود');
-        console.log('👤 بيانات المستخدم:', userData);
-        
-        if (!userData || userData.role !== 'admin') {
-            console.log('❌ المستخدم ليس مشرفاً - إعادة التوجيه');
-            window.location.href = 'dashboard.html';
-            return;
-        }
-        
-        // تحقق إضافي من السيرفر
-        const response = await fetch('/api/admin/orders', {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (!response.ok) {
-            console.log('❌ رفض الوصول من السيرفر');
-            window.location.href = 'dashboard.html';
-            return;
-        }
-        
-        console.log('✅ تم التحقق من صلاحيات المشرف بنجاح');
-        
-    } catch (error) {
-        console.error('❌ خطأ في التحقق:', error);
-        window.location.href = 'dashboard.html';
+<script>
+// تحقق مخصص للوصول إلى لوحة المشرف
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔐 تحقق من صلاحيات المشرف...');
+    
+    const token = localStorage.getItem('token');
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    
+    console.log('📝 التوكن:', token);
+    console.log('👤 بيانات المستخدم:', userData);
+    
+    if (!token || !userData) {
+        console.log('❌ لا يوجد توكن أو بيانات مستخدم - إعادة التوجيه');
+        window.location.href = 'login.html';
+        return;
     }
-}
+    
+    if (userData.role !== 'admin') {
+        console.log('❌ المستخدم ليس مشرفاً - إعادة التوجيه للوحة التحكم');
+        alert('⚠️ يجب أن تكون مشرفاً للوصول إلى هذه الصفحة');
+        window.location.href = 'dashboard.html';
+        return;
+    }
+    
+    console.log('✅ تم التحقق من صلاحيات المشرف بنجاح');
+    
+    // تهيئة لوحة المشرف
+    if (typeof initializeAdmin === 'function') {
+        initializeAdmin();
+    }
+});
 
-// استدعاء الدالة عند تحميل الصفحة
-checkAdminAccess();
-    </script>
+// منع الرجوع التلقائي
+function initializeAdmin() {
+    console.log('🚀 تهيئة لوحة المشرف...');
+    // كود تهيئة المشرف هنا
+}
+</script>
 </body>
 </html>
