@@ -1,12 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const { getAddFundsPage } = require('../controllers/fundsController');
+// =================== الإصلاح هنا ===================
+// استيراد كل الدوال المصدرة من وحدة التحكم
+const fundsController = require('../controllers/fundsController'); 
+// =================================================
+
 const { protect } = require('../middleware/authMiddleware');
 
-// حماية المسار
+// حماية جميع مسارات شحن الرصيد (يجب أن يكون المستخدم مسجلاً دخوله)
 router.use(protect);
 
-// مسار عرض صفحة شحن الرصيد
-router.get('/', getAddFundsPage);
+// =================== والإصلاح هنا أيضاً ===================
+// استخدام الدوال من الكائن الذي تم استيراده
+router.get('/', fundsController.getFundsPage);
+router.post('/request', fundsController.createFundRequest);
+// ========================================================
 
 module.exports = router;
