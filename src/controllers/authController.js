@@ -1,10 +1,6 @@
-const mongoose = require('mongoose'); // <-- استدعاء mongoose
-const User = mongoose.model('User');   // <-- استخدام mongoose.model
+const mongoose = require('mongoose');
+const User = mongoose.model('User');
 const bcrypt = require('bcryptjs');
-
-// ... باقي دوال الـ controller كما هي بدون تغيير ...
-// (getRegisterPage, registerUser, getLoginPage, loginUser, logoutUser)
-// فقط تأكد من أن استدعاء User و bcrypt في الأعلى كما هو موضح هنا.
 
 // @desc    عرض صفحة التسجيل
 // @route   GET /auth/register
@@ -44,18 +40,36 @@ exports.getLoginPage = (req, res) => {
 exports.loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).send('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+
+        // =================== الإصلاح الحاسم هنا ===================
+        // أضفنا .select('+password') لطلب حقل كلمة المرور بشكل صريح
+        const user = await User.findOne({ email }).select('+password');
+        // ==========================================================
+
+        // إذا لم يتم العثور على المستخدم، أو إذا لم يتم إرجاع كلمة مرور لسبب ما
+        if (!user || !user.password) {
+            return res.status(401).send('البريد الإلكتروني أو كلمة المرور غير صحيحة');
         }
+
+        // الآن user.password مضمونة أنها موجودة
         const isMatch = await bcrypt.compare(password, user.password);
+
         if (!isMatch) {
-            return res.status(400).send('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+            return res.status(401).send('البريد الإلكتروني أو كلمة المرور غير صحيحة');
         }
+
+        // إنشاء الجلسة
         req.session.user = { id: user._id, name: user.name, role: user.role };
-        res.redirect('/dashboard');
+        
+        // توجيه المستخدم بناءً على دوره
+        if (user.role === 'admin') {
+            res.redirect('/admin');
+        } else {
+            res.redirect('/dashboard');
+        }
+
     } catch (error) {
-        console.error(error);
+        console.error('خطأ في تسجيل الدخول:', error);
         res.status(500).send('حدث خطأ في الخادم');
     }
 };
