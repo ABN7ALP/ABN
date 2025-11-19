@@ -2,15 +2,73 @@ const mongoose = require('mongoose');
 const User = mongoose.model('User');
 const Order = mongoose.model('Order');
 
-// ... (دالة getUsersPage و getOrdersPage و updateOrderStatus بدون تغيير) ...
-exports.getUsersPage = async (req, res) => { /*...*/ };
-exports.getOrdersPage = async (req, res) => { /*...*/ };
-exports.updateOrderStatus = async (req, res) => { /*...*/ };
+// @desc    عرض صفحة إدارة المستخدمين
+// @route   GET /admin/users
+exports.getUsersPage = async (req, res) => {
+    try {
+        const users = await User.find().sort({ createdAt: -1 });
+        res.render('admin/users', { users });
+    } catch (error) {
+        console.error('Error in getUsersPage:', error);
+        res.status(500).send('Server Error');
+    }
+};
 
+// @desc    عرض صفحة إدارة الطلبات
+// @route   GET /admin/orders
+exports.getOrdersPage = async (req, res) => {
+    try {
+        const orders = await Order.find()
+            .populate('user', 'name')
+            .populate('service', 'name')
+            .sort({ createdAt: -1 });
+
+        const translateStatus = (status) => {
+            const map = { 'Pending': 'قيد الانتظار', 'In progress': 'قيد التنفيذ', 'Completed': 'مكتمل', 'Canceled': 'ملغي', 'Partial': 'جزئي' };
+            return map[status] || status;
+        };
+        const getStatusBadge = (status) => {
+            const map = { 'Pending': 'bg-warning text-dark', 'In progress': 'bg-info text-dark', 'Completed': 'bg-success', 'Canceled': 'bg-danger', 'Partial': 'bg-secondary' };
+            return map[status] || 'bg-light text-dark';
+        };
+
+        res.render('admin/orders', { 
+            orders,
+            translateStatus,
+            getStatusBadge
+        });
+    } catch (error) {
+        console.error('Error fetching orders for admin:', error);
+        res.status(500).send('Server Error');
+    }
+};
+
+// @desc    تحديث حالة الطلب
+// @route   POST /admin/orders/update-status/:id
+exports.updateOrderStatus = async (req, res) => {
+    try {
+        const { status } = req.body;
+        const orderId = req.params.id;
+
+        const allowedStatus = ['Pending', 'In progress', 'Completed', 'Canceled', 'Partial'];
+        if (!allowedStatus.includes(status)) {
+            return res.status(400).send('حالة غير صالحة');
+        }
+
+        await Order.findByIdAndUpdate(orderId, { status: status });
+        res.redirect('/admin/orders');
+
+    } catch (error) {
+        console.error('Error updating order status:', error);
+        res.status(500).send('Server Error');
+    }
+};
 
 // @desc    تحديث رصيد المستخدم
 // @route   POST /admin/users/update-balance/:id
-exports.updateUserBalance = async (req, res) => { // <-- دالة جديدة
+// =================== الإصلاح الحاسم هنا ===================
+exports.updateUserBalance = async (req, res) => { // <--- تم إضافة 'exports.'
+// ==========================================================
     try {
         const { amount } = req.body;
         const userId = req.params.id;
@@ -20,8 +78,6 @@ exports.updateUserBalance = async (req, res) => { // <-- دالة جديدة
             return res.status(400).send('المبلغ غير صالح');
         }
 
-        // استخدام $inc لإضافة القيمة إلى الرصيد الحالي بشكل آمن
-        // new: true لإرجاع المستند المحدث
         const updatedUser = await User.findByIdAndUpdate(
             userId,
             { $inc: { balance: amountToAdd } },
@@ -32,7 +88,6 @@ exports.updateUserBalance = async (req, res) => { // <-- دالة جديدة
             return res.status(404).send('المستخدم غير موجود');
         }
 
-        // إعادة التوجيه إلى صفحة المستخدمين بعد التحديث
         res.redirect('/admin/users');
 
     } catch (error) {
