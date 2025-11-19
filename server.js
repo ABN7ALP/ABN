@@ -377,52 +377,6 @@ const requireAdmin = (req, res, next) => {
     next();
 };
 
-// استيراد الـ Middlewares
-const {
-    authenticateToken,
-    requireActiveUser,
-    requireAdmin,
-    checkOrderLimits,
-    checkBalance,
-    validateLink,
-    loginLimiter,
-    orderLimiter
-} = require('./middleware/auth');
-
-// أمثلة على استخدام الـ Middlewares في Routes:
-
-// تسجيل الدخول مع Rate Limiting
-app.post('/api/login', loginLimiter, async (req, res) => {
-    // كود تسجيل الدخول
-});
-
-// إنشاء طلب مع جميع التحققات
-app.post('/api/orders', 
-    authenticateToken, 
-    requireActiveUser,
-    validateLink,
-    checkOrderLimits,
-    checkBalance,
-    orderLimiter,
-    async (req, res) => {
-    // كود إنشاء الطلب
-});
-
-// Routes للأدمن فقط
-app.get('/api/admin/stats', 
-    authenticateToken, 
-    requireAdmin,
-    async (req, res) => {
-    // كود الإحصائيات
-});
-
-// Routes تحتاج ملكية البيانات
-app.get('/api/users/:userId/orders',
-    authenticateToken,
-    requireOwnership,
-    async (req, res) => {
-    // كود طلبات المستخدم
-});
 
 // Routes
 
@@ -1036,8 +990,586 @@ app.get('/register', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
 
-// تشغيل الخادم
+// ... الكود الحالي لـ server.js يبقى كما هو ...
+
+// =============================================
+// 📍 إضافة الـ Middlewares هنا - قبل تشغيل الخادم
+// =============================================
+
+// استيراد الـ Middlewares
+const {
+    authenticateToken,
+    requireActiveUser,
+    requireAdmin,
+    checkOrderLimits,
+    checkBalance,
+    validateLink,
+    loginLimiter,
+    orderLimiter,
+    requireOwnership,
+    checkServiceStatus,
+    checkDepositLimits,
+    validateFileUpload,
+    sanitizeInput
+} = require('./middleware/auth');
+
+// =============================================
+// 🔒 تحديث Routes الحالية بإضافة الـ Middlewares
+// =============================================
+
+// 🔐 تحديث route تسجيل الدخول
+app.post('/api/login', loginLimiter, sanitizeInput, async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ error: 'البريد الإلكتروني وكلمة المرور مطلوبان' });
+        }
+
+        // البحث عن المستخدم
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
+        }
+
+        // التحقق من حالة الحساب
+        if (user.status !== 'active') {
+            return res.status(403).json({ error: 'الحساب غير نشط' });
+        }
+
+        // التحقق من كلمة المرور
+        const validPassword = await bcrypt.compare(password, user.password);
+        if (!validPassword) {
+            await user.incrementLoginAttempts();
+            return res.status(400).json({ error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
+        }
+
+        // إعادة تعيين محاولات الدخول
+        await user.updateOne({
+            $set: { 
+                loginAttempts: 0,
+                lastLogin: new Date()
+            },
+            $unset: { lockUntil: 1 }
+        });
+
+        // إنشاء token
+        const token = jwt.sign(
+            { 
+                userId: user._id, 
+                username: user.username, 
+                role: user.role 
+            },
+            process.env.JWT_SECRET || 'smm_pro_secret_key',
+            { expiresIn: '7d' }
+        );
+
+        // تسجيل السجل
+        await Log.create({
+            action: 'USER_LOGIN',
+            userId: user._id,
+            userIp: req.ip,
+            userAgent: req.get('User-Agent'),
+            severity: 'low'
+        });
+
+        res.json({
+            message: 'تم تسجيل الدخول بنجاح',
+            token,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                avatar: user.avatar,
+                balance: user.balance,
+                role: user.role
+            }
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ error: 'خطأ في السيرفر' });
+    }
+});
+
+// 🔐 تحديث route إنشاء الطلبات
+app.post('/api/orders', 
+    authenticateToken, 
+    requireActiveUser,
+    sanitizeInput,
+    validateLink,
+    checkServiceStatus,
+    checkOrderLimits,
+    checkBalance,
+    orderLimiter,
+    async (req, res) => {
+    try {
+        const { serviceId, link, quantity } = req.body;
+
+        // الحصول على الخدمة (تم التحقق مسبقاً في checkServiceStatus)
+        const service = req.service;
+
+        // الحصول على المستخدم (تم التحقق مسبقاً في requireActiveUser)
+        const user = req.currentUser;
+
+        // حساب السعر
+        const totalPrice = (service.price * quantity) / 1000;
+
+        // خصم المبلغ من الرصيد
+        user.balance -= totalPrice;
+        await user.save();
+
+        // إنشاء الطلب
+        const order = new Order({
+            orderId: `ORD${Date.now()}${Math.random().toString(36).substr(2, 5)}`.toUpperCase(),
+            userId: user._id,
+            serviceId,
+            link,
+            quantity,
+            price: totalPrice
+        });
+
+        await order.save();
+
+        // تسجيل المعاملة
+        const transaction = new Transaction({
+            transactionId: `TXN${Date.now()}${Math.random().toString(36).substr(2, 5)}`.toUpperCase(),
+            userId: user._id,
+            type: 'order',
+            amount: -totalPrice,
+            description: `طلب خدمة: ${service.name}`,
+            status: 'completed'
+        });
+
+        await transaction.save();
+
+        // إرسال إشعار
+        await Notification.create({
+            userId: user._id,
+            title: 'طلب جديد',
+            message: `تم إنشاء طلبك #${order.orderId} بنجاح`,
+            type: 'success',
+            relatedId: order._id,
+            relatedType: 'order'
+        });
+
+        // إرسال إلى الواتساب
+        await sendWhatsAppNotification(order, service, user);
+
+        // تسجيل السجل
+        await Log.create({
+            action: 'ORDER_CREATE',
+            userId: user._id,
+            userIp: req.ip,
+            details: { orderId: order.orderId, service: service.name, amount: totalPrice },
+            severity: 'medium'
+        });
+
+        res.status(201).json({ 
+            message: 'تم إنشاء الطلب بنجاح',
+            order: await order.populate('serviceId')
+        });
+    } catch (error) {
+        console.error('Order creation error:', error);
+        res.status(500).json({ error: 'خطأ في السيرفر' });
+    }
+});
+
+// 🔐 تحديث route طلبات الإيداع
+app.post('/api/deposit/request', 
+    authenticateToken, 
+    requireActiveUser,
+    sanitizeInput,
+    checkDepositLimits,
+    async (req, res) => {
+    try {
+        const { amount, method, proof } = req.body;
+
+        const transaction = new Transaction({
+            transactionId: `DEP${Date.now()}${Math.random().toString(36).substr(2, 5)}`.toUpperCase(),
+            userId: req.user.userId,
+            type: 'deposit',
+            amount: amount,
+            description: `طلب إيداع عبر ${getMethodName(method)}`,
+            method: method,
+            proof: proof,
+            status: 'pending'
+        });
+
+        await transaction.save();
+
+        // إرسال إشعار للأدمن
+        const admins = await User.find({ role: 'admin' });
+        for (const admin of admins) {
+            await Notification.create({
+                userId: admin._id,
+                title: 'طلب إيداع جديد',
+                message: `طلب إيداع جديد من ${req.currentUser.username} بمبلغ $${amount}`,
+                type: 'info',
+                relatedId: transaction._id,
+                relatedType: 'transaction'
+            });
+        }
+
+        // تسجيل السجل
+        await Log.create({
+            action: 'DEPOSIT_REQUEST',
+            userId: req.user.userId,
+            userIp: req.ip,
+            details: { amount, method, transactionId: transaction.transactionId },
+            severity: 'medium'
+        });
+
+        res.json({ 
+            message: 'تم إرسال طلب الإيداع بنجاح، سيتم المراجعة قريباً',
+            transaction 
+        });
+    } catch (error) {
+        console.error('Deposit request error:', error);
+        res.status(500).json({ error: 'خطأ في السيرفر' });
+    }
+});
+
+// 🔐 تحديث routes الأدمن
+app.get('/api/admin/stats', 
+    authenticateToken, 
+    requireAdmin,
+    async (req, res) => {
+    try {
+        const [
+            totalUsers,
+            totalOrders,
+            pendingDeposits,
+            totalRevenue,
+            recentOrders
+        ] = await Promise.all([
+            User.countDocuments(),
+            Order.countDocuments(),
+            Transaction.countDocuments({ type: 'deposit', status: 'pending' }),
+            Transaction.aggregate([
+                { $match: { type: 'deposit', status: 'completed' } },
+                { $group: { _id: null, total: { $sum: '$amount' } } }
+            ]),
+            Order.find()
+                .populate('userId', 'username avatar')
+                .populate('serviceId', 'name platform')
+                .sort({ createdAt: -1 })
+                .limit(10)
+        ]);
+
+        res.json({
+            totalUsers,
+            totalOrders,
+            pendingDeposits,
+            totalRevenue: totalRevenue[0]?.total || 0,
+            recentOrders
+        });
+    } catch (error) {
+        console.error('Admin stats error:', error);
+        res.status(500).json({ error: 'خطأ في السيرفر' });
+    }
+});
+
+// 🔐 تحديث route إدارة المستخدمين
+app.get('/api/admin/users', 
+    authenticateToken, 
+    requireAdmin,
+    async (req, res) => {
+    try {
+        const { search, status, page = 1, limit = 10 } = req.query;
+        let filter = {};
+
+        if (search) {
+            filter.$or = [
+                { username: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        if (status) filter.status = status;
+
+        const users = await User.find(filter)
+            .select('-password')
+            .sort({ createdAt: -1 })
+            .limit(limit * 1)
+            .skip((page - 1) * limit);
+
+        const total = await User.countDocuments(filter);
+
+        res.json({
+            users,
+            totalPages: Math.ceil(total / limit),
+            currentPage: page,
+            total
+        });
+    } catch (error) {
+        console.error('Admin users error:', error);
+        res.status(500).json({ error: 'خطأ في السيرفر' });
+    }
+});
+
+// 🔐 تحديث route تحديث حالة المستخدم
+app.put('/api/admin/users/:id/status', 
+    authenticateToken, 
+    requireAdmin,
+    sanitizeInput,
+    async (req, res) => {
+    try {
+        const { status } = req.body;
+        const user = await User.findByIdAndUpdate(
+            req.params.id,
+            { status },
+            { new: true }
+        ).select('-password');
+
+        if (!user) {
+            return res.status(404).json({ error: 'المستخدم غير موجود' });
+        }
+
+        // تسجيل السجل
+        await Log.create({
+            action: 'USER_STATUS_UPDATE',
+            userId: req.user.userId,
+            details: { targetUserId: req.params.id, status },
+            severity: 'high'
+        });
+
+        res.json({ message: 'تم تحديث حالة المستخدم', user });
+    } catch (error) {
+        console.error('User status update error:', error);
+        res.status(500).json({ error: 'خطأ في السيرفر' });
+    }
+});
+
+// 🔐 تحديث route المعاملات
+app.get('/api/admin/transactions', 
+    authenticateToken, 
+    requireAdmin,
+    async (req, res) => {
+    try {
+        const { type, status, page = 1, limit = 10 } = req.query;
+        let filter = {};
+
+        if (type) filter.type = type;
+        if (status) filter.status = status;
+
+        const transactions = await Transaction.find(filter)
+            .populate('userId', 'username avatar')
+            .populate('verifiedBy', 'username')
+            .sort({ createdAt: -1 })
+            .limit(limit * 1)
+            .skip((page - 1) * limit);
+
+        const total = await Transaction.countDocuments(filter);
+
+        res.json({
+            transactions,
+            totalPages: Math.ceil(total / limit),
+            currentPage: page,
+            total
+        });
+    } catch (error) {
+        console.error('Admin transactions error:', error);
+        res.status(500).json({ error: 'خطأ في السيرفر' });
+    }
+});
+
+// 🔐 تحديث route التحقق من المعاملات
+app.put('/api/admin/transactions/:id/verify', 
+    authenticateToken, 
+    requireAdmin,
+    sanitizeInput,
+    async (req, res) => {
+    try {
+        const { status, notes } = req.body;
+        const transaction = await Transaction.findByIdAndUpdate(
+            req.params.id,
+            { 
+                status,
+                adminNotes: notes,
+                verifiedBy: req.user.userId,
+                verifiedAt: new Date()
+            },
+            { new: true }
+        ).populate('userId', 'username avatar');
+
+        if (!transaction) {
+            return res.status(404).json({ error: 'المعاملة غير موجودة' });
+        }
+
+        if (status === 'completed' && transaction.type === 'deposit') {
+            // إضافة الرصيد للمستخدم
+            await User.findByIdAndUpdate(transaction.userId, {
+                $inc: { balance: transaction.amount }
+            });
+
+            // إرسال إشعار للمستخدم
+            await Notification.create({
+                userId: transaction.userId._id,
+                title: 'تم تأكيد الإيداع',
+                message: `تم تأكيد إيداعك بمبلغ $${transaction.amount}`,
+                type: 'success',
+                relatedId: transaction._id,
+                relatedType: 'transaction'
+            });
+        }
+
+        // تسجيل السجل
+        await Log.create({
+            action: 'TRANSACTION_VERIFY',
+            userId: req.user.userId,
+            details: { transactionId: req.params.id, status },
+            severity: 'medium'
+        });
+
+        res.json({ message: 'تم تحديث حالة المعاملة', transaction });
+    } catch (error) {
+        console.error('Transaction verify error:', error);
+        res.status(500).json({ error: 'خطأ في السيرفر' });
+    }
+});
+
+// 🔐 تحديث route الملف الشخصي
+app.put('/api/user/profile', 
+    authenticateToken, 
+    requireActiveUser,
+    upload.single('avatar'),
+    sanitizeInput,
+    async (req, res) => {
+    try {
+        const { username, email } = req.body;
+        const updateData = { username, email };
+
+        if (req.file) {
+            updateData.avatar = '/uploads/avatars/' + req.file.filename;
+        }
+
+        const user = await User.findByIdAndUpdate(
+            req.user.userId,
+            updateData,
+            { new: true, runValidators: true }
+        ).select('-password');
+        
+        // تسجيل السجل
+        await Log.create({
+            action: 'PROFILE_UPDATE',
+            userId: req.user.userId,
+            details: { fields: Object.keys(updateData) },
+            severity: 'low'
+        });
+
+        res.json({ message: 'تم تحديث الملف الشخصي', user });
+    } catch (error) {
+        console.error('Profile update error:', error);
+        res.status(500).json({ error: 'خطأ في السيرفر' });
+    }
+});
+
+// 🔐 إضافة route جديد للتحقق من الصلاحيات
+app.get('/api/auth/check', 
+    authenticateToken, 
+    requireActiveUser,
+    async (req, res) => {
+    try {
+        res.json({
+            success: true,
+            user: req.currentUser.getProfile ? req.currentUser.getProfile() : {
+                id: req.currentUser._id,
+                username: req.currentUser.username,
+                email: req.currentUser.email,
+                avatar: req.currentUser.avatar,
+                balance: req.currentUser.balance,
+                role: req.currentUser.role,
+                status: req.currentUser.status
+            }
+        });
+    } catch (error) {
+        console.error('Auth check error:', error);
+        res.status(500).json({ error: 'خطأ في السيرفر' });
+    }
+});
+
+// =============================================
+// 🎯 Routes جديدة محمية بالـ Middlewares
+// =============================================
+
+// 📊 إحصائيات المستخدم
+app.get('/api/user/stats', 
+    authenticateToken, 
+    requireActiveUser,
+    async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        
+        const [totalOrders, completedOrders, pendingOrders, totalSpent] = await Promise.all([
+            Order.countDocuments({ userId }),
+            Order.countDocuments({ userId, status: 'completed' }),
+            Order.countDocuments({ userId, status: { $in: ['pending', 'in progress'] } }),
+            Order.aggregate([
+                { $match: { userId: mongoose.Types.ObjectId(userId), status: 'completed' } },
+                { $group: { _id: null, total: { $sum: '$price' } } }
+            ])
+        ]);
+
+        res.json({
+            totalOrders,
+            completedOrders,
+            pendingOrders,
+            totalSpent: totalSpent[0]?.total || 0
+        });
+    } catch (error) {
+        console.error('User stats error:', error);
+        res.status(500).json({ error: 'خطأ في السيرفر' });
+    }
+});
+
+// 🔍 بحث متقدم في الخدمات
+app.get('/api/services/search', 
+    sanitizeInput,
+    async (req, res) => {
+    try {
+        const { q, platform, category, minPrice, maxPrice, page = 1, limit = 12 } = req.query;
+        let filter = { status: 'active' };
+
+        if (q) {
+            filter.$or = [
+                { name: { $regex: q, $options: 'i' } },
+                { description: { $regex: q, $options: 'i' } }
+            ];
+        }
+
+        if (platform) filter.platform = platform;
+        if (category) filter.category = category;
+        if (minPrice || maxPrice) {
+            filter.price = {};
+            if (minPrice) filter.price.$gte = parseFloat(minPrice);
+            if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
+        }
+
+        const services = await Service.find(filter)
+            .sort({ createdAt: -1 })
+            .limit(limit * 1)
+            .skip((page - 1) * limit);
+
+        const total = await Service.countDocuments(filter);
+
+        res.json({
+            services,
+            totalPages: Math.ceil(total / limit),
+            currentPage: page,
+            total
+        });
+    } catch (error) {
+        console.error('Services search error:', error);
+        res.status(500).json({ error: 'خطأ في السيرفر' });
+    }
+});
+
+// =============================================
+// 🚀 تشغيل الخادم
+// =============================================
+
 app.listen(PORT, () => {
     console.log(`🚀 السيرفر يعمل على http://localhost:${PORT}`);
     console.log(`📊 لوحة الأدمن: http://localhost:${PORT}/admin`);
+    console.log(`🔐 نظام المصادقة جاهز ومحمي`);
 });
