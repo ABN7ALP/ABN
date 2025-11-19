@@ -20,7 +20,7 @@ require('./src/models/Order');
 const authRoutes = require('./src/routes/authRoutes');
 const dashboardRoutes = require('./src/routes/dashboardRoutes');
 const orderRoutes = require('./src/routes/orderRoutes');
-
+const fundsRoutes = require('./src/routes/fundsRoutes');
 // =================================================================
 
 // 2. إعداد تطبيق Express
@@ -50,6 +50,7 @@ app.set('views', path.join(__dirname, 'src/views'));
 app.use('/auth', authRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/orders', orderRoutes);
+app.use('/add-funds', fundsRoutes);
 
 // مسار الصفحة الرئيسية (/)
 app.get('/', (req, res) => {
