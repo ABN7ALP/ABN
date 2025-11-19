@@ -3,52 +3,64 @@ let currentUser = null;
 let token = localStorage.getItem('token');
 const API_BASE = '/api';
 // تهيئة التطبيق
-document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
-});
-
-// تهيئة التطبيق بناءً على الصفحة
+// تهيئة التطبيق - النسخة المصححة
 function initializeApp() {
     const currentPage = window.location.pathname.split('/').pop();
     
-    if (currentPage === 'dashboard.html' || currentPage === 'admin.html' || currentPage === 'profile.html') {
-        if (!token) {
-            window.location.href = 'login.html';
-            return;
-        }
-        verifyToken();
-    }
+    console.log('🚀 تهيئة الصفحة:', currentPage);
+    console.log('📝 التوكن:', localStorage.getItem('token'));
+    console.log('👤 المستخدم:', JSON.parse(localStorage.getItem('userData')));
     
-    // تهيئة الصفحات المختلفة
-    switch(currentPage) {
-        case 'dashboard.html':
-            initializeDashboard();
-            break;
-        case 'admin.html':
-            initializeAdmin();
-            break;
-        case 'profile.html':
-            initializeProfile();
-            break;
-        case 'login.html':
-            initializeLogin();
-            break;
-        case 'register.html':
-            initializeRegister();
-            break;
-    }
+    // تحقق من التوكن بدون إعادة توجيه تلقائية
+    verifyToken().then(isValid => {
+        if (!isValid) {
+            // فقط إذا كانت الصفحة محمية وتحتاج تسجيل دخول
+            if (currentPage === 'dashboard.html' || currentPage === 'admin.html' || currentPage === 'profile.html') {
+                console.log('🔒 الصفحة محمية - إعادة التوجيه لتسجيل الدخول');
+                window.location.href = 'login.html';
+                return;
+            }
+        }
+        
+        // تهيئة الصفحات المختلفة
+        switch(currentPage) {
+            case 'dashboard.html':
+                initializeDashboard();
+                break;
+            case 'admin.html':
+                initializeAdmin();
+                break;
+            case 'profile.html':
+                initializeProfile();
+                break;
+            case 'login.html':
+                initializeLogin();
+                break;
+            case 'register.html':
+                initializeRegister();
+                break;
+        }
+    });
 }
 
 // التحقق من التوكن
-// التحقق من التوكن
+// التحقق من التوكن - النسخة المصححة
 async function verifyToken() {
     try {
         const token = localStorage.getItem('token');
-        if (!token) {
-            throw new Error('No token found');
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        
+        console.log('🔐 التحقق من التوكن...');
+        console.log('📝 التوكن:', token ? 'موجود' : 'مفقود');
+        console.log('👤 بيانات المستخدم:', userData);
+
+        if (!token || !userData) {
+            console.log('❌ لا يوجد توكن أو بيانات مستخدم');
+            // لا تعيد التوجيه تلقائياً، دع الصفحة تحدد
+            return false;
         }
 
-        // جلب بيانات المستخدم من الـ API
+        // تحقق بسيط من السيرفر
         const response = await fetch('/api/services', {
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -56,17 +68,11 @@ async function verifyToken() {
             }
         });
         
-        if (!response.ok) {
-            throw new Error('Token invalid');
-        }
-        
-        // حاول جلب بيانات المستخدم من localStorage أولاً
-        const userData = JSON.parse(localStorage.getItem('userData'));
-        if (userData) {
+        if (response.ok) {
+            console.log('✅ التوكن صالح');
             currentUser = userData;
-            console.log('👤 المستخدم الحالي:', currentUser);
             
-            // إذا كان مشرفاً، ظهر رابط لوحة المشرف
+            // ظهر رابط المشرف إذا كان دور المستخدم admin
             if (currentUser.role === 'admin') {
                 const adminLink = document.getElementById('adminLink');
                 if (adminLink) {
@@ -75,13 +81,14 @@ async function verifyToken() {
                 }
             }
             return true;
+        } else {
+            console.log('❌ التوكن غير صالح');
+            return false;
         }
         
-        throw new Error('No user data');
-        
     } catch (error) {
-        console.error('❌ خطأ في التحقق من التوكن:', error);
-        logout();
+        console.error('⚠️ خطأ في التحقق من التوكن:', error);
+        // لا تسجل خروج تلقائياً
         return false;
     }
 }
