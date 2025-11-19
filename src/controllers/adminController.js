@@ -1,68 +1,42 @@
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
-const Order = mongoose.model('Order'); // <-- إضافة جديدة
+const Order = mongoose.model('Order');
 
-// @desc    عرض صفحة إدارة المستخدمين
-// @route   GET /admin/users
-exports.getUsersPage = async (req, res) => {
+// ... (دالة getUsersPage و getOrdersPage و updateOrderStatus بدون تغيير) ...
+exports.getUsersPage = async (req, res) => { /*...*/ };
+exports.getOrdersPage = async (req, res) => { /*...*/ };
+exports.updateOrderStatus = async (req, res) => { /*...*/ };
+
+
+// @desc    تحديث رصيد المستخدم
+// @route   POST /admin/users/update-balance/:id
+exports.updateUserBalance = async (req, res) => { // <-- دالة جديدة
     try {
-        const users = await User.find().sort({ createdAt: -1 });
-        res.render('admin/users', { users });
-    } catch (error) {
-        res.status(500).send('Server Error');
-    }
-};
+        const { amount } = req.body;
+        const userId = req.params.id;
 
-// @desc    عرض صفحة إدارة الطلبات
-// @route   GET /admin/orders
-exports.getOrdersPage = async (req, res) => { // <-- دالة جديدة
-    try {
-        const orders = await Order.find()
-            .populate('user', 'name') // جلب اسم المستخدم المرتبط بالطلب
-            .populate('service', 'name') // جلب اسم الخدمة المرتبطة بالطلب
-            .sort({ createdAt: -1 });
-
-        // دوال مساعدة لترجمة وتلوين الحالة (نفس الدوال من قبل)
-        const translateStatus = (status) => {
-            const map = { 'Pending': 'قيد الانتظار', 'In progress': 'قيد التنفيذ', 'Completed': 'مكتمل', 'Canceled': 'ملغي', 'Partial': 'جزئي' };
-            return map[status] || status;
-        };
-        const getStatusBadge = (status) => {
-            const map = { 'Pending': 'bg-warning text-dark', 'In progress': 'bg-info text-dark', 'Completed': 'bg-success', 'Canceled': 'bg-danger', 'Partial': 'bg-secondary' };
-            return map[status] || 'bg-light text-dark';
-        };
-
-        res.render('admin/orders', { 
-            orders,
-            translateStatus,
-            getStatusBadge
-        });
-    } catch (error) {
-        console.error('Error fetching orders for admin:', error);
-        res.status(500).send('Server Error');
-    }
-};
-
-// @desc    تحديث حالة الطلب
-// @route   POST /admin/orders/update-status/:id
-exports.updateOrderStatus = async (req, res) => { // <-- دالة جديدة
-    try {
-        const { status } = req.body;
-        const orderId = req.params.id;
-
-        // التحقق من أن الحالة المرسلة هي إحدى الحالات المسموح بها
-        const allowedStatus = ['Pending', 'In progress', 'Completed', 'Canceled', 'Partial'];
-        if (!allowedStatus.includes(status)) {
-            return res.status(400).send('حالة غير صالحة');
+        const amountToAdd = parseFloat(amount);
+        if (isNaN(amountToAdd)) {
+            return res.status(400).send('المبلغ غير صالح');
         }
 
-        await Order.findByIdAndUpdate(orderId, { status: status });
+        // استخدام $inc لإضافة القيمة إلى الرصيد الحالي بشكل آمن
+        // new: true لإرجاع المستند المحدث
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $inc: { balance: amountToAdd } },
+            { new: true }
+        );
 
-        // إعادة توجيه المشرف إلى نفس الصفحة بعد التحديث
-        res.redirect('/admin/orders');
+        if (!updatedUser) {
+            return res.status(404).send('المستخدم غير موجود');
+        }
+
+        // إعادة التوجيه إلى صفحة المستخدمين بعد التحديث
+        res.redirect('/admin/users');
 
     } catch (error) {
-        console.error('Error updating order status:', error);
+        console.error('Error updating user balance:', error);
         res.status(500).send('Server Error');
     }
 };
