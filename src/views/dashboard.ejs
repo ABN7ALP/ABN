@@ -4,67 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم - SMM Engine</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="bg-light">
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-        <div class="container">
-            <a class="navbar-brand" href="/dashboard">SMM Engine</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/dashboard">طلب جديد</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/orders">طلباتي</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/add-funds">شحن الرصيد</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle me-1"></i>
-                            مرحباً، <%= user.name %>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="/profile">الملف الشخصي</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/auth/logout">تسجيل الخروج</a></li>
-                        </ul>
-                    </li>
-                     <li class="nav-item ms-2">
-                        <a class="btn btn-success">
-                            <i class="fas fa-wallet me-1"></i>
-                            الرصيد: $<%= user.balance.toFixed(2) %>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <%- include('partials/navbar') %>
 
-    <!-- Main Content -->
     <div class="container mt-4">
         <div class="card">
             <div class="card-header">
                 <h4 class="mb-0">إنشاء طلب جديد</h4>
             </div>
             <div class="card-body">
-                <form>
-                    <!-- Platform Selection -->
+                <form id="create-order-form">
                     <div class="mb-3">
-                        <label for="platform" class="form-label">اختر المنصة:</label>
+                        <label for="platform-select" class="form-label">اختر المنصة:</label>
                         <select class="form-select" id="platform-select">
                             <option selected disabled>-- اختر منصة --</option>
                             <% platforms.forEach(platform => { %>
@@ -73,30 +29,30 @@
                         </select>
                     </div>
 
-                    <!-- Service Selection -->
                     <div class="mb-3">
-                        <label for="service" class="form-label">اختر الخدمة:</label>
-                        <select class="form-select" id="service-select" disabled>
+                        <label for="service-select" class="form-label">اختر الخدمة:</label>
+                        <select class="form-select" id="service-select" name="serviceId" required disabled>
                             <option selected disabled>-- اختر خدمة --</option>
                         </select>
                     </div>
                     
-                    <!-- Link Input -->
+                    <div id="service-details" class="alert alert-info d-none"></div>
+
                     <div class="mb-3">
                         <label for="link" class="form-label">الرابط:</label>
-                        <input type="url" class="form-control" id="link-input" placeholder="https://www.instagram.com/p/...">
+                        <input type="url" class="form-control" id="link" name="link" placeholder="https://www.instagram.com/p/..." required>
                     </div>
 
-                    <!-- Quantity Input -->
                     <div class="mb-3">
                         <label for="quantity" class="form-label">الكمية:</label>
-                        <input type="number" class="form-control" id="quantity-input" placeholder="1000" disabled>
-                        <div class="form-text">الحد الأدنى: <span id="min-qty">0</span> / الحد الأقصى: <span id="max-qty">0</span></div>
+                        <input type="number" class="form-control" id="quantity" name="quantity" required>
+                        <div class="form-text">
+                            الحد الأدنى: <span id="min-order">0</span> | الحد الأقصى: <span id="max-order">0</span>
+                        </div>
                     </div>
 
-                    <!-- Cost Display -->
                     <div class="alert alert-info">
-                        التكلفة الإجمالية: <strong id="total-cost">$0.00</strong>
+                        التكلفة الإجمالية: <strong id="charge">$0.00</strong>
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100">تأكيد الطلب</button>
@@ -105,183 +61,12 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
-        // =================================================================
-        // الكود التفاعلي للوحة التحكم
-        // =================================================================
-
-        // 1. تخزين الخدمات القادمة من الخادم في متغير
-        // نستخدم EJS لتحويل مصفوفة الخدمات إلى JSON يمكن للجافا سكريبت قراءته
-        const allServices = <%- JSON.stringify(services) %>;
-
-        // 2. الحصول على عناصر الصفحة التي سنتعامل معها
-        const platformSelect = document.getElementById('platform-select');
-        const serviceSelect = document.getElementById('service-select');
-        const quantityInput = document.getElementById('quantity-input');
-        const linkInput = document.getElementById('link-input');
-        const minQtySpan = document.getElementById('min-qty');
-        const maxQtySpan = document.getElementById('max-qty');
-        const totalCostSpan = document.getElementById('total-cost');
-
-        // 3. دالة لتحديث قائمة الخدمات بناءً على المنصة المختارة
-        function updateServiceList() {
-            const selectedPlatform = platformSelect.value;
-            
-            // فلترة الخدمات لعرض خدمات المنصة المختارة فقط
-            const filteredServices = allServices.filter(service => service.platform === selectedPlatform);
-
-            // تفريغ قائمة الخدمات الحالية
-            serviceSelect.innerHTML = '<option selected disabled>-- اختر خدمة --</option>';
-            
-            // ملء القائمة بالخدمات الجديدة
-            filteredServices.forEach(service => {
-                const option = document.createElement('option');
-                option.value = service._id;
-                // عرض اسم الخدمة وسعرها لكل 1000
-                option.textContent = `${service.name} - ($${service.pricePer1000} لكل 1000)`;
-                serviceSelect.appendChild(option);
-            });
-
-            // تفعيل قائمة الخدمات
-            serviceSelect.disabled = false;
-            resetOrderDetails();
-        }
-
-        // 4. دالة لتحديث تفاصيل الطلب (الحد الأدنى/الأقصى)
-        function updateOrderDetails() {
-            const selectedServiceId = serviceSelect.value;
-            const selectedService = allServices.find(service => service._id === selectedServiceId);
-
-            if (selectedService) {
-                minQtySpan.textContent = selectedService.minOrder;
-                maxQtySpan.textContent = selectedService.maxOrder;
-                quantityInput.placeholder = `الكمية (بين ${selectedService.minOrder} و ${selectedService.maxOrder})`;
-                quantityInput.min = selectedService.minOrder;
-                quantityInput.max = selectedService.maxOrder;
-                quantityInput.disabled = false;
-            }
-            calculateCost();
-        }
-
-        // 5. دالة لحساب التكلفة
-        function calculateCost() {
-            const selectedServiceId = serviceSelect.value;
-            const selectedService = allServices.find(service => service._id === selectedServiceId);
-            const quantity = parseInt(quantityInput.value) || 0;
-
-            if (selectedService && quantity > 0) {
-                const cost = (quantity / 1000) * selectedService.pricePer1000;
-                totalCostSpan.textContent = `$${cost.toFixed(2)}`; // عرض التكلفة مع فاصلتين عشريتين
-            } else {
-                totalCostSpan.textContent = '$0.00';
-            }
-        }
-        
-        // 6. دالة لإعادة تعيين الحقول
-        function resetOrderDetails() {
-            quantityInput.value = '';
-            quantityInput.disabled = true;
-            quantityInput.placeholder = '1000';
-            minQtySpan.textContent = '0';
-            maxQtySpan.textContent = '0';
-            calculateCost();
-        }
-
-        // ... (الكود السابق في ملف dashboard.ejs) ...
-
-// 7. ربط الأحداث بالدوال
-platformSelect.addEventListener('change', updateServiceList);
-serviceSelect.addEventListener('change', updateOrderDetails);
-quantityInput.addEventListener('input', calculateCost);
-
-// =================================================================
-// 8. معالجة إرسال النموذج (Form Submission)
-// =================================================================
-const orderForm = document.querySelector('form');
-
-orderForm.addEventListener('submit', async (e) => {
-    e.preventDefault(); // منع الإرسال التقليدي للنموذج
-
-    // جمع البيانات من النموذج
-    const serviceId = serviceSelect.value;
-    const link = linkInput.value;
-    const quantity = quantityInput.value;
-
-    // عرض نافذة تأكيد باستخدام SweetAlert2
-    Swal.fire({
-        title: 'هل أنت متأكد؟',
-        html: `سيتم خصم <strong id="swal-cost">${totalCostSpan.textContent}</strong> من رصيدك.`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'نعم، قم بالتأكيد!',
-        cancelButtonText: 'إلغاء'
-    }).then(async (result) => {
-        if (result.isConfirmed) {
-            // إظهار نافذة "جاري المعالجة"
-            Swal.fire({
-                title: 'جاري معالجة طلبك...',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            // إرسال البيانات إلى الخادم
-            try {
-                const response = await fetch('/dashboard/create-order', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ serviceId, link, quantity }),
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    Swal.fire({
-                        title: 'نجاح!',
-                        text: data.message,
-                        icon: 'success',
-                        confirmButtonText: 'حسناً'
-                    });
-                    // تحديث الرصيد المعروض في الشريط العلوي
-                    document.querySelector('.btn-success').innerHTML = `<i class="fas fa-wallet me-1"></i> الرصيد: $${data.newBalance}`;
-                    // إعادة تعيين النموذج
-                    orderForm.reset();
-                    resetOrderDetails();
-                    serviceSelect.innerHTML = '<option selected disabled>-- اختر خدمة --</option>';
-                    serviceSelect.disabled = true;
-
-                } else {
-                    // عرض رسالة الخطأ من الخادم
-                    Swal.fire({
-                        title: 'خطأ!',
-                        text: data.message,
-                        icon: 'error',
-                        confirmButtonText: 'حسناً'
-                    });
-                }
-            } catch (error) {
-                Swal.fire({
-                    title: 'خطأ فادح!',
-                    text: 'لا يمكن الاتصال بالخادم. يرجى المحاولة مرة أخرى.',
-                    icon: 'error',
-                    confirmButtonText: 'حسناً'
-                });
-            }
-        }
-    });
-});
-
-
+        const servicesData = <%- JSON.stringify(services) %>;
     </script>
+    <script src="/js/main.js"></script>
 </body>
 </html>
