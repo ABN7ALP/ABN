@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const FundRequest = mongoose.model('FundRequest');
 
+const fundsController = {}; // كائن جديد
+
 // @desc    عرض صفحة شحن الرصيد
-// @route   GET /add-funds
-exports.getFundsPage = (req, res) => {
+fundsController.getFundsPage = (req, res) => {
     res.render('add-funds', { 
         pageTitle: 'شحن الرصيد',
         user: req.session.user,
@@ -13,8 +14,7 @@ exports.getFundsPage = (req, res) => {
 };
 
 // @desc    إنشاء طلب شحن رصيد جديد
-// @route   POST /add-funds/request
-exports.createFundRequest = async (req, res) => {
+fundsController.createFundRequest = async (req, res) => {
     try {
         const { method, amount, details } = req.body;
         const userId = req.session.user.id;
@@ -37,3 +37,5 @@ exports.createFundRequest = async (req, res) => {
         res.redirect('/add-funds?error=حدث خطأ أثناء إرسال طلبك.');
     }
 };
+
+module.exports = fundsController; // تصدير الكائن بالكامل
