@@ -16,6 +16,7 @@ connectDB();
 require('./src/models/User');
 require('./src/models/Service');
 require('./src/models/Order');
+require('./src/models/FundRequest');
 
 // ----------------------------------------------------------------
 // المرحلة 3: إنشاء تطبيق Express
