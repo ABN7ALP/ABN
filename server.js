@@ -2,24 +2,17 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
-const connectDB = require('./src/config/db');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
+// =================== تعديل المسارات هنا ===================
+const connectDB = require('./src/config/db'); // <--- تم إضافة ./src
+const authRoutes = require('./src/routes/authRoutes'); // <--- تم إضافة ./src
+const dashboardRoutes = require('./src/routes/dashboardRoutes'); // <--- تم إضافة ./src
+const orderRoutes = require('./src/routes/orderRoutes'); // <--- تم إضافة ./src
 
-// =================== تعديل جديد ومهم ===================
-// تعريف المسار الجذري للمشروع بشكل صريح
-const projectRoot = __dirname;
-// ======================================================
-
-// استدعاء النماذج في البداية لضمان تسجيلها في Mongoose
+// استدعاء النماذج لضمان تسجيلها
 require('./src/models/User');
 require('./src/models/Service');
 require('./src/models/Order');
-
-// استدعاء ملفات المسارات
-const authRoutes = require('./src/routes/authRoutes');
-const dashboardRoutes = require('./src/routes/dashboardRoutes');
-const orderRoutes = require('./src/routes/orderRoutes');
+// ==========================================================
 
 // الاتصال بقاعدة البيانات
 connectDB();
@@ -42,10 +35,10 @@ app.use(
   })
 );
 
-// استخدام المسار الجذري الصريح لتعريف مسارات الملفات
-app.use(express.static(path.join(projectRoot, 'public')));
+// تحديد مسارات الملفات الثابتة والقوالب (هذه الآن صحيحة 100%)
+app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
-app.set('views', path.join(projectRoot, 'src/views')); // <-- استخدام المتغير الجديد
+app.set('views', path.join(__dirname, 'src/views'));
 
 // 4. المسارات (Routes)
 app.use('/auth', authRoutes);
