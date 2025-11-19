@@ -1,13 +1,13 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
     <div class="container">
         <a class="navbar-brand" href="/dashboard">SMM Engine</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="/dashboard">الرئيسية (إنشاء طلب)</a>
+                    <a class="nav-link" href="/dashboard">طلب جديد</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/orders">طلباتي</a>
@@ -16,20 +16,27 @@
                     <a class="nav-link" href="/add-funds">شحن الرصيد</a>
                 </li>
             </ul>
-            <ul class="navbar-nav ms-auto">
-                <% if (typeof user !== 'undefined') { %>
+            <% if (typeof user !== 'undefined') { %>
+                <ul class="navbar-nav">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user me-1"></i> مرحباً، <%= user.name %>
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i>
+                            مرحباً، <%= user.name %>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#">الرصيد: $<%= (user.balance || 0).toFixed(2) %></a></li>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/profile">الملف الشخصي</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="/auth/logout">تسجيل الخروج</a></li>
                         </ul>
                     </li>
-                <% } %>
-            </ul>
+                     <li class="nav-item ms-2">
+                        <a class="btn btn-success" id="balance-display">
+                            <i class="fas fa-wallet me-1"></i>
+                            الرصيد: $<%= (user.balance || 0).toFixed(2) %>
+                        </a>
+                    </li>
+                </ul>
+            <% } %>
         </div>
     </div>
 </nav>
