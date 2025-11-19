@@ -56,10 +56,14 @@
                             <tbody>
                                 <% users.forEach(user => { %>
                                     <tr>
-                                        <td><img src="/images/<%= user.profileImage %>" alt="صورة شخصية" width="40" height="40" class="rounded-circle"></td>
+                                        <td><img src="/images/<%= user.profileImage || 'default.jpg' %>" alt="صورة شخصية" width="40" height="40" class="rounded-circle"></td>
                                         <td><%= user.name %></td>
                                         <td><%= user.email %></td>
-                                        <td>$<%= user.balance.toFixed(2) %></td>
+                                        
+                                        <!-- =================== التعديل هنا =================== -->
+                                        <td>$<%= (user.balance || 0).toFixed(2) %></td>
+                                        <!-- =================================================== -->
+                                        
                                         <td><%= new Date(user.createdAt).toLocaleDateString('ar-EG') %></td>
                                         <td>
                                             <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
