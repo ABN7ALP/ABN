@@ -1,1 +1,181 @@
 
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام SMM المتكامل</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- شريط التنقل -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-rocket"></i> نظام SMM
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">الرئيسية</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">لوحة التحكم</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#services">الخدمات</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">من نحن</a>
+                    </li>
+                </ul>
+                <div class="navbar-nav">
+                    <a class="nav-link" href="/login">تسجيل الدخول</a>
+                    <a class="nav-link" href="/register">إنشاء حساب</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- قسم الهيرو -->
+    <section class="hero-section bg-gradient">
+        <div class="container">
+            <div class="row align-items-center min-vh-80">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold text-white mb-4">
+                        نظام SMM المتكامل
+                    </h1>
+                    <p class="lead text-white mb-4">
+                        أفضل منصة لتقديم خدمات التسويق عبر وسائل التواصل الاجتماعي. 
+                        خدمات عالية الجودة بأسعار منافسة.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="/register" class="btn btn-light btn-lg">
+                            <i class="fas fa-user-plus"></i> إنشاء حساب
+                        </a>
+                        <a href="#services" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-eye"></i> عرض الخدمات
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="hero-image">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم المميزات -->
+    <section class="features-section py-5">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-12">
+                    <h2 class="section-title">مميزات النظام</h2>
+                    <p class="section-subtitle">كل ما تحتاجه في مكان واحد</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h4>خدمات سريعة</h4>
+                        <p>تقديم الخدمات بأسرع وقت ممكن وبجودة عالية</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4>آمن ومضمون</h4>
+                        <p>نظام آمن مع تشفير كامل للبيانات</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <h4>دعم فني</h4>
+                        <p>دعم فني متواصل على مدار الساعة</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم الخدمات -->
+    <section id="services" class="services-section py-5 bg-light">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-12">
+                    <h2 class="section-title">خدماتنا</h2>
+                    <p class="section-subtitle">أفضل الخدمات بأسعار منافسة</p>
+                </div>
+            </div>
+            <div id="servicesList" class="row">
+                <!-- سيتم تحميل الخدمات هنا -->
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم الإحصائيات -->
+    <section class="stats-section py-5">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-3 mb-4">
+                    <div class="stat-item">
+                        <h3 class="stat-number" data-count="10000">0</h3>
+                        <p class="stat-label">طلب مكتمل</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="stat-item">
+                        <h3 class="stat-number" data-count="5000">0</h3>
+                        <p class="stat-label">عميل سعيد</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="stat-item">
+                        <h3 class="stat-number" data-count="50">0</h3>
+                        <p class="stat-label">خدمة متاحة</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="stat-item">
+                        <h3 class="stat-number" data-count="24">0</h3>
+                        <p class="stat-label">ساعة دعم</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- الفوتر -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>نظام SMM المتكامل</h5>
+                    <p>أفضل منصة لخدمات التسويق عبر وسائل التواصل الاجتماعي</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>&copy; 2024 نظام SMM المتكامل. جميع الحقوق محفوظة.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
