@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, 'الرجاء إدخال البريد الإلكتروني'],
-    unique: true, // لضمان عدم تكرار البريد الإلكتروني
+    unique: true,
     match: [
       /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
       'الرجاء إدخال بريد إلكتروني صالح',
@@ -18,20 +18,21 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, 'الرجاء إدخال كلمة المرور'],
-    minlength: 6, // لضمان كلمة مرور قوية
-  },
-  balance: {
-    type: Number,
-    default: 0, // الرصيد الافتراضي هو صفر
-  },
-  profileImage: {
-    type: String,
-    default: 'default.jpg', // صورة افتراضية
+    minlength: 6,
+    select: false, // لا تقم بإرجاع كلمة المرور عند الاستعلام عن المستخدم
   },
   role: {
     type: String,
-    enum: ['user', 'admin'], // الأدوار المتاحة
+    enum: ['user', 'admin'],
     default: 'user',
+  },
+  balance: {
+    type: Number,
+    default: 0, // <-- إضافة قيمة افتراضية للرصيد
+  },
+  profileImage: {
+    type: String,
+    default: 'default.jpg', // <-- إضافة قيمة افتراضية للصورة
   },
   createdAt: {
     type: Date,
@@ -39,7 +40,7 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-// تشفير كلمة المرور تلقائياً قبل حفظ المستخدم
+// تشفير كلمة المرور قبل الحفظ
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     next();
@@ -47,5 +48,10 @@ userSchema.pre('save', async function (next) {
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
+
+// مقارنة كلمة المرور المدخلة بكلمة المرور المشفرة
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 module.exports = mongoose.model('User', userSchema);
