@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الطلبات - لوحة التحكم</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px; min-height: 100vh;">
+            <a href="/admin/dashboard" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                <span class="fs-4">لوحة تحكم المشرف</span>
+            </a>
+            <hr>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="/admin/users" class="nav-link text-white">
+                        <i class="fas fa-users me-2"></i> إدارة المستخدمين
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/orders" class="nav-link active" aria-current="page">
+                        <i class="fas fa-list-check me-2"></i> إدارة الطلبات
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/funds" class="nav-link text-white">
+                        <i class="fas fa-hand-holding-usd me-2"></i> طلبات شحن الرصيد
+                    </a>
+                </li>
+            </ul>
+            <hr>
+            <a href="/auth/logout" class="nav-link text-white"><i class="fas fa-sign-out-alt me-2"></i> تسجيل الخروج</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-grow-1 p-4 bg-light">
+            <h1 class="mb-4">إدارة الطلبات</h1>
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover text-center">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>المستخدم</th>
+                                    <th>الخدمة</th>
+                                    <th>الرابط</th>
+                                    <th>الكمية</th>
+                                    <th>التكلفة</th>
+                                    <th>التاريخ</th>
+                                    <th>الحالة</th>
+                                    <th>تغيير الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (orders.length > 0) { %>
+                                    <% orders.forEach((order, index) => { %>
+                                        <tr>
+                                            <td><%= order._id %></td>
+                                            <td><%= order.user ? order.user.name : 'مستخدم محذوف' %></td>
+                                            <td><%= order.service ? order.service.name : 'خدمة محذوفة' %></td>
+                                            <td style="max-width: 150px; overflow-wrap: break-word;"><a href="<%= order.link %>" target="_blank">الرابط</a></td>
+                                            <td><%= order.quantity.toLocaleString() %></td>
+                                            <td>$<%= order.charge.toFixed(2) %></td>
+                                            <td><%= new Date(order.createdAt).toLocaleDateString('ar-EG') %></td>
+                                            <td>
+                                                <span class="badge <%= getStatusBadge(order.status) %>">
+                                                    <%= translateStatus(order.status) %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <form action="/admin/orders/update-status/<%= order._id %>" method="POST" class="d-flex">
+                                                    <select name="status" class="form-select form-select-sm me-2">
+                                                        <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>قيد الانتظار</option>
+                                                        <option value="In progress" <%= order.status === 'In progress' ? 'selected' : '' %>>قيد التنفيذ</option>
+                                                        <option value="Completed" <%= order.status === 'Completed' ? 'selected' : '' %>>مكتمل</option>
+                                                        <option value="Canceled" <%= order.status === 'Canceled' ? 'selected' : '' %>>ملغي</option>
+                                                        <option value="Partial" <%= order.status === 'Partial' ? 'selected' : '' %>>جزئي</option>
+                                                    </select>
+                                                    <button type="submit" class="btn btn-sm btn-primary">حفظ</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="9" class="text-center py-4">لا يوجد طلبات لعرضها.</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
