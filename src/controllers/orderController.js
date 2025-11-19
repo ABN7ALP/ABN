@@ -1,6 +1,6 @@
-const Order = require('../models/Order');
-const User = require('../models/User');
-const Service = require('../models/Service'); // <-- قد يكون هذا السطر ناقصاً
+const mongoose = require('mongoose'); // <-- استدعاء mongoose
+const Order = mongoose.model('Order'); // <-- استخدام mongoose.model
+const User = mongoose.model('User');   // <-- استخدام mongoose.model
 
 // @desc    عرض صفحة طلبات المستخدم
 // @route   GET /orders
@@ -9,7 +9,7 @@ exports.getOrdersPage = async (req, res) => {
         const currentUser = await User.findById(req.session.user.id);
 
         const orders = await Order.find({ user: req.session.user.id })
-            .populate('service', 'name') // هذا السطر هو الذي يسبب الخطأ إذا كانت النماذج غير معرفة بشكل صحيح
+            .populate('service', 'name') 
             .sort({ createdAt: -1 });
 
         const translateStatus = (status) => {
@@ -43,6 +43,6 @@ exports.getOrdersPage = async (req, res) => {
 
     } catch (error) {
         console.error('خطأ في جلب الطلبات:', error);
-        res.status(500).send('Internal Server Error'); // إرسال رسالة خطأ واضحة
+        res.status(500).send('Internal Server Error');
     }
 };
