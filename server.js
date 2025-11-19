@@ -1,7 +1,11 @@
 // 1. استدعاء الحزم المطلوبة
-require('dotenv').config(); // لتفعيل قراءة المتغيرات من ملف .env
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const connectDB = require('./src/config/db'); // <-- إضافة جديدة
+
+// الاتصال بقاعدة البيانات
+connectDB(); // <-- إضافة جديدة
 
 // 2. إعداد تطبيق Express
 const app = express();
