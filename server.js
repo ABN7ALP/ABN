@@ -2,20 +2,26 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
-// =================== تعديل المسارات هنا ===================
-const connectDB = require('./src/config/db'); // <--- تم إضافة ./src
-const authRoutes = require('./src/routes/authRoutes'); // <--- تم إضافة ./src
-const dashboardRoutes = require('./src/routes/dashboardRoutes'); // <--- تم إضافة ./src
-const orderRoutes = require('./src/routes/orderRoutes'); // <--- تم إضافة ./src
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
 
-// استدعاء النماذج لضمان تسجيلها
+// =================== الترتيب الصحيح والحاسم هنا ===================
+
+// الخطوة أ: الاتصال بقاعدة البيانات أولاً
+const connectDB = require('./src/config/db');
+connectDB();
+
+// الخطوة ب: تسجيل جميع النماذج (Models) مباشرة بعد الاتصال
 require('./src/models/User');
 require('./src/models/Service');
 require('./src/models/Order');
-// ==========================================================
 
-// الاتصال بقاعدة البيانات
-connectDB();
+// الخطوة ج: الآن فقط، نستدعي المسارات (Routes) التي تعتمد على النماذج
+const authRoutes = require('./src/routes/authRoutes');
+const dashboardRoutes = require('./src/routes/dashboardRoutes');
+const orderRoutes = require('./src/routes/orderRoutes');
+
+// =================================================================
 
 // 2. إعداد تطبيق Express
 const app = express();
@@ -35,12 +41,12 @@ app.use(
   })
 );
 
-// تحديد مسارات الملفات الثابتة والقوالب (هذه الآن صحيحة 100%)
+// تحديد مسارات الملفات الثابتة والقوالب
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src/views'));
 
-// 4. المسارات (Routes)
+// 4. استخدام المسارات (Routes)
 app.use('/auth', authRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/orders', orderRoutes);
