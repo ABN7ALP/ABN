@@ -3,129 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شحن الرصيد - SMM Engine</title>
-    <!-- Bootstrap CSS -->
+    <title>شحن الرصيد</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/style.css"> <!-- للتأكد من أن التنسيقات العامة تعمل -->
 </head>
-<body class="bg-light">
+<body>
+    <%- include('partials/navbar') %>
 
-    <!-- Navbar (نفس الشريط العلوي) -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-        <div class="container">
-            <a class="navbar-brand" href="/dashboard">SMM Engine</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/dashboard">طلب جديد</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/orders">طلباتي</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/add-funds">شحن الرصيد</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle me-1"></i>
-                            مرحباً، <%= user.name %>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="/profile">الملف الشخصي</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/auth/logout">تسجيل الخروج</a></li>
-                        </ul>
-                    </li>
-                     <li class="nav-item ms-2">
-                        <a class="btn btn-success">
-                            <i class="fas fa-wallet me-1"></i>
-                            الرصيد: $<%= user.balance.toFixed(2) %>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Add Funds Content -->
-    <div class="container mt-4">
+    <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="mb-0">اختر طريقة الدفع</h4>
+                <h1 class="text-center mb-4">شحن الرصيد</h1>
+
+                <!-- رسائل النجاح أو الخطأ -->
+                <% if (typeof success_msg !== 'undefined' && success_msg) { %>
+                    <div class="alert alert-success"><%= success_msg %></div>
+                <% } %>
+                <% if (typeof error_msg !== 'undefined' && error_msg) { %>
+                    <div class="alert alert-danger"><%= error_msg %></div>
+                <% } %>
+
+                <div class="accordion" id="paymentMethods">
+                    <!-- 1. حوالة بنكية -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingBank">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBank" aria-expanded="true" aria-controls="collapseBank">
+                                <i class="fas fa-university me-2"></i> حوالة بنكية (Ziraat Bank)
+                            </button>
+                        </h2>
+                        <div id="collapseBank" class="accordion-collapse collapse show" aria-labelledby="headingBank" data-bs-parent="#paymentMethods">
+                            <div class="accordion-body">
+                                <p>يرجى تحويل المبلغ إلى الحساب التالي ثم ملء النموذج أدناه لتأكيد التحويل.</p>
+                                <ul class="list-group mb-3">
+                                    <li class="list-group-item"><strong>اسم المستفيد:</strong> bessar</li>
+                                    <li class="list-group-item"><strong>رقم الحساب (IBAN):</strong> TR2211883826628829</li>
+                                </ul>
+                                <form action="/add-funds/request" method="POST">
+                                    <input type="hidden" name="method" value="Bank">
+                                    <div class="mb-3">
+                                        <label for="bankAmount" class="form-label">المبلغ المحوّل (بالدولار)</label>
+                                        <input type="number" step="0.01" class="form-control" id="bankAmount" name="amount" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="bankDetails" class="form-label">اسم صاحب الحساب المُرسِل</label>
+                                        <input type="text" class="form-control" id="bankDetails" name="details" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">إرسال طلب التأكيد</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="accordion" id="paymentMethods">
 
-                            <!-- 1. حوالة بنكية -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="headingBank">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBank">
-                                        <i class="fas fa-university me-2"></i> حوالة بنكية (Ziraat Bank)
-                                    </button>
-                                </h2>
-                                <div id="collapseBank" class="accordion-collapse collapse show" data-bs-parent="#paymentMethods">
-                                    <div class="accordion-body">
-                                        <p>يرجى تحويل المبلغ إلى الحساب التالي:</p>
-                                        <ul class="list-group">
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                <strong>اسم المستفيد:</strong>
-                                                <span>bessar</span>
-                                            </li>
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                <strong>رقم الحساب (IBAN):</strong>
-                                                <code>TR2211883826628829</code>
-                                            </li>
-                                        </ul>
-                                        <div class="alert alert-warning mt-3">
-                                            <strong>مهم:</strong> بعد إتمام الحوالة، يرجى التواصل معنا عبر واتساب لتأكيد الإيداع.
-                                        </div>
-                                    </div>
+                    <!-- 2. شام كاش -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingSham">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSham" aria-expanded="false" aria-controls="collapseSham">
+                                <i class="fas fa-money-bill-wave me-2"></i> شام كاش
+                            </button>
+                        </h2>
+                        <div id="collapseSham" class="accordion-collapse collapse" aria-labelledby="headingSham" data-bs-parent="#paymentMethods">
+                            <div class="accordion-body">
+                                <p class="text-center">يرجى مسح الكود التالي للدفع، ثم ملء النموذج لتأكيد التحويل.</p>
+                                <div class="text-center mb-3">
+                                    <p><strong>اسم المستلم:</strong> بشار</p>
+                                    <!-- يمكنك وضع صورة QR Code هنا -->
+                                    <img src="https://via.placeholder.com/200" alt="QR Code" class="img-thumbnail" style="width: 200px; height: 200px;">
                                 </div>
-                            </div>
-
-                            <!-- 2. شام كاش -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="headingSham">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSham">
-                                        <i class="fas fa-money-bill-wave me-2"></i> شام كاش
-                                    </button>
-                                </h2>
-                                <div id="collapseSham" class="accordion-collapse collapse" data-bs-parent="#paymentMethods">
-                                    <div class="accordion-body text-center">
-                                        <h5 class="mb-3">بشار</h5>
-                                        <!-- يمكنك وضع رابط صورة QR Code هنا -->
-                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Pay-Bessar" alt="QR Code" class="img-fluid rounded">
-                                        <p class="mt-3">امسح الرمز لإتمام عملية الدفع.</p>
+                                <form action="/add-funds/request" method="POST">
+                                    <input type="hidden" name="method" value="ShamCash">
+                                    <div class="mb-3">
+                                        <label for="shamAmount" class="form-label">المبلغ المحوّل (بالدولار)</label>
+                                        <input type="number" step="0.01" class="form-control" id="shamAmount" name="amount" required>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- 3. حوالة عبر مكتب -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="headingOffice">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOffice">
-                                        <i class="fas fa-building me-2"></i> حوالة عبر مكتب
-                                    </button>
-                                </h2>
-                                <div id="collapseOffice" class="accordion-collapse collapse" data-bs-parent="#paymentMethods">
-                                    <div class="accordion-body text-center">
-                                        <p>إذا كنت ترغب في التحويل عبر مكتب، يرجى التواصل معنا مباشرة عبر واتساب لمناقشة التفاصيل.</p>
-                                        <a href="https://wa.me/905367893256" target="_blank" class="btn btn-success btn-lg">
-                                            <i class="fab fa-whatsapp me-2"></i> تواصل معنا عبر واتساب
-                                        </a>
+                                    <div class="mb-3">
+                                        <label for="shamDetails" class="form-label">رقم العملية أو اسم المرسل</label>
+                                        <input type="text" class="form-control" id="shamDetails" name="details" required>
                                     </div>
-                                </div>
+                                    <button type="submit" class="btn btn-primary">إرسال طلب التأكيد</button>
+                                </form>
                             </div>
+                        </div>
+                    </div>
 
+                    <!-- 3. حوالة مكتب -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOffice">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOffice" aria-expanded="false" aria-controls="collapseOffice">
+                                <i class="fas fa-building me-2"></i> حوالة عبر مكتب
+                            </button>
+                        </h2>
+                        <div id="collapseOffice" class="accordion-collapse collapse" aria-labelledby="headingOffice" data-bs-parent="#paymentMethods">
+                            <div class="accordion-body text-center">
+                                <p>إذا أردت التحويل عبر مكتب، يرجى التواصل معنا مباشرة عبر واتساب لتزويدك بالتفاصيل.</p>
+                                <a href="https://wa.me/905367893256" target="_blank" class="btn" style="background-color: #25D366; color: white;">
+                                    <i class="fab fa-whatsapp me-2"></i> التواصل عبر واتساب
+                                A</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -133,7 +107,6 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
