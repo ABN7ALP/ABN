@@ -8,6 +8,7 @@ const MongoStore = require('connect-mongo');
 
 // استدعاء ملفات المسارات
 const authRoutes = require('./src/routes/authRoutes');
+const dashboardRoutes = require('./src/routes/dashboardRoutes'); // <-- إضافة جديدة
 
 // الاتصال بقاعدة البيانات
 connectDB();
@@ -20,50 +21,39 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// إعداد الجلسات (Sessions) - يجب أن يكون قبل المسارات
 app.use(
   session({
-    secret: 'bessar-smm-engine-super-secret-key', // يمكنك تغيير هذا النص
+    secret: 'bessar-smm-engine-super-secret-key',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
-    cookie: {
-        maxAge: 1000 * 60 * 60 * 24 // صلاحية الجلسة: يوم واحد
-    }
+    cookie: { maxAge: 1000 * 60 * 60 * 24 }
   })
 );
 
-// تحديد مسار الملفات الثابتة (CSS, JS, Images)
 app.use(express.static(path.join(__dirname, 'public')));
-
-// تحديد محرك القوالب (Template Engine)
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src/views'));
 
-
 // 4. المسارات (Routes)
 app.use('/auth', authRoutes);
+app.use('/dashboard', dashboardRoutes); // <-- إضافة جديدة
 
-// مسار الصفحة الرئيسية
+// مسار الصفحة الرئيسية (/)
 app.get('/', (req, res) => {
-  // إذا كان المستخدم مسجلاً دخوله، يمكننا إرساله مباشرة إلى ملفه الشخصي
   if (req.session.user) {
-    return res.redirect('/profile');
+    return res.redirect('/dashboard'); // <-- تعديل: توجيه إلى لوحة التحكم
   }
-  // وإلا، نعرض له الصفحة الرئيسية
   res.render('index', { pageTitle: 'الرئيسية' }); 
 });
 
-// مسار الملف الشخصي
+// مسار الملف الشخصي (يمكن تطويره لاحقاً)
 app.get('/profile', (req, res) => {
-    // حماية المسار: التأكد من أن المستخدم مسجل دخوله
     if (!req.session.user) {
         return res.redirect('/auth/login'); 
     }
-    // عرض صفحة الملف الشخصي مع تمرير بيانات المستخدم من الجلسة
-    res.render('profile', { user: req.session.user });
+    res.send(`<h1>صفحة الملف الشخصي للمستخدم: ${req.session.user.name} (سيتم تطويرها)</h1>`);
 });
-
 
 // 5. تشغيل السيرفر
 app.listen(PORT, () => {
