@@ -4,73 +4,31 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware مهم
-app.use(cors());
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(__dirname));
+app.use(cors());
+app.use(express.static('public'));
 
-// خدمة جميع الصفحات HTML
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'login.html'));
-});
-
-app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, 'register.html'));
-});
-
-app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dashboard.html'));
-});
-
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin.html'));
-});
-
-app.get('/profile', (req, res) => {
-    res.sendFile(path.join(__dirname, 'profile.html'));
-});
-
-// خدمة الملفات الثابتة للصفحات بنفس الاسم
-app.get('/:page', (req, res) => {
-    const page = req.params.page;
-    if (fs.existsSync(path.join(__dirname, page))) {
-        res.sendFile(path.join(__dirname, page));
-    } else {
-        res.status(404).send('الصفحة غير موجودة');
-    }
-});
-
-// اتصال قاعدة البيانات مع معالجة الأخطاء
+// اتصال قاعدة البيانات
 const MONGODB_URI = "mongodb+srv://ds132z1998_db_user:AL2sG3m1yB6BaoRY@cluster1.ehjwrgc.mongodb.net/smmdb?retryWrites=true&w=majority";
-
-console.log('🔄 جاري الاتصال بقاعدة البيانات...');
 
 mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
-    useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 5000,
-    socketTimeoutMS: 45000,
+    useUnifiedTopology: true
 })
-.then(() => {
-    console.log('✅ تم الاتصال بقاعدة البيانات بنجاح');
-})
-.catch(err => {
-    console.error('❌ خطأ في الاتصال بقاعدة البيانات:', err.message);
-    console.log('⚠️  النظام سيعمل بدون قاعدة البيانات - يمكنك تجربة الواجهة فقط');
-});
+.then(() => console.log('✅ تم الاتصال بقاعدة البيانات بنجاح'))
+.catch(err => console.error('❌ خطأ في الاتصال:', err));
 
 // نماذج قاعدة البيانات
-const UserSchema = new mongoose.Schema({
+
+// نموذج المستخدم
+const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -79,110 +37,49 @@ const UserSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
-const ServiceSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    platform: { type: String, required: true },
-    description: { type: String },
-    price: { type: Number, required: true },
-    minOrder: { type: Number, default: 1 },
-    maxOrder: { type: Number, default: 1000 },
-    category: { type: String },
-    active: { type: Boolean, default: true }
-});
+const User = mongoose.model('User', userSchema);
 
-const OrderSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    serviceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Service', required: true },
-    quantity: { type: Number, required: true },
-    totalPrice: { type: Number, required: true },
-    link: { type: String, required: true },
-    status: { type: String, default: 'pending' },
+// نموذج الخدمة
+const serviceSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    description: { type: String, required: true },
+    category: { type: String, required: true },
+    price: { type: Number, required: true },
+    minOrder: { type: Number, default: 100 },
+    maxOrder: { type: Number, default: 10000 },
+    speed: { type: String, default: 'متوسط' },
+    apiId: { type: String, required: true },
+    status: { type: String, default: 'active' },
     createdAt: { type: Date, default: Date.now }
 });
 
-const TransactionSchema = new mongoose.Schema({
+const Service = mongoose.model('Service', serviceSchema);
+
+// نموذج الطلب
+const orderSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    serviceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Service', required: true },
+    link: { type: String, required: true },
+    quantity: { type: Number, required: true },
+    price: { type: Number, required: true },
+    status: { type: String, default: 'pending' },
+    orderId: { type: String, unique: true },
+    createdAt: { type: Date, default: Date.now }
+});
+
+const Order = mongoose.model('Order', orderSchema);
+
+// نموذج المعاملة
+const transactionSchema = new mongoose.Schema({
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    type: { type: String, required: true }, // deposit, withdrawal, order
     amount: { type: Number, required: true },
-    type: { type: String, enum: ['deposit', 'withdrawal', 'order'], required: true },
-    description: { type: String },
+    description: { type: String, required: true },
     status: { type: String, default: 'completed' },
     createdAt: { type: Date, default: Date.now }
 });
 
-const User = mongoose.model('User', UserSchema);
-const Service = mongoose.model('Service', ServiceSchema);
-const Order = mongoose.model('Order', OrderSchema);
-const Transaction = mongoose.model('Transaction', TransactionSchema);
-
-// بيانات تجريبية للخدمات
-const sampleServices = [
-    {
-        name: 'متابعين انستجرام',
-        platform: 'Instagram',
-        description: 'متابعين حقيقيين بجودة عالية',
-        price: 0.50,
-        minOrder: 100,
-        maxOrder: 10000
-    },
-    {
-        name: 'لايكات فيسبوك',
-        platform: 'Facebook',
-        description: 'لايكات حقيقية للصفحات والمنشورات',
-        price: 0.20,
-        minOrder: 50,
-        maxOrder: 5000
-    },
-    {
-        name: 'مشاهدات يوتيوب',
-        platform: 'YouTube',
-        description: 'مشاهدات عالية الجودة',
-        price: 0.10,
-        minOrder: 1000,
-        maxOrder: 100000
-    },
-    {
-        name: 'متابعين تويتر',
-        platform: 'Twitter',
-        description: 'متابعين نشطين',
-        price: 0.80,
-        minOrder: 100,
-        maxOrder: 5000
-    },
-    {
-        name: 'لايكات تيك توك',
-        platform: 'TikTok',
-        description: 'لايكات سريعة وجودة عالية',
-        price: 0.15,
-        minOrder: 100,
-        maxOrder: 10000
-    },
-    {
-        name: 'مشتركين تليجرام',
-        platform: 'Telegram',
-        description: 'مشتركين حقيقيين للقنوات',
-        price: 1.00,
-        minOrder: 100,
-        maxOrder: 10000
-    }
-];
-
-// إنشاء خدمات تجريبية تلقائياً
-async function createSampleServices() {
-    try {
-        const serviceCount = await Service.countDocuments();
-        if (serviceCount === 0) {
-            await Service.insertMany(sampleServices);
-            console.log('✅ تم إنشاء الخدمات التجريبية بنجاح');
-        }
-    } catch (error) {
-        console.log('⚠️  لم يتم إنشاء الخدمات التجريبية:', error.message);
-    }
-}
-
-// استدعاء الدوال بعد الاتصال بقاعدة البيانات
-mongoose.connection.once('open', async () => {
-    await createSampleServices();
-});
+const Transaction = mongoose.model('Transaction', transactionSchema);
 
 // Middleware للمصادقة
 const authenticateToken = (req, res, next) => {
@@ -190,63 +87,58 @@ const authenticateToken = (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-        return res.status(401).json({ message: 'الوصول مرفوع' });
+        return res.status(401).json({ error: 'رمز الوصول مطلوب' });
     }
 
-    jwt.verify(token, 'smm_secret_key', (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET || 'smm_secret_key', (err, user) => {
         if (err) {
-            return res.status(403).json({ message: 'رمز غير صالح' });
+            return res.status(403).json({ error: 'رمز غير صالح' });
         }
         req.user = user;
         next();
     });
 };
 
-// 🔹 APIs الأساسية
+// Routes
 
-// تسجيل مستخدم جديد
+// الصفحة الرئيسية
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// تسجيل المستخدم
 app.post('/api/register', async (req, res) => {
     try {
-        console.log('📝 طلب تسجيل جديد:', req.body);
         const { username, email, password } = req.body;
 
-        // 🔒 منع التسجيل كبريد المشرف
-        if (email === '11.45') {
-            return res.status(400).json({ message: 'لا يمكن استخدام هذا البريد الإلكتروني' });
-        }
-
-        // تحقق بسيط من البيانات
-        if (!username || !email || !password) {
-            return res.status(400).json({ message: 'جميع الحقول مطلوبة' });
-        }
-
+        // التحقق من وجود المستخدم
         const existingUser = await User.findOne({ 
             $or: [{ email }, { username }] 
         });
         
         if (existingUser) {
-            return res.status(400).json({ message: 'المستخدم موجود بالفعل' });
+            return res.status(400).json({ error: 'المستخدم موجود مسبقاً' });
         }
 
+        // تشفير كلمة المرور
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // إنشاء مستخدم جديد
         const user = new User({
             username,
             email,
-            password: hashedPassword,
-            role: 'user' // ⚠️ جميع المستخدمين الجدد يكونوا عاديين
+            password: hashedPassword
         });
 
         await user.save();
 
+        // إنشاء token
         const token = jwt.sign(
-            { userId: user._id, role: user.role },
-            'smm_secret_key',
+            { userId: user._id, username: user.username, role: user.role },
+            process.env.JWT_SECRET || 'smm_secret_key',
             { expiresIn: '24h' }
         );
 
-        console.log('✅ تم إنشاء حساب جديد:', username);
-        
         res.status(201).json({
             message: 'تم إنشاء الحساب بنجاح',
             token,
@@ -259,158 +151,34 @@ app.post('/api/register', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('❌ خطأ في التسجيل:', error);
-        res.status(500).json({ message: 'خطأ في الخادم', error: error.message });
+        res.status(500).json({ error: 'خطأ في السيرفر' });
     }
 });
 
 // تسجيل الدخول
-// تسجيل الدخول - الكود المصحح
 app.post('/api/login', async (req, res) => {
     try {
-        console.log('🔐 طلب تسجيل دخول:', req.body);
-        
         const { email, password } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({ message: 'البريد الإلكتروني وكلمة المرور مطلوبان' });
-        }
-
-        console.log('📧 البريد المدخل:', email);
-
-        // 🔒 تحقق خاص للمشرف
-        if (email === '11.45') {
-            console.log('🎯 تم التعرف على محاولة دخول مشرف');
-            
-            if (password === '11.45') {
-                console.log('🔑 كلمة المرور صحيحة للمشرف');
-                
-                try {
-                    // البحث عن مستخدم المشرف
-                    let adminUser = await User.findOne({ email: '11.45' });
-                    
-                    if (!adminUser) {
-                        console.log('👤 محاولة إنشاء مشرف جديد');
-                        
-                        // جرب أسماء مستخدمين مختلفة إذا كان "admin" مستخدم
-                        let username = 'admin';
-                        let counter = 1;
-                        
-                        while (await User.findOne({ username })) {
-                            username = `admin${counter}`;
-                            counter++;
-                            if (counter > 10) {
-                                throw new Error('لا يمكن إنشاء مشرف - جميع الأسماء محجوزة');
-                            }
-                        }
-                        
-                        console.log('✅ سيتم استخدام اسم المستخدم:', username);
-                        
-                        const hashedPassword = await bcrypt.hash('11.45', 10);
-                        adminUser = new User({
-                            username: username,
-                            email: '11.45',
-                            password: hashedPassword,
-                            role: 'admin',
-                            balance: 1000
-                        });
-                        
-                        await adminUser.save();
-                        console.log('✅ تم إنشاء المشرف بنجاح باسم:', username);
-                    } else {
-                        console.log('✅ تم العثور على المشرف الموجود:', adminUser.username);
-                    }
-
-                    const token = jwt.sign(
-                        { userId: adminUser._id, role: adminUser.role },
-                        'smm_secret_key',
-                        { expiresIn: '24h' }
-                    );
-
-                    console.log('✅ تم تسجيل الدخول كمشرف بنجاح');
-                    
-                    return res.json({
-                        message: 'تم تسجيل الدخول كمشرف بنجاح',
-                        token,
-                        user: {
-                            id: adminUser._id,
-                            username: adminUser.username,
-                            email: adminUser.email,
-                            balance: adminUser.balance,
-                            role: adminUser.role
-                        }
-                    });
-
-                } catch (adminError) {
-                    console.error('❌ خطأ في عملية المشرف:', adminError.message);
-                    
-                    // إذا كان الخطأ بسبب اسم مستخدم مكرر، حاول تجاوزه
-                    if (adminError.code === 11000) {
-                        console.log('🔄 محاولة إصلاح الخطأ...');
-                        
-                        // جرب العثور على المشرف بأي طريقة
-                        const existingAdmin = await User.findOne({ 
-                            $or: [
-                                { email: '11.45' },
-                                { role: 'admin' }
-                            ] 
-                        });
-                        
-                        if (existingAdmin) {
-                            console.log('✅ تم العثور على مشرف موجود:', existingAdmin.username);
-                            
-                            const token = jwt.sign(
-                                { userId: existingAdmin._id, role: existingAdmin.role },
-                                'smm_secret_key',
-                                { expiresIn: '24h' }
-                            );
-                            
-                            return res.json({
-                                message: 'تم تسجيل الدخول كمشرف بنجاح',
-                                token,
-                                user: {
-                                    id: existingAdmin._id,
-                                    username: existingAdmin.username,
-                                    email: existingAdmin.email,
-                                    balance: existingAdmin.balance,
-                                    role: existingAdmin.role
-                                }
-                            });
-                        }
-                    }
-                    
-                    return res.status(500).json({ 
-                        message: 'خطأ في إعداد المشرف', 
-                        error: adminError.message 
-                    });
-                }
-            } else {
-                console.log('❌ كلمة المرور خاطئة للمشرف');
-                return res.status(400).json({ message: 'كلمة المرور غير صحيحة للمشرف' });
-            }
-        }
-
-        // 🔐 تسجيل الدخول العادي للمستخدمين
-        console.log('👤 محاولة دخول مستخدم عادي');
-        
+        // البحث عن المستخدم
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
+            return res.status(400).json({ error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
         }
 
+        // التحقق من كلمة المرور
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) {
-            return res.status(400).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
+            return res.status(400).json({ error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
         }
 
+        // إنشاء token
         const token = jwt.sign(
-            { userId: user._id, role: user.role },
-            'smm_secret_key',
+            { userId: user._id, username: user.username, role: user.role },
+            process.env.JWT_SECRET || 'smm_secret_key',
             { expiresIn: '24h' }
         );
 
-        console.log('✅ تم تسجيل الدخول بنجاح:', user.username);
-        
         res.json({
             message: 'تم تسجيل الدخول بنجاح',
             token,
@@ -422,44 +190,85 @@ app.post('/api/login', async (req, res) => {
                 role: user.role
             }
         });
-
     } catch (error) {
-        console.error('❌ خطأ عام في تسجيل الدخول:', error);
-        res.status(500).json({ 
-            message: 'خطأ في الخادم', 
-            error: error.message
-        });
+        res.status(500).json({ error: 'خطأ في السيرفر' });
     }
 });
+
+// الحصول على الملف الشخصي
+app.get('/api/profile', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId).select('-password');
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ error: 'خطأ في السيرفر' });
+    }
+});
+
+// تحديث الملف الشخصي
+app.put('/api/profile', authenticateToken, async (req, res) => {
+    try {
+        const { username, email } = req.body;
+        const user = await User.findByIdAndUpdate(
+            req.user.userId,
+            { username, email },
+            { new: true }
+        ).select('-password');
+        
+        res.json({ message: 'تم تحديث الملف الشخصي', user });
+    } catch (error) {
+        res.status(500).json({ error: 'خطأ في السيرفر' });
+    }
+});
+
 // الحصول على الخدمات
 app.get('/api/services', async (req, res) => {
     try {
-        const services = await Service.find({ active: true });
-        console.log('📦 تم جلب', services.length, 'خدمة');
+        const services = await Service.find({ status: 'active' });
         res.json(services);
     } catch (error) {
-        console.error('❌ خطأ في جلب الخدمات:', error);
-        
-        // إرجاع بيانات تجريبية في حالة الخطأ
-        res.json(sampleServices);
+        res.status(500).json({ error: 'خطأ في السيرفر' });
+    }
+});
+
+// إضافة خدمة جديدة (لأدمن فقط)
+app.post('/api/services', authenticateToken, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'غير مصرح لك' });
+        }
+
+        const service = new Service(req.body);
+        await service.save();
+        res.status(201).json({ message: 'تم إضافة الخدمة', service });
+    } catch (error) {
+        res.status(500).json({ error: 'خطأ في السيرفر' });
     }
 });
 
 // إنشاء طلب جديد
 app.post('/api/orders', authenticateToken, async (req, res) => {
     try {
-        const { serviceId, quantity, link } = req.body;
-        
+        const { serviceId, link, quantity } = req.body;
+
+        // الحصول على الخدمة
         const service = await Service.findById(serviceId);
         if (!service) {
-            return res.status(404).json({ message: 'الخدمة غير موجودة' });
+            return res.status(404).json({ error: 'الخدمة غير موجودة' });
         }
 
+        // الحصول على المستخدم
         const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ error: 'المستخدم غير موجود' });
+        }
+
+        // حساب السعر
         const totalPrice = service.price * quantity;
 
+        // التحقق من الرصيد
         if (user.balance < totalPrice) {
-            return res.status(400).json({ message: 'رصيدك غير كافي' });
+            return res.status(400).json({ error: 'رصيدك غير كافي' });
         }
 
         // خصم المبلغ من الرصيد
@@ -470,9 +279,10 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
         const order = new Order({
             userId: req.user.userId,
             serviceId,
+            link,
             quantity,
-            totalPrice,
-            link
+            price: totalPrice,
+            orderId: `ORD${Date.now()}`
         });
 
         await order.save();
@@ -480,60 +290,21 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
         // تسجيل المعاملة
         const transaction = new Transaction({
             userId: req.user.userId,
-            amount: -totalPrice,
             type: 'order',
+            amount: -totalPrice,
             description: `طلب خدمة: ${service.name}`
         });
 
         await transaction.save();
 
-        console.log('🛒 تم إنشاء طلب جديد:', order._id);
-        
+        // هنا يمكنك إضافة كود لإرسال الطلب إلى الواتساب
+
         res.status(201).json({ 
             message: 'تم إنشاء الطلب بنجاح',
-            order: {
-                id: order._id,
-                service: service.name,
-                quantity,
-                totalPrice,
-                link,
-                status: order.status
-            }
+            order 
         });
     } catch (error) {
-        console.error('❌ خطأ في إنشاء الطلب:', error);
-        res.status(500).json({ message: 'خطأ في إنشاء الطلب', error: error.message });
-    }
-});
-
-// شحن الرصيد
-app.post('/api/deposit', authenticateToken, async (req, res) => {
-    try {
-        const { amount } = req.body;
-        const user = await User.findById(req.user.userId);
-
-        user.balance += parseFloat(amount);
-        await user.save();
-
-        // تسجيل المعاملة
-        const transaction = new Transaction({
-            userId: req.user.userId,
-            amount: parseFloat(amount),
-            type: 'deposit',
-            description: 'شحن رصيد'
-        });
-
-        await transaction.save();
-
-        console.log('💳 تم شحن رصيد:', amount, 'للمستخدم:', user.username);
-        
-        res.json({ 
-            message: 'تم شحن الرصيد بنجاح',
-            newBalance: user.balance 
-        });
-    } catch (error) {
-        console.error('❌ خطأ في شحن الرصيد:', error);
-        res.status(500).json({ message: 'خطأ في شحن الرصيد', error: error.message });
+        res.status(500).json({ error: 'خطأ في السيرفر' });
     }
 });
 
@@ -543,12 +314,41 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
         const orders = await Order.find({ userId: req.user.userId })
             .populate('serviceId')
             .sort({ createdAt: -1 });
-        
-        console.log('📋 تم جلب', orders.length, 'طلب للمستخدم');
         res.json(orders);
     } catch (error) {
-        console.error('❌ خطأ في جلب الطلبات:', error);
-        res.status(500).json({ message: 'خطأ في جلب الطلبات', error: error.message });
+        res.status(500).json({ error: 'خطأ في السيرفر' });
+    }
+});
+
+// شحن الرصيد
+app.post('/api/deposit', authenticateToken, async (req, res) => {
+    try {
+        const { amount } = req.body;
+
+        if (amount <= 0) {
+            return res.status(400).json({ error: 'المبلغ يجب أن يكون أكبر من الصفر' });
+        }
+
+        const user = await User.findById(req.user.userId);
+        user.balance += amount;
+        await user.save();
+
+        // تسجيل المعاملة
+        const transaction = new Transaction({
+            userId: req.user.userId,
+            type: 'deposit',
+            amount: amount,
+            description: `شحن رصيد بمبلغ: ${amount}`
+        });
+
+        await transaction.save();
+
+        res.json({ 
+            message: 'تم شحن الرصيد بنجاح',
+            newBalance: user.balance 
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'خطأ في السيرفر' });
     }
 });
 
@@ -557,128 +357,65 @@ app.get('/api/transactions', authenticateToken, async (req, res) => {
     try {
         const transactions = await Transaction.find({ userId: req.user.userId })
             .sort({ createdAt: -1 });
-        
-        console.log('💰 تم جلب', transactions.length, 'معاملة للمستخدم');
         res.json(transactions);
     } catch (error) {
-        console.error('❌ خطأ في جلب المعاملات:', error);
-        res.status(500).json({ message: 'خطأ في جلب المعاملات', error: error.message });
+        res.status(500).json({ error: 'خطأ في السيرفر' });
     }
 });
 
-// 🔹 APIs للمشرف
-
-// APIs للمشرف - مع تحقق محسن
-app.get('/api/admin/orders', authenticateToken, async (req, res) => {
+// إحصائيات الأدمن
+app.get('/api/admin/stats', authenticateToken, async (req, res) => {
     try {
-        console.log('🔐 طلب لوحة المشرف من:', req.user.userId);
-        
-        const user = await User.findById(req.user.userId);
-        console.log('👤 دور المستخدم:', user.role);
-        
-        if (user.role !== 'admin') {
-            console.log('❌ رفض الوصول - المستخدم ليس مشرفاً');
-            return res.status(403).json({ message: 'غير مصرح لك - يجب أن تكون مشرفاً' });
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'غير مصرح لك' });
         }
 
-        console.log('✅ تم التحقق من صلاحيات المشرف');
-        const orders = await Order.find()
-            .populate('userId', 'username email')
-            .populate('serviceId')
-            .sort({ createdAt: -1 });
-        
-        res.json(orders);
+        const totalUsers = await User.countDocuments();
+        const totalOrders = await Order.countDocuments();
+        const totalRevenue = await Transaction.aggregate([
+            { $match: { type: 'deposit' } },
+            { $group: { _id: null, total: { $sum: '$amount' } } }
+        ]);
+
+        const recentOrders = await Order.find()
+            .populate('userId', 'username')
+            .populate('serviceId', 'name')
+            .sort({ createdAt: -1 })
+            .limit(10);
+
+        res.json({
+            totalUsers,
+            totalOrders,
+            totalRevenue: totalRevenue[0]?.total || 0,
+            recentOrders
+        });
     } catch (error) {
-        console.error('❌ خطأ في جلب طلبات المشرف:', error);
-        res.status(500).json({ message: 'خطأ في جلب الطلبات', error: error.message });
+        res.status(500).json({ error: 'خطأ في السيرفر' });
     }
 });
 
-app.get('/api/admin/users', authenticateToken, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.userId);
-        if (user.role !== 'admin') {
-            return res.status(403).json({ message: 'غير مصرح لك' });
-        }
-
-        const users = await User.find().select('-password');
-        console.log('👥 تم جلب', users.length, 'مستخدم للمشرف');
-        res.json(users);
-    } catch (error) {
-        console.error('❌ خطأ في جلب المستخدمين:', error);
-        res.status(500).json({ message: 'خطأ في جلب المستخدمين', error: error.message });
-    }
+// Routes للصفحات
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
-app.put('/api/admin/orders/:id', authenticateToken, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.userId);
-        if (user.role !== 'admin') {
-            return res.status(403).json({ message: 'غير مصرح لك' });
-        }
-
-        const { status } = req.body;
-        const order = await Order.findByIdAndUpdate(
-            req.params.id,
-            { status },
-            { new: true }
-        ).populate('userId serviceId');
-
-        console.log('🔄 تم تحديث حالة الطلب:', order._id, 'إلى:', status);
-        
-        res.json({ message: 'تم تحديث حالة الطلب', order });
-    } catch (error) {
-        console.error('❌ خطأ في تحديث الطلب:', error);
-        res.status(500).json({ message: 'خطأ في تحديث الطلب', error: error.message });
-    }
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// API لفحص بيانات المستخدم الحالي
-app.get('/api/me', authenticateToken, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.userId).select('-password');
-        if (!user) {
-            return res.status(404).json({ message: 'المستخدم غير موجود' });
-        }
-        
-        console.log('🔍 طلب بيانات المستخدم:', user.email, '- الدور:', user.role);
-        res.json(user);
-    } catch (error) {
-        console.error('❌ خطأ في جلب بيانات المستخدم:', error);
-        res.status(500).json({ message: 'خطأ في الخادم' });
-    }
+app.get('/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'profile.html'));
 });
 
-// API لفحص حالة الخادم
-app.get('/api/status', (req, res) => {
-    res.json({ 
-        status: 'running',
-        message: 'الخادم يعمل بشكل طبيعي',
-        timestamp: new Date().toISOString(),
-        database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
-    });
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// معالجة الأخطاء غير المتوقعة
-process.on('uncaughtException', (error) => {
-    console.error('❌ خطأ غير متوقع:', error);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('❌ خطأ في الوعد:', reason);
+app.get('/register', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
 
 // تشغيل الخادم
-app.listen(PORT, '0.0.0.0', () => {
-    console.log('🚀 ==================================');
-    console.log('🚀 نظام SMM المتكامل يعمل بنجاح!');
-    console.log('🚀 ==================================');
-    console.log(`📡 الخادم يعمل على: http://localhost:${PORT}`);
-    console.log(`🔗 العنوان المحلي: http://127.0.0.1:${PORT}`);
-    console.log('⏰ وقت التشغيل:', new Date().toLocaleString('ar-EG'));
-    console.log('💾 حالة قاعدة البيانات:', mongoose.connection.readyState === 1 ? 'متصل ✅' : 'غير متصل ⚠️');
-    console.log('🔧 للمساعدة: تأكد من فتح المتصفح على العنوان الصحيح');
-    console.log('🚀 ==================================');
+app.listen(PORT, () => {
+    console.log(`🚀 السيرفر يعمل على http://localhost:${PORT}`);
 });
-
-console.log('🔄 جاري تشغيل الخادم...');
