@@ -377,6 +377,53 @@ const requireAdmin = (req, res, next) => {
     next();
 };
 
+// استيراد الـ Middlewares
+const {
+    authenticateToken,
+    requireActiveUser,
+    requireAdmin,
+    checkOrderLimits,
+    checkBalance,
+    validateLink,
+    loginLimiter,
+    orderLimiter
+} = require('./middleware/auth');
+
+// أمثلة على استخدام الـ Middlewares في Routes:
+
+// تسجيل الدخول مع Rate Limiting
+app.post('/api/login', loginLimiter, async (req, res) => {
+    // كود تسجيل الدخول
+});
+
+// إنشاء طلب مع جميع التحققات
+app.post('/api/orders', 
+    authenticateToken, 
+    requireActiveUser,
+    validateLink,
+    checkOrderLimits,
+    checkBalance,
+    orderLimiter,
+    async (req, res) => {
+    // كود إنشاء الطلب
+});
+
+// Routes للأدمن فقط
+app.get('/api/admin/stats', 
+    authenticateToken, 
+    requireAdmin,
+    async (req, res) => {
+    // كود الإحصائيات
+});
+
+// Routes تحتاج ملكية البيانات
+app.get('/api/users/:userId/orders',
+    authenticateToken,
+    requireOwnership,
+    async (req, res) => {
+    // كود طلبات المستخدم
+});
+
 // Routes
 
 // الصفحة الرئيسية
