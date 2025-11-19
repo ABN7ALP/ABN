@@ -1,22 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { 
-    getRegisterPage, 
-    registerUser, 
-    getLoginPage, 
-    loginUser,
-    logoutUser 
-} = require('../controllers/authController');
+const authController = require('../controllers/authController');
 
-// مسارات التسجيل
-router.get('/register', getRegisterPage);
-router.post('/register', registerUser);
-
-// مسارات تسجيل الدخول
-router.get('/login', getLoginPage);
-router.post('/login', loginUser);
-
-// مسار تسجيل الخروج
-router.get('/logout', logoutUser);
+router.get('/register', authController.getRegisterPage);
+router.post('/register', authController.registerUser);
+router.get('/login', authController.getLoginPage);
+router.post('/login', authController.loginUser);
+router.get('/logout', authController.logoutUser);
 
 module.exports = router;
