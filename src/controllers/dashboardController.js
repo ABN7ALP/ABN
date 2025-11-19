@@ -1,7 +1,7 @@
-const mongoose = require('mongoose'); // <-- استدعاء mongoose
-const Service = mongoose.model('Service'); // <-- استخدام mongoose.model
-const User = mongoose.model('User');     // <-- استخدام mongoose.model
-const Order = mongoose.model('Order');     // <-- استخدام mongoose.model
+const mongoose = require('mongoose');
+const Service = mongoose.model('Service');
+const User = mongoose.model('User');
+const Order = mongoose.model('Order');
 
 // @desc    عرض الصفحة الرئيسية (لوحة التحكم)
 // @route   GET /dashboard
@@ -50,8 +50,19 @@ exports.createOrder = async (req, res) => {
             return res.status(400).json({ success: false, message: 'رصيدك غير كافٍ لإتمام هذا الطلب' });
         }
 
-        user.balance -= charge;
-        await user.save();
+        // =================== التعديل الجذري هنا ===================
+        // بدلاً من user.save()، نستخدم findByIdAndUpdate مع $inc
+        // هذا يخصم الرصيد مباشرة في قاعدة البيانات وهو أكثر أماناً
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $inc: { balance: -charge } }, // استخدمنا $inc مع قيمة سالبة للخصم
+            { new: true } // لإرجاع المستند المحدث
+        );
+        // ==========================================================
+
+        if (!updatedUser) {
+            return res.status(404).json({ success: false, message: 'لم يتم العثور على المستخدم أثناء محاولة تحديث الرصيد.' });
+        }
 
         await Order.create({
             user: userId,
@@ -64,10 +75,11 @@ exports.createOrder = async (req, res) => {
         res.status(201).json({ 
             success: true, 
             message: 'تم استلام طلبك بنجاح!',
-            newBalance: user.balance.toFixed(2)
+            newBalance: updatedUser.balance.toFixed(2) // نستخدم الرصيد من المستخدم المحدث
         });
 
-    } catch (error) {
+    } catch (error)
+     {
         console.error('خطأ في إنشاء الطلب:', error);
         res.status(500).json({ success: false, message: 'حدث خطأ في الخادم أثناء معالجة طلبك' });
     }
