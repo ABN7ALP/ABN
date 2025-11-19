@@ -1,88 +1,74 @@
 const mongoose = require('mongoose');
-const User = mongoose.model('User');
 const bcrypt = require('bcryptjs');
+const User = mongoose.model('User');
+
+const authController = {}; // كائن جديد لتجميع الدوال
 
 // @desc    عرض صفحة التسجيل
-// @route   GET /auth/register
-exports.getRegisterPage = (req, res) => {
+authController.getRegisterPage = (req, res) => {
     res.render('register', { pageTitle: 'إنشاء حساب' });
 };
 
-// @desc    معالجة طلب إنشاء حساب جديد
-// @route   POST /auth/register
-exports.registerUser = async (req, res) => {
+// @desc    إنشاء مستخدم جديد
+authController.registerUser = async (req, res) => {
+    const { name, email, password, password2 } = req.body;
+    // ... (باقي منطق الدالة بدون تغيير)
+    if (password !== password2) {
+        return res.render('register', { error_msg: 'كلمتا المرور غير متطابقتين' });
+    }
     try {
-        const { name, email, password } = req.body;
-        const userExists = await User.findOne({ email });
-        if (userExists) {
-            return res.status(400).send('هذا البريد الإلكتروني مستخدم بالفعل');
-        }
-        const user = await User.create({ name, email, password });
+        let user = await User.findOne({ email });
         if (user) {
-            res.redirect('/auth/login');
-        } else {
-            res.status(400).send('بيانات المستخدم غير صالحة');
+            return res.render('register', { error_msg: 'البريد الإلكتروني مسجل بالفعل' });
         }
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        user = await User.create({ name, email, password: hashedPassword });
+        req.session.user = { id: user._id, name: user.name, role: user.role };
+        res.redirect('/dashboard');
     } catch (error) {
         console.error(error);
-        res.status(500).send('حدث خطأ في الخادم');
+        res.render('register', { error_msg: 'حدث خطأ ما، يرجى المحاولة مرة أخرى' });
     }
 };
 
 // @desc    عرض صفحة تسجيل الدخول
-// @route   GET /auth/login
-exports.getLoginPage = (req, res) => {
+authController.getLoginPage = (req, res) => {
     res.render('login', { pageTitle: 'تسجيل الدخول' });
 };
 
-// @desc    معالجة طلب تسجيل الدخول
-// @route   POST /auth/login
-exports.loginUser = async (req, res) => {
+// @desc    تسجيل دخول المستخدم
+authController.loginUser = async (req, res) => {
+    const { email, password } = req.body;
     try {
-        const { email, password } = req.body;
-
-        // =================== الإصلاح الحاسم هنا ===================
-        // أضفنا .select('+password') لطلب حقل كلمة المرور بشكل صريح
-        const user = await User.findOne({ email }).select('+password');
-        // ==========================================================
-
-        // إذا لم يتم العثور على المستخدم، أو إذا لم يتم إرجاع كلمة مرور لسبب ما
-        if (!user || !user.password) {
-            return res.status(401).send('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.render('login', { error_msg: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
         }
-
-        // الآن user.password مضمونة أنها موجودة
         const isMatch = await bcrypt.compare(password, user.password);
-
         if (!isMatch) {
-            return res.status(401).send('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+            return res.render('login', { error_msg: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
         }
-
-        // إنشاء الجلسة
-        req.session.user = { id: user._id, name: user.name, role: user.role };
-        
-        // توجيه المستخدم بناءً على دوره
+        req.session.user = { id: user._id, name: user.name, role: user.role, balance: user.balance };
         if (user.role === 'admin') {
-            res.redirect('/admin');
-        } else {
-            res.redirect('/dashboard');
+            return res.redirect('/admin');
         }
-
+        res.redirect('/dashboard');
     } catch (error) {
-        console.error('خطأ في تسجيل الدخول:', error);
-        res.status(500).send('حدث خطأ في الخادم');
+        console.error(error);
+        res.render('login', { error_msg: 'حدث خطأ ما' });
     }
 };
 
-// @desc    تسجيل الخروج
-// @route   GET /auth/logout
-exports.logoutUser = (req, res) => {
+// @desc    تسجيل خروج المستخدم
+authController.logoutUser = (req, res) => {
     req.session.destroy(err => {
         if (err) {
-            console.error('خطأ أثناء تدمير الجلسة:', err);
             return res.redirect('/dashboard');
         }
         res.clearCookie('connect.sid');
         res.redirect('/auth/login');
     });
 };
+
+module.exports = authController; // تصدير الكائن بالكامل
