@@ -7,8 +7,8 @@ exports.getFundsPage = (req, res) => {
     res.render('add-funds', { 
         pageTitle: 'شحن الرصيد',
         user: req.session.user,
-        success_msg: req.query.success, // لقراءة رسالة النجاح من الرابط
-        error_msg: req.query.error,     // لقراءة رسالة الخطأ من الرابط
+        success_msg: req.query.success,
+        error_msg: req.query.error,
     });
 };
 
@@ -20,7 +20,6 @@ exports.createFundRequest = async (req, res) => {
         const userId = req.session.user.id;
 
         if (!method || !amount || !details) {
-            // إعادة التوجيه مع رسالة خطأ
             return res.redirect('/add-funds?error=الرجاء ملء جميع الحقول');
         }
 
@@ -31,7 +30,6 @@ exports.createFundRequest = async (req, res) => {
             details,
         });
 
-        // إعادة التوجيه مع رسالة نجاح
         res.redirect('/add-funds?success=تم إرسال طلبك بنجاح، ستتم مراجعته قريباً.');
 
     } catch (error) {
