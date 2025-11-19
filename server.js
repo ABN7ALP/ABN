@@ -8,7 +8,8 @@ const MongoStore = require('connect-mongo');
 
 // استدعاء ملفات المسارات
 const authRoutes = require('./src/routes/authRoutes');
-const dashboardRoutes = require('./src/routes/dashboardRoutes'); // <-- إضافة جديدة
+const dashboardRoutes = require('./src/routes/dashboardRoutes');
+const orderRoutes = require('./src/routes/orderRoutes'); // <-- إضافة جديدة
 
 // الاتصال بقاعدة البيانات
 connectDB();
@@ -37,12 +38,13 @@ app.set('views', path.join(__dirname, 'src/views'));
 
 // 4. المسارات (Routes)
 app.use('/auth', authRoutes);
-app.use('/dashboard', dashboardRoutes); // <-- إضافة جديدة
+app.use('/dashboard', dashboardRoutes);
+app.use('/orders', orderRoutes); // <-- إضافة جديدة
 
 // مسار الصفحة الرئيسية (/)
 app.get('/', (req, res) => {
   if (req.session.user) {
-    return res.redirect('/dashboard'); // <-- تعديل: توجيه إلى لوحة التحكم
+    return res.redirect('/dashboard');
   }
   res.render('index', { pageTitle: 'الرئيسية' }); 
 });
