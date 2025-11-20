@@ -7,7 +7,8 @@ const path = require('path');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const connectDB = require('./src/config/db');
-const mongoose = require('mongoose'); // <-- هذا هو السطر الذي تم إصلاحه
+const mongoose = require('mongoose');
+const logger = require('./src/config/logger'); // <-- استيراد نظام التسجيل الجديد
 
 // ----------------------------------------------------------------
 // المرحلة 2: الاتصال بقاعدة البيانات وتسجيل النماذج
@@ -26,11 +27,20 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ----------------------------------------------------------------
-// المرحلة 4: إعداد الوسائط (MIDDLEWARE)
+// المرحلة 4: إعداد الوسائط (MIDDLEWARE) بالترتيب الصحيح
 // ----------------------------------------------------------------
+
+// 4.0: نظام التسجيل الشامل (يجب أن يكون أولاً)
+app.use(logger); // <-- استخدام نظام التسجيل
+
+// 4.1: وسائط تحليل الجسم (Body Parsers)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// 4.2: وسيط الملفات الثابتة
 app.use(express.static(path.join(__dirname, 'public')));
+
+// 4.3: وسيط الجلسات
 app.use(
   session({
     secret: 'bessar-smm-engine-super-secret-key-that-is-long',
@@ -47,11 +57,10 @@ app.use(
   })
 );
 
-// وسيط مخصص لجلب الإشعارات وإضافتها إلى كل الصفحات
-// الآن mongoose معرفة بشكل صحيح هنا
-const Notification = mongoose.model('Notification');
+// 4.4: وسيط مخصص لجلب بيانات المستخدم والإشعارات
 app.use(async (req, res, next) => {
     if (req.session.user) {
+        const Notification = mongoose.model('Notification');
         const unreadCount = await Notification.countDocuments({ user: req.session.user.id, isRead: false });
         res.locals.unreadNotifications = unreadCount;
         res.locals.user = req.session.user;
@@ -59,6 +68,7 @@ app.use(async (req, res, next) => {
     next();
 });
 
+// 4.5: إعداد محرك القوالب
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src/views'));
 
