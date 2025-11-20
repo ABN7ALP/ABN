@@ -1,13 +1,14 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 const User = mongoose.model('User');
 
 const authController = {};
 
-// ... (getRegisterPage, registerUser, getLoginPage - بدون تغيير) ...
+// @desc    عرض صفحة إنشاء حساب
 authController.getRegisterPage = (req, res) => {
     res.render('register', { pageTitle: 'إنشاء حساب', error_msg: null, success_msg: null });
 };
+
+// @desc    تسجيل مستخدم جديد
 authController.registerUser = async (req, res) => {
     const { name, email, password, password2 } = req.body;
     if (password !== password2) {
@@ -18,20 +19,21 @@ authController.registerUser = async (req, res) => {
         if (user) {
             return res.render('register', { error_msg: 'البريد الإلكتروني مسجل بالفعل', name, email });
         }
-        user = new User({ name, email, password }); // سيتم التشفير بواسطة الـ pre-save hook
+        user = new User({ name, email, password });
         await user.save();
         
-        req.session.user = { id: user._id, name: user.name, role: user.role, balance: user.balance };
+        req.session.user = { id: user._id, name: user.name, role: user.role, balance: user.balance, profileImage: user.profileImage };
         res.redirect('/dashboard');
     } catch (error) {
         console.error(error);
         res.render('register', { error_msg: 'حدث خطأ ما، يرجى المحاولة مرة أخرى', name, email });
     }
 };
+
+// @desc    عرض صفحة تسجيل الدخول
 authController.getLoginPage = (req, res) => {
     res.render('login', { pageTitle: 'تسجيل الدخول', error_msg: null });
 };
-
 
 // @desc    تسجيل دخول المستخدم
 authController.loginUser = async (req, res) => {
@@ -42,13 +44,12 @@ authController.loginUser = async (req, res) => {
             return res.render('login', { error_msg: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
         }
 
-        // استخدام الدالة التي أنشأناها في النموذج للمقارنة
         const isMatch = await user.matchPassword(password);
         if (!isMatch) {
             return res.render('login', { error_msg: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
         }
         
-        req.session.user = { id: user._id, name: user.name, role: user.role, balance: user.balance };
+        req.session.user = { id: user._id, name: user.name, role: user.role, balance: user.balance, profileImage: user.profileImage };
         
         if (user.role === 'admin') {
             return res.redirect('/admin');
