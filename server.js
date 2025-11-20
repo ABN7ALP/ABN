@@ -7,6 +7,7 @@ const path = require('path');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const connectDB = require('./src/config/db');
+const mongoose = require('mongoose'); // <-- هذا هو السطر الذي تم إصلاحه
 
 // ----------------------------------------------------------------
 // المرحلة 2: الاتصال بقاعدة البيانات وتسجيل النماذج
@@ -47,12 +48,13 @@ app.use(
 );
 
 // وسيط مخصص لجلب الإشعارات وإضافتها إلى كل الصفحات
+// الآن mongoose معرفة بشكل صحيح هنا
 const Notification = mongoose.model('Notification');
 app.use(async (req, res, next) => {
     if (req.session.user) {
         const unreadCount = await Notification.countDocuments({ user: req.session.user.id, isRead: false });
         res.locals.unreadNotifications = unreadCount;
-        res.locals.user = req.session.user; // جعل بيانات المستخدم متاحة لكل القوالب
+        res.locals.user = req.session.user;
     }
     next();
 });
@@ -69,7 +71,7 @@ const orderRoutes = require('./src/routes/orderRoutes');
 const fundsRoutes = require('./src/routes/fundsRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const profileRoutes = require('./src/routes/profileRoutes');
-const notificationRoutes = require('./src/routes/notificationRoutes'); // <-- السطر الجديد
+const notificationRoutes = require('./src/routes/notificationRoutes');
 
 app.use('/auth', authRoutes);
 app.use('/dashboard', dashboardRoutes);
@@ -77,7 +79,7 @@ app.use('/orders', orderRoutes);
 app.use('/add-funds', fundsRoutes);
 app.use('/admin', adminRoutes);
 app.use('/profile', profileRoutes);
-app.use('/notifications', notificationRoutes); // <-- السطر الجديد
+app.use('/notifications', notificationRoutes);
 
 // مسار الصفحة الرئيسية
 app.get('/', (req, res) => {
