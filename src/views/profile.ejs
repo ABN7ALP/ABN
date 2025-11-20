@@ -24,16 +24,31 @@
         <% } %>
 
         <div class="row">
-            <!-- قسم معلومات المستخدم -->
+            <!-- قسم معلومات المستخدم وتغيير الصورة -->
             <div class="col-md-5 mb-4">
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">معلوماتي</h5>
                     </div>
                     <div class="card-body text-center">
-                        <img src="/image/<%= user.profileImage || 'default.jpg' %>" alt="الصورة الشخصية" class="rounded-circle mb-3" width="150" height="150">
+                        <!-- عرض الصورة الشخصية من مجلد uploads -->
+                        <img src="/uploads/<%= user.profileImage %>" 
+                             onerror="this.onerror=null;this.src='/image/default.jpg';" 
+                             alt="الصورة الشخصية" class="rounded-circle mb-3" width="150" height="150" style="object-fit: cover;">
+                        
                         <h4><%= user.name %></h4>
                         <p class="text-muted"><%= user.email %></p>
+                        <hr>
+                        
+                        <!-- نموذج تغيير الصورة الشخصية -->
+                        <form action="/profile/upload-image" method="POST" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="profileImage" class="form-label">تغيير الصورة الشخصية</label>
+                                <input class="form-control" type="file" id="profileImage" name="profileImage" required>
+                            </div>
+                            <button type="submit" class="btn btn-secondary btn-sm">رفع الصورة</button>
+                        </form>
+                        
                         <hr>
                         <p class="card-text">تاريخ الانضمام: <%= new Date(user.createdAt).toLocaleDateString('ar-EG') %></p>
                     </div>
