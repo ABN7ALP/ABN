@@ -66,12 +66,14 @@ const dashboardRoutes = require('./src/routes/dashboardRoutes');
 const orderRoutes = require('./src/routes/orderRoutes');
 const fundsRoutes = require('./src/routes/fundsRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
+const profileRoutes = require('./src/routes/profileRoutes'); // <-- السطر الجديد الذي تمت إضافته
 
 app.use('/auth', authRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/orders', orderRoutes);
 app.use('/add-funds', fundsRoutes);
 app.use('/admin', adminRoutes);
+app.use('/profile', profileRoutes); // <-- السطر الجديد الذي تمت إضافته
 
 // مسار الصفحة الرئيسية (/) - يجب أن يكون من آخر المسارات
 app.get('/', (req, res) => {
