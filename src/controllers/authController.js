@@ -5,7 +5,7 @@ const authController = {};
 
 // @desc    عرض صفحة إنشاء حساب
 authController.getRegisterPage = (req, res) => {
-    res.render('register', { pageTitle: 'إنشاء حساب', error_msg: null, success_msg: null });
+    res.render('register', { pageTitle: 'إنشاء حساب', error_msg: null, success_msg: null, name: '', email: '' });
 };
 
 // @desc    تسجيل مستخدم جديد
@@ -22,11 +22,18 @@ authController.registerUser = async (req, res) => {
         user = new User({ name, email, password });
         await user.save();
         
+        // إنشاء الجلسة مباشرة بعد التسجيل
         req.session.user = { id: user._id, name: user.name, role: user.role, balance: user.balance, profileImage: user.profileImage };
         res.redirect('/dashboard');
+
     } catch (error) {
-        console.error(error);
-        res.render('register', { error_msg: 'حدث خطأ ما، يرجى المحاولة مرة أخرى', name, email });
+        console.error("خطأ في تسجيل المستخدم:", error);
+        // في حالة وجود خطأ في التحقق من الصحة (مثل حقل فارغ)، أرسل رسالة واضحة
+        if (error.name === 'ValidationError') {
+            const message = Object.values(error.errors).map(val => val.message).join(', ');
+            return res.render('register', { error_msg: message, name, email });
+        }
+        res.render('register', { error_msg: 'حدث خطأ ما في الخادم، يرجى المحاولة مرة أخرى', name, email });
     }
 };
 
@@ -39,7 +46,8 @@ authController.getLoginPage = (req, res) => {
 authController.loginUser = async (req, res) => {
     const { email, password } = req.body;
     try {
-        const user = await User.findOne({ email });
+        // جلب المستخدم مع كلمة المرور
+        const user = await User.findOne({ email }).select('+password');
         if (!user) {
             return res.render('login', { error_msg: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
         }
@@ -49,19 +57,18 @@ authController.loginUser = async (req, res) => {
             return res.render('login', { error_msg: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
         }
         
+        // إنشاء الجلسة
         req.session.user = { id: user._id, name: user.name, role: user.role, balance: user.balance, profileImage: user.profileImage };
         
+        // توجيه المستخدم بناءً على دوره
         if (user.role === 'admin') {
             return res.redirect('/admin');
         }
         
-        // =================== الإصلاح الحاسم هنا ===================
-        // إضافة توجيه صريح للمستخدم العادي
         res.redirect('/dashboard');
-        // ==========================================================
 
     } catch (error) {
-        console.error(error);
+        console.error("خطأ في تسجيل الدخول:", error);
         res.render('login', { error_msg: 'حدث خطأ ما في الخادم' });
     }
 };
