@@ -16,7 +16,7 @@ require('./src/models/User');
 require('./src/models/Service');
 require('./src/models/Order');
 require('./src/models/FundRequest');
-require('./src/models/Notification'); // <-- السطر الجديد
+require('./src/models/Notification');
 
 // ----------------------------------------------------------------
 // المرحلة 3: إنشاء تطبيق Express
@@ -46,17 +46,16 @@ app.use(
   })
 );
 
-// 4.5: وسيط مخصص لجلب الإشعارات وإضافتها إلى كل الصفحات
-// هذا يجب أن يكون بعد وسيط الجلسات
+// وسيط مخصص لجلب الإشعارات وإضافتها إلى كل الصفحات
 const Notification = mongoose.model('Notification');
 app.use(async (req, res, next) => {
     if (req.session.user) {
         const unreadCount = await Notification.countDocuments({ user: req.session.user.id, isRead: false });
-        res.locals.unreadNotifications = unreadCount; // إضافة عدد الإشعارات إلى المتغيرات المحلية
+        res.locals.unreadNotifications = unreadCount;
+        res.locals.user = req.session.user; // جعل بيانات المستخدم متاحة لكل القوالب
     }
     next();
 });
-
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src/views'));
@@ -70,7 +69,7 @@ const orderRoutes = require('./src/routes/orderRoutes');
 const fundsRoutes = require('./src/routes/fundsRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const profileRoutes = require('./src/routes/profileRoutes');
-// سيتم إضافة مسار الإشعارات لاحقاً
+const notificationRoutes = require('./src/routes/notificationRoutes'); // <-- السطر الجديد
 
 app.use('/auth', authRoutes);
 app.use('/dashboard', dashboardRoutes);
@@ -78,6 +77,7 @@ app.use('/orders', orderRoutes);
 app.use('/add-funds', fundsRoutes);
 app.use('/admin', adminRoutes);
 app.use('/profile', profileRoutes);
+app.use('/notifications', notificationRoutes); // <-- السطر الجديد
 
 // مسار الصفحة الرئيسية
 app.get('/', (req, res) => {
