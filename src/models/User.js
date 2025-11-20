@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'الرجاء إدخال كلمة المرور'],
     minlength: 6,
-    select: false, // لا تقم بإرجاع كلمة المرور عند الاستعلام عن المستخدم
+    // select: false, // <-- قم بحذف هذا السطر أو تحويله إلى تعليق
   },
   role: {
     type: String,
@@ -28,11 +28,11 @@ const userSchema = new mongoose.Schema({
   },
   balance: {
     type: Number,
-    default: 0, // <-- إضافة قيمة افتراضية للرصيد
+    default: 0,
   },
   profileImage: {
     type: String,
-    default: 'default.jpg', // <-- إضافة قيمة افتراضية للصورة
+    default: 'default.jpg',
   },
   createdAt: {
     type: Date,
@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-// تشفير كلمة المرور قبل الحفظ
+// تشفير كلمة المرور قبل الحفظ (هذا الكود ممتاز ولا يحتاج تعديل)
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     next();
@@ -49,9 +49,14 @@ userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// مقارنة كلمة المرور المدخلة بكلمة المرور المشفرة
+// مقارنة كلمة المرور المدخلة بكلمة المرور المشفرة (هذا الكود ممتاز ولا يحتاج تعديل)
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-module.exports = mongoose.model('User', userSchema);
+// =================== تعديل بسيط هنا أيضاً ===================
+// في ملفات المشروع التي أرسلتها لي، أنت تستخدم mongoose.model() بدون module.exports
+// للحفاظ على التناسق، سنستخدم نفس الطريقة
+mongoose.model('User', userSchema);
+// module.exports = mongoose.model('User', userSchema); // <-- قم بحذف أو تعليق هذا السطر
+// ==========================================================
