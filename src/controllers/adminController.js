@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const User = mongoose.model('User');
 const Order = mongoose.model('Order');
 const FundRequest = mongoose.model('FundRequest');
-const Notification = mongoose.model('Notification'); // <-- استيراد نموذج الإشعارات
+const Notification = mongoose.model('Notification');
 
 const adminController = {};
 
@@ -51,14 +51,40 @@ adminController.updateOrderStatus = async (req, res) => {
         const { status } = req.body;
         const orderId = req.params.id;
 
-        const order = await Order.findByIdAndUpdate(orderId, { status: status }, { new: true });
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).send('الطلب غير موجود');
+        }
 
-        // إنشاء إشعار للمستخدم
-        await Notification.create({
-            user: order.user,
-            message: `تم تحديث حالة طلبك رقم ${order._id.toString().slice(-6)} إلى "${status}".`,
-            link: `/orders`
-        });
+        // =================== الإصلاح الحاسم هنا ===================
+        // التحقق إذا كان الطلب يتم إلغاؤه وكان في حالة تسمح باسترداد المبلغ
+        if (status === 'Canceled' && order.status !== 'Canceled') {
+            // إرجاع المبلغ إلى رصيد المستخدم
+            await User.findByIdAndUpdate(order.user, {
+                $inc: { balance: order.charge } // زيادة الرصيد بقيمة الطلب
+            });
+
+            // إرسال إشعار للمستخدم بإرجاع المبلغ
+            await Notification.create({
+                user: order.user,
+                message: `تم إلغاء طلبك رقم ${order._id.toString().slice(-6)} وإرجاع مبلغ $${order.charge.toFixed(2)} إلى رصيدك.`,
+                link: `/orders`
+            });
+        } else {
+            // إرسال إشعار عادي بتغيير الحالة (فقط إذا تغيرت الحالة)
+            if (order.status !== status) {
+                await Notification.create({
+                    user: order.user,
+                    message: `تم تحديث حالة طلبك رقم ${order._id.toString().slice(-6)} إلى "${status}".`,
+                    link: `/orders`
+                });
+            }
+        }
+        
+        // تحديث حالة الطلب في كل الحالات
+        order.status = status;
+        await order.save();
+        // ==========================================================
 
         res.redirect('/admin/orders');
 
@@ -96,14 +122,12 @@ adminController.updateFundRequestStatus = async (req, res) => {
             await User.findByIdAndUpdate(request.user, {
                 $inc: { balance: request.amount }
             });
-            // إنشاء إشعار للمستخدم عند الموافقة
             await Notification.create({
                 user: request.user,
                 message: `تمت الموافقة على طلب شحن الرصيد الخاص بك وإضافة $${request.amount.toFixed(2)} إلى حسابك.`,
                 link: '/add-funds'
             });
         } else if (status === 'Rejected') {
-            // إنشاء إشعار للمستخدم عند الرفض
             await Notification.create({
                 user: request.user,
                 message: `تم رفض طلب شحن الرصيد الخاص بك بقيمة $${request.amount.toFixed(2)}.`,
@@ -125,7 +149,7 @@ adminController.updateFundRequestStatus = async (req, res) => {
 // @desc    تحديث رصيد المستخدم
 adminController.updateUserBalance = async (req, res) => {
     try {
-        const { amount, reason } = req.body; // أضفنا حقل السبب
+        const { amount, reason } = req.body;
         const userId = req.params.id;
 
         const amountToAdd = parseFloat(amount);
@@ -135,7 +159,6 @@ adminController.updateUserBalance = async (req, res) => {
 
         await User.findByIdAndUpdate(userId, { $inc: { balance: amountToAdd } });
 
-        // إنشاء إشعار للمستخدم
         const notifMessage = amountToAdd > 0
             ? `أضاف المشرف $${amountToAdd.toFixed(2)} إلى رصيدك. السبب: ${reason || 'تعديل إداري'}`
             : `خصم المشرف $${Math.abs(amountToAdd).toFixed(2)} من رصيدك. السبب: ${reason || 'تعديل إداري'}`;
