@@ -8,7 +8,7 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const connectDB = require('./src/config/db');
 const mongoose = require('mongoose');
-const logger = require('./src/config/logger'); // <-- استيراد نظام التسجيل الجديد
+const morgan = require('morgan'); // <-- استيراد morgan مباشرة هنا
 
 // ----------------------------------------------------------------
 // المرحلة 2: الاتصال بقاعدة البيانات وتسجيل النماذج
@@ -31,7 +31,10 @@ const PORT = process.env.PORT || 3000;
 // ----------------------------------------------------------------
 
 // 4.0: نظام التسجيل الشامل (يجب أن يكون أولاً)
-app.use(logger); // <-- استخدام نظام التسجيل
+// تعريف تنسيق مخصص للتسجيل
+morgan.token('body', (req) => JSON.stringify(req.body));
+// استخدام morgan للتسجيل مباشرة في الكونسول
+app.use(morgan('[:date[iso]] :method :url :status :response-time ms - Body: :body'));
 
 // 4.1: وسائط تحليل الجسم (Body Parsers)
 app.use(express.json());
