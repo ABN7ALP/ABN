@@ -4,16 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم</title>
-    
-    <!-- Google Fonts: Cairo -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-    <!-- Main Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="admin-body">
@@ -21,51 +15,65 @@
     <!-- Login Overlay -->
     <div id="login-overlay" class="popup-overlay">
         <div class="popup-content">
-            <div class="popup-header">
-                <i class="ph-bold ph-lock"></i>
-                <h2>تسجيل الدخول</h2>
-            </div>
+            <div class="popup-header"><i class="ph-bold ph-lock"></i><h2>تسجيل الدخول</h2></div>
             <form id="login-form">
-                <div class="form-group">
-                    <label for="password-input">كلمة المرور</label>
-                    <input type="password" id="password-input" required>
-                </div>
+                <div class="form-group"><label for="password-input">كلمة المرور</label><input type="password" id="password-input" required></div>
                 <button type="submit" class="pill-button primary-button">دخول</button>
                 <p id="login-error" class="error-message" style="text-align: center; margin-top: 1rem;"></p>
             </form>
         </div>
     </div>
 
-    <!-- Main Admin Content (hidden by default) -->
+    <!-- Main Admin Content -->
     <div id="admin-content" class="container hidden">
         <header class="admin-header">
             <h1><i class="ph-bold ph-gauge"></i> لوحة التحكم</h1>
-            <button id="refresh-btn" class="pill-button secondary-button">
-                <i class="ph-bold ph-arrow-clockwise"></i>
-                <span>تحديث</span>
-            </button>
+            <a href="/" class="pill-button">العودة للموقع</a>
         </header>
 
-        <main>
-            <div class="table-container">
-                <table id="orders-table">
-                    <thead>
-                        <tr>
-                            <th>المنصة</th>
-                            <th>الخدمة</th>
-                            <th>الرابط</th>
-                            <th>الكمية</th>
-                            <th>السعر</th>
-                            <th>تاريخ الطلب</th>
-                            <th>الحالة</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orders-tbody">
-                        <!-- Orders will be injected here -->
-                    </tbody>
-                </table>
-                <div id="loading-spinner" class="loading-spinner">
-                    <i class="ph-bold ph-spinner-gap animate-spin"></i>
+        <main class="admin-main">
+            <!-- قسم إدارة الخدمات -->
+            <div class="admin-section">
+                <h2><i class="ph-bold ph-plus-circle"></i> إضافة خدمة جديدة</h2>
+                <form id="add-service-form" class="admin-form">
+                    <div class="form-row">
+                        <div class="form-group"><label>المنصة</label><input type="text" id="service-platform" placeholder="Instagram" required></div>
+                        <div class="form-group"><label>اسم الخدمة</label><input type="text" id="service-name" placeholder="متابعين" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>السعر لكل 1000</label><input type="number" id="service-price" placeholder="10.5" step="0.01" required></div>
+                        <div class="form-group"><label>الحد الأدنى</label><input type="number" id="service-min" placeholder="100" required></div>
+                        <div class="form-group"><label>الحد الأقصى</label><input type="number" id="service-max" placeholder="100000" required></div>
+                    </div>
+                    <button type="submit" class="pill-button primary-button">إضافة الخدمة</button>
+                </form>
+                <div id="service-form-response"></div>
+                
+                <hr class="divider">
+
+                <h2><i class="ph-bold ph-list-bullets"></i> الخدمات الحالية</h2>
+                <div class="table-container">
+                    <table id="services-table">
+                        <thead><tr><th>المنصة</th><th>الخدمة</th><th>السعر/1000</th><th>أدنى/أقصى حد</th><th>إجراء</th></tr></thead>
+                        <tbody id="services-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <!-- قسم إدارة الطلبات -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2><i class="ph-bold ph-shopping-cart"></i> الطلبات الأخيرة</h2>
+                    <button id="refresh-btn" class="pill-button secondary-button"><i class="ph-bold ph-arrow-clockwise"></i><span>تحديث</span></button>
+                </div>
+                <div class="table-container">
+                    <table id="orders-table">
+                        <thead><tr><th>المنصة</th><th>الخدمة</th><th>الرابط</th><th>الكمية</th><th>السعر</th><th>تاريخ الطلب</th><th>الحالة</th></tr></thead>
+                        <tbody id="orders-tbody"></tbody>
+                    </table>
+                    <div id="loading-spinner" class="loading-spinner"><i class="ph-bold ph-spinner-gap animate-spin"></i></div>
                 </div>
             </div>
         </main>
