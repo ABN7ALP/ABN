@@ -42,40 +42,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 3. عرض الطلبات في الجدول ---
-    function renderOrders(orders) {
-        if (orders.length === 0) {
-            ordersTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات حالياً.</td></tr>';
-            return;
-        }
-
-        orders.forEach(order => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><i class="ph-bold ph-${order.platform.toLowerCase()}-logo"></i> ${order.platform}</td>
-                <td>${order.service}</td>
-                <td><a href="${order.link}" target="_blank">عرض الرابط</a></td>
-                <td>${order.quantity.toLocaleString()}</td>
-                <td>${order.price.toFixed(2)} $</td>
-                <td>${new Date(order.createdAt).toLocaleDateString('ar-EG')}</td>
-                <td>
-                    <div class="select-wrapper status-select-wrapper">
-                        <select class="status-select" data-order-id="${order._id}">
-                            <option value="قيد المراجعة" ${order.status === 'قيد المراجعة' ? 'selected' : ''}>قيد المراجعة</option>
-                            <option value="قيد التنفيذ" ${order.status === 'قيد التنفيذ' ? 'selected' : ''}>قيد التنفيذ</option>
-                            <option value="مكتمل" ${order.status === 'مكتمل' ? 'selected' : ''}>مكتمل</option>
-                            <option value="ملغي" ${order.status === 'ملغي' ? 'selected' : ''}>ملغي</option>
-                        </select>
-                    </div>
-                </td>
-            `;
-            ordersTbody.appendChild(row);
-        });
-
-        // إضافة مستمعي الأحداث لقوائم تغيير الحالة
-        document.querySelectorAll('.status-select').forEach(select => {
-            select.addEventListener('change', handleStatusChange);
-        });
+    // --- 3. عرض الطلبات في الجدول ---
+function renderOrders(orders) {
+    if (orders.length === 0) {
+        ordersTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات حالياً.</td></tr>';
+        return;
     }
+
+    ordersTbody.innerHTML = ''; // إفراغ الجدول قبل إضافة الصفوف الجديدة
+
+    orders.forEach(order => {
+        const row = document.createElement('tr');
+
+        // --- هذا هو الجزء الذي تم تعديله ---
+        // التحقق من وجود المنصة قبل استخدامها لتجنب الخطأ
+        const platformName = order.platform || 'غير محدد'; // إذا لم تكن المنصة موجودة، اعرض "غير محدد"
+        const platformIcon = order.platform ? `ph-${order.platform.toLowerCase()}-logo` : 'ph-question'; // استخدم أيقونة استفهام كخيار احتياطي
+
+        row.innerHTML = `
+            <td><i class="ph-bold ${platformIcon}"></i> ${platformName}</td>
+            <td>${order.service || 'N/A'}</td>
+            <td><a href="${order.link || '#'}" target="_blank">عرض الرابط</a></td>
+            <td>${order.quantity ? order.quantity.toLocaleString() : 'N/A'}</td>
+            <td>${order.price ? order.price.toFixed(2) : '0.00'} $</td>
+            <td>${order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG') : 'N/A'}</td>
+            <td>
+                <div class="select-wrapper status-select-wrapper">
+                    <select class="status-select" data-order-id="${order._id}">
+                        <option value="قيد المراجعة" ${order.status === 'قيد المراجعة' ? 'selected' : ''}>قيد المراجعة</option>
+                        <option value="قيد التنفيذ" ${order.status === 'قيد التنفيذ' ? 'selected' : ''}>قيد التنفيذ</option>
+                        <option value="مكتمل" ${order.status === 'مكتمل' ? 'selected' : ''}>مكتمل</option>
+                        <option value="ملغي" ${order.status === 'ملغي' ? 'selected' : ''}>ملغي</option>
+                    </select>
+                </div>
+            </td>
+        `;
+        // --- نهاية الجزء المعدل ---
+
+        ordersTbody.appendChild(row);
+    });
+
+    // إعادة ربط الأحداث بعد إعادة رسم الجدول
+    document.querySelectorAll('.status-select').forEach(select => {
+        select.addEventListener('change', handleStatusChange);
+    });
+}
+
 
     // --- 4. معالجة تغيير حالة الطلب ---
     // --- 4. معالجة تغيير حالة الطلب ---
