@@ -78,34 +78,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 4. معالجة تغيير حالة الطلب ---
-    async function handleStatusChange(event) {
-        const selectElement = event.target;
-        const orderId = selectElement.dataset.orderId;
-        const newStatus = selectElement.value;
+    // --- 4. معالجة تغيير حالة الطلب ---
+async function handleStatusChange(event) {
+    const selectElement = event.target;
+    const orderId = selectElement.dataset.orderId;
+    const newStatus = selectElement.value;
+    const row = selectElement.closest('tr'); // الحصول على صف الجدول الأب
 
-        selectElement.disabled = true; // تعطيل القائمة مؤقتاً
+    selectElement.disabled = true;
+    row.style.opacity = '0.5'; // جعل الصف باهتاً أثناء التحديث
 
-        try {
-            const response = await fetch(`/api/orders/${orderId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: newStatus }),
-            });
+    try {
+        const response = await fetch(`/api/orders/${orderId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus }),
+        });
 
-            if (!response.ok) {
-                throw new Error('فشل تحديث حالة الطلب');
-            }
-            // يمكنك إضافة إشعار نجاح هنا
-            console.log(`Order ${orderId} updated to ${newStatus}`);
-
-        } catch (error) {
-            alert(error.message);
-            // إعادة القيمة القديمة في حال الفشل
-            fetchOrders(); 
-        } finally {
-            selectElement.disabled = false; // إعادة تفعيل القائمة
+        if (!response.ok) {
+            throw new Error('فشل تحديث حالة الطلب');
         }
+        
+        // تأكيد مرئي للنجاح
+        row.style.backgroundColor = '#d4edda'; // لون أخضر فاتح
+        setTimeout(() => {
+            row.style.backgroundColor = ''; // إزالة اللون بعد ثانية
+        }, 1000);
+
+    } catch (error) {
+        alert(error.message);
+        // في حال الفشل، أعد تحميل جميع الطلبات لضمان مزامنة البيانات
+        fetchOrders(); 
+    } finally {
+        selectElement.disabled = false;
+        row.style.opacity = '1';
     }
+}
+
 
     // --- ربط الأحداث ---
     refreshBtn.addEventListener('click', fetchOrders);
