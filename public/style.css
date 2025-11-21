@@ -470,3 +470,50 @@ header p {
     to { transform: rotate(360deg); }
 }
 
+/* --- 9. Admin Panel Enhancements --- */
+.admin-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+.admin-section {
+    background-color: var(--white-pure);
+    padding: 1.5rem;
+    border-radius: var(--radius-card);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.admin-section h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+.admin-form .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.divider {
+    border: none;
+    border-top: 1px solid var(--gray-light);
+    margin: 2rem 0;
+}
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#service-form-response {
+    margin-top: 1rem;
+    font-weight: 600;
+}
+.delete-service-btn {
+    background: none;
+    border: none;
+    color: var(--danger-red);
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
