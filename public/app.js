@@ -1,38 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- بيانات الخدمات (تبقى كما هي) ---
-    const servicesData = {
-        Instagram: {
-            icon: 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png',
-            description: 'زيادة المتابعين، الإعجابات، والمشاهدات لحسابك في انستغرام.',
-            validation: /^(https?:\/\/)?(www\.)?instagram\.com\/.+/,
-            services: [
-                { name: 'متابعين', pricePer1000: 10.50 },
-                { name: 'لايكات', pricePer1000: 5.00 },
-                { name: 'مشاهدات فيديو', pricePer1000: 2.50 },
-            ],
-        },
-        TikTok: {
-            icon: 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg',
-            description: 'عزز وصولك على تيك توك عبر زيادة المتابعين والمشاهدات.',
-            validation: /^(https?:\/\/)?(www\.)?tiktok\.com\/.+/,
-            services: [
-                { name: 'متابعين', pricePer1000: 12.00 },
-                { name: 'مشاهدات', pricePer1000: 1.50 },
-                { name: 'لايكات', pricePer1000: 8.00 },
-            ],
-        },
-        Twitter: {
-            icon: 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg',
-            description: 'قم بزيادة تأثيرك على تويتر عبر خدمات المتابعة وإعادة التغريد.',
-            validation: /^(https?:\/\/)?(www\.)?(twitter|x)\.com\/.+/,
-            services: [
-                { name: 'متابعين', pricePer1000: 15.00 },
-                { name: 'إعادة تغريد', pricePer1000: 20.00 },
-            ],
-        },
-    };
+    // --- المتغيرات العامة ---
+    let servicesData = {}; // ستبدأ فارغة ويتم ملؤها من الـ API
+    let currentPlatform = null;
 
-    // --- عناصر الصفحة (تبقى كما هي) ---
+    // --- عناصر الصفحة ---
     const servicesContainer = document.getElementById('services-container');
     const popupOverlay = document.getElementById('order-popup-overlay');
     const closePopupButton = document.getElementById('close-popup-btn');
@@ -48,13 +19,53 @@ document.addEventListener('DOMContentLoaded', () => {
     const priceDisplay = document.getElementById('price-display');
     const orderForm = document.getElementById('order-form');
     const formResponse = document.getElementById('form-response');
-    const submitButton = orderForm.querySelector('button');
 
-    let currentPlatform = null;
+    // --- 1. تحميل الخدمات من قاعدة البيانات ---
+    async function loadServices() {
+        try {
+            const response = await fetch('/api/services');
+            const servicesFromDB = await response.json();
+            
+            // إعادة هيكلة البيانات للشكل الذي يتوقعه الكود
+            servicesData = servicesFromDB.reduce((acc, service) => {
+                const platform = service.platform;
+                if (!acc[platform]) {
+                    acc[platform] = {
+                        icon: getPlatformIcon(platform),
+                        description: `خدمات متنوعة لمنصة ${platform}`,
+                        validation: new RegExp(`^(https?:\/\/)?(www\.)?${platform.toLowerCase().replace(/\s/g, '')}(\.com)?\/.+`),
+                        services: []
+                    };
+                }
+                acc[platform].services.push(service);
+                return acc;
+            }, {});
 
-    // --- الدوال الأخرى تبقى كما هي (renderServiceCards, showOrderForm, etc.) ---
+            renderServiceCards();
+        } catch (error) {
+            console.error("Failed to load services from API:", error);
+            servicesContainer.innerHTML = '<p style="color:white; text-align:center;">فشل تحميل الخدمات. يرجى المحاولة مرة أخرى.</p>';
+        }
+    }
+
+    // دالة مساعدة لجلب أيقونات المنصات
+    function getPlatformIcon(platform) {
+        const p = platform.toLowerCase();
+        if (p.includes('instagram')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
+        if (p.includes('tiktok')) return 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg';
+        if (p.includes('twitter') || p.includes('x')) return 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg';
+        if (p.includes('facebook')) return 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg';
+        // أيقونة افتراضية
+        return `https://via.placeholder.com/50?text=${platform.charAt(0)}`;
+    }
+
+    // --- 2. عرض بطاقات الخدمات ---
     function renderServiceCards() {
         servicesContainer.innerHTML = '';
+        if (Object.keys(servicesData).length === 0) {
+            servicesContainer.innerHTML = '<p style="color:white; text-align:center;">لا توجد خدمات متاحة حالياً.</p>';
+            return;
+        }
         for (const platform in servicesData) {
             const data = servicesData[platform];
             const card = document.createElement('div');
@@ -75,43 +86,62 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- 3. إظهار نموذج الطلب ---
     function showOrderForm(platform) {
         currentPlatform = platform;
         orderFormContainer.classList.remove('hidden');
         successMessageContainer.classList.add('hidden');
         formTitle.textContent = `طلب خدمة لـ ${platform}`;
-        popupIcon.className = `ph-bold ph-${platform.toLowerCase()}-logo`;
+        popupIcon.className = `ph-bold ph-${platform.toLowerCase().replace(/\s/g, '')}-logo`;
+
         serviceSelect.innerHTML = '';
         servicesData[platform].services.forEach(service => {
             const option = document.createElement('option');
             option.value = service.name;
+            // تخزين كل بيانات الخدمة في الـ option
             option.dataset.price = service.pricePer1000;
-            option.textContent = `${service.name} (السعر: ${service.pricePer1000}$ لكل 1000)`;
+            option.dataset.min = service.min;
+            option.dataset.max = service.max;
+            option.textContent = `${service.name}`;
             serviceSelect.appendChild(option);
         });
+
         orderForm.reset();
         linkError.textContent = '';
         popupOverlay.classList.remove('hidden');
-        updatePrice();
+        updateFormBasedOnService(); // تحديث النموذج بناءً على أول خدمة في القائمة
     }
 
-    function hidePopup() {
-        popupOverlay.classList.add('hidden');
+    // --- 4. تحديث النموذج (السعر، الحدود، إلخ) ---
+    function updateFormBasedOnService() {
+        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+        if (!selectedOption) return;
+
+        const min = selectedOption.dataset.min;
+        const max = selectedOption.dataset.max;
+
+        quantityInput.min = min;
+        quantityInput.max = max;
+        quantityInput.value = Math.max(quantityInput.value, min); // التأكد من أن القيمة الحالية ليست أقل من الحد الأدنى
+        quantityInput.placeholder = `الكمية (بين ${min} و ${max})`;
+
+        updatePrice();
     }
 
     function updatePrice() {
         const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
         if (!selectedOption) return;
-        const currentServicePrice = parseFloat(selectedOption.dataset.price);
+        const pricePer1000 = parseFloat(selectedOption.dataset.price);
         const quantity = parseInt(quantityInput.value, 10);
         if (isNaN(quantity) || quantity <= 0) {
             priceDisplay.textContent = '0.00 $';
             return;
         }
-        const totalPrice = (quantity / 1000) * currentServicePrice;
+        const totalPrice = (quantity / 1000) * pricePer1000;
         priceDisplay.textContent = `${totalPrice.toFixed(2)} $`;
     }
 
+    // --- 5. التحقق من الرابط ---
     function validateLink() {
         const link = linkInput.value;
         const platformData = servicesData[currentPlatform];
@@ -124,16 +154,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- *** هذا هو التعديل الرئيسي *** ---
-    // --- 5. معالجة إرسال الطلب عبر رابط واتساب ---
+    // --- 6. معالجة إرسال الطلب (عبر واتساب) ---
     async function handleFormSubmit(event) {
         event.preventDefault();
         if (!validateLink()) {
             alert('الرجاء إدخال رابط صحيح.');
             return;
         }
-
-        // --- حفظ الطلب في قاعدة البيانات أولاً (خطوة اختيارية لكنها مهمة) ---
         const orderData = {
             platform: currentPlatform,
             service: serviceSelect.value,
@@ -141,7 +168,6 @@ document.addEventListener('DOMContentLoaded', () => {
             quantity: parseInt(quantityInput.value, 10),
             price: parseFloat(priceDisplay.textContent),
         };
-
         try {
             await fetch('/api/orders', {
                 method: 'POST',
@@ -151,54 +177,32 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error("Failed to save order to DB, but proceeding with WhatsApp link.", error);
         }
-        // --- نهاية خطوة الحفظ ---
-
-
-        // --- إنشاء رسالة الواتساب ---
-        const message = `
-        *طلب جديد* 🎉
-        ---------------------
-        *المنصة:* ${orderData.platform}
-        *الخدمة:* ${orderData.service}
-        *الكمية:* ${orderData.quantity}
-        *السعر:* ${orderData.price}$
-        *الرابط:* ${orderData.link}
-        ---------------------
-        (هذه الرسالة تم إنشاؤها تلقائياً من الموقع)
-        `;
-
-        // رقم هاتفك بدون + أو 00
-        const adminPhoneNumber = "905367893256"; 
-
-        // تشفير الرسالة لتكون جزءاً من الرابط
+        const message = `*طلب جديد* 🎉\n---------------------\n*المنصة:* ${orderData.platform}\n*الخدمة:* ${orderData.service}\n*الكمية:* ${orderData.quantity}\n*السعر:* ${orderData.price}$\n*الرابط:* ${orderData.link}\n---------------------\n(رسالة منشأة تلقائياً)`;
+        const adminPhoneNumber = "905367893256";
         const encodedMessage = encodeURIComponent(message.trim());
-
-        // إنشاء رابط واتساب النهائي
         const whatsappUrl = `https://wa.me/${adminPhoneNumber}?text=${encodedMessage}`;
-
-        // إظهار رسالة النجاح وإخفاء النموذج
         formResponse.textContent = 'ممتاز! سيتم الآن تحويلك إلى واتساب لإرسال تفاصيل طلبك.';
         orderFormContainer.classList.add('hidden');
         successMessageContainer.classList.remove('hidden');
-
-        // فتح رابط واتساب في نافذة جديدة بعد ثانيتين
         setTimeout(() => {
             window.open(whatsappUrl, '_blank');
             hidePopup();
         }, 2500);
     }
 
-    // --- ربط الأحداث (تبقى كما هي) ---
+    function hidePopup() {
+        popupOverlay.classList.add('hidden');
+    }
+
+    // --- ربط الأحداث ---
     closePopupButton.addEventListener('click', hidePopup);
     successOkButton.addEventListener('click', hidePopup);
-    popupOverlay.addEventListener('click', (e) => {
-        if (e.target === popupOverlay) hidePopup();
-    });
-    serviceSelect.addEventListener('change', updatePrice);
+    popupOverlay.addEventListener('click', (e) => { if (e.target === popupOverlay) hidePopup(); });
+    serviceSelect.addEventListener('change', updateFormBasedOnService);
     quantityInput.addEventListener('input', updatePrice);
     linkInput.addEventListener('input', validateLink);
     orderForm.addEventListener('submit', handleFormSubmit);
 
-    // --- البدء ---
-    renderServiceCards();
+    // --- البدء بتشغيل كل شيء ---
+    loadServices();
 });
