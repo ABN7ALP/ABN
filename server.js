@@ -19,15 +19,14 @@ mongoose.connect(process.env.MONGODB_URI)
 // Middlewares (برمجيات وسيطة)
 app.use(express.json());
 
-// --- إعداد المسار الصحيح لمجلد 'public' خارج src ---
-const publicPath = path.join(__dirname, 'public');
+// --- إعداد المسار الصحيح لمجلد 'public' بغض النظر عن __dirname ---
+const publicPath = path.resolve('./public'); // يبدأ من root المشروع
 app.use(express.static(publicPath));
-// --- نهاية إعداد المسار ---
 
 // استخدام مسارات الـ API
 app.use('/api/orders', orderRoutes);
 
-// توجيه جميع الطلبات الأخرى إلى الواجهة الأمامية (index.html)
+// توجيه جميع الطلبات الأخرى إلى index.html
 app.get('*', (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
 });
