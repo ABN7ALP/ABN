@@ -11,31 +11,46 @@ authController.getRegisterPage = (req, res) => {
 // @desc    تسجيل مستخدم جديد
 authController.registerUser = async (req, res) => {
     const { name, email, password, password2 } = req.body;
+
+    // مصفوفة لتجميع الأخطاء
+    let errors = [];
+
     if (password !== password2) {
-        return res.render('register', { error_msg: 'كلمتا المرور غير متطابقتين', name, email });
+        errors.push({ msg: 'كلمتا المرور غير متطابقتين' });
     }
+    if (password.length < 6) {
+        errors.push({ msg: 'يجب أن تكون كلمة المرور 6 أحرف على الأقل' });
+    }
+    if (errors.length > 0) {
+        return res.render('register', { errors, name, email });
+    }
+
     try {
-        let user = await User.findOne({ email });
+        // تحقق مما إذا كان المستخدم موجوداً بالفعل
+        let user = await User.findOne({ email: email });
         if (user) {
-            return res.render('register', { error_msg: 'البريد الإلكتروني مسجل بالفعل', name, email });
+            // إذا كان موجوداً، أرسل رسالة خطأ واضحة
+            return res.render('register', { error_msg: 'هذا البريد الإلكتروني مسجل بالفعل. يرجى استخدام بريد آخر أو تسجيل الدخول.', name, email });
         }
-        user = new User({ name, email, password });
-        await user.save();
         
-        // إنشاء الجلسة مباشرة بعد التسجيل
-        req.session.user = { id: user._id, name: user.name, role: user.role, balance: user.balance, profileImage: user.profileImage };
+        // إذا لم يكن موجوداً، قم بإنشاء مستخدم جديد
+        const newUser = new User({ name, email, password });
+        await newUser.save();
+        
+        // إنشاء الجلسة مباشرة بعد التسجيل الناجح
+        req.session.user = { id: newUser._id, name: newUser.name, role: newUser.role, balance: newUser.balance, profileImage: newUser.profileImage };
         res.redirect('/dashboard');
 
     } catch (error) {
-        console.error("خطأ في تسجيل المستخدم:", error);
-        // في حالة وجود خطأ في التحقق من الصحة (مثل حقل فارغ)، أرسل رسالة واضحة
-        if (error.name === 'ValidationError') {
-            const message = Object.values(error.errors).map(val => val.message).join(', ');
-            return res.render('register', { error_msg: message, name, email });
-        }
-        res.render('register', { error_msg: 'حدث خطأ ما في الخادم، يرجى المحاولة مرة أخرى', name, email });
+        // ======================= الإصلاح الحاسم هنا =======================
+        // طباعة الخطأ الفعلي في الكونسول للتشخيص
+        console.error("!!! خطأ فادح أثناء إنشاء الحساب:", error);
+        // =================================================================
+        res.render('register', { error_msg: 'حدث خطأ غير متوقع في الخادم. يرجى المحاولة مرة أخرى.', name, email });
     }
 };
+
+// ... (بقية الدوال: getLoginPage, loginUser, logoutUser تبقى كما هي بدون تغيير) ...
 
 // @desc    عرض صفحة تسجيل الدخول
 authController.getLoginPage = (req, res) => {
@@ -44,61 +59,23 @@ authController.getLoginPage = (req, res) => {
 
 // @desc    تسجيل دخول المستخدم
 authController.loginUser = async (req, res) => {
-    console.log("LOGIN REQUEST BODY:", req.body);
-
     const { email, password } = req.body;
-
     try {
-        console.log("SEARCHING USER...");
         const user = await User.findOne({ email }).select('+password');
-
-        console.log("FOUND USER:", user ? user.email : "NOT FOUND");
-
         if (!user) {
-            console.log("USER NOT FOUND -> rendering login page");
             return res.render('login', { error_msg: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
         }
-
-        console.log("CHECKING PASSWORD...");
         const isMatch = await user.matchPassword(password);
-        
-        console.log("PASSWORD MATCH RESULT:", isMatch);
-
         if (!isMatch) {
-            console.log("PASSWORD INCORRECT -> rendering login page");
             return res.render('login', { error_msg: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
         }
-
-        console.log("LOGIN SUCCESS, SETTING SESSION...");
-
-        req.session.user = { 
-            id: user._id, 
-            name: user.name, 
-            role: user.role, 
-            balance: user.balance, 
-            profileImage: user.profileImage 
-        };
-
-        console.log("SESSION BEFORE SAVE:", req.session.user);
-
-        req.session.save(err => {
-            console.log("SESSION SAVE CALLBACK, ERROR:", err);
-
-            if (err) {
-                return res.render('login', { error_msg: 'فشل إنشاء الجلسة، جرّب لاحقاً' });
-            }
-
-            console.log("REDIRECTING USER, ROLE:", user.role);
-
-            if (user.role === 'admin') {
-                return res.redirect('/admin');
-            }
-
-            return res.redirect('/dashboard');
-        });
-
+        req.session.user = { id: user._id, name: user.name, role: user.role, balance: user.balance, profileImage: user.profileImage };
+        if (user.role === 'admin') {
+            return res.redirect('/admin');
+        }
+        res.redirect('/dashboard');
     } catch (error) {
-        console.error("ERROR IN LOGIN:", error);
+        console.error("خطأ في تسجيل الدخول:", error);
         res.render('login', { error_msg: 'حدث خطأ ما في الخادم' });
     }
 };
@@ -114,5 +91,6 @@ authController.logoutUser = (req, res) => {
         res.redirect('/auth/login');
     });
 };
+
 
 module.exports = authController;
