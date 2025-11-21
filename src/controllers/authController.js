@@ -44,46 +44,61 @@ authController.getLoginPage = (req, res) => {
 
 // @desc    تسجيل دخول المستخدم
 authController.loginUser = async (req, res) => {
+    console.log("LOGIN REQUEST BODY:", req.body);
+
     const { email, password } = req.body;
+
     try {
-        // جلب المستخدم مع كلمة المرور
+        console.log("SEARCHING USER...");
         const user = await User.findOne({ email }).select('+password');
+
+        console.log("FOUND USER:", user ? user.email : "NOT FOUND");
+
         if (!user) {
+            console.log("USER NOT FOUND -> rendering login page");
             return res.render('login', { error_msg: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
         }
 
+        console.log("CHECKING PASSWORD...");
         const isMatch = await user.matchPassword(password);
+        
+        console.log("PASSWORD MATCH RESULT:", isMatch);
+
         if (!isMatch) {
+            console.log("PASSWORD INCORRECT -> rendering login page");
             return res.render('login', { error_msg: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
         }
-        
-        // إنشاء الجلسة
+
+        console.log("LOGIN SUCCESS, SETTING SESSION...");
+
         req.session.user = { 
-    id: user._id, 
-    name: user.name, 
-    role: user.role, 
-    balance: user.balance, 
-    profileImage: user.profileImage 
-};
+            id: user._id, 
+            name: user.name, 
+            role: user.role, 
+            balance: user.balance, 
+            profileImage: user.profileImage 
+        };
 
-// طباعة الجلسة قبل التخزين
-console.log("SESSION BEFORE SAVE:", req.session.user);
+        console.log("SESSION BEFORE SAVE:", req.session.user);
 
-// احفظ الجلسة قبل إعادة التوجيه
-req.session.save(err => {
-    if (err) {
-        console.error("SESSION SAVE ERROR:", err);
-        return res.render('login', { error_msg: 'فشل إنشاء الجلسة، جرّب لاحقاً' });
-    }
+        req.session.save(err => {
+            console.log("SESSION SAVE CALLBACK, ERROR:", err);
 
-    if (user.role === 'admin') {
-        return res.redirect('/admin');
-    }
+            if (err) {
+                return res.render('login', { error_msg: 'فشل إنشاء الجلسة، جرّب لاحقاً' });
+            }
 
-    return res.redirect('/dashboard');
-});
+            console.log("REDIRECTING USER, ROLE:", user.role);
+
+            if (user.role === 'admin') {
+                return res.redirect('/admin');
+            }
+
+            return res.redirect('/dashboard');
+        });
+
     } catch (error) {
-        console.error("خطأ في تسجيل الدخول:", error);
+        console.error("ERROR IN LOGIN:", error);
         res.render('login', { error_msg: 'حدث خطأ ما في الخادم' });
     }
 };
