@@ -19,24 +19,17 @@ mongoose.connect(process.env.MONGODB_URI)
 // Middlewares (برمجيات وسيطة)
 app.use(express.json());
 
-// --- التعديل الرئيسي هنا ---
-// تحديد المسار الصحيح لمجلد 'public' بشكل صريح
-const publicPath = path.join(__dirname, '..', 'public');
-// في حال فشل المسار الأول (للتوافق مع التشغيل المحلي)، استخدم المسار المباشر
-const publicPathFallback = path.join(__dirname, 'public');
-
-// استخدم المسار الصحيح لخدمة الملفات
-app.use(express.static(publicPathFallback));
-// --- نهاية التعديل ---
-
+// --- إعداد المسار الصحيح لمجلد 'public' خارج src ---
+const publicPath = path.join(__dirname, 'public');
+app.use(express.static(publicPath));
+// --- نهاية إعداد المسار ---
 
 // استخدام مسارات الـ API
 app.use('/api/orders', orderRoutes);
 
 // توجيه جميع الطلبات الأخرى إلى الواجهة الأمامية (index.html)
 app.get('*', (req, res) => {
-  // استخدم نفس المسار الاحتياطي هنا أيضاً
-  res.sendFile(path.join(publicPathFallback, 'index.html'));
+  res.sendFile(path.join(publicPath, 'index.html'));
 });
 
 // تشغيل الخادم
