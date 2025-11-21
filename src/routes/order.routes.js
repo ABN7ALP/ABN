@@ -6,46 +6,55 @@ const Order = require('../models/order.model');
 router.post('/', async (req, res) => {
   try {
     const { platform, service, link, quantity, price } = req.body;
-
-    // التحقق من أن جميع البيانات المطلوبة موجودة وسليمة
     if (!platform || !service || !link || !quantity || !price) {
-      return res.status(400).json({ message: 'بيانات الطلب غير مكتملة. الرجاء ملء جميع الحقول.' });
+      return res.status(400).json({ message: 'بيانات الطلب غير مكتملة.' });
     }
-    if (typeof quantity !== 'number' || quantity <= 0) {
-        return res.status(400).json({ message: 'الكمية يجب أن تكون رقماً أكبر من صفر.' });
-    }
-
-    const newOrder = new Order({
-      platform,
-      service,
-      link,
-      quantity,
-      price
-      // ملاحظة: حالة الطلب (status) وتاريخ الإنشاء (createdAt) يتم تعيينها تلقائياً حسب الـ model
-    });
-
-    // حفظ الطلب في قاعدة البيانات
+    const newOrder = new Order({ platform, service, link, quantity, price });
     const savedOrder = await newOrder.save();
-
-    // هنا سنضيف لاحقاً كود إرسال إشعار واتساب
-
-    // إرسال رد ناجح إلى الواجهة الأمامية
-    res.status(201).json({ message: 'تم استلام طلبك بنجاح وسيتم مراجعته قريباً!', orderId: savedOrder._id });
-
+    res.status(201).json({ message: 'تم استلام طلبك بنجاح!', orderId: savedOrder._id });
   } catch (error) {
     console.error('Error creating order:', error);
-    res.status(500).json({ message: 'حدث خطأ في الخادم أثناء معالجة طلبك. الرجاء المحاولة لاحقاً.' });
+    res.status(500).json({ message: 'حدث خطأ في الخادم.' });
   }
 });
 
-// GET /api/orders - لجلب كل الطلبات (سنستخدمها لاحقاً في لوحة التحكم)
+// GET /api/orders - جلب كل الطلبات
 router.get('/', async (req, res) => {
     try {
-        const orders = await Order.find().sort({ createdAt: -1 }); // جلب الطلبات مرتبة من الأحدث للأقدم
+        const orders = await Order.find().sort({ createdAt: -1 });
         res.status(200).json(orders);
     } catch (error) {
         console.error('Error fetching orders:', error);
-        res.status(500).json({ message: 'حدث خطأ في الخادم أثناء جلب الطلبات.' });
+        res.status(500).json({ message: 'حدث خطأ في الخادم.' });
+    }
+});
+
+// --- المسار الجديد لتحديث الطلب ---
+// PUT /api/orders/:id - تحديث حالة طلب معين
+router.put('/:id', async (req, res) => {
+    try {
+        const { status } = req.body;
+        const { id } = req.params;
+
+        if (!status) {
+            return res.status(400).json({ message: 'الحالة الجديدة مطلوبة.' });
+        }
+
+        const updatedOrder = await Order.findByIdAndUpdate(
+            id, 
+            { status: status },
+            { new: true } // لإرجاع المستند بعد التحديث
+        );
+
+        if (!updatedOrder) {
+            return res.status(404).json({ message: 'الطلب غير موجود.' });
+        }
+
+        res.status(200).json({ message: 'تم تحديث حالة الطلب بنجاح!', order: updatedOrder });
+
+    } catch (error) {
+        console.error('Error updating order status:', error);
+        res.status(500).json({ message: 'حدث خطأ في الخادم.' });
     }
 });
 
