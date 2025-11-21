@@ -1,6 +1,7 @@
-const isAuthenticated = (req, res, next) => {
-    // الكود الصحيح: إذا لم يكن المستخدم مسجلاً دخوله،
-    // قم بإعادة توجيهه إلى صفحة تسجيل الدخول.
+// هذا هو الكود الصحيح الذي يجب أن يكون في الملف
+
+const protect = (req, res, next) => {
+    // إذا لم يكن المستخدم مسجلاً دخوله، قم بإعادة توجيهه إلى صفحة تسجيل الدخول.
     if (!req.session.user) {
         return res.redirect('/auth/login');
     }
@@ -20,4 +21,5 @@ const isAdmin = (req, res, next) => {
     next();
 };
 
-module.exports = { isAuthenticated, isAdmin };
+// نقوم بتصدير `protect` و `isAdmin`
+module.exports = { protect, isAdmin };
