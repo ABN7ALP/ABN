@@ -20,8 +20,22 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use(express.json()); // للسماح باستقبال بيانات JSON
 app.use(express.static(path.join(__dirname, 'public'))); // لخدمة الملفات الثابتة (HTML, CSS, JS)
 
+
 // استخدام المسارات
 app.use('/api/orders', orderRoutes);
+
+
+// هذا السطر يضمن أن أي طلب GET لا يطابق مسارات الـ API سيتم توجيهه إلى صفحة index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+
+// تشغيل الخادم
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
+
 
 // تشغيل الخادم
 app.listen(PORT, () => {
