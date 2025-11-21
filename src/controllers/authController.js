@@ -58,15 +58,30 @@ authController.loginUser = async (req, res) => {
         }
         
         // إنشاء الجلسة
-        req.session.user = { id: user._id, name: user.name, role: user.role, balance: user.balance, profileImage: user.profileImage };
-        
-        // توجيه المستخدم بناءً على دوره
-        if (user.role === 'admin') {
-            return res.redirect('/admin');
-        }
-        
-        res.redirect('/dashboard');
+        req.session.user = { 
+    id: user._id, 
+    name: user.name, 
+    role: user.role, 
+    balance: user.balance, 
+    profileImage: user.profileImage 
+};
 
+// طباعة الجلسة قبل التخزين
+console.log("SESSION BEFORE SAVE:", req.session.user);
+
+// احفظ الجلسة قبل إعادة التوجيه
+req.session.save(err => {
+    if (err) {
+        console.error("SESSION SAVE ERROR:", err);
+        return res.render('login', { error_msg: 'فشل إنشاء الجلسة، جرّب لاحقاً' });
+    }
+
+    if (user.role === 'admin') {
+        return res.redirect('/admin');
+    }
+
+    return res.redirect('/dashboard');
+});
     } catch (error) {
         console.error("خطأ في تسجيل الدخول:", error);
         res.render('login', { error_msg: 'حدث خطأ ما في الخادم' });
