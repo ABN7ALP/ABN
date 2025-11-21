@@ -5,16 +5,17 @@ const authController = {};
 
 // @desc    عرض صفحة إنشاء حساب
 authController.getRegisterPage = (req, res) => {
-    res.render('register', { pageTitle: 'إنشاء حساب', error_msg: null, success_msg: null, name: '', email: '' });
+    res.render('register', { pageTitle: 'إنشاء حساب', errors: [], error_msg: null, name: '', email: '' });
 };
 
 // @desc    تسجيل مستخدم جديد
 authController.registerUser = async (req, res) => {
     const { name, email, password, password2 } = req.body;
-
-    // مصفوفة لتجميع الأخطاء
     let errors = [];
 
+    if (!name || !email || !password || !password2) {
+        errors.push({ msg: 'الرجاء ملء جميع الحقول' });
+    }
     if (password !== password2) {
         errors.push({ msg: 'كلمتا المرور غير متطابقتين' });
     }
@@ -26,38 +27,30 @@ authController.registerUser = async (req, res) => {
     }
 
     try {
-        // تحقق مما إذا كان المستخدم موجوداً بالفعل
         let user = await User.findOne({ email: email });
         if (user) {
-            // إذا كان موجوداً، أرسل رسالة خطأ واضحة
-            return res.render('register', { error_msg: 'هذا البريد الإلكتروني مسجل بالفعل. يرجى استخدام بريد آخر أو تسجيل الدخول.', name, email });
+            errors.push({ msg: 'هذا البريد الإلكتروني مسجل بالفعل' });
+            return res.render('register', { errors, name, email });
         }
         
-        // إذا لم يكن موجوداً، قم بإنشاء مستخدم جديد
         const newUser = new User({ name, email, password });
         await newUser.save();
         
-        // إنشاء الجلسة مباشرة بعد التسجيل الناجح
         req.session.user = { id: newUser._id, name: newUser.name, role: newUser.role, balance: newUser.balance, profileImage: newUser.profileImage };
         res.redirect('/dashboard');
 
     } catch (error) {
-        // ======================= الإصلاح الحاسم هنا =======================
-        // طباعة الخطأ الفعلي في الكونسول للتشخيص
         console.error("!!! خطأ فادح أثناء إنشاء الحساب:", error);
-        // =================================================================
-        res.render('register', { error_msg: 'حدث خطأ غير متوقع في الخادم. يرجى المحاولة مرة أخرى.', name, email });
+        res.render('register', { errors: [{ msg: 'حدث خطأ غير متوقع في الخادم' }], name, email });
     }
 };
 
-// ... (بقية الدوال: getLoginPage, loginUser, logoutUser تبقى كما هي بدون تغيير) ...
+// ... (بقية الدوال تبقى كما هي تماماً) ...
 
-// @desc    عرض صفحة تسجيل الدخول
 authController.getLoginPage = (req, res) => {
     res.render('login', { pageTitle: 'تسجيل الدخول', error_msg: null });
 };
 
-// @desc    تسجيل دخول المستخدم
 authController.loginUser = async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -80,17 +73,14 @@ authController.loginUser = async (req, res) => {
     }
 };
 
-// @desc    تسجيل خروج المستخدم
 authController.logoutUser = (req, res) => {
     req.session.destroy(err => {
         if (err) {
-            console.error("Session destruction error:", err);
             return res.redirect('/dashboard');
         }
         res.clearCookie('connect.sid');
         res.redirect('/auth/login');
     });
 };
-
 
 module.exports = authController;
