@@ -3,8 +3,9 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
+const fs = require('fs');
 
-// استدعاء مسارات الطلبات (API routes)
+// استدعاء مسارات الطلبات
 const orderRoutes = require('./src/routes/order.routes');
 
 // إعداد التطبيق
@@ -16,22 +17,27 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB successfully!'))
   .catch(err => console.error('Could not connect to MongoDB:', err));
 
-// Middlewares (برمجيات وسيطة)
 app.use(express.json());
 
-// --- إعداد المسار الصحيح لمجلد 'public' بغض النظر عن __dirname ---
-const publicPath = path.resolve('./public'); // يبدأ من root المشروع
-app.use(express.static(publicPath));
+// --- حل سحري لتحديد مسار public بشكل ديناميكي ---
+let publicPath = path.join(__dirname, 'public'); // افتراضياً
+if (!fs.existsSync(path.join(publicPath, 'index.html'))) {
+  // إذا الملف مش موجود، حاول نرجع خطوة لورا
+  publicPath = path.join(__dirname, '..', 'public');
+}
 
-// استخدام مسارات الـ API
+app.use(express.static(publicPath));
+// --- نهاية الحل السحري ---
+
+// مسارات الـ API
 app.use('/api/orders', orderRoutes);
 
-// توجيه جميع الطلبات الأخرى إلى index.html
+// توجيه كل الطلبات لـ index.html
 app.get('*', (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
 });
 
-// تشغيل الخادم
+// تشغيل السيرفر
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
