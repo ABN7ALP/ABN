@@ -369,3 +369,104 @@ header p {
         grid-template-columns: 1fr;
     }
 }
+/* --- 8. Admin Panel Styles --- */
+.admin-body {
+    background-color: var(--gray-light);
+}
+
+.admin-body .background-gradient {
+    display: none; /* No gradient on admin page */
+}
+
+#login-overlay {
+    opacity: 1;
+    visibility: visible;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.admin-header h1 {
+    color: var(--text-dark);
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.table-container {
+    background-color: var(--white-pure);
+    border-radius: var(--radius-card);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow-x: auto; /* For responsiveness on small screens */
+    padding: 1rem;
+}
+
+#orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px; /* Ensure table has a minimum width */
+}
+
+#orders-table th, #orders-table td {
+    padding: 1rem;
+    text-align: right;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+#orders-table th {
+    font-weight: 600;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+#orders-table td {
+    vertical-align: middle;
+}
+
+#orders-table td a {
+    color: var(--purple-main);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+#orders-table td i {
+    font-size: 1.5rem;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+}
+
+.status-select-wrapper {
+    border-radius: var(--radius-button);
+    padding: 0.2rem;
+}
+
+.status-select {
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.4rem 0.6rem !important;
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 2rem;
+    font-size: 3rem;
+    color: var(--purple-main);
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
