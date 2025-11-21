@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم</title>
+    
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="popup-overlay">
+        <div class="popup-content">
+            <div class="popup-header">
+                <i class="ph-bold ph-lock"></i>
+                <h2>تسجيل الدخول</h2>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="password-input">كلمة المرور</label>
+                    <input type="password" id="password-input" required>
+                </div>
+                <button type="submit" class="pill-button primary-button">دخول</button>
+                <p id="login-error" class="error-message" style="text-align: center; margin-top: 1rem;"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Admin Content (hidden by default) -->
+    <div id="admin-content" class="container hidden">
+        <header class="admin-header">
+            <h1><i class="ph-bold ph-gauge"></i> لوحة التحكم</h1>
+            <button id="refresh-btn" class="pill-button secondary-button">
+                <i class="ph-bold ph-arrow-clockwise"></i>
+                <span>تحديث</span>
+            </button>
+        </header>
+
+        <main>
+            <div class="table-container">
+                <table id="orders-table">
+                    <thead>
+                        <tr>
+                            <th>المنصة</th>
+                            <th>الخدمة</th>
+                            <th>الرابط</th>
+                            <th>الكمية</th>
+                            <th>السعر</th>
+                            <th>تاريخ الطلب</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-tbody">
+                        <!-- Orders will be injected here -->
+                    </tbody>
+                </table>
+                <div id="loading-spinner" class="loading-spinner">
+                    <i class="ph-bold ph-spinner-gap animate-spin"></i>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
