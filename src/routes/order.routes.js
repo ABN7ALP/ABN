@@ -8,10 +8,7 @@ router.post('/', async (req, res) => {
     try {
         const newOrder = new Order(req.body);
         await newOrder.save();
-
-        // *** إرسال إشارة التحديث الفوري ***
         req.io.emit('new-order');
-
         res.status(201).json(newOrder);
     } catch (error) {
         res.status(400).json({ message: 'فشل حفظ الطلب', error: error.message });
@@ -41,24 +38,33 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// --- POST /api/orders/pay-with-balance ---
+// --- POST /api/orders/pay-with-balance (الكود المصحح) ---
 router.post('/pay-with-balance', async (req, res) => {
-    const { userId, price, ...orderDetails } = req.body;
+    // ******** هذا هو التصحيح ********
+    const { userId, price, platform, service, link, quantity } = req.body;
+    // ******** نهاية التصحيح ********
+
     if (!userId) return res.status(401).json({ message: 'يجب تسجيل الدخول.' });
 
     try {
         const user = await User.findById(userId);
-        if (!user || user.balance < price) {
-            return res.status(400).json({ message: 'رصيد غير كافٍ.' });
-        }
+        if (!user) return res.status(404).json({ message: 'المستخدم غير موجود.' });
+        if (user.balance < price) return res.status(400).json({ message: 'رصيدك غير كافٍ.' });
 
         user.balance -= price;
         await user.save();
 
-        const newOrder = new Order({ ...orderDetails, user: userId, status: 'قيد التنفيذ' });
+        const newOrder = new Order({
+            platform,
+            service,
+            link,
+            quantity,
+            price,
+            user: userId,
+            status: 'قيد التنفيذ'
+        });
         await newOrder.save();
 
-        // *** إرسال إشارة التحديث الفوري ***
         req.io.emit('new-order');
 
         res.status(201).json({
@@ -67,7 +73,8 @@ router.post('/pay-with-balance', async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({ message: 'حدث خطأ أثناء الدفع.' });
+        console.error("Pay with balance error:", error);
+        res.status(500).json({ message: 'حدث خطأ أثناء معالجة الدفع.' });
     }
 });
 
