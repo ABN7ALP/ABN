@@ -19,6 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingSpinner = document.getElementById('loading-spinner');
     const refreshOrdersBtn = document.getElementById('refresh-orders-btn');
 
+    // عناصر قسم طلبات الشحن (جديد)
+    const depositsTbody = document.getElementById('deposits-tbody');
+    const refreshDepositsBtn = document.getElementById('refresh-deposits-btn');
+
     // عناصر قسم الخدمات
     const addServiceForm = document.getElementById('add-service-form');
     const serviceFormResponse = document.getElementById('service-form-response');
@@ -41,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchStats();
             fetchOrders();
             fetchServices();
+            fetchDeposits(); // جلب طلبات الشحن عند الدخول
         } else {
             loginError.textContent = 'كلمة المرور غير صحيحة.';
         }
@@ -76,22 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderStats(stats) {
         statsContainer.innerHTML = `
-            <div class="stat-card">
-                <div class="stat-icon" style="background-color: #e6f2ff;"><i class="ph-bold ph-wallet" style="color: #007bff;"></i></div>
-                <div class="stat-info"><p>إجمالي الدخل (المكتمل)</p><h3>${stats.totalRevenue.toFixed(2)} $</h3></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background-color: #e4f8f0;"><i class="ph-bold ph-check-circle" style="color: #28a745;"></i></div>
-                <div class="stat-info"><p>الطلبات المكتملة</p><h3>${stats.completedOrders.toLocaleString()}</h3></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background-color: #fff8e1;"><i class="ph-bold ph-timer" style="color: #ffc107;"></i></div>
-                <div class="stat-info"><p>الطلبات قيد المعالجة</p><h3>${stats.pendingOrders.toLocaleString()}</h3></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background-color: #f3e8ff;"><i class="ph-bold ph-shopping-cart-simple" style="color: #6f42c1;"></i></div>
-                <div class="stat-info"><p>إجمالي كل الطلبات</p><h3>${stats.totalOrders.toLocaleString()}</h3></div>
-            </div>
+            <div class="stat-card"><div class="stat-icon" style="background-color: #e6f2ff;"><i class="ph-bold ph-wallet" style="color: #007bff;"></i></div><div class="stat-info"><p>إجمالي الدخل (المكتمل)</p><h3>${stats.totalRevenue.toFixed(2)} $</h3></div></div>
+            <div class="stat-card"><div class="stat-icon" style="background-color: #e4f8f0;"><i class="ph-bold ph-check-circle" style="color: #28a745;"></i></div><div class="stat-info"><p>الطلبات المكتملة</p><h3>${stats.completedOrders.toLocaleString()}</h3></div></div>
+            <div class="stat-card"><div class="stat-icon" style="background-color: #fff8e1;"><i class="ph-bold ph-timer" style="color: #ffc107;"></i></div><div class="stat-info"><p>الطلبات قيد المعالجة</p><h3>${stats.pendingOrders.toLocaleString()}</h3></div></div>
+            <div class="stat-card"><div class="stat-icon" style="background-color: #f3e8ff;"><i class="ph-bold ph-shopping-cart-simple" style="color: #6f42c1;"></i></div><div class="stat-info"><p>إجمالي كل الطلبات</p><h3>${stats.totalOrders.toLocaleString()}</h3></div></div>
         `;
     }
 
@@ -128,16 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${order.quantity ? order.quantity.toLocaleString() : 'N/A'}</td>
                 <td>${order.price ? order.price.toFixed(2) : '0.00'} $</td>
                 <td>${order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG') : 'N/A'}</td>
-                <td>
-                    <div class="select-wrapper status-select-wrapper">
-                        <select class="status-select" data-order-id="${order._id}">
-                            <option value="قيد المراجعة" ${order.status === 'قيد المراجعة' ? 'selected' : ''}>قيد المراجعة</option>
-                            <option value="قيد التنفيذ" ${order.status === 'قيد التنفيذ' ? 'selected' : ''}>قيد التنفيذ</option>
-                            <option value="مكتمل" ${order.status === 'مكتمل' ? 'selected' : ''}>مكتمل</option>
-                            <option value="ملغي" ${order.status === 'ملغي' ? 'selected' : ''}>ملغي</option>
-                        </select>
-                    </div>
-                </td>
+                <td><div class="select-wrapper status-select-wrapper"><select class="status-select" data-order-id="${order._id}"><option value="قيد المراجعة" ${order.status === 'قيد المراجعة' ? 'selected' : ''}>قيد المراجعة</option><option value="قيد التنفيذ" ${order.status === 'قيد التنفيذ' ? 'selected' : ''}>قيد التنفيذ</option><option value="مكتمل" ${order.status === 'مكتمل' ? 'selected' : ''}>مكتمل</option><option value="ملغي" ${order.status === 'ملغي' ? 'selected' : ''}>ملغي</option></select></div></td>
             `;
             ordersTbody.appendChild(row);
         });
@@ -195,10 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${service.name}</td>
                 <td>${service.pricePer1000.toFixed(2)} $</td>
                 <td>${service.min.toLocaleString()} / ${service.max.toLocaleString()}</td>
-                <td class="action-buttons">
-                    <button class="edit-btn"><i class="ph-bold ph-pencil-simple"></i></button>
-                    <button class="delete-btn"><i class="ph-bold ph-trash"></i></button>
-                </td>
+                <td class="action-buttons"><button class="edit-btn"><i class="ph-bold ph-pencil-simple"></i></button><button class="delete-btn"><i class="ph-bold ph-trash"></i></button></td>
             `;
             servicesTbody.appendChild(row);
         });
@@ -208,19 +189,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addServiceForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const serviceData = {
-            platform: document.getElementById('service-platform').value.trim(),
-            name: document.getElementById('service-name').value.trim(),
-            pricePer1000: parseFloat(document.getElementById('service-price').value),
-            min: parseInt(document.getElementById('service-min').value),
-            max: parseInt(document.getElementById('service-max').value),
-        };
+        const serviceData = { platform: document.getElementById('service-platform').value.trim(), name: document.getElementById('service-name').value.trim(), pricePer1000: parseFloat(document.getElementById('service-price').value), min: parseInt(document.getElementById('service-min').value), max: parseInt(document.getElementById('service-max').value) };
         try {
-            const response = await fetch('/api/services', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(serviceData),
-            });
+            const response = await fetch('/api/services', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(serviceData) });
             const result = await response.json();
             serviceFormResponse.textContent = result.message;
             if (response.ok) {
@@ -255,34 +226,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleOpenEditPopup(event) {
         const row = event.currentTarget.closest('tr');
         const service = JSON.parse(row.dataset.service);
-        editServiceForm.innerHTML = `
-            <input type="hidden" id="edit-service-id" value="${service.id}">
-            <div class="form-group"><label>المنصة</label><input type="text" id="edit-platform" value="${service.platform}" required></div>
-            <div class="form-group"><label>اسم الخدمة</label><input type="text" id="edit-name" value="${service.name}" required></div>
-            <div class="form-group"><label>السعر لكل 1000</label><input type="number" id="edit-price" value="${service.pricePer1000}" step="0.01" required></div>
-            <div class="form-group"><label>الحد الأدنى</label><input type="number" id="edit-min" value="${service.min}" required></div>
-            <div class="form-group"><label>الحد الأقصى</label><input type="number" id="edit-max" value="${service.max}" required></div>
-            <button type="submit" class="pill-button primary-button">حفظ التغييرات</button>
-        `;
+        editServiceForm.innerHTML = `<input type="hidden" id="edit-service-id" value="${service.id}"><div class="form-group"><label>المنصة</label><input type="text" id="edit-platform" value="${service.platform}" required></div><div class="form-group"><label>اسم الخدمة</label><input type="text" id="edit-name" value="${service.name}" required></div><div class="form-group"><label>السعر لكل 1000</label><input type="number" id="edit-price" value="${service.pricePer1000}" step="0.01" required></div><div class="form-group"><label>الحد الأدنى</label><input type="number" id="edit-min" value="${service.min}" required></div><div class="form-group"><label>الحد الأقصى</label><input type="number" id="edit-max" value="${service.max}" required></div><button type="submit" class="pill-button primary-button">حفظ التغييرات</button>`;
         editServicePopup.classList.remove('hidden');
     }
 
     editServiceForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const id = document.getElementById('edit-service-id').value;
-        const updatedData = {
-            platform: document.getElementById('edit-platform').value.trim(),
-            name: document.getElementById('edit-name').value.trim(),
-            pricePer1000: parseFloat(document.getElementById('edit-price').value),
-            min: parseInt(document.getElementById('edit-min').value),
-            max: parseInt(document.getElementById('edit-max').value),
-        };
+        const updatedData = { platform: document.getElementById('edit-platform').value.trim(), name: document.getElementById('edit-name').value.trim(), pricePer1000: parseFloat(document.getElementById('edit-price').value), min: parseInt(document.getElementById('edit-min').value), max: parseInt(document.getElementById('edit-max').value) };
         try {
-            const response = await fetch(`/api/services/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updatedData),
-            });
+            const response = await fetch(`/api/services/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedData) });
             if (response.ok) {
                 editServicePopup.classList.add('hidden');
                 fetchServices();
@@ -296,7 +249,91 @@ document.addEventListener('DOMContentLoaded', () => {
 
     closeEditPopupBtn.addEventListener('click', () => editServicePopup.classList.add('hidden'));
 
-    // --- 5. ربط أحداث التحديث ---
+    // --- 5. قسم إدارة طلبات الشحن (المنطق الجديد) ---
+    async function fetchDeposits() {
+        if (!depositsTbody) return; // التأكد من وجود العنصر قبل استخدامه
+        depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">جاري تحميل طلبات الشحن...</td></tr>';
+        try {
+            const response = await fetch('/api/deposits');
+            if (!response.ok) throw new Error('فشل جلب طلبات الشحن');
+            const deposits = await response.json();
+            renderDeposits(deposits);
+        } catch (error) {
+            console.error('Failed to fetch deposits:', error);
+            depositsTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">${error.message}</td></tr>`;
+        }
+    }
+
+    function renderDeposits(deposits) {
+        if (!depositsTbody) return;
+        depositsTbody.innerHTML = '';
+        if (deposits.length === 0) {
+            depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات شحن حالياً.</td></tr>';
+            return;
+        }
+        deposits.forEach(deposit => {
+            const row = document.createElement('tr');
+            row.dataset.depositId = deposit._id;
+            const statusClass = `status-${deposit.status}`; // pending, approved, rejected
+            const statusText = { pending: 'قيد المراجعة', approved: 'مقبول', rejected: 'مرفوض' }[deposit.status];
+
+            row.innerHTML = `
+                <td>${deposit.user ? deposit.user.username : 'مستخدم محذوف'}</td>
+                <td>${deposit.amount.toFixed(2)} $</td>
+                <td>${deposit.method}</td>
+                <td>${deposit.depositorName}</td>
+                <td><a href="${deposit.receiptImage}" target="_blank" class="pill-button-link">عرض الإيصال</a></td>
+                <td class="status ${statusClass}">${statusText}</td>
+                <td class="action-buttons">
+                    ${deposit.status === 'pending' ? `
+                        <button class="approve-btn pill-button primary-button">موافقة</button>
+                        <button class="reject-btn pill-button danger-button">رفض</button>
+                    ` : 'تمت المعالجة'}
+                </td>
+            `;
+            depositsTbody.appendChild(row);
+        });
+
+        document.querySelectorAll('.approve-btn').forEach(btn => btn.addEventListener('click', handleDepositAction));
+        document.querySelectorAll('.reject-btn').forEach(btn => btn.addEventListener('click', handleDepositAction));
+    }
+
+    async function handleDepositAction(event) {
+        const btn = event.currentTarget;
+        const action = btn.classList.contains('approve-btn') ? 'approve' : 'reject';
+        const row = btn.closest('tr');
+        const depositId = row.dataset.depositId;
+        const confirmationMessage = action === 'approve'
+            ? 'هل أنت متأكد من الموافقة على هذا الطلب وإضافة الرصيد للمستخدم؟'
+            : 'هل أنت متأكد من رفض هذا الطلب؟';
+
+        if (!confirm(confirmationMessage)) return;
+
+        btn.disabled = true;
+        btn.textContent = 'جاري...';
+        const otherBtn = row.querySelector(action === 'approve' ? '.reject-btn' : '.approve-btn');
+        if (otherBtn) otherBtn.disabled = true;
+
+        try {
+            const response = await fetch(`/api/deposits/${depositId}/${action}`, { method: 'PUT' });
+            if (response.ok) {
+                fetchDeposits(); // إعادة تحميل القائمة لإظهار التغييرات
+                fetchStats(); // تحديث الإحصائيات بعد تغيير الرصيد
+            } else {
+                const result = await response.json();
+                alert(result.message || `فشل ${action === 'approve' ? 'الموافقة' : 'الرفض'}.`);
+                btn.disabled = false;
+            }
+        } catch (error) {
+            alert('فشل الاتصال بالخادم.');
+            btn.disabled = false;
+        }
+    }
+
+    // --- 6. ربط أحداث التحديث ---
     refreshStatsBtn.addEventListener('click', fetchStats);
     refreshOrdersBtn.addEventListener('click', fetchOrders);
+    if (refreshDepositsBtn) {
+        refreshDepositsBtn.addEventListener('click', fetchDeposits);
+    }
 });
