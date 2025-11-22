@@ -2,10 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- المتغيرات العامة ---
     let servicesData = {};
     let currentPlatform = null;
+    let userInfo = null;
 
     // --- عناصر الصفحة ---
     const servicesContainer = document.getElementById('services-container');
-    const popupOverlay = document.getElementById('order-popup-overlay');
+    const orderPopupOverlay = document.getElementById('order-popup-overlay');
     const closePopupButton = document.getElementById('close-popup-btn');
     const successOkButton = document.getElementById('success-ok-btn');
     const orderFormContainer = document.getElementById('order-form-container');
@@ -20,12 +21,110 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderForm = document.getElementById('order-form');
     const formResponse = document.getElementById('form-response');
 
-    // --- 1. تحميل الخدمات من قاعدة البيانات ---
+    // عناصر المصادقة (الجديدة)
+    const mainNav = document.getElementById('main-nav');
+    const authPopupOverlay = document.getElementById('auth-popup-overlay');
+    const loginFormContainer = document.getElementById('login-form-container');
+    const registerFormContainer = document.getElementById('register-form-container');
+    const loginFormPopup = document.getElementById('login-form-popup');
+    const registerFormPopup = document.getElementById('register-form-popup');
+    const showRegisterLink = document.getElementById('show-register');
+    const showLoginLink = document.getElementById('show-login');
+    const loginPopupError = document.getElementById('login-popup-error');
+    const registerPopupError = document.getElementById('register-popup-error');
+
+    // --- 1. نظام المصادقة (Authentication) ---
+
+    function updateUIForAuth() {
+        const storedUser = localStorage.getItem('userInfo');
+        if (storedUser) {
+            userInfo = JSON.parse(storedUser);
+            mainNav.innerHTML = `
+                <div class="user-menu">
+                    <span>أهلاً، ${userInfo.username}</span>
+                    <button id="logout-btn" class="pill-button secondary-button">تسجيل الخروج</button>
+                </div>
+            `;
+            document.getElementById('logout-btn').addEventListener('click', logoutHandler);
+        } else {
+            mainNav.innerHTML = `
+                <button id="login-btn" class="pill-button secondary-button">تسجيل الدخول</button>
+                <button id="register-btn" class="pill-button primary-button">إنشاء حساب</button>
+            `;
+            document.getElementById('login-btn').addEventListener('click', () => showAuthPopup('login'));
+            document.getElementById('register-btn').addEventListener('click', () => showAuthPopup('register'));
+        }
+    }
+
+    function showAuthPopup(formType) {
+        loginPopupError.textContent = '';
+        registerPopupError.textContent = '';
+        if (formType === 'login') {
+            loginFormContainer.classList.remove('hidden');
+            registerFormContainer.classList.add('hidden');
+        } else {
+            registerFormContainer.classList.remove('hidden');
+            loginFormContainer.classList.add('hidden');
+        }
+        authPopupOverlay.classList.remove('hidden');
+    }
+
+    function hideAuthPopup() {
+        authPopupOverlay.classList.add('hidden');
+    }
+
+    async function loginHandler(e) {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'فشل تسجيل الدخول');
+            localStorage.setItem('userInfo', JSON.stringify(data));
+            hideAuthPopup();
+            updateUIForAuth();
+        } catch (error) {
+            loginPopupError.textContent = error.message;
+        }
+    }
+
+    async function registerHandler(e) {
+        e.preventDefault();
+        const username = document.getElementById('register-username').value;
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'فشل إنشاء الحساب');
+            localStorage.setItem('userInfo', JSON.stringify(data));
+            hideAuthPopup();
+            updateUIForAuth();
+        } catch (error) {
+            registerPopupError.textContent = error.message;
+        }
+    }
+
+    function logoutHandler() {
+        localStorage.removeItem('userInfo');
+        userInfo = null;
+        updateUIForAuth();
+    }
+
+    // --- 2. تحميل وعرض الخدمات ---
     async function loadServices() {
         try {
             const response = await fetch('/api/services');
             const servicesFromDB = await response.json();
-            
             servicesData = servicesFromDB.reduce((acc, service) => {
                 const platform = service.platform;
                 if (!acc[platform]) {
@@ -39,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 acc[platform].services.push(service);
                 return acc;
             }, {});
-
             renderServiceCards();
         } catch (error) {
             console.error("Failed to load services from API:", error);
@@ -47,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 2. دوال مساعدة ذكية للمنصات ---
     function getPlatformIcon(platform) {
         const p = platform.toLowerCase().trim();
         if (p.includes('instagram') || p.includes('انستغرام') || p.includes('انستا')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
@@ -74,7 +171,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return new RegExp(`${p.replace(/\s/g, '')}\\.com`, 'i');
     }
 
-    // --- 3. عرض بطاقات الخدمات ---
     function renderServiceCards() {
         servicesContainer.innerHTML = '';
         if (Object.keys(servicesData).length === 0) {
@@ -85,18 +181,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = servicesData[platform];
             const card = document.createElement('div');
             card.className = 'service-card';
-            card.innerHTML = `
-                <div class="icon-wrapper"><img src="${data.icon}" alt="${platform} icon"></div>
-                <h3>${platform}</h3>
-                <p>${data.description}</p>
-                <button class="pill-button get-button"><i class="ph-bold ph-arrow-circle-right"></i><span>اطلب الآن</span></button>
-            `;
+            card.innerHTML = `<div class="icon-wrapper"><img src="${data.icon}" alt="${platform} icon"></div><h3>${platform}</h3><p>${data.description}</p><button class="pill-button get-button"><i class="ph-bold ph-arrow-circle-right"></i><span>اطلب الآن</span></button>`;
             card.addEventListener('click', () => showOrderForm(platform));
             servicesContainer.appendChild(card);
         }
     }
 
-    // --- 4. إظهار وتحديث نموذج الطلب ---
+    // --- 3. إظهار وتحديث نموذج الطلب ---
     function showOrderForm(platform) {
         currentPlatform = platform;
         orderFormContainer.classList.remove('hidden');
@@ -104,7 +195,6 @@ document.addEventListener('DOMContentLoaded', () => {
         formTitle.textContent = `طلب خدمة لـ ${platform}`;
         const iconName = platform.toLowerCase().replace(/\s/g, '');
         popupIcon.className = `ph-bold ph-${iconName}-logo`;
-
         serviceSelect.innerHTML = '';
         servicesData[platform].services.forEach(service => {
             const option = document.createElement('option');
@@ -117,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         orderForm.reset();
         linkError.textContent = '';
-        popupOverlay.classList.remove('hidden');
+        orderPopupOverlay.classList.remove('hidden');
         updateFormBasedOnService();
     }
 
@@ -128,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const max = selectedOption.dataset.max;
         quantityInput.min = min;
         quantityInput.max = max;
-        quantityInput.value = Math.max(1000, min); // قيمة افتراضية معقولة
+        quantityInput.value = Math.max(1000, min);
         quantityInput.placeholder = `الكمية (بين ${min} و ${max})`;
         updatePrice();
     }
@@ -158,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 5. معالجة إرسال الطلب ---
+    // --- 4. معالجة إرسال الطلب ---
     async function handleFormSubmit(event) {
         event.preventDefault();
         if (!validateLink()) {
@@ -170,7 +260,8 @@ document.addEventListener('DOMContentLoaded', () => {
             service: serviceSelect.value,
             link: linkInput.value,
             quantity: parseInt(quantityInput.value, 10),
-            price: parseFloat(priceDisplay.textContent),
+            price: parseFloat(priceDisplay.textContent.replace(' $', '')),
+            user: userInfo ? userInfo._id : null // ربط الطلب بالمستخدم
         };
         try {
             await fetch('/api/orders', {
@@ -195,18 +286,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function hidePopup() {
-        popupOverlay.classList.add('hidden');
+        orderPopupOverlay.classList.add('hidden');
     }
 
-    // --- ربط الأحداث ---
+    // --- 5. ربط الأحداث ---
     closePopupButton.addEventListener('click', hidePopup);
     successOkButton.addEventListener('click', hidePopup);
-    popupOverlay.addEventListener('click', (e) => { if (e.target === popupOverlay) hidePopup(); });
+    orderPopupOverlay.addEventListener('click', (e) => { if (e.target === orderPopupOverlay) hidePopup(); });
     serviceSelect.addEventListener('change', updateFormBasedOnService);
     quantityInput.addEventListener('input', updatePrice);
     linkInput.addEventListener('input', validateLink);
     orderForm.addEventListener('submit', handleFormSubmit);
 
-    // --- البدء بتشغيل كل شيء ---
+    // أحداث المصادقة الجديدة
+    showRegisterLink.addEventListener('click', (e) => { e.preventDefault(); showAuthPopup('register'); });
+    showLoginLink.addEventListener('click', (e) => { e.preventDefault(); showAuthPopup('login'); });
+    loginFormPopup.addEventListener('submit', loginHandler);
+    registerFormPopup.addEventListener('submit', registerHandler);
+    authPopupOverlay.addEventListener('click', (e) => {
+        if (e.target === authPopupOverlay || e.target.closest('.close-btn')) {
+            hideAuthPopup();
+        }
+    });
+
+    // --- 6. البدء بتشغيل كل شيء ---
+    updateUIForAuth();
     loadServices();
 });
