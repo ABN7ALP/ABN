@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- المتغيرات العامة ---
-    let servicesData = {}; // ستبدأ فارغة ويتم ملؤها من الـ API
+    let servicesData = {};
     let currentPlatform = null;
 
     // --- عناصر الصفحة ---
@@ -26,14 +26,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/api/services');
             const servicesFromDB = await response.json();
             
-            // إعادة هيكلة البيانات للشكل الذي يتوقعه الكود
             servicesData = servicesFromDB.reduce((acc, service) => {
                 const platform = service.platform;
                 if (!acc[platform]) {
                     acc[platform] = {
                         icon: getPlatformIcon(platform),
                         description: `خدمات متنوعة لمنصة ${platform}`,
-                        validation: new RegExp(`^(https?:\/\/)?(www\.)?${platform.toLowerCase().replace(/\s/g, '')}(\.com)?\/.+`),
+                        validation: getPlatformValidation(platform),
                         services: []
                     };
                 }
@@ -48,18 +47,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // دالة مساعدة لجلب أيقونات المنصات
+    // --- 2. دوال مساعدة ذكية للمنصات ---
     function getPlatformIcon(platform) {
-        const p = platform.toLowerCase();
-        if (p.includes('instagram')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
-        if (p.includes('tiktok')) return 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg';
-        if (p.includes('twitter') || p.includes('x')) return 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg';
-        if (p.includes('facebook')) return 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg';
-        // أيقونة افتراضية
+        const p = platform.toLowerCase().trim();
+        if (p.includes('instagram') || p.includes('انستغرام') || p.includes('انستا')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
+        if (p.includes('tiktok') || p.includes('تيك توك')) return 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg';
+        if (p.includes('twitter') || p.includes('تويتر') || p === 'x') return 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg';
+        if (p.includes('facebook') || p.includes('فيس بوك') || p.includes('فيس')) return 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg';
+        if (p.includes('youtube') || p.includes('يوتيوب')) return 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg';
+        if (p.includes('telegram') || p.includes('تلغرام')) return 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg';
+        if (p.includes('snapchat') || p.includes('سناب شات')) return 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg';
+        if (p.includes('threads') || p.includes('ثريدز')) return 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Threads_app_icon.svg';
         return `https://via.placeholder.com/50?text=${platform.charAt(0)}`;
     }
 
-    // --- 2. عرض بطاقات الخدمات ---
+    function getPlatformValidation(platform) {
+        const p = platform.toLowerCase().trim();
+        if (p.includes('instagram') || p.includes('انستغرام')) return /instagram\.com/;
+        if (p.includes('tiktok') || p.includes('تيك توك')) return /tiktok\.com/;
+        if (p.includes('twitter') || p.includes('تويتر') || p === 'x') return /(twitter|x)\.com/;
+        if (p.includes('facebook') || p.includes('فيس بوك')) return /facebook\.com/;
+        if (p.includes('youtube') || p.includes('يوتيوب')) return /(youtube\.com|youtu\.be)/;
+        if (p.includes('telegram') || p.includes('تلغرام')) return /(telegram\.me|t\.me)/;
+        if (p.includes('snapchat') || p.includes('سناب شات')) return /snapchat\.com/;
+        if (p.includes('threads') || p.includes('ثريدز')) return /threads\.net/;
+        return new RegExp(`${p.replace(/\s/g, '')}\\.com`, 'i');
+    }
+
+    // --- 3. عرض بطاقات الخدمات ---
     function renderServiceCards() {
         servicesContainer.innerHTML = '';
         if (Object.keys(servicesData).length === 0) {
@@ -71,60 +86,50 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.className = 'service-card';
             card.innerHTML = `
-                <div class="icon-wrapper">
-                    <img src="${data.icon}" alt="${platform} icon">
-                </div>
+                <div class="icon-wrapper"><img src="${data.icon}" alt="${platform} icon"></div>
                 <h3>${platform}</h3>
                 <p>${data.description}</p>
-                <button class="pill-button get-button">
-                    <i class="ph-bold ph-arrow-circle-right"></i>
-                    <span>اطلب الآن</span>
-                </button>
+                <button class="pill-button get-button"><i class="ph-bold ph-arrow-circle-right"></i><span>اطلب الآن</span></button>
             `;
             card.addEventListener('click', () => showOrderForm(platform));
             servicesContainer.appendChild(card);
         }
     }
 
-    // --- 3. إظهار نموذج الطلب ---
+    // --- 4. إظهار وتحديث نموذج الطلب ---
     function showOrderForm(platform) {
         currentPlatform = platform;
         orderFormContainer.classList.remove('hidden');
         successMessageContainer.classList.add('hidden');
         formTitle.textContent = `طلب خدمة لـ ${platform}`;
-        popupIcon.className = `ph-bold ph-${platform.toLowerCase().replace(/\s/g, '')}-logo`;
+        const iconName = platform.toLowerCase().replace(/\s/g, '');
+        popupIcon.className = `ph-bold ph-${iconName}-logo`;
 
         serviceSelect.innerHTML = '';
         servicesData[platform].services.forEach(service => {
             const option = document.createElement('option');
             option.value = service.name;
-            // تخزين كل بيانات الخدمة في الـ option
             option.dataset.price = service.pricePer1000;
             option.dataset.min = service.min;
             option.dataset.max = service.max;
             option.textContent = `${service.name}`;
             serviceSelect.appendChild(option);
         });
-
         orderForm.reset();
         linkError.textContent = '';
         popupOverlay.classList.remove('hidden');
-        updateFormBasedOnService(); // تحديث النموذج بناءً على أول خدمة في القائمة
+        updateFormBasedOnService();
     }
 
-    // --- 4. تحديث النموذج (السعر، الحدود، إلخ) ---
     function updateFormBasedOnService() {
         const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
         if (!selectedOption) return;
-
         const min = selectedOption.dataset.min;
         const max = selectedOption.dataset.max;
-
         quantityInput.min = min;
         quantityInput.max = max;
-        quantityInput.value = Math.max(quantityInput.value, min); // التأكد من أن القيمة الحالية ليست أقل من الحد الأدنى
+        quantityInput.value = Math.max(1000, min); // قيمة افتراضية معقولة
         quantityInput.placeholder = `الكمية (بين ${min} و ${max})`;
-
         updatePrice();
     }
 
@@ -141,7 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
         priceDisplay.textContent = `${totalPrice.toFixed(2)} $`;
     }
 
-    // --- 5. التحقق من الرابط ---
     function validateLink() {
         const link = linkInput.value;
         const platformData = servicesData[currentPlatform];
@@ -154,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 6. معالجة إرسال الطلب (عبر واتساب) ---
+    // --- 5. معالجة إرسال الطلب ---
     async function handleFormSubmit(event) {
         event.preventDefault();
         if (!validateLink()) {
