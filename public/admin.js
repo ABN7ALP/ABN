@@ -24,12 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
     const sections = document.querySelectorAll('.admin-section');
     const statsContainer = document.getElementById('stats-cards-container');
-    const refreshStatsBtn = document.getElementById('refresh-stats-btn');
     const ordersTbody = document.getElementById('orders-tbody');
     const loadingSpinner = document.getElementById('loading-spinner');
-    const refreshOrdersBtn = document.getElementById('refresh-orders-btn');
     const depositsTbody = document.getElementById('deposits-tbody');
-    const refreshDepositsBtn = document.getElementById('refresh-deposits-btn');
     const addServiceForm = document.getElementById('add-service-form');
     const serviceFormResponse = document.getElementById('service-form-response');
     const servicesTbody = document.getElementById('services-tbody');
@@ -290,23 +287,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 7. الاستماع للتحديثات الفورية (Socket.IO) ---
     socket.on('new-order', () => {
-        console.log('New order received!');
+        console.log('New order received! Refreshing...');
         fetchOrders();
         fetchStats();
     });
     socket.on('new-deposit', () => {
-        console.log('New deposit request received!');
+        console.log('New deposit request received! Refreshing...');
         fetchDeposits();
     });
     socket.on('new-service', () => {
-        console.log('Service list updated!');
+        console.log('Service list updated! Refreshing...');
         fetchServices();
     });
-
-    // --- 8. ربط أحداث التحديث ---
-    refreshStatsBtn.addEventListener('click', fetchStats);
-    refreshOrdersBtn.addEventListener('click', fetchOrders);
-    if (refreshDepositsBtn) {
-        refreshDepositsBtn.addEventListener('click', fetchDeposits);
-    }
+    socket.on('service-updated', () => {
+        console.log('Service list updated! Refreshing...');
+        fetchServices();
+    });
+    socket.on('service-deleted', () => {
+        console.log('Service list updated! Refreshing...');
+        fetchServices();
+    });
 });
