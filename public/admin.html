@@ -32,7 +32,8 @@
                 <h3>لوحة التحكم</h3>
             </div>
             <nav class="sidebar-nav">
-                <a href="#orders" class="nav-link active"><i class="ph-bold ph-shopping-cart"></i><span>الطلبات</span></a>
+                <a href="#stats" class="nav-link active"><i class="ph-bold ph-chart-pie-slice"></i><span>الإحصائيات</span></a>
+                <a href="#orders" class="nav-link"><i class="ph-bold ph-shopping-cart"></i><span>الطلبات</span></a>
                 <a href="#services" class="nav-link"><i class="ph-bold ph-list-bullets"></i><span>الخدمات</span></a>
                 <a href="/" class="nav-link logout-link"><i class="ph-bold ph-sign-out"></i><span>العودة للموقع</span></a>
             </nav>
@@ -40,11 +41,25 @@
 
         <!-- Main Content -->
         <main class="main-content">
+            <!-- Stats Section -->
+            <section id="stats-section" class="admin-section active">
+                <div class="section-header">
+                    <h2><i class="ph-bold ph-chart-pie-slice"></i> نظرة عامة</h2>
+                    <button id="refresh-stats-btn" class="pill-button secondary-button"><i class="ph-bold ph-arrow-clockwise"></i><span>تحديث</span></button>
+                </div>
+                <div id="stats-cards-container" class="stats-grid">
+                    <div class="stat-card loading"></div>
+                    <div class="stat-card loading"></div>
+                    <div class="stat-card loading"></div>
+                    <div class="stat-card loading"></div>
+                </div>
+            </section>
+
             <!-- Orders Section -->
-            <section id="orders-section" class="admin-section active">
+            <section id="orders-section" class="admin-section">
                 <div class="section-header">
                     <h2><i class="ph-bold ph-shopping-cart"></i> الطلبات الأخيرة</h2>
-                    <button id="refresh-btn" class="pill-button secondary-button"><i class="ph-bold ph-arrow-clockwise"></i><span>تحديث</span></button>
+                    <button id="refresh-orders-btn" class="pill-button secondary-button"><i class="ph-bold ph-arrow-clockwise"></i><span>تحديث</span></button>
                 </div>
                 <div class="table-container">
                     <table id="orders-table">
@@ -58,8 +73,6 @@
             <!-- Services Section -->
             <section id="services-section" class="admin-section">
                 <h2><i class="ph-bold ph-plus-circle"></i> إضافة خدمة جديدة</h2>
-                
-                <!-- *** هذا هو الجزء الذي تم تصحيحه *** -->
                 <form id="add-service-form" class="admin-form">
                     <div class="form-row">
                         <div class="form-group"><label>المنصة</label><input type="text" id="service-platform" placeholder="مثال: Instagram أو يوتيوب" required></div>
@@ -72,8 +85,6 @@
                     </div>
                     <button type="submit" class="pill-button primary-button">إضافة الخدمة</button>
                 </form>
-                <!-- *** نهاية الجزء المصحح *** -->
-
                 <div id="service-form-response"></div>
                 <hr class="divider">
                 <h2><i class="ph-bold ph-list-bullets"></i> الخدمات الحالية</h2>
@@ -90,7 +101,7 @@
     <!-- Edit Service Popup -->
     <div id="edit-service-popup" class="popup-overlay hidden">
         <div class="popup-content">
-            <button class="close-btn" data-target-popup="edit-service-popup"><i class="ph-bold ph-x"></i></button>
+            <button class="close-btn" id="close-edit-popup-btn"><i class="ph-bold ph-x"></i></button>
             <div class="popup-header"><h2>تعديل الخدمة</h2></div>
             <form id="edit-service-form">
                 <!-- الحقول هنا يتم إنشاؤها ديناميكياً بواسطة JavaScript -->
