@@ -165,15 +165,45 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function handleDepositSubmit(event) {
-        event.preventDefault();
-        depositFormResponse.textContent = 'جاري إرسال الطلب...';
-        depositFormResponse.className = 'form-message';
-        setTimeout(() => {
-            depositFormResponse.textContent = 'تم إرسال طلب الشحن بنجاح! سيتم مراجعته وإضافة الرصيد قريباً.';
-            depositFormResponse.className = 'form-message success';
-            setTimeout(hideDepositPopup, 3000);
-        }, 1500);
+    event.preventDefault();
+    depositFormResponse.textContent = 'جاري إرسال الطلب...';
+    depositFormResponse.className = 'form-message';
+
+    const formData = new FormData();
+    formData.append('userId', userInfo._id);
+    formData.append('amount', document.getElementById('deposit-amount').value);
+    formData.append('depositorName', document.getElementById('depositor-name').value);
+    formData.append('receipt', document.getElementById('deposit-receipt').files[0]);
+        
+    const selectedMethod = document.querySelector('.payment-method-btn.active');
+    if (!selectedMethod) {
+        depositFormResponse.textContent = 'الرجاء اختيار طريقة الدفع.';
+        depositFormResponse.className = 'form-message error';
+        return;
     }
+    formData.append('method', selectedMethod.dataset.method);
+
+    try {
+        const response = await fetch('/api/deposits', {
+            method: 'POST',
+            body: formData // لا نستخدم headers هنا، المتصفح سيحددها تلقائياً مع FormData
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || 'فشل إرسال الطلب.');
+        }
+
+        depositFormResponse.textContent = result.message;
+        depositFormResponse.className = 'form-message success';
+        setTimeout(hideDepositPopup, 3000);
+
+    } catch (error) {
+        depositFormResponse.textContent = error.message;
+        depositFormResponse.className = 'form-message error';
+    }
+}
 
     // --- 3. تحميل وعرض الخدمات (تبقى كما هي) ---
     async function loadServices() {
