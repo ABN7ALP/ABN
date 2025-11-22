@@ -72,4 +72,24 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// GET /api/auth/me - جلب بيانات المستخدم المسجل دخوله حالياً
+router.get('/me', async (req, res) => {
+    // هذا المسار يفترض أننا سنرسل التوكن في المستقبل
+    // حالياً، سنعتمد على الـ ID الذي يرسله العميل
+    const { userId } = req.query;
+    if (!userId) {
+        return res.status(400).json({ message: 'User ID is required' });
+    }
+    try {
+        const user = await User.findById(userId).select('-password'); // .select('-password') يمنع إرسال كلمة المرور
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+
 module.exports = router;
