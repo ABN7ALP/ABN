@@ -108,6 +108,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // دالة جديدة لجلب وتحديث بيانات المستخدم
+async function refreshUserData() {
+    if (!userInfo || !userInfo._id) return; // لا تفعل شيئاً إذا لم يكن المستخدم مسجلاً دخوله
+
+    try {
+        const response = await fetch(`/api/auth/me?userId=${userInfo._id}`);
+        if (!response.ok) {
+            // إذا فشل (مثلاً انتهت الجلسة)، قم بتسجيل الخروج
+            logoutHandler();
+            return;
+        }
+        const updatedUser = await response.json();
+            
+        // تحديث البيانات المحلية
+        localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+        userInfo = updatedUser; // تحديث المتغير المحلي
+            
+        // إعادة رسم واجهة المستخدم بالبيانات الجديدة
+        updateUIForAuth();
+
+    } catch (error) {
+        console.error('Failed to refresh user data:', error);
+    }
+}
+
+
     async function registerHandler(e) {
         e.preventDefault();
         const username = document.getElementById('register-username').value;
@@ -288,6 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 4. إظهار وتحديث نموذج الطلب (تبقى كما هي) ---
     function showOrderForm(platform) {
+        refreshUserData();
         currentPlatform = platform;
         orderFormContainer.classList.remove('hidden');
         successMessageContainer.classList.add('hidden');
