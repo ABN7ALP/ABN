@@ -38,26 +38,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // دالة لعرض الطلبات في الجدول
     function renderMyOrders(orders) {
-        ordersTbody.innerHTML = '';
-        if (orders.length === 0) {
-            ordersTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">ليس لديك أي طلبات سابقة.</td></tr>';
-            return;
-        }
-
-        orders.forEach(order => {
-            const row = document.createElement('tr');
-            const statusClass = `status-${order.status.replace(/\s/g, '-')}`;
-            
-            row.innerHTML = `
-                <td>${order.service} (${order.platform})</td>
-                <td>${order.quantity.toLocaleString()}</td>
-                <td>${order.price.toFixed(2)} $</td>
-                <td>${new Date(order.createdAt).toLocaleDateString('ar-EG')}</td>
-                <td class="status ${statusClass}">${order.status}</td>
-            `;
-            ordersTbody.appendChild(row);
-        });
+    ordersTbody.innerHTML = '';
+    if (orders.length === 0) {
+        ordersTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">ليس لديك أي طلبات سابقة.</td></tr>';
+        return;
     }
+    orders.forEach(order => {
+        const row = document.createElement('tr');
+        const statusClass = `status-${order.status.replace(/\s/g, '-')}`;
+        row.innerHTML = `
+            <td data-label="الخدمة">${order.service} (${order.platform})</td>
+            <td data-label="الكمية">${order.quantity.toLocaleString()}</td>
+            <td data-label="السعر">${order.price.toFixed(2)} $</td>
+            <td data-label="تاريخ الطلب">${new Date(order.createdAt).toLocaleDateString('ar-EG')}</td>
+            <td data-label="الحالة"><span class="status ${statusClass}">${order.status}</span></td>
+        `;
+        ordersTbody.appendChild(row);
+    });
+}
+
 
     // الاستماع للتحديثات الفورية
     socket.on('order-status-updated', (updatedOrder) => {
