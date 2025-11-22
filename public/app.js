@@ -463,6 +463,16 @@ async function refreshUserData() {
         }
     });
 
+    socket.on('new-service', () => {
+    loadServices(); // أعد تحميل الخدمات عند إضافة خدمة جديدة
+});
+socket.on('deposit-approved', (data) => {
+    if (userInfo && userInfo._id === data.userId) {
+        refreshUserData(); // حدث بيانات المستخدم إذا كان هو المعني
+    }
+});
+
+
     // --- 7. البدء بتشغيل كل شيء ---
     updateUIForAuth();
     loadServices();
