@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderServices(services) {
         servicesTbody.innerHTML = '';
-        if (services.length === 0) { servicesTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد خدمات مضافة.</td></tr>'; return; }
+        if (services.length === 0) { servicesTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد خدمات مضافة.</td></tr>'; return; }
         services.forEach(service => {
             const row = document.createElement('tr');
             row.dataset.service = JSON.stringify(service);
@@ -166,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${service.name}</td>
                 <td>${service.pricePer1000.toFixed(2)} $</td>
                 <td>${service.min.toLocaleString()} / ${service.max.toLocaleString()}</td>
+                <td>${service.step || 1}</td>
                 <td class="action-buttons"><button class="edit-btn"><i class="ph-bold ph-pencil-simple"></i></button><button class="delete-btn"><i class="ph-bold ph-trash"></i></button></td>
             `;
             servicesTbody.appendChild(row);
@@ -176,7 +177,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addServiceForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const serviceData = { platform: document.getElementById('service-platform').value.trim(), name: document.getElementById('service-name').value.trim(), pricePer1000: parseFloat(document.getElementById('service-price').value), min: parseInt(document.getElementById('service-min').value), max: parseInt(document.getElementById('service-max').value) };
+        const serviceData = {
+            platform: document.getElementById('service-platform').value.trim(),
+            name: document.getElementById('service-name').value.trim(),
+            pricePer1000: parseFloat(document.getElementById('service-price').value),
+            min: parseInt(document.getElementById('service-min').value),
+            max: parseInt(document.getElementById('service-max').value),
+            step: parseInt(document.getElementById('service-step').value) || 1
+        };
         try {
             const response = await fetch('/api/services', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(serviceData) });
             const result = await response.json();
@@ -206,14 +214,30 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleOpenEditPopup(event) {
         const row = event.currentTarget.closest('tr');
         const service = JSON.parse(row.dataset.service);
-        editServiceForm.innerHTML = `<input type="hidden" id="edit-service-id" value="${service.id}"><div class="form-group"><label>المنصة</label><input type="text" id="edit-platform" value="${service.platform}" required></div><div class="form-group"><label>اسم الخدمة</label><input type="text" id="edit-name" value="${service.name}" required></div><div class="form-group"><label>السعر لكل 1000</label><input type="number" id="edit-price" value="${service.pricePer1000}" step="0.01" required></div><div class="form-group"><label>الحد الأدنى</label><input type="number" id="edit-min" value="${service.min}" required></div><div class="form-group"><label>الحد الأقصى</label><input type="number" id="edit-max" value="${service.max}" required></div><button type="submit" class="pill-button primary-button">حفظ التغييرات</button>`;
+        editServiceForm.innerHTML = `
+            <input type="hidden" id="edit-service-id" value="${service.id}">
+            <div class="form-group"><label>المنصة</label><input type="text" id="edit-platform" value="${service.platform}" required></div>
+            <div class="form-group"><label>اسم الخدمة</label><input type="text" id="edit-name" value="${service.name}" required></div>
+            <div class="form-group"><label>السعر لكل 1000</label><input type="number" id="edit-price" value="${service.pricePer1000}" step="0.01" required></div>
+            <div class="form-group"><label>الحد الأدنى</label><input type="number" id="edit-min" value="${service.min}" required></div>
+            <div class="form-group"><label>الحد الأقصى</label><input type="number" id="edit-max" value="${service.max}" required></div>
+            <div class="form-group"><label>الخطوة (المضاعف)</label><input type="number" id="edit-step" value="${service.step || 1}" required></div>
+            <button type="submit" class="pill-button primary-button">حفظ التغييرات</button>
+        `;
         editServicePopup.classList.remove('hidden');
     }
 
     editServiceForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const id = document.getElementById('edit-service-id').value;
-        const updatedData = { platform: document.getElementById('edit-platform').value.trim(), name: document.getElementById('edit-name').value.trim(), pricePer1000: parseFloat(document.getElementById('edit-price').value), min: parseInt(document.getElementById('edit-min').value), max: parseInt(document.getElementById('edit-max').value) };
+        const updatedData = {
+            platform: document.getElementById('edit-platform').value.trim(),
+            name: document.getElementById('edit-name').value.trim(),
+            pricePer1000: parseFloat(document.getElementById('edit-price').value),
+            min: parseInt(document.getElementById('edit-min').value),
+            max: parseInt(document.getElementById('edit-max').value),
+            step: parseInt(document.getElementById('edit-step').value) || 1
+        };
         try {
             const response = await fetch(`/api/services/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedData) });
             if (response.ok) {
@@ -295,16 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('New deposit request received! Refreshing...');
         fetchDeposits();
     });
-    socket.on('new-service', () => {
-        console.log('Service list updated! Refreshing...');
-        fetchServices();
-    });
-    socket.on('service-updated', () => {
-        console.log('Service list updated! Refreshing...');
-        fetchServices();
-    });
-    socket.on('service-deleted', () => {
-        console.log('Service list updated! Refreshing...');
-        fetchServices();
-    });
+    socket.on('new-service', fetchServices);
+    socket.on('service-updated', fetchServices);
+    socket.on('service-deleted', fetchServices);
 });
