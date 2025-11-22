@@ -766,3 +766,27 @@ header p {
     font-size: 1.2rem;
     color: var(--secondary-color); /* لون أصفر */
 }
+
+/* --- 16. Payment Options --- */
+.payment-instructions {
+    text-align: center;
+    margin: 1.5rem 0 1rem;
+    color: var(--text-light);
+}
+
+.payment-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.payment-buttons .pill-button {
+    width: 100%;
+    justify-content: center;
+}
+
+/* تعديل بسيط على زر الإرسال الأصلي */
+#order-form .pill-button {
+    width: 100%;
+    justify-content: center;
+}
