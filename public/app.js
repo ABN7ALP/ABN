@@ -65,10 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         </div>
                         <a href="#" id="add-balance-link"><i class="ph-bold ph-plus-circle"></i> شحن الرصيد</a>
+                        <a href="my-orders.html"><i class="ph-bold ph-list-checks"></i> طلباتي</a>
                         <button id="logout-btn" class="logout-link"><i class="ph-bold ph-sign-out"></i> تسجيل الخروج</button>
                     </div>
                 </div>
             `;
+            
             document.querySelector('.user-dropdown-toggle').addEventListener('click', () => {
                 document.querySelector('.user-dropdown').classList.toggle('active');
             });
