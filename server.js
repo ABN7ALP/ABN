@@ -10,25 +10,26 @@ const orderRoutes = require('./src/routes/order.routes');
 const serviceRoutes = require('./src/routes/service.routes');
 const statsRoutes = require('./src/routes/stats.routes.js');
 const authRoutes = require('./src/routes/auth.routes.js');
+const depositRoutes = require('./src/routes/deposit.routes.js'); // مسار الإيداع الجديد
 
 // إعداد التطبيق
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// زيادة الحد الأقصى لحجم الطلب لاستيعاب الصور (مهم جداً)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // الاتصال بقاعدة البيانات
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB successfully!'))
   .catch(err => console.error('Could not connect to MongoDB:', err));
 
-app.use(express.json());
-
 // --- حل سحري لتحديد مسار public بشكل ديناميكي ---
-let publicPath = path.join(__dirname, 'public'); // افتراضياً
+let publicPath = path.join(__dirname, 'public');
 if (!fs.existsSync(path.join(publicPath, 'index.html'))) {
-  // إذا الملف مش موجود، حاول نرجع خطوة لورا
   publicPath = path.join(__dirname, '..', 'public');
 }
-
 app.use(express.static(publicPath));
 // --- نهاية الحل السحري ---
 
@@ -36,7 +37,8 @@ app.use(express.static(publicPath));
 app.use('/api/orders', orderRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/stats', statsRoutes);
-app.use('/api/auth', authRoutes)
+app.use('/api/auth', authRoutes);
+app.use('/api/deposits', depositRoutes); // استخدام مسار الإيداع
 
 // توجيه كل الطلبات لـ index.html
 app.get('*', (req, res) => {
