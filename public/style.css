@@ -705,3 +705,36 @@ header p {
 .switch-form-text a:hover {
     text-decoration: underline;
 }
+/* --- 13. Header Layout Fix --- */
+
+/* 
+  هذا الكود يضمن أن كل العناصر داخل الهيدر (الشعار + قائمة التنقل)
+  تكون على نفس السطر وتتباعد عن بعضها.
+*/
+.main-header .container {
+    display: flex;
+    justify-content: space-between; /* يضع الشعار في البداية والقائمة في النهاية */
+    align-items: center; /* يضمن أن تكون العناصر متوازية عمودياً */
+    width: 100%; /* يضمن أن الحاوية تأخذ العرض الكامل */
+}
+
+/* 
+  هذا الكود يضمن أن الأزرار داخل قائمة التنقل
+  تكون بجانب بعضها البعض.
+*/
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem; /* مسافة بسيطة بين الأزرار */
+}
+
+/* 
+  هذا الكود يضمن أن رسالة الترحيب وزر الخروج
+  يكونان بجانب بعضهما البعض.
+*/
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* مسافة بين اسم المستخدم وزر الخروج */
+}
+
