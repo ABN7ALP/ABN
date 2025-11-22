@@ -28,8 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const showLoginLink = document.getElementById('show-login');
     const loginPopupError = document.getElementById('login-popup-error');
     const registerPopupError = document.getElementById('register-popup-error');
-
-    // --- عناصر شحن الرصيد الجديدة ---
     const depositPopupOverlay = document.getElementById('deposit-popup-overlay');
     const closeDepositPopupBtn = document.getElementById('close-deposit-popup-btn');
     const depositForm = document.getElementById('deposit-form');
@@ -37,24 +35,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const paymentDetailsContainer = document.getElementById('payment-details-container');
     const depositFormResponse = document.getElementById('deposit-form-response');
 
-    // --- 1. نظام المصادقة (Authentication) ---
+    // --- 1. نظام المصادقة والقائمة المنسدلة ---
     function updateUIForAuth() {
         const storedUser = localStorage.getItem('userInfo');
         if (storedUser) {
             userInfo = JSON.parse(storedUser);
             mainNav.innerHTML = `
-                <div class="user-menu">
-                    <button id="add-balance-btn" class="pill-button primary-button"><i class="ph-bold ph-plus-circle"></i> شحن الرصيد</button>
-                    <div class="balance-display">
-                        <i class="ph-bold ph-wallet"></i>
-                        <span>${(userInfo.balance || 0).toFixed(2)} $</span>
+                <div class="user-dropdown">
+                    <div class="user-dropdown-toggle">
+                        <i class="ph-bold ph-user-circle"></i>
+                        <span>${userInfo.username}</span>
+                        <i class="ph-bold ph-caret-down"></i>
                     </div>
-                    <span>أهلاً، ${userInfo.username}</span>
-                    <button id="logout-btn" class="pill-button secondary-button">تسجيل الخروج</button>
+                    <div class="user-dropdown-menu">
+                        <div class="user-dropdown-header">
+                            <h4>رصيدك الحالي</h4>
+                            <div class="balance-display">
+                                <i class="ph-bold ph-wallet"></i>
+                                <span>${(userInfo.balance || 0).toFixed(2)} $</span>
+                            </div>
+                        </div>
+                        <a href="#" id="add-balance-link"><i class="ph-bold ph-plus-circle"></i> شحن الرصيد</a>
+                        <button id="logout-btn" class="logout-link"><i class="ph-bold ph-sign-out"></i> تسجيل الخروج</button>
+                    </div>
                 </div>
             `;
+            document.querySelector('.user-dropdown-toggle').addEventListener('click', () => {
+                document.querySelector('.user-dropdown').classList.toggle('active');
+            });
             document.getElementById('logout-btn').addEventListener('click', logoutHandler);
-            document.getElementById('add-balance-btn').addEventListener('click', showDepositPopup);
+            document.getElementById('add-balance-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                showDepositPopup();
+                document.querySelector('.user-dropdown').classList.remove('active');
+            });
         } else {
             userInfo = null;
             mainNav.innerHTML = `
@@ -69,13 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function showAuthPopup(formType) {
         loginPopupError.textContent = '';
         registerPopupError.textContent = '';
-        if (formType === 'login') {
-            loginFormContainer.classList.remove('hidden');
-            registerFormContainer.classList.add('hidden');
-        } else {
-            registerFormContainer.classList.remove('hidden');
-            loginFormContainer.classList.add('hidden');
-        }
+        loginFormContainer.classList.toggle('hidden', formType !== 'login');
+        registerFormContainer.classList.toggle('hidden', formType !== 'register');
         authPopupOverlay.classList.remove('hidden');
     }
 
@@ -88,11 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
         try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-            });
+            const response = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || 'فشل تسجيل الدخول');
             localStorage.setItem('userInfo', JSON.stringify(data));
@@ -109,11 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = document.getElementById('register-email').value;
         const password = document.getElementById('register-password').value;
         try {
-            const response = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, email, password }),
-            });
+            const response = await fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email, password }) });
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || 'فشل إنشاء الحساب');
             localStorage.setItem('userInfo', JSON.stringify(data));
@@ -183,9 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const servicesFromDB = await response.json();
             servicesData = servicesFromDB.reduce((acc, service) => {
                 const platform = service.platform;
-                if (!acc[platform]) {
-                    acc[platform] = { icon: getPlatformIcon(platform), description: `خدمات متنوعة لمنصة ${platform}`, validation: getPlatformValidation(platform), services: [] };
-                }
+                if (!acc[platform]) { acc[platform] = { icon: getPlatformIcon(platform), description: `خدمات متنوعة لمنصة ${platform}`, validation: getPlatformValidation(platform), services: [] }; }
                 acc[platform].services.push(service);
                 return acc;
             }, {});
@@ -206,7 +205,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (p.includes('telegram')) return 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg';
         if (p.includes('snapchat')) return 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg';
         if (p.includes('threads')) return 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Threads_app_icon.svg';
-        return `https://via.placeholder.com/50?text=${platform.charAt(0)}`;
+        try {
+            const initial = encodeURIComponent(platform.charAt(0).toUpperCase());
+            return `https://ui-avatars.com/api/?name=${initial}&background=random&size=50&color=fff`;
+        } catch (e) {
+            return '';
+        }
     }
 
     function getPlatformValidation(platform) {
@@ -224,15 +228,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderServiceCards() {
         servicesContainer.innerHTML = '';
-        if (Object.keys(servicesData).length === 0) {
-            servicesContainer.innerHTML = '<p style="color:white; text-align:center;">لا توجد خدمات متاحة حالياً.</p>';
-            return;
-        }
+        if (Object.keys(servicesData).length === 0) { servicesContainer.innerHTML = '<p style="color:white; text-align:center;">لا توجد خدمات متاحة حالياً.</p>'; return; }
         for (const platform in servicesData) {
             const data = servicesData[platform];
             const card = document.createElement('div');
             card.className = 'service-card';
-            card.innerHTML = `<div class="icon-wrapper"><img src="${data.icon}" alt="${platform} icon"></div><h3>${platform}</h3><p>${data.description}</p><button class="pill-button get-button"><i class="ph-bold ph-arrow-circle-right"></i><span>اطلب الآن</span></button>`;
+            card.innerHTML = `<div class="icon-wrapper"><img src="${data.icon}" alt="${platform} icon" onerror="this.style.display='none'"></div><h3>${platform}</h3><p>${data.description}</p><button class="pill-button get-button"><i class="ph-bold ph-arrow-circle-right"></i><span>اطلب الآن</span></button>`;
             card.addEventListener('click', () => showOrderForm(platform));
             servicesContainer.appendChild(card);
         }
@@ -280,10 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!selectedOption) return;
         const pricePer1000 = parseFloat(selectedOption.dataset.price);
         const quantity = parseInt(quantityInput.value, 10);
-        if (isNaN(quantity) || quantity <= 0) {
-            priceDisplay.textContent = '0.00 $';
-            return;
-        }
+        if (isNaN(quantity) || quantity <= 0) { priceDisplay.textContent = '0.00 $'; return; }
         const totalPrice = (quantity / 1000) * pricePer1000;
         priceDisplay.textContent = `${totalPrice.toFixed(2)} $`;
     }
@@ -294,10 +292,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (platformData && link.length > 0 && !platformData.validation.test(link)) {
             linkError.textContent = `الرابط غير صحيح. يجب أن يكون رابط ${currentPlatform}.`;
             return false;
-        } else {
-            linkError.textContent = '';
-            return true;
         }
+        linkError.textContent = '';
+        return true;
     }
 
     // --- 5. معالجة إرسال الطلب وخيارات الدفع ---
@@ -381,12 +378,16 @@ document.addEventListener('DOMContentLoaded', () => {
     loginFormPopup.addEventListener('submit', loginHandler);
     registerFormPopup.addEventListener('submit', registerHandler);
     authPopupOverlay.addEventListener('click', (e) => { if (e.target === authPopupOverlay || e.target.closest('.close-btn')) hideAuthPopup(); });
-    
-    // ربط أحداث شحن الرصيد
     closeDepositPopupBtn.addEventListener('click', hideDepositPopup);
     depositPopupOverlay.addEventListener('click', (e) => { if (e.target === depositPopupOverlay) hideDepositPopup(); });
     paymentMethodBtns.forEach(btn => btn.addEventListener('click', handlePaymentMethodSelect));
     depositForm.addEventListener('submit', handleDepositSubmit);
+    document.addEventListener('click', (e) => {
+        const dropdown = document.querySelector('.user-dropdown');
+        if (dropdown && !dropdown.contains(e.target)) {
+            dropdown.classList.remove('active');
+        }
+    });
 
     // --- 7. البدء بتشغيل كل شيء ---
     updateUIForAuth();
