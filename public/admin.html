@@ -32,10 +32,13 @@
                 <h3>لوحة التحكم</h3>
             </div>
             <nav class="sidebar-nav">
-                <a href="#stats" class="nav-link active"><i class="ph-bold ph-chart-pie-slice"></i><span>الإحصائيات</span></a>
-                <a href="#orders" class="nav-link"><i class="ph-bold ph-shopping-cart"></i><span>الطلبات</span></a>
-                <a href="#services" class="nav-link"><i class="ph-bold ph-list-bullets"></i><span>الخدمات</span></a>
-                <a href="/" class="nav-link logout-link"><i class="ph-bold ph-sign-out"></i><span>العودة للموقع</span></a>
+                <ul class="sidebar-menu">
+                    <li><a href="#stats" class="nav-link active"><i class="ph-bold ph-chart-pie-slice"></i><span>الإحصائيات</span></a></li>
+                    <li><a href="#orders" class="nav-link"><i class="ph-bold ph-shopping-cart"></i><span>الطلبات</span></a></li>
+                    <li><a href="#deposits" class="nav-link"><i class="ph-bold ph-money"></i><span>طلبات الشحن</span></a></li>
+                    <li><a href="#services" class="nav-link"><i class="ph-bold ph-list-bullets"></i><span>الخدمات</span></a></li>
+                    <li><a href="/" class="nav-link logout-link"><i class="ph-bold ph-sign-out"></i><span>العودة للموقع</span></a></li>
+                </ul>
             </nav>
         </aside>
 
@@ -48,10 +51,7 @@
                     <button id="refresh-stats-btn" class="pill-button secondary-button"><i class="ph-bold ph-arrow-clockwise"></i><span>تحديث</span></button>
                 </div>
                 <div id="stats-cards-container" class="stats-grid">
-                    <div class="stat-card loading"></div>
-                    <div class="stat-card loading"></div>
-                    <div class="stat-card loading"></div>
-                    <div class="stat-card loading"></div>
+                    <div class="stat-card loading"></div><div class="stat-card loading"></div><div class="stat-card loading"></div><div class="stat-card loading"></div>
                 </div>
             </section>
 
@@ -67,6 +67,32 @@
                         <tbody id="orders-tbody"></tbody>
                     </table>
                     <div id="loading-spinner" class="loading-spinner"><i class="ph-bold ph-spinner-gap animate-spin"></i></div>
+                </div>
+            </section>
+
+            <!-- Deposits Section (القسم الجديد) -->
+            <section id="deposits-section" class="admin-section">
+                <div class="section-header">
+                    <h2><i class="ph-bold ph-money"></i> إدارة طلبات الشحن</h2>
+                    <button id="refresh-deposits-btn" class="pill-button secondary-button"><i class="ph-bold ph-arrow-clockwise"></i><span>تحديث</span></button>
+                </div>
+                <div class="table-container">
+                    <table id="deposits-table">
+                        <thead>
+                            <tr>
+                                <th>المستخدم</th>
+                                <th>المبلغ</th>
+                                <th>الطريقة</th>
+                                <th>اسم المودع</th>
+                                <th>الإيصال</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deposits-tbody">
+                            <!-- سيتم ملء طلبات الشحن هنا -->
+                        </tbody>
+                    </table>
                 </div>
             </section>
 
@@ -103,9 +129,7 @@
         <div class="popup-content">
             <button class="close-btn" id="close-edit-popup-btn"><i class="ph-bold ph-x"></i></button>
             <div class="popup-header"><h2>تعديل الخدمة</h2></div>
-            <form id="edit-service-form">
-                <!-- الحقول هنا يتم إنشاؤها ديناميكياً بواسطة JavaScript -->
-            </form>
+            <form id="edit-service-form"></form>
         </div>
     </div>
 
