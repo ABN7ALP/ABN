@@ -43,19 +43,13 @@
         <main class="main-content">
             <!-- Stats Section -->
             <section id="stats-section" class="admin-section active">
-                <div class="section-header">
-                    <h2><i class="ph-bold ph-chart-pie-slice"></i> نظرة عامة</h2>
-                    <!-- تم حذف زر التحديث من هنا -->
-                </div>
+                <div class="section-header"><h2><i class="ph-bold ph-chart-pie-slice"></i> نظرة عامة</h2></div>
                 <div id="stats-cards-container" class="stats-grid"></div>
             </section>
 
             <!-- Orders Section -->
             <section id="orders-section" class="admin-section">
-                <div class="section-header">
-                    <h2><i class="ph-bold ph-shopping-cart"></i> الطلبات الأخيرة</h2>
-                    <!-- تم حذف زر التحديث من هنا -->
-                </div>
+                <div class="section-header"><h2><i class="ph-bold ph-shopping-cart"></i> الطلبات الأخيرة</h2></div>
                 <div class="table-container">
                     <table id="orders-table">
                         <thead><tr><th>المنصة</th><th>الخدمة</th><th>الرابط</th><th>الكمية</th><th>السعر</th><th>تاريخ الطلب</th><th>الحالة</th></tr></thead>
@@ -67,10 +61,7 @@
 
             <!-- Deposits Section -->
             <section id="deposits-section" class="admin-section">
-                <div class="section-header">
-                    <h2><i class="ph-bold ph-bank"></i> طلبات شحن الرصيد</h2>
-                    <!-- تم حذف زر التحديث من هنا -->
-                </div>
+                <div class="section-header"><h2><i class="ph-bold ph-bank"></i> طلبات شحن الرصيد</h2></div>
                 <div class="table-container">
                     <table id="deposits-table">
                         <thead><tr><th>المستخدم</th><th>المبلغ</th><th>الطريقة</th><th>اسم المودع</th><th>الإيصال</th><th>الحالة</th><th>إجراءات</th></tr></thead>
@@ -83,8 +74,18 @@
             <section id="services-section" class="admin-section">
                 <h2><i class="ph-bold ph-plus-circle"></i> إضافة خدمة جديدة</h2>
                 <form id="add-service-form" class="admin-form">
-                    <div class="form-row"><div class="form-group"><label>المنصة</label><input type="text" id="service-platform" placeholder="مثال: Instagram" required></div><div class="form-group"><label>اسم الخدمة</label><input type="text" id="service-name" placeholder="مثال: متابعين" required></div></div>
-                    <div class="form-row"><div class="form-group"><label>السعر لكل 1000</label><input type="number" id="service-price" placeholder="10.5" step="0.01" required></div><div class="form-group"><label>الحد الأدنى</label><input type="number" id="service-min" placeholder="100" required></div><div class="form-group"><label>الحد الأقصى</label><input type="number" id="service-max" placeholder="100000" required></div></div>
+                    <div class="form-row">
+                        <div class="form-group"><label>المنصة</label><input type="text" id="service-platform" placeholder="مثال: Instagram" required></div>
+                        <div class="form-group"><label>اسم الخدمة</label><input type="text" id="service-name" placeholder="مثال: متابعين" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>السعر لكل 1000</label><input type="number" id="service-price" placeholder="10.5" step="0.01" required></div>
+                        <div class="form-group"><label>الحد الأدنى</label><input type="number" id="service-min" placeholder="100" required></div>
+                        <div class="form-group"><label>الحد الأقصى</label><input type="number" id="service-max" placeholder="100000" required></div>
+                        <!-- ******** هذا هو الحقل الجديد ******** -->
+                        <div class="form-group"><label>الخطوة (المضاعف)</label><input type="number" id="service-step" placeholder="100" value="1" required></div>
+                        <!-- ******** نهاية الإضافة ******** -->
+                    </div>
                     <button type="submit" class="pill-button primary-button">إضافة الخدمة</button>
                 </form>
                 <div id="service-form-response"></div>
@@ -92,7 +93,7 @@
                 <h2><i class="ph-bold ph-list-bullets"></i> الخدمات الحالية</h2>
                 <div class="table-container">
                     <table id="services-table">
-                        <thead><tr><th>المنصة</th><th>الخدمة</th><th>السعر/1000</th><th>أدنى/أقصى حد</th><th>إجراءات</th></tr></thead>
+                        <thead><tr><th>المنصة</th><th>الخدمة</th><th>السعر/1000</th><th>أدنى/أقصى حد</th><th>الخطوة</th><th>إجراءات</th></tr></thead>
                         <tbody id="services-tbody"></tbody>
                     </table>
                 </div>
