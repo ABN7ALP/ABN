@@ -36,17 +36,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 1. نظام المصادقة (Authentication) ---
 
     function updateUIForAuth() {
-        const storedUser = localStorage.getItem('userInfo');
-        if (storedUser) {
-            userInfo = JSON.parse(storedUser);
-            mainNav.innerHTML = `
-                <div class="user-menu">
-                    <span>أهلاً، ${userInfo.username}</span>
-                    <button id="logout-btn" class="pill-button secondary-button">تسجيل الخروج</button>
+    const storedUser = localStorage.getItem('userInfo');
+    if (storedUser) {
+        userInfo = JSON.parse(storedUser);
+        // --- التعديل هنا لعرض الرصيد ---
+        mainNav.innerHTML = `
+            <div class="user-menu">
+                <div class="balance-display">
+                    <i class="ph-bold ph-wallet"></i>
+                    <span>${userInfo.balance.toFixed(2)} $</span>
                 </div>
-            `;
-            document.getElementById('logout-btn').addEventListener('click', logoutHandler);
-        } else {
+                <span>أهلاً، ${userInfo.username}</span>
+                <button id="logout-btn" class="pill-button secondary-button">تسجيل الخروج</button>
+            </div>
+        `;
+        document.getElementById('logout-btn').addEventListener('click', logoutHandler);
+    } else {
+
             mainNav.innerHTML = `
                 <button id="login-btn" class="pill-button secondary-button">تسجيل الدخول</button>
                 <button id="register-btn" class="pill-button primary-button">إنشاء حساب</button>
