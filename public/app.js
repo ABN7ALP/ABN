@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- المتغيرات العامة ---
     let servicesData = {}, currentPlatform = null, userInfo = null;
 
-    // --- عناصر الصفحة ---
+    // --- عناصر الصفحة (تبقى كما هي) ---
     const servicesContainer = document.getElementById('services-container');
     const orderPopupOverlay = document.getElementById('order-popup-overlay');
     const closePopupButton = document.getElementById('close-popup-btn');
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const paymentDetailsContainer = document.getElementById('payment-details-container');
     const depositFormResponse = document.getElementById('deposit-form-response');
 
-    // --- 1. نظام المصادقة والقائمة المنسدلة ---
+    // --- 1. نظام المصادقة والقائمة المنسدلة (تبقى كما هي) ---
     function updateUIForAuth() {
         const storedUser = localStorage.getItem('userInfo');
         if (storedUser) {
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUIForAuth();
     }
 
-    // --- 2. نظام شحن الرصيد (Deposit System) ---
+    // --- 2. نظام شحن الرصيد (Deposit System) (تبقى كما هي) ---
     function showDepositPopup() {
         depositForm.reset();
         depositFormResponse.textContent = '';
@@ -168,7 +168,6 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         depositFormResponse.textContent = 'جاري إرسال الطلب...';
         depositFormResponse.className = 'form-message';
-        // (سيتم بناء هذه الدالة في المرحلة التالية بعد بناء الواجهة الخلفية)
         setTimeout(() => {
             depositFormResponse.textContent = 'تم إرسال طلب الشحن بنجاح! سيتم مراجعته وإضافة الرصيد قريباً.';
             depositFormResponse.className = 'form-message success';
@@ -176,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1500);
     }
 
-    // --- 3. تحميل وعرض الخدمات ---
+    // --- 3. تحميل وعرض الخدمات (تبقى كما هي) ---
     async function loadServices() {
         try {
             const response = await fetch('/api/services');
@@ -195,16 +194,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ******** التعديل الأهم هنا ********
     function getPlatformIcon(platform) {
         const p = platform.toLowerCase().trim();
-        if (p.includes('instagram')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
-        if (p.includes('tiktok')) return 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg';
-        if (p.includes('twitter') || p === 'x') return 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg';
-        if (p.includes('facebook')) return 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg';
-        if (p.includes('youtube')) return 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg';
-        if (p.includes('telegram')) return 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg';
-        if (p.includes('snapchat')) return 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg';
-        if (p.includes('threads')) return 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Threads_app_icon.svg';
+        if (p.includes('instagram') || p.includes('انستغرام') || p.includes('انستا')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
+        if (p.includes('tiktok') || p.includes('تيك توك')) return 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg';
+        if (p.includes('twitter') || p.includes('تويتر') || p === 'x') return 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg';
+        if (p.includes('facebook') || p.includes('فيس بوك') || p.includes('فيس')) return 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg';
+        if (p.includes('youtube') || p.includes('يوتيوب')) return 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg';
+        if (p.includes('telegram') || p.includes('تلغرام')) return 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg';
+        if (p.includes('snapchat') || p.includes('سناب شات')) return 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg';
+        if (p.includes('threads') || p.includes('ثريدز')) return 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Threads_app_icon.svg';
         try {
             const initial = encodeURIComponent(platform.charAt(0).toUpperCase());
             return `https://ui-avatars.com/api/?name=${initial}&background=random&size=50&color=fff`;
@@ -212,17 +212,18 @@ document.addEventListener('DOMContentLoaded', () => {
             return '';
         }
     }
+    // ******** نهاية التعديل ********
 
     function getPlatformValidation(platform) {
         const p = platform.toLowerCase().trim();
-        if (p.includes('instagram')) return /instagram\.com/;
-        if (p.includes('tiktok')) return /tiktok\.com/;
-        if (p.includes('twitter') || p === 'x') return /(twitter|x)\.com/;
-        if (p.includes('facebook')) return /facebook\.com/;
-        if (p.includes('youtube')) return /(youtube\.com|youtu\.be)/;
-        if (p.includes('telegram')) return /(telegram\.me|t\.me)/;
-        if (p.includes('snapchat')) return /snapchat\.com/;
-        if (p.includes('threads')) return /threads\.net/;
+        if (p.includes('instagram') || p.includes('انستغرام')) return /instagram\.com/;
+        if (p.includes('tiktok') || p.includes('تيك توك')) return /tiktok\.com/;
+        if (p.includes('twitter') || p.includes('تويتر') || p === 'x') return /(twitter|x)\.com/;
+        if (p.includes('facebook') || p.includes('فيس بوك')) return /facebook\.com/;
+        if (p.includes('youtube') || p.includes('يوتيوب')) return /(youtube\.com|youtu\.be)/;
+        if (p.includes('telegram') || p.includes('تلغرام')) return /(telegram\.me|t\.me)/;
+        if (p.includes('snapchat') || p.includes('سناب شات')) return /snapchat\.com/;
+        if (p.includes('threads') || p.includes('ثريدز')) return /threads\.net/;
         return new RegExp(`${p.replace(/\s/g, '')}\\.com`, 'i');
     }
 
@@ -239,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 4. إظهار وتحديث نموذج الطلب ---
+    // --- 4. إظهار وتحديث نموذج الطلب (تبقى كما هي) ---
     function showOrderForm(platform) {
         currentPlatform = platform;
         orderFormContainer.classList.remove('hidden');
@@ -297,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
-    // --- 5. معالجة إرسال الطلب وخيارات الدفع ---
+    // --- 5. معالجة إرسال الطلب وخيارات الدفع (تبقى كما هي) ---
     async function handleFormSubmit(event) {
         event.preventDefault();
         if (!validateLink()) { alert('الرجاء إدخال رابط صحيح.'); return; }
@@ -358,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
         orderPopupOverlay.classList.add('hidden');
     }
 
-    // --- 6. ربط الأحداث ---
+    // --- 6. ربط الأحداث (تبقى كما هي) ---
     closePopupButton.addEventListener('click', hidePopup);
     successOkButton.addEventListener('click', () => {
         hidePopup();
