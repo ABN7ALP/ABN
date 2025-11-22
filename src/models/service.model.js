@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const serviceSchema = new mongoose.Schema({
     id: {
         type: String,
-        unique: true, // فريد لكل خدمة
+        unique: true,
         required: true
     },
     platform: {
@@ -30,7 +30,14 @@ const serviceSchema = new mongoose.Schema({
         type: Number,
         required: true,
         default: 100000
+    },
+    // ******** هذا هو الحقل الجديد ********
+    step: {
+        type: Number,
+        required: true,
+        default: 1 // القيمة الافتراضية 1 تعني قبول أي رقم صحيح
     }
+    // ******** نهاية الإضافة ********
 });
 
 const Service = mongoose.model('Service', serviceSchema);
