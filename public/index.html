@@ -52,6 +52,28 @@
                     <div class="price-section"><p>السعر الإجمالي</p><span id="price-display">0.00 $</span></div>
                     <button type="submit" class="pill-button primary-button"><i class="ph-bold ph-shopping-cart-simple"></i><span>تأكيد الطلب</span></button>
                 </form>
+                <!-- هذا الكود يوضع بعد نهاية وسم </form> الخاص بـ order-form -->
+
+<!-- Payment Options (Initially Hidden) -->
+<div id="payment-options-container" class="hidden">
+    <div class="price-section">
+        <p>المبلغ المطلوب دفعه</p>
+        <span id="final-price-display">0.00 $</span>
+    </div>
+    <p class="payment-instructions">اختر طريقة الدفع لإكمال طلبك:</p>
+    <div class="payment-buttons">
+        <button id="pay-with-balance-btn" class="pill-button primary-button" disabled>
+            <i class="ph-bold ph-wallet"></i>
+            <span>الدفع بالرصيد</span>
+        </button>
+        <button id="pay-with-whatsapp-btn" class="pill-button secondary-button">
+            <i class="ph-bold ph-whatsapp-logo"></i>
+            <span>إرسال عبر واتساب</span>
+        </button>
+    </div>
+    <p id="balance-error" class="error-message"></p>
+</div>
+
             </div>
             <div id="success-message-container" class="hidden">
                  <div class="popup-header"><i class="ph-bold ph-check-circle success-icon"></i><h2>تم بنجاح!</h2></div>
