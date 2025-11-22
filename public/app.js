@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- المتغيرات العامة ---
-    let servicesData = {};
-    let currentPlatform = null;
-    let userInfo = null;
+    let servicesData = {}, currentPlatform = null, userInfo = null;
 
     // --- عناصر الصفحة ---
     const servicesContainer = document.getElementById('services-container');
@@ -31,6 +29,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginPopupError = document.getElementById('login-popup-error');
     const registerPopupError = document.getElementById('register-popup-error');
 
+    // --- عناصر شحن الرصيد الجديدة ---
+    const depositPopupOverlay = document.getElementById('deposit-popup-overlay');
+    const closeDepositPopupBtn = document.getElementById('close-deposit-popup-btn');
+    const depositForm = document.getElementById('deposit-form');
+    const paymentMethodBtns = document.querySelectorAll('.payment-method-btn');
+    const paymentDetailsContainer = document.getElementById('payment-details-container');
+    const depositFormResponse = document.getElementById('deposit-form-response');
+
     // --- 1. نظام المصادقة (Authentication) ---
     function updateUIForAuth() {
         const storedUser = localStorage.getItem('userInfo');
@@ -38,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             userInfo = JSON.parse(storedUser);
             mainNav.innerHTML = `
                 <div class="user-menu">
+                    <button id="add-balance-btn" class="pill-button primary-button"><i class="ph-bold ph-plus-circle"></i> شحن الرصيد</button>
                     <div class="balance-display">
                         <i class="ph-bold ph-wallet"></i>
                         <span>${(userInfo.balance || 0).toFixed(2)} $</span>
@@ -47,7 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             document.getElementById('logout-btn').addEventListener('click', logoutHandler);
+            document.getElementById('add-balance-btn').addEventListener('click', showDepositPopup);
         } else {
+            userInfo = null;
             mainNav.innerHTML = `
                 <button id="login-btn" class="pill-button secondary-button">تسجيل الدخول</button>
                 <button id="register-btn" class="pill-button primary-button">إنشاء حساب</button>
@@ -117,11 +126,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function logoutHandler() {
         localStorage.removeItem('userInfo');
-        userInfo = null;
         updateUIForAuth();
     }
 
-    // --- 2. تحميل وعرض الخدمات ---
+    // --- 2. نظام شحن الرصيد (Deposit System) ---
+    function showDepositPopup() {
+        depositForm.reset();
+        depositFormResponse.textContent = '';
+        depositFormResponse.className = 'form-message';
+        paymentDetailsContainer.classList.add('hidden');
+        paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
+        depositPopupOverlay.classList.remove('hidden');
+    }
+
+    function hideDepositPopup() {
+        depositPopupOverlay.classList.add('hidden');
+    }
+
+    function handlePaymentMethodSelect(event) {
+        const selectedMethod = event.currentTarget.dataset.method;
+        paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        let detailsHTML = '';
+        switch (selectedMethod) {
+            case 'bank':
+                detailsHTML = `<p>يرجى تحويل المبلغ إلى الحساب التالي:</p><p>الاسم: <span>BESSAR</span></p><p>رقم الحساب (IBAN): <span>TR9785431312751367319</span></p>`;
+                break;
+            case 'sham':
+                detailsHTML = `<p>يرجى مسح الباركود التالي والدفع عبر شام كاش:</p><img src="https://i.ibb.co/GvXw59R/bfa34fae23d4f3b4089e6d615bbd07d7.png" alt="Sham Cash QR Code">`;
+                break;
+            case 'whatsapp':
+                detailsHTML = `<p>للحوالة عبر مكتب، يرجى التواصل معنا عبر واتساب للحصول على التفاصيل. بعد إتمام الحوالة، قم برفع صورة الإيصال هنا.</p>`;
+                break;
+        }
+        paymentDetailsContainer.innerHTML = detailsHTML;
+        paymentDetailsContainer.classList.remove('hidden');
+    }
+
+    async function handleDepositSubmit(event) {
+        event.preventDefault();
+        depositFormResponse.textContent = 'جاري إرسال الطلب...';
+        depositFormResponse.className = 'form-message';
+        // (سيتم بناء هذه الدالة في المرحلة التالية بعد بناء الواجهة الخلفية)
+        setTimeout(() => {
+            depositFormResponse.textContent = 'تم إرسال طلب الشحن بنجاح! سيتم مراجعته وإضافة الرصيد قريباً.';
+            depositFormResponse.className = 'form-message success';
+            setTimeout(hideDepositPopup, 3000);
+        }, 1500);
+    }
+
+    // --- 3. تحميل وعرض الخدمات ---
     async function loadServices() {
         try {
             const response = await fetch('/api/services');
@@ -130,12 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
             servicesData = servicesFromDB.reduce((acc, service) => {
                 const platform = service.platform;
                 if (!acc[platform]) {
-                    acc[platform] = {
-                        icon: getPlatformIcon(platform),
-                        description: `خدمات متنوعة لمنصة ${platform}`,
-                        validation: getPlatformValidation(platform),
-                        services: []
-                    };
+                    acc[platform] = { icon: getPlatformIcon(platform), description: `خدمات متنوعة لمنصة ${platform}`, validation: getPlatformValidation(platform), services: [] };
                 }
                 acc[platform].services.push(service);
                 return acc;
@@ -149,27 +198,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getPlatformIcon(platform) {
         const p = platform.toLowerCase().trim();
-        if (p.includes('instagram') || p.includes('انستغرام') || p.includes('انستا')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
-        if (p.includes('tiktok') || p.includes('تيك توك')) return 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg';
-        if (p.includes('twitter') || p.includes('تويتر') || p === 'x') return 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg';
-        if (p.includes('facebook') || p.includes('فيس بوك') || p.includes('فيس')) return 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg';
-        if (p.includes('youtube') || p.includes('يوتيوب')) return 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg';
-        if (p.includes('telegram') || p.includes('تلغرام')) return 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg';
-        if (p.includes('snapchat') || p.includes('سناب شات')) return 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg';
-        if (p.includes('threads') || p.includes('ثريدز')) return 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Threads_app_icon.svg';
+        if (p.includes('instagram')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
+        if (p.includes('tiktok')) return 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg';
+        if (p.includes('twitter') || p === 'x') return 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg';
+        if (p.includes('facebook')) return 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg';
+        if (p.includes('youtube')) return 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg';
+        if (p.includes('telegram')) return 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg';
+        if (p.includes('snapchat')) return 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg';
+        if (p.includes('threads')) return 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Threads_app_icon.svg';
         return `https://via.placeholder.com/50?text=${platform.charAt(0)}`;
     }
 
     function getPlatformValidation(platform) {
         const p = platform.toLowerCase().trim();
-        if (p.includes('instagram') || p.includes('انستغرام')) return /instagram\.com/;
-        if (p.includes('tiktok') || p.includes('تيك توك')) return /tiktok\.com/;
-        if (p.includes('twitter') || p.includes('تويتر') || p === 'x') return /(twitter|x)\.com/;
-        if (p.includes('facebook') || p.includes('فيس بوك')) return /facebook\.com/;
-        if (p.includes('youtube') || p.includes('يوتيوب')) return /(youtube\.com|youtu\.be)/;
-        if (p.includes('telegram') || p.includes('تلغرام')) return /(telegram\.me|t\.me)/;
-        if (p.includes('snapchat') || p.includes('سناب شات')) return /snapchat\.com/;
-        if (p.includes('threads') || p.includes('ثريدز')) return /threads\.net/;
+        if (p.includes('instagram')) return /instagram\.com/;
+        if (p.includes('tiktok')) return /tiktok\.com/;
+        if (p.includes('twitter') || p === 'x') return /(twitter|x)\.com/;
+        if (p.includes('facebook')) return /facebook\.com/;
+        if (p.includes('youtube')) return /(youtube\.com|youtu\.be)/;
+        if (p.includes('telegram')) return /(telegram\.me|t\.me)/;
+        if (p.includes('snapchat')) return /snapchat\.com/;
+        if (p.includes('threads')) return /threads\.net/;
         return new RegExp(`${p.replace(/\s/g, '')}\\.com`, 'i');
     }
 
@@ -189,15 +238,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 3. إظهار وتحديث نموذج الطلب ---
+    // --- 4. إظهار وتحديث نموذج الطلب ---
     function showOrderForm(platform) {
         currentPlatform = platform;
-        // إعادة إظهار نموذج الطلب وإخفاء الأقسام الأخرى داخل النافذة
         orderFormContainer.classList.remove('hidden');
         successMessageContainer.classList.add('hidden');
-        const paymentOptionsContainer = document.getElementById('payment-options-container');
-        if(paymentOptionsContainer) paymentOptionsContainer.classList.add('hidden');
-
+        document.getElementById('payment-options-container')?.classList.add('hidden');
         formTitle.textContent = `طلب خدمة لـ ${platform}`;
         const iconName = platform.toLowerCase().replace(/\s/g, '');
         popupIcon.className = `ph-bold ph-${iconName}-logo`;
@@ -254,62 +300,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 4. معالجة إرسال الطلب وخيارات الدفع ---
+    // --- 5. معالجة إرسال الطلب وخيارات الدفع ---
     async function handleFormSubmit(event) {
         event.preventDefault();
-        if (!validateLink()) {
-            alert('الرجاء إدخال رابط صحيح.');
-            return;
-        }
-
+        if (!validateLink()) { alert('الرجاء إدخال رابط صحيح.'); return; }
         orderFormContainer.classList.add('hidden');
         const paymentOptionsContainer = document.getElementById('payment-options-container');
         paymentOptionsContainer.classList.remove('hidden');
-
         const price = parseFloat(priceDisplay.textContent.replace(' $', ''));
         document.getElementById('final-price-display').textContent = `${price.toFixed(2)} $`;
-
         const payWithBalanceBtn = document.getElementById('pay-with-balance-btn');
         const payWithWhatsappBtn = document.getElementById('pay-with-whatsapp-btn');
         const balanceError = document.getElementById('balance-error');
         balanceError.textContent = '';
-
         if (userInfo && userInfo.balance >= price) {
             payWithBalanceBtn.disabled = false;
             payWithBalanceBtn.onclick = () => executePayWithBalance(price);
         } else {
             payWithBalanceBtn.disabled = true;
-            if (userInfo) {
-                balanceError.textContent = 'رصيدك الحالي غير كافٍ.';
-            } else {
-                balanceError.textContent = 'سجل الدخول لتتمكن من الدفع بالرصيد.';
-            }
+            balanceError.textContent = userInfo ? 'رصيدك الحالي غير كافٍ.' : 'سجل الدخول لتتمكن من الدفع بالرصيد.';
         }
         payWithWhatsappBtn.onclick = () => executePayWithWhatsapp(price);
     }
 
     async function executePayWithBalance(price) {
-        const orderData = {
-            platform: currentPlatform,
-            service: serviceSelect.value,
-            link: linkInput.value,
-            quantity: parseInt(quantityInput.value, 10),
-            price: price,
-            userId: userInfo._id
-        };
+        const orderData = { platform: currentPlatform, service: serviceSelect.value, link: linkInput.value, quantity: parseInt(quantityInput.value, 10), price: price, userId: userInfo._id };
         try {
-            const response = await fetch('/api/orders/pay-with-balance', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(orderData),
-            });
+            const response = await fetch('/api/orders/pay-with-balance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(orderData) });
             const result = await response.json();
             if (!response.ok) throw new Error(result.message || 'فشل الدفع بالرصيد.');
-
             userInfo.balance = result.newBalance;
             localStorage.setItem('userInfo', JSON.stringify(userInfo));
             updateUIForAuth();
-
             document.getElementById('payment-options-container').classList.add('hidden');
             formResponse.textContent = 'تم الدفع بنجاح! طلبك الآن قيد التنفيذ.';
             successMessageContainer.classList.remove('hidden');
@@ -319,20 +341,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function executePayWithWhatsapp(price) {
-        const orderData = {
-            platform: currentPlatform,
-            service: serviceSelect.value,
-            link: linkInput.value,
-            quantity: parseInt(quantityInput.value, 10),
-            price: price,
-            user: userInfo ? userInfo._id : null
-        };
+        const orderData = { platform: currentPlatform, service: serviceSelect.value, link: linkInput.value, quantity: parseInt(quantityInput.value, 10), price: price, user: userInfo ? userInfo._id : null };
         try {
-            await fetch('/api/orders', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(orderData),
-            });
+            await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(orderData) });
         } catch (error) {
             console.error("Failed to save order to DB, but proceeding with WhatsApp link.", error);
         }
@@ -340,31 +351,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const adminPhoneNumber = "905367893256";
         const encodedMessage = encodeURIComponent(message.trim());
         const whatsappUrl = `https://wa.me/${adminPhoneNumber}?text=${encodedMessage}`;
-        
         document.getElementById('payment-options-container').classList.add('hidden');
         formResponse.textContent = 'ممتاز! سيتم الآن تحويلك إلى واتساب لإرسال تفاصيل طلبك.';
         successMessageContainer.classList.remove('hidden');
-
-        setTimeout(() => {
-            window.open(whatsappUrl, '_blank');
-            hidePopup();
-        }, 2500);
+        setTimeout(() => { window.open(whatsappUrl, '_blank'); hidePopup(); }, 2500);
     }
 
     function hidePopup() {
         orderPopupOverlay.classList.add('hidden');
     }
 
-    // --- 5. ربط الأحداث ---
+    // --- 6. ربط الأحداث ---
     closePopupButton.addEventListener('click', hidePopup);
     successOkButton.addEventListener('click', () => {
         hidePopup();
-        // إعادة إظهار نموذج الطلب عند إغلاق رسالة النجاح
         setTimeout(() => {
             orderFormContainer.classList.remove('hidden');
             successMessageContainer.classList.add('hidden');
-            const paymentOptionsContainer = document.getElementById('payment-options-container');
-            if(paymentOptionsContainer) paymentOptionsContainer.classList.add('hidden');
+            document.getElementById('payment-options-container')?.classList.add('hidden');
         }, 500);
     });
     orderPopupOverlay.addEventListener('click', (e) => { if (e.target === orderPopupOverlay) hidePopup(); });
@@ -376,13 +380,15 @@ document.addEventListener('DOMContentLoaded', () => {
     showLoginLink.addEventListener('click', (e) => { e.preventDefault(); showAuthPopup('login'); });
     loginFormPopup.addEventListener('submit', loginHandler);
     registerFormPopup.addEventListener('submit', registerHandler);
-    authPopupOverlay.addEventListener('click', (e) => {
-        if (e.target === authPopupOverlay || e.target.closest('.close-btn')) {
-            hideAuthPopup();
-        }
-    });
+    authPopupOverlay.addEventListener('click', (e) => { if (e.target === authPopupOverlay || e.target.closest('.close-btn')) hideAuthPopup(); });
+    
+    // ربط أحداث شحن الرصيد
+    closeDepositPopupBtn.addEventListener('click', hideDepositPopup);
+    depositPopupOverlay.addEventListener('click', (e) => { if (e.target === depositPopupOverlay) hideDepositPopup(); });
+    paymentMethodBtns.forEach(btn => btn.addEventListener('click', handlePaymentMethodSelect));
+    depositForm.addEventListener('submit', handleDepositSubmit);
 
-    // --- 6. البدء بتشغيل كل شيء ---
+    // --- 7. البدء بتشغيل كل شيء ---
     updateUIForAuth();
     loadServices();
 });
