@@ -192,8 +192,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 3. إظهار وتحديث نموذج الطلب ---
     function showOrderForm(platform) {
         currentPlatform = platform;
+        // إعادة إظهار نموذج الطلب وإخفاء الأقسام الأخرى داخل النافذة
         orderFormContainer.classList.remove('hidden');
         successMessageContainer.classList.add('hidden');
+        const paymentOptionsContainer = document.getElementById('payment-options-container');
+        if(paymentOptionsContainer) paymentOptionsContainer.classList.add('hidden');
+
         formTitle.textContent = `طلب خدمة لـ ${platform}`;
         const iconName = platform.toLowerCase().replace(/\s/g, '');
         popupIcon.className = `ph-bold ph-${iconName}-logo`;
@@ -250,19 +254,77 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 4. معالجة إرسال الطلب ---
+    // --- 4. معالجة إرسال الطلب وخيارات الدفع ---
     async function handleFormSubmit(event) {
         event.preventDefault();
         if (!validateLink()) {
             alert('الرجاء إدخال رابط صحيح.');
             return;
         }
+
+        orderFormContainer.classList.add('hidden');
+        const paymentOptionsContainer = document.getElementById('payment-options-container');
+        paymentOptionsContainer.classList.remove('hidden');
+
+        const price = parseFloat(priceDisplay.textContent.replace(' $', ''));
+        document.getElementById('final-price-display').textContent = `${price.toFixed(2)} $`;
+
+        const payWithBalanceBtn = document.getElementById('pay-with-balance-btn');
+        const payWithWhatsappBtn = document.getElementById('pay-with-whatsapp-btn');
+        const balanceError = document.getElementById('balance-error');
+        balanceError.textContent = '';
+
+        if (userInfo && userInfo.balance >= price) {
+            payWithBalanceBtn.disabled = false;
+            payWithBalanceBtn.onclick = () => executePayWithBalance(price);
+        } else {
+            payWithBalanceBtn.disabled = true;
+            if (userInfo) {
+                balanceError.textContent = 'رصيدك الحالي غير كافٍ.';
+            } else {
+                balanceError.textContent = 'سجل الدخول لتتمكن من الدفع بالرصيد.';
+            }
+        }
+        payWithWhatsappBtn.onclick = () => executePayWithWhatsapp(price);
+    }
+
+    async function executePayWithBalance(price) {
         const orderData = {
             platform: currentPlatform,
             service: serviceSelect.value,
             link: linkInput.value,
             quantity: parseInt(quantityInput.value, 10),
-            price: parseFloat(priceDisplay.textContent.replace(' $', '')),
+            price: price,
+            userId: userInfo._id
+        };
+        try {
+            const response = await fetch('/api/orders/pay-with-balance', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || 'فشل الدفع بالرصيد.');
+
+            userInfo.balance = result.newBalance;
+            localStorage.setItem('userInfo', JSON.stringify(userInfo));
+            updateUIForAuth();
+
+            document.getElementById('payment-options-container').classList.add('hidden');
+            formResponse.textContent = 'تم الدفع بنجاح! طلبك الآن قيد التنفيذ.';
+            successMessageContainer.classList.remove('hidden');
+        } catch (error) {
+            document.getElementById('balance-error').textContent = error.message;
+        }
+    }
+
+    async function executePayWithWhatsapp(price) {
+        const orderData = {
+            platform: currentPlatform,
+            service: serviceSelect.value,
+            link: linkInput.value,
+            quantity: parseInt(quantityInput.value, 10),
+            price: price,
             user: userInfo ? userInfo._id : null
         };
         try {
@@ -274,13 +336,15 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error("Failed to save order to DB, but proceeding with WhatsApp link.", error);
         }
-        const message = `*طلب جديد* 🎉\n---------------------\n*المنصة:* ${orderData.platform}\n*الخدمة:* ${orderData.service}\n*الكمية:* ${orderData.quantity}\n*السعر:* ${orderData.price}$\n*الرابط:* ${orderData.link}\n---------------------\n(رسالة منشأة تلقائياً)`;
+        const message = `*طلب جديد* 🎉\n---------------------\n*المنصة:* ${orderData.platform}\n*الخدمة:* ${orderData.service}\n*الكمية:* ${orderData.quantity}\n*السعر:* ${orderData.price.toFixed(2)}$\n*الرابط:* ${orderData.link}\n---------------------\n(رسالة منشأة تلقائياً)`;
         const adminPhoneNumber = "905367893256";
         const encodedMessage = encodeURIComponent(message.trim());
         const whatsappUrl = `https://wa.me/${adminPhoneNumber}?text=${encodedMessage}`;
+        
+        document.getElementById('payment-options-container').classList.add('hidden');
         formResponse.textContent = 'ممتاز! سيتم الآن تحويلك إلى واتساب لإرسال تفاصيل طلبك.';
-        orderFormContainer.classList.add('hidden');
         successMessageContainer.classList.remove('hidden');
+
         setTimeout(() => {
             window.open(whatsappUrl, '_blank');
             hidePopup();
@@ -293,7 +357,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 5. ربط الأحداث ---
     closePopupButton.addEventListener('click', hidePopup);
-    successOkButton.addEventListener('click', hidePopup);
+    successOkButton.addEventListener('click', () => {
+        hidePopup();
+        // إعادة إظهار نموذج الطلب عند إغلاق رسالة النجاح
+        setTimeout(() => {
+            orderFormContainer.classList.remove('hidden');
+            successMessageContainer.classList.add('hidden');
+            const paymentOptionsContainer = document.getElementById('payment-options-container');
+            if(paymentOptionsContainer) paymentOptionsContainer.classList.add('hidden');
+        }, 500);
+    });
     orderPopupOverlay.addEventListener('click', (e) => { if (e.target === orderPopupOverlay) hidePopup(); });
     serviceSelect.addEventListener('change', updateFormBasedOnService);
     quantityInput.addEventListener('input', updatePrice);
