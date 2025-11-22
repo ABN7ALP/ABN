@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. إعداد الاتصال الفوري (Socket.IO) ---
-    // هذا هو السطر الأهم الذي كان مفقوداً
     const socket = io();
 
     // --- المتغيرات العامة ---
@@ -219,16 +218,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ******** الدوال الصحيحة والمحدثة هنا ********
     function getPlatformIcon(platform) {
         const p = platform.toLowerCase().trim();
-        if (p.includes('instagram')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
-        if (p.includes('tiktok')) return 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg';
-        if (p.includes('twitter')) return 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg';
-        if (p.includes('facebook')) return 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg';
-        if (p.includes('youtube')) return 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg';
-        if (p.includes('telegram')) return 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg';
-        if (p.includes('snapchat')) return 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg';
-        if (p.includes('threads')) return 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Threads_app_icon.svg';
+        if (p.includes('instagram') || p.includes('انستغرام') || p.includes('انستا')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
+        if (p.includes('tiktok') || p.includes('تيك توك')) return 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg';
+        if (p.includes('twitter') || p.includes('تويتر') || p === 'x') return 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg';
+        if (p.includes('facebook') || p.includes('فيس بوك') || p.includes('فيس')) return 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg';
+        if (p.includes('youtube') || p.includes('يوتيوب')) return 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg';
+        if (p.includes('telegram') || p.includes('تلغرام')) return 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg';
+        if (p.includes('snapchat') || p.includes('سناب شات')) return 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg';
+        if (p.includes('threads') || p.includes('ثريدز')) return 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Threads_app_icon.svg';
         try {
             const initial = encodeURIComponent(platform.charAt(0).toUpperCase());
             return `https://ui-avatars.com/api/?name=${initial}&background=random&size=50&color=fff`;
@@ -237,16 +237,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getPlatformValidation(platform) {
         const p = platform.toLowerCase().trim();
-        if (p.includes('instagram')) return /instagram\.com/;
-        if (p.includes('tiktok')) return /tiktok\.com/;
-        if (p.includes('twitter')) return /(twitter|x)\.com/;
-        if (p.includes('facebook')) return /facebook\.com/;
-        if (p.includes('youtube')) return /(youtube\.com|youtu\.be)/;
-        if (p.includes('telegram')) return /(telegram\.me|t\.me)/;
-        if (p.includes('snapchat')) return /snapchat\.com/;
-        if (p.includes('threads')) return /threads\.net/;
+        if (p.includes('instagram') || p.includes('انستغرام') || p.includes('انستا')) return /instagram\.com/;
+        if (p.includes('tiktok') || p.includes('تيك توك')) return /tiktok\.com/;
+        if (p.includes('twitter') || p.includes('تويتر') || p === 'x') return /(twitter|x)\.com/;
+        if (p.includes('facebook') || p.includes('فيس بوك') || p.includes('فيس')) return /facebook\.com/;
+        if (p.includes('youtube') || p.includes('يوتيوب')) return /(youtube\.com|youtu\.be)/;
+        if (p.includes('telegram') || p.includes('تلغرام')) return /(telegram\.me|t\.me)/;
+        if (p.includes('snapchat') || p.includes('سناب شات')) return /snapchat\.com/;
+        if (p.includes('threads') || p.includes('ثريدز')) return /threads\.net/;
         return new RegExp(`${p.replace(/\s/g, '')}\\.com`, 'i');
     }
+    // ******** نهاية الدوال الصحيحة ********
 
     function renderServiceCards() {
         servicesContainer.innerHTML = '';
