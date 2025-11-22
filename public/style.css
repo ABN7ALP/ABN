@@ -665,3 +665,43 @@ header p {
     font-size: 2rem;
     color: var(--text-dark);
 }
+
+/* --- 12. Auth Popups --- */
+.main-nav {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-menu span {
+    font-weight: 600;
+}
+
+.error-message {
+    color: var(--danger-color);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    min-height: 1.2em; /* لمنع اهتزاز الواجهة */
+}
+
+.switch-form-text {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.switch-form-text a {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.switch-form-text a:hover {
+    text-decoration: underline;
+}
