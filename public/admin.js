@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${deposit.amount.toFixed(2)} $</td>
                 <td>${deposit.method}</td>
                 <td>${deposit.depositorName}</td>
-                <td><a href="#" onclick="event.preventDefault(); window.open('${deposit.receiptImage}', '_blank');" class="pill-button-link">عرض الإيصال</a></td>
+                <td><button onclick="viewReceipt('${deposit.receiptImage}')" class="pill-button-link">عرض الإيصال</button></td>
                 <td class="status ${statusClass}">${statusText}</td>
                 <td class="action-buttons">
                     ${deposit.status === 'pending' ? `
@@ -329,6 +329,22 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.disabled = false;
         }
     }
+
+    function viewReceipt(base64Image) {
+    const newWindow = window.open();
+    if (newWindow) {
+        newWindow.document.write(`
+            <html>
+                <head><title>عرض الإيصال</title></head>
+                <body style="margin:0; display:flex; justify-content:center; align-items:center; background-color:#333;">
+                    <img src="${base64Image}" style="max-width:100%; max-height:100vh;">
+                </body>
+            </html>
+        `);
+        newWindow.document.close();
+    }
+}
+
 
     // --- 6. ربط أحداث التحديث ---
     refreshStatsBtn.addEventListener('click', fetchStats);
