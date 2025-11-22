@@ -28,15 +28,22 @@ router.get('/', async (req, res) => {
 // --- PUT /api/orders/:id (لتحديث حالة الطلب) ---
 router.put('/:id', async (req, res) => {
     try {
-        const updatedOrder = await Order.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
-        if (!updatedOrder) {
-            return res.status(404).json({ message: 'الطلب غير موجود' });
+        const order = await Order.findById(req.params.id);
+        if (order) {
+            order.status = req.body.status || order.status;
+            const updatedOrder = await order.save();
+            // إرسال إشارة بالتحديث إلى كل العملاء المتصلين
+            req.io.emit('order-status-updated', updatedOrder);
+
+            res.json(updatedOrder);
+        } else {
+            res.status(404).json({ message: 'الطلب غير موجود' });
         }
-        res.json(updatedOrder);
     } catch (error) {
         res.status(500).json({ message: 'فشل تحديث الطلب' });
     }
 });
+
 
 // --- POST /api/orders/pay-with-balance (الكود المصحح) ---
 router.post('/pay-with-balance', async (req, res) => {
