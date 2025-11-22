@@ -1,63 +1,65 @@
 const express = require('express');
 const router = express.Router();
-const Deposit = require('../models/deposit.model');
 const User = require('../models/user.model');
+const Deposit = require('../models/deposit.model');
 
-// POST /api/deposits - إنشاء طلب شحن جديد
+// POST إنشاء طلب شحن جديد
 router.post('/', async (req, res) => {
     try {
-        const { userId, amount, method, depositorName, receiptImage } = req.body;
-        if (!userId || !amount || !method || !depositorName || !receiptImage) {
-            return res.status(400).json({ message: 'بيانات الطلب غير مكتملة.' });
-        }
-        const newDeposit = new Deposit({ user: userId, amount, method, depositorName, receiptImage });
+        const newDeposit = new Deposit(req.body);
         await newDeposit.save();
 
-        // إرسال إشعار للوحة التحكم
+        // *** إرسال إشارة التحديث الفوري ***
         req.io.emit('new-deposit');
 
-        res.status(201).json({ message: 'تم إرسال طلب الشحن بنجاح! سيتم مراجعته قريباً.' });
+        res.status(201).json({ message: 'تم إرسال طلب الشحن بنجاح!' });
     } catch (error) {
         res.status(500).json({ message: 'حدث خطأ أثناء إرسال الطلب.' });
     }
 });
 
-// GET /api/deposits - جلب كل طلبات الشحن
+// GET جلب كل طلبات الشحن
 router.get('/', async (req, res) => {
     try {
-        const deposits = await Deposit.find().populate('user', 'username').sort({ createdAt: -1 });
+        const deposits = await Deposit.find({}).populate('user', 'username').sort({ createdAt: -1 });
         res.status(200).json(deposits);
     } catch (error) {
-        res.status(500).json({ message: 'فشل جلب طلبات الشحن.' });
+        res.status(500).json({ message: 'فشل جلب الطلبات.' });
     }
 });
 
-// PUT /api/deposits/:id/approve - الموافقة على طلب شحن
+// PUT الموافقة على طلب شحن
 router.put('/:id/approve', async (req, res) => {
     try {
         const deposit = await Deposit.findById(req.params.id);
         if (!deposit || deposit.status !== 'pending') {
-            return res.status(404).json({ message: 'الطلب غير موجود أو تمت معالجته بالفعل.' });
+            return res.status(404).json({ message: 'الطلب غير موجود أو تمت معالجته.' });
         }
         await User.findByIdAndUpdate(deposit.user, { $inc: { balance: deposit.amount } });
         deposit.status = 'approved';
         await deposit.save();
 
-        // إرسال إشعار للمستخدم المحدد
-        req.io.emit('deposit-approved', { userId: deposit.user.toString() });
+        // *** إرسال إشارة للمستخدم المعني لتحديث رصيده ***
+        req.io.emit('deposit-approved', { userId: deposit.user });
+        // *** إرسال إشارة للوحة التحكم لتحديث قائمة الطلبات ***
+        req.io.emit('new-deposit');
 
-        res.status(200).json({ message: 'تمت الموافقة على الطلب وإضافة الرصيد.', deposit });
+
+        res.status(200).json({ message: 'تمت الموافقة على الطلب.' });
     } catch (error) {
         res.status(500).json({ message: 'فشل الموافقة على الطلب.' });
     }
 });
 
-// PUT /api/deposits/:id/reject - رفض طلب شحن
+// PUT رفض طلب شحن
 router.put('/:id/reject', async (req, res) => {
     try {
-        const deposit = await Deposit.findByIdAndUpdate(req.params.id, { status: 'rejected' }, { new: true });
-        if (!deposit) return res.status(404).json({ message: 'الطلب غير موجود.' });
-        res.status(200).json({ message: 'تم رفض الطلب.', deposit });
+        await Deposit.findByIdAndUpdate(req.params.id, { status: 'rejected' });
+
+        // *** إرسال إشارة للوحة التحكم لتحديث قائمة الطلبات ***
+        req.io.emit('new-deposit');
+
+        res.status(200).json({ message: 'تم رفض الطلب.' });
     } catch (error) {
         res.status(500).json({ message: 'فشل رفض الطلب.' });
     }
