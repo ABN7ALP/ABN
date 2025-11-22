@@ -1,38 +1,44 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- عناصر الصفحة ---
+    // --- عناصر الصفحة العامة ---
     const loginOverlay = document.getElementById('login-overlay');
     const loginForm = document.getElementById('login-form');
     const passwordInput = document.getElementById('password-input');
     const loginError = document.getElementById('login-error');
     const adminDashboard = document.getElementById('admin-dashboard');
-    
-    // عناصر الطلبات
+
+    // عناصر القائمة الجانبية والأقسام
+    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+    const sections = document.querySelectorAll('.admin-section');
+
+    // عناصر قسم الإحصائيات
+    const statsContainer = document.getElementById('stats-cards-container');
+    const refreshStatsBtn = document.getElementById('refresh-stats-btn');
+
+    // عناصر قسم الطلبات
     const ordersTbody = document.getElementById('orders-tbody');
     const loadingSpinner = document.getElementById('loading-spinner');
-    const refreshBtn = document.getElementById('refresh-btn');
+    const refreshOrdersBtn = document.getElementById('refresh-orders-btn');
 
-    // عناصر الخدمات
+    // عناصر قسم الخدمات
     const addServiceForm = document.getElementById('add-service-form');
     const serviceFormResponse = document.getElementById('service-form-response');
     const servicesTbody = document.getElementById('services-tbody');
 
-    // عناصر نافذة التعديل
+    // عناصر نافذة تعديل الخدمة
     const editServicePopup = document.getElementById('edit-service-popup');
     const editServiceForm = document.getElementById('edit-service-form');
-    const closeEditPopupBtn = editServicePopup.querySelector('.close-btn');
-
-    // عناصر القائمة الجانبية
-    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
-    const sections = document.querySelectorAll('.admin-section');
+    const closeEditPopupBtn = document.getElementById('close-edit-popup-btn');
 
     const ADMIN_PASSWORD = "password123";
 
-    // --- 1. نظام الدخول والقائمة الجانبية ---
+    // --- 1. نظام الدخول والتنقل ---
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         if (passwordInput.value === ADMIN_PASSWORD) {
             loginOverlay.classList.add('hidden');
             adminDashboard.classList.remove('hidden');
+            // جلب كل البيانات عند تسجيل الدخول
+            fetchStats();
             fetchOrders();
             fetchServices();
         } else {
@@ -54,7 +60,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- 2. إدارة الطلبات (Orders Management) ---
+    // --- 2. قسم الإحصائيات ---
+    async function fetchStats() {
+        statsContainer.innerHTML = '<div class="stat-card loading"></div><div class="stat-card loading"></div><div class="stat-card loading"></div><div class="stat-card loading"></div>';
+        try {
+            const response = await fetch('/api/stats');
+            if (!response.ok) throw new Error('فشل جلب الإحصائيات');
+            const stats = await response.json();
+            renderStats(stats);
+        } catch (error) {
+            console.error('Failed to fetch stats:', error);
+            statsContainer.innerHTML = `<p style="color:red; grid-column: 1 / -1;">${error.message}</p>`;
+        }
+    }
+
+    function renderStats(stats) {
+        statsContainer.innerHTML = `
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #e6f2ff;"><i class="ph-bold ph-wallet" style="color: #007bff;"></i></div>
+                <div class="stat-info"><p>إجمالي الدخل (المكتمل)</p><h3>${stats.totalRevenue.toFixed(2)} $</h3></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #e4f8f0;"><i class="ph-bold ph-check-circle" style="color: #28a745;"></i></div>
+                <div class="stat-info"><p>الطلبات المكتملة</p><h3>${stats.completedOrders.toLocaleString()}</h3></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #fff8e1;"><i class="ph-bold ph-timer" style="color: #ffc107;"></i></div>
+                <div class="stat-info"><p>الطلبات قيد المعالجة</p><h3>${stats.pendingOrders.toLocaleString()}</h3></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #f3e8ff;"><i class="ph-bold ph-shopping-cart-simple" style="color: #6f42c1;"></i></div>
+                <div class="stat-info"><p>إجمالي كل الطلبات</p><h3>${stats.totalOrders.toLocaleString()}</h3></div>
+            </div>
+        `;
+    }
+
+    // --- 3. قسم إدارة الطلبات ---
     async function fetchOrders() {
         loadingSpinner.classList.remove('hidden');
         ordersTbody.innerHTML = '';
@@ -130,10 +171,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 3. إدارة الخدمات (Services Management) ---
+    // --- 4. قسم إدارة الخدمات ---
     async function fetchServices() {
         try {
             const response = await fetch('/api/services');
+            if (!response.ok) throw new Error('فشل جلب الخدمات');
             const services = await response.json();
             renderServices(services);
         } catch (error) { console.error('Failed to fetch services:', error); }
@@ -199,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const service = JSON.parse(row.dataset.service);
         if (!confirm(`هل أنت متأكد من حذف خدمة "${service.name}"؟`)) return;
         try {
-            const response = await fetch(`/api/services/${service._id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/services/${service.id}`, { method: 'DELETE' });
             if (response.ok) {
                 fetchServices();
             } else {
@@ -210,12 +252,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 4. تعديل الخدمة (Edit Service) ---
     function handleOpenEditPopup(event) {
         const row = event.currentTarget.closest('tr');
         const service = JSON.parse(row.dataset.service);
         editServiceForm.innerHTML = `
-            <input type="hidden" id="edit-service-id" value="${service._id}">
+            <input type="hidden" id="edit-service-id" value="${service.id}">
             <div class="form-group"><label>المنصة</label><input type="text" id="edit-platform" value="${service.platform}" required></div>
             <div class="form-group"><label>اسم الخدمة</label><input type="text" id="edit-name" value="${service.name}" required></div>
             <div class="form-group"><label>السعر لكل 1000</label><input type="number" id="edit-price" value="${service.pricePer1000}" step="0.01" required></div>
@@ -255,6 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     closeEditPopupBtn.addEventListener('click', () => editServicePopup.classList.add('hidden'));
 
-    // --- ربط الأحداث ---
-    refreshBtn.addEventListener('click', fetchOrders);
+    // --- 5. ربط أحداث التحديث ---
+    refreshStatsBtn.addEventListener('click', fetchStats);
+    refreshOrdersBtn.addEventListener('click', fetchOrders);
 });
