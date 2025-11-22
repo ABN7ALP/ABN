@@ -517,3 +517,92 @@ header p {
     font-size: 1.2rem;
 }
 
+/* --- 10. Admin Dashboard Layout --- */
+.admin-dashboard {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: var(--white-pure);
+    box-shadow: -2px 0 10px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 0;
+    transition: width 0.3s ease;
+}
+
+.sidebar-header {
+    padding: 0 1.5rem;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.sidebar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    color: var(--text-light);
+    text-decoration: none;
+    font-weight: 600;
+    border-right: 4px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.sidebar-nav .nav-link:hover {
+    background-color: var(--gray-light);
+    color: var(--text-dark);
+}
+
+.sidebar-nav .nav-link.active {
+    color: var(--purple-main);
+    border-right-color: var(--purple-main);
+    background-color: #f0e8ff;
+}
+
+.sidebar-nav .nav-link i {
+    font-size: 1.5rem;
+}
+
+.logout-link {
+    margin-top: auto;
+}
+
+.main-content {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.admin-section {
+    display: none; /* Hide all sections by default */
+}
+
+.admin-section.active {
+    display: block; /* Show only the active section */
+}
+
+.action-buttons button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin: 0 0.25rem;
+}
+.action-buttons .edit-btn { color: var(--purple-main); }
+.action-buttons .delete-btn { color: var(--danger-red); }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .admin-dashboard { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; flex-direction: row; align-items: center; justify-content: space-around; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .sidebar-header { display: none; }
+    .sidebar-nav { display: flex; width: 100%; justify-content: space-around; }
+    .sidebar-nav .nav-link { border-right: none; border-bottom: 4px solid transparent; padding: 1rem 0.5rem; }
+    .sidebar-nav .nav-link.active { border-bottom-color: var(--purple-main); }
+    .sidebar-nav .nav-link span { display: none; } /* Hide text on mobile */
+}
+
