@@ -6,10 +6,27 @@ const Deposit = require('../models/deposit.model');
 // POST إنشاء طلب شحن جديد
 router.post('/', async (req, res) => {
     try {
-        const newDeposit = new Deposit(req.body);
+        // ******** هذا هو التصحيح ********
+        const { userId, amount, method, depositorName, receiptImage } = req.body;
+
+        // التحقق من وجود البيانات الأساسية
+        if (!userId || !amount || !method || !depositorName || !receiptImage) {
+            return res.status(400).json({ message: 'بيانات الطلب غير مكتملة.' });
+        }
+
+        const newDeposit = new Deposit({
+            user: userId, // <-- هنا التصحيح: الموديل يتوقع 'user' وليس 'userId'
+            amount: Number(amount),
+            method,
+            depositorName,
+            receiptImage
+        });
+        // ******** نهاية التصحيح ********
+
         await newDeposit.save();
-        req.io.emit('new-deposit'); // <-- استخدام req.io
+        req.io.emit('new-deposit');
         res.status(201).json({ message: 'تم إرسال طلب الشحن بنجاح!' });
+
     } catch (error) {
         console.error("Deposit POST error:", error);
         res.status(500).json({ message: 'حدث خطأ أثناء إرسال الطلب.' });
@@ -37,8 +54,8 @@ router.put('/:id/approve', async (req, res) => {
         deposit.status = 'approved';
         await deposit.save();
         
-        req.io.emit('deposit-approved', { userId: deposit.user }); // <-- استخدام req.io
-        req.io.emit('new-deposit'); // <-- استخدام req.io
+        req.io.emit('deposit-approved', { userId: deposit.user.toString() });
+        req.io.emit('new-deposit');
 
         res.status(200).json({ message: 'تمت الموافقة على الطلب.' });
     } catch (error) {
@@ -51,7 +68,7 @@ router.put('/:id/approve', async (req, res) => {
 router.put('/:id/reject', async (req, res) => {
     try {
         await Deposit.findByIdAndUpdate(req.params.id, { status: 'rejected' });
-        req.io.emit('new-deposit'); // <-- استخدام req.io
+        req.io.emit('new-deposit');
         res.status(200).json({ message: 'تم رفض الطلب.' });
     } catch (error) {
         console.error("Reject error:", error);
