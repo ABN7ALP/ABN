@@ -1,14 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/order.model.js');
-const User = require('../models/user.model.js'); // <-- استدعاء موديل المستخدم
+const User = require('../models/user.model.js');
 
 // --- POST /api/orders (للطلبات العادية عبر واتساب) ---
 router.post('/', async (req, res) => {
     try {
-        const { platform, service, link, quantity, price, user } = req.body;
-        const newOrder = new Order({ platform, service, link, quantity, price, user });
+        const newOrder = new Order(req.body);
         await newOrder.save();
+
+        // *** إرسال إشارة التحديث الفوري ***
+        req.io.emit('new-order');
+
         res.status(201).json(newOrder);
     } catch (error) {
         res.status(400).json({ message: 'فشل حفظ الطلب', error: error.message });
@@ -28,67 +31,44 @@ router.get('/', async (req, res) => {
 // --- PUT /api/orders/:id (لتحديث حالة الطلب) ---
 router.put('/:id', async (req, res) => {
     try {
-        const order = await Order.findById(req.params.id);
-        if (order) {
-            order.status = req.body.status || order.status;
-            const updatedOrder = await order.save();
-            res.json(updatedOrder);
-        } else {
-            res.status(404).json({ message: 'الطلب غير موجود' });
+        const updatedOrder = await Order.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
+        if (!updatedOrder) {
+            return res.status(404).json({ message: 'الطلب غير موجود' });
         }
+        res.json(updatedOrder);
     } catch (error) {
         res.status(500).json({ message: 'فشل تحديث الطلب' });
     }
 });
 
-// --- POST /api/orders/pay-with-balance (الـ API الجديد) ---
+// --- POST /api/orders/pay-with-balance ---
 router.post('/pay-with-balance', async (req, res) => {
-    const { platform, service, link, quantity, price, userId } = req.body;
-
-    // 1. التحقق من وجود المستخدم
-    if (!userId) {
-        return res.status(401).json({ message: 'يجب تسجيل الدخول لاستخدام الرصيد.' });
-    }
+    const { userId, price, ...orderDetails } = req.body;
+    if (!userId) return res.status(401).json({ message: 'يجب تسجيل الدخول.' });
 
     try {
         const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({ message: 'المستخدم غير موجود.' });
+        if (!user || user.balance < price) {
+            return res.status(400).json({ message: 'رصيد غير كافٍ.' });
         }
 
-        // 2. التحقق من أن الرصيد كافٍ
-        if (user.balance < price) {
-            return res.status(400).json({ message: 'رصيدك غير كافٍ لإتمام هذه العملية.' });
-        }
-
-        // 3. خصم المبلغ من رصيد المستخدم
         user.balance -= price;
         await user.save();
 
-        // 4. إنشاء الطلب الجديد
-        const newOrder = new Order({
-            platform,
-            service,
-            link,
-            quantity,
-            price,
-            user: userId,
-            status: 'قيد التنفيذ' // الطلب يبدأ قيد التنفيذ مباشرة لأنه مدفوع
-        });
+        const newOrder = new Order({ ...orderDetails, user: userId, status: 'قيد التنفيذ' });
         await newOrder.save();
 
-        // 5. إرسال رد ناجح مع الرصيد المحدث
+        // *** إرسال إشارة التحديث الفوري ***
+        req.io.emit('new-order');
+
         res.status(201).json({
-            message: 'تم إنشاء الطلب بنجاح والدفع من رصيدك!',
-            order: newOrder,
-            newBalance: user.balance // لإرسال الرصيد الجديد للواجهة الأمامية
+            message: 'تم الدفع بنجاح!',
+            newBalance: user.balance
         });
 
     } catch (error) {
-        console.error("Pay with balance error:", error);
-        res.status(500).json({ message: 'حدث خطأ أثناء معالجة الدفع.' });
+        res.status(500).json({ message: 'حدث خطأ أثناء الدفع.' });
     }
 });
-
 
 module.exports = router;
