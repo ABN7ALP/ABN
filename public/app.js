@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const linkInput = document.getElementById('link-input');
     const linkError = document.getElementById('link-error');
     const quantityInput = document.getElementById('quantity-input');
+    const quantityError = document.getElementById('quantity-error'); // <-- العنصر الجديد
     const priceDisplay = document.getElementById('price-display');
     const orderForm = document.getElementById('order-form');
     const formResponse = document.getElementById('form-response');
@@ -218,7 +219,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ******** الدوال الصحيحة والمحدثة هنا ********
     function getPlatformIcon(platform) {
         const p = platform.toLowerCase().trim();
         if (p.includes('instagram') || p.includes('انستغرام') || p.includes('انستا')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
@@ -247,7 +247,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (p.includes('threads') || p.includes('ثريدز')) return /threads\.net/;
         return new RegExp(`${p.replace(/\s/g, '')}\\.com`, 'i');
     }
-    // ******** نهاية الدوال الصحيحة ********
 
     function renderServiceCards() {
         servicesContainer.innerHTML = '';
@@ -279,11 +278,13 @@ document.addEventListener('DOMContentLoaded', () => {
             option.dataset.price = service.pricePer1000;
             option.dataset.min = service.min;
             option.dataset.max = service.max;
+            option.dataset.step = service.step || 1; // <-- إضافة هنا
             option.textContent = `${service.name}`;
             serviceSelect.appendChild(option);
         });
         orderForm.reset();
         linkError.textContent = '';
+        quantityError.textContent = ''; // <-- مسح خطأ الكمية
         orderPopupOverlay.classList.remove('hidden');
         updateFormBasedOnService();
     }
@@ -293,9 +294,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!selectedOption) return;
         const min = selectedOption.dataset.min;
         const max = selectedOption.dataset.max;
+        const step = selectedOption.dataset.step; // <-- إضافة هنا
         quantityInput.min = min;
         quantityInput.max = max;
-        quantityInput.value = Math.max(1000, min);
+        quantityInput.step = step; // <-- إضافة هنا
+        quantityInput.value = Math.max(min, 1000);
         quantityInput.placeholder = `الكمية (بين ${min} و ${max})`;
         updatePrice();
     }
@@ -321,10 +324,30 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
+    // ******** دالة تحقق جديدة ********
+    function validateQuantity() {
+        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+        if (!selectedOption) return false;
+        const quantity = parseInt(quantityInput.value, 10);
+        const min = parseInt(selectedOption.dataset.min, 10);
+        const max = parseInt(selectedOption.dataset.max, 10);
+        const step = parseInt(selectedOption.dataset.step, 10);
+        if (isNaN(quantity)) { quantityError.textContent = 'الرجاء إدخال كمية صحيحة.'; return false; }
+        if (quantity < min) { quantityError.textContent = `الكمية يجب أن تكون ${min} على الأقل.`; return false; }
+        if (quantity > max) { quantityError.textContent = `الكمية يجب أن تكون ${max} على الأكثر.`; return false; }
+        if (quantity % step !== 0) { quantityError.textContent = `الكمية يجب أن تكون من مضاعفات ${step}.`; return false; }
+        quantityError.textContent = '';
+        return true;
+    }
+    // ******** نهاية الدالة ********
+
     // --- 6. معالجة إرسال الطلب وخيارات الدفع ---
     function handleFormSubmit(event) {
         event.preventDefault();
-        if (!validateLink()) { alert('الرجاء إدخال رابط صحيح.'); return; }
+        if (!validateLink() || !validateQuantity()) {
+            alert('الرجاء تصحيح الأخطاء في النموذج.');
+            return;
+        }
         currentOrderData = { platform: currentPlatform, service: serviceSelect.value, link: linkInput.value, quantity: parseInt(quantityInput.value, 10), price: parseFloat(priceDisplay.textContent.replace(' $', '')), userId: userInfo ? userInfo._id : null };
         orderFormContainer.classList.add('hidden');
         paymentOptionsContainer.classList.remove('hidden');
@@ -383,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     orderPopupOverlay.addEventListener('click', (e) => { if (e.target === orderPopupOverlay) hidePopup(); });
     serviceSelect.addEventListener('change', updateFormBasedOnService);
-    quantityInput.addEventListener('input', updatePrice);
+    quantityInput.addEventListener('input', () => { updatePrice(); validateQuantity(); });
     linkInput.addEventListener('input', validateLink);
     orderForm.addEventListener('submit', handleFormSubmit);
     showRegisterLink.addEventListener('click', (e) => { e.preventDefault(); showAuthPopup('register'); });
@@ -405,14 +428,11 @@ document.addEventListener('DOMContentLoaded', () => {
     payWithWhatsappBtn.addEventListener('click', executePayWithWhatsapp);
 
     // --- 8. الاستماع للتحديثات الفورية (Socket.IO) ---
-    socket.on('new-service', () => {
-        console.log('New service detected! Reloading services...');
-        loadServices();
-    });
-
+    socket.on('new-service', loadServices);
+    socket.on('service-updated', loadServices);
+    socket.on('service-deleted', loadServices);
     socket.on('deposit-approved', (data) => {
         if (userInfo && userInfo._id === data.userId) {
-            console.log('Your deposit was approved! Refreshing user data...');
             refreshUserData();
         }
     });
