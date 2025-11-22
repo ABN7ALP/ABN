@@ -40,4 +40,25 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// PUT /api/services/:id - تعديل خدمة
+router.put('/:id', async (req, res) => {
+    try {
+        const { platform, name, pricePer1000, min, max } = req.body;
+        if (!platform || !name || !pricePer1000 || !min || !max) {
+            return res.status(400).json({ message: 'الرجاء ملء جميع الحقول.' });
+        }
+        const updatedService = await Service.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true } // new: true لإرجاع الوثيقة بعد التحديث
+        );
+        if (!updatedService) {
+            return res.status(404).json({ message: 'الخدمة غير موجودة.' });
+        }
+        res.status(200).json({ message: 'تم تعديل الخدمة بنجاح!', service: updatedService });
+    } catch (error) {
+        res.status(500).json({ message: 'فشل تعديل الخدمة.' });
+    }
+});
+
 module.exports = router;
