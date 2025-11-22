@@ -991,3 +991,35 @@ header p {
 .payment-method-btn:hover i {
     color: var(--white-pure);
 }
+
+/* --- 20. Scrollable & Responsive Popup --- */
+.popup-content {
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh; /* تحديد أقصى ارتفاع للنافذة */
+}
+
+/* اجعل رأس النافذة ثابتاً */
+.popup-content .popup-header {
+    flex-shrink: 0;
+}
+
+/* اجعل نموذج الإيداع يأخذ المساحة المتبقية ويكون قابلاً للتمرير */
+#deposit-form {
+    flex-grow: 1;
+    overflow-y: auto; /* الأهم: إضافة التمرير العمودي */
+    padding: 1rem 1.5rem; /* إضافة مساحة داخلية للمحتوى القابل للتمرير */
+    display: flex;
+    flex-direction: column;
+}
+
+/* اجعل زر الإرسال ثابتاً في الأسفل */
+#deposit-form button[type="submit"] {
+    margin-top: auto; /* يدفع الزر إلى الأسفل */
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    position: sticky;
+    bottom: 0;
+    background-color: var(--white-pure); /* خلفية لضمان عدم تداخل المحتوى */
+    border-top: 1px solid var(--border-color);
+}
