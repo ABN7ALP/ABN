@@ -9,6 +9,7 @@ const fs = require('fs');
 const orderRoutes = require('./src/routes/order.routes');
 const serviceRoutes = require('./src/routes/service.routes');
 const statsRoutes = require('./src/routes/stats.routes.js');
+const authRoutes = require('./src/routes/auth.routes.js');
 
 // إعداد التطبيق
 const app = express();
@@ -35,6 +36,7 @@ app.use(express.static(publicPath));
 app.use('/api/orders', orderRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/auth', authRoutes)
 
 // توجيه كل الطلبات لـ index.html
 app.get('*', (req, res) => {
