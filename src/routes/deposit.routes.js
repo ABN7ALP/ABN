@@ -1,28 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const path = require('path');
 const Deposit = require('../models/deposit.model');
-const User = require('../models/user.model');
-
-// إعداد Multer لتخزين الصور في مجلد 'public/uploads'
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'public/uploads/');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname)); // اسم فريد للصورة
-    }
-});
-const upload = multer({ storage: storage });
 
 // POST /api/deposits - إنشاء طلب شحن جديد
-router.post('/', upload.single('receipt'), async (req, res) => {
+// لا حاجة لـ multer بعد الآن
+router.post('/', async (req, res) => {
     try {
-        const { userId, amount, method, depositorName } = req.body;
-            
-        if (!req.file) {
-            return res.status(400).json({ message: 'الرجاء رفع صورة الإيصال.' });
+        // البيانات تأتي الآن من body الطلب مباشرة
+        const { userId, amount, method, depositorName, receiptImage } = req.body;
+
+        if (!userId || !amount || !method || !depositorName || !receiptImage) {
+            return res.status(400).json({ message: 'بيانات الطلب غير مكتملة.' });
         }
 
         const newDeposit = new Deposit({
@@ -30,7 +18,7 @@ router.post('/', upload.single('receipt'), async (req, res) => {
             amount: Number(amount),
             method,
             depositorName,
-            receiptImageUrl: `/uploads/${req.file.filename}` // المسار الذي سيتم حفظه في قاعدة البيانات
+            receiptImage // حفظ نص الصورة مباشرة
         });
 
         await newDeposit.save();
