@@ -20,8 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const priceDisplay = document.getElementById('price-display');
     const orderForm = document.getElementById('order-form');
     const formResponse = document.getElementById('form-response');
-
-    // عناصر المصادقة (الجديدة)
     const mainNav = document.getElementById('main-nav');
     const authPopupOverlay = document.getElementById('auth-popup-overlay');
     const loginFormContainer = document.getElementById('login-form-container');
@@ -34,25 +32,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const registerPopupError = document.getElementById('register-popup-error');
 
     // --- 1. نظام المصادقة (Authentication) ---
-
     function updateUIForAuth() {
-    const storedUser = localStorage.getItem('userInfo');
-    if (storedUser) {
-        userInfo = JSON.parse(storedUser);
-        // --- التعديل هنا لعرض الرصيد ---
-        mainNav.innerHTML = `
-            <div class="user-menu">
-                <div class="balance-display">
-                    <i class="ph-bold ph-wallet"></i>
-                    <span>${userInfo.balance.toFixed(2)} $</span>
+        const storedUser = localStorage.getItem('userInfo');
+        if (storedUser) {
+            userInfo = JSON.parse(storedUser);
+            mainNav.innerHTML = `
+                <div class="user-menu">
+                    <div class="balance-display">
+                        <i class="ph-bold ph-wallet"></i>
+                        <span>${(userInfo.balance || 0).toFixed(2)} $</span>
+                    </div>
+                    <span>أهلاً، ${userInfo.username}</span>
+                    <button id="logout-btn" class="pill-button secondary-button">تسجيل الخروج</button>
                 </div>
-                <span>أهلاً، ${userInfo.username}</span>
-                <button id="logout-btn" class="pill-button secondary-button">تسجيل الخروج</button>
-            </div>
-        `;
-        document.getElementById('logout-btn').addEventListener('click', logoutHandler);
-    } else {
-
+            `;
+            document.getElementById('logout-btn').addEventListener('click', logoutHandler);
+        } else {
             mainNav.innerHTML = `
                 <button id="login-btn" class="pill-button secondary-button">تسجيل الدخول</button>
                 <button id="register-btn" class="pill-button primary-button">إنشاء حساب</button>
@@ -130,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadServices() {
         try {
             const response = await fetch('/api/services');
+            if (!response.ok) throw new Error('Network response was not ok');
             const servicesFromDB = await response.json();
             servicesData = servicesFromDB.reduce((acc, service) => {
                 const platform = service.platform;
@@ -267,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
             link: linkInput.value,
             quantity: parseInt(quantityInput.value, 10),
             price: parseFloat(priceDisplay.textContent.replace(' $', '')),
-            user: userInfo ? userInfo._id : null // ربط الطلب بالمستخدم
+            user: userInfo ? userInfo._id : null
         };
         try {
             await fetch('/api/orders', {
@@ -303,8 +299,6 @@ document.addEventListener('DOMContentLoaded', () => {
     quantityInput.addEventListener('input', updatePrice);
     linkInput.addEventListener('input', validateLink);
     orderForm.addEventListener('submit', handleFormSubmit);
-
-    // أحداث المصادقة الجديدة
     showRegisterLink.addEventListener('click', (e) => { e.preventDefault(); showAuthPopup('register'); });
     showLoginLink.addEventListener('click', (e) => { e.preventDefault(); showAuthPopup('login'); });
     loginFormPopup.addEventListener('submit', loginHandler);
