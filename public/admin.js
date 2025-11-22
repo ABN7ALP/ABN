@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${deposit.amount.toFixed(2)} $</td>
                 <td>${deposit.method}</td>
                 <td>${deposit.depositorName}</td>
-                <td><a href="${deposit.receiptImage}" target="_blank" class="pill-button-link">عرض الإيصال</a></td>
+                td><a href="#" onclick="event.preventDefault(); window.open('${deposit.receiptImage}', '_blank');" class="pill-button-link">عرض الإيصال</a></td>
                 <td class="status ${statusClass}">${statusText}</td>
                 <td class="action-buttons">
                     ${deposit.status === 'pending' ? `
