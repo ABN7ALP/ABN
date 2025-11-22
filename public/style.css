@@ -1023,3 +1023,149 @@ header p {
     background-color: var(--white-pure); /* خلفية لضمان عدم تداخل المحتوى */
     border-top: 1px solid var(--border-color);
 }
+
+/* --- FINAL: Responsive Design (Media Queries) --- */
+
+/* For Tablets and smaller devices */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .services-grid {
+        grid-template-columns: 1fr; /* Stack cards on mobile */
+    }
+
+    /* --- Admin Dashboard Responsive --- */
+    .admin-dashboard {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        padding: 0;
+    }
+
+    .sidebar-header {
+        display: none;
+    }
+
+    .sidebar-nav {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-around;
+    }
+
+    .sidebar-nav .nav-link {
+        border-right: none;
+        border-bottom: 4px solid transparent;
+        padding: 1rem 0.5rem;
+        justify-content: center;
+    }
+
+    .sidebar-nav .nav-link.active {
+        border-bottom-color: var(--purple-main);
+        border-right-color: transparent;
+    }
+
+    .sidebar-nav .nav-link span {
+        display: none; /* Hide text, show only icons */
+    }
+    
+    .main-content {
+        padding: 1rem;
+    }
+
+    /* --- The Magic: Responsive Tables --- */
+    .table-container table, 
+    .table-container thead, 
+    .table-container tbody, 
+    .table-container th, 
+    .table-container td, 
+    .table-container tr {
+        display: block;
+    }
+
+    .table-container thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    .table-container tr {
+        border: 1px solid #e0e0e0;
+        border-radius: var(--radius-card);
+        margin-bottom: 1rem;
+        background: var(--white-pure);
+        padding: 0.5rem;
+    }
+
+    .table-container td {
+        border: none;
+        border-bottom: 1px solid #f0f0f0;
+        position: relative;
+        padding-left: 50%; /* Make space for the label */
+        text-align: left; /* Align content to the left */
+        padding-right: 1rem;
+        min-height: 44px; /* Ensure cells have a minimum height */
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .table-container td:last-child {
+        border-bottom: none;
+    }
+
+    .table-container td:before {
+        content: attr(data-label); /* Use the data-label attribute */
+        position: absolute;
+        top: 50%;
+        left: auto;
+        right: 1rem; /* Position label on the right */
+        transform: translateY(-50%);
+        width: 45%;
+        padding-left: 10px;
+        white-space: nowrap;
+        font-weight: 600;
+        text-align: right; /* Align label text to the right */
+        color: var(--text-dark);
+    }
+    
+    /* Specific adjustments for status and actions */
+    .table-container td .status,
+    .table-container td .select-wrapper {
+        margin-left: 0;
+    }
+    
+    .table-container td.action-buttons {
+        justify-content: flex-end;
+        gap: 10px;
+    }
+}
+
+/* For smaller mobile phones */
+@media (max-width: 480px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .popup-content {
+        padding: 1.5rem;
+    }
+
+    .payment-method-selector {
+        grid-template-columns: 1fr; /* Stack payment methods */
+    }
+    
+    .main-header .container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
