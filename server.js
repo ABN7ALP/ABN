@@ -10,7 +10,12 @@ const { Server } = require("socket.io");
 // إعداد التطبيق والخادم
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server); // <-- تعريف io هنا
+const io = new Server(server, {
+  cors: {
+    origin: "*", // السماح بالاتصالات من أي مصدر
+    methods: ["GET", "POST"]
+  }
+});
 
 // Middlewares
 app.use(express.json({ limit: '10mb' }));
