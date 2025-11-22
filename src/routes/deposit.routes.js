@@ -8,12 +8,10 @@ router.post('/', async (req, res) => {
     try {
         const newDeposit = new Deposit(req.body);
         await newDeposit.save();
-
-        // *** إرسال إشارة التحديث الفوري ***
-        req.io.emit('new-deposit');
-
+        req.io.emit('new-deposit'); // <-- استخدام req.io
         res.status(201).json({ message: 'تم إرسال طلب الشحن بنجاح!' });
     } catch (error) {
+        console.error("Deposit POST error:", error);
         res.status(500).json({ message: 'حدث خطأ أثناء إرسال الطلب.' });
     }
 });
@@ -38,15 +36,13 @@ router.put('/:id/approve', async (req, res) => {
         await User.findByIdAndUpdate(deposit.user, { $inc: { balance: deposit.amount } });
         deposit.status = 'approved';
         await deposit.save();
-
-        // *** إرسال إشارة للمستخدم المعني لتحديث رصيده ***
-        req.io.emit('deposit-approved', { userId: deposit.user });
-        // *** إرسال إشارة للوحة التحكم لتحديث قائمة الطلبات ***
-        req.io.emit('new-deposit');
-
+        
+        req.io.emit('deposit-approved', { userId: deposit.user }); // <-- استخدام req.io
+        req.io.emit('new-deposit'); // <-- استخدام req.io
 
         res.status(200).json({ message: 'تمت الموافقة على الطلب.' });
     } catch (error) {
+        console.error("Approve error:", error);
         res.status(500).json({ message: 'فشل الموافقة على الطلب.' });
     }
 });
@@ -55,12 +51,10 @@ router.put('/:id/approve', async (req, res) => {
 router.put('/:id/reject', async (req, res) => {
     try {
         await Deposit.findByIdAndUpdate(req.params.id, { status: 'rejected' });
-
-        // *** إرسال إشارة للوحة التحكم لتحديث قائمة الطلبات ***
-        req.io.emit('new-deposit');
-
+        req.io.emit('new-deposit'); // <-- استخدام req.io
         res.status(200).json({ message: 'تم رفض الطلب.' });
     } catch (error) {
+        console.error("Reject error:", error);
         res.status(500).json({ message: 'فشل رفض الطلب.' });
     }
 });
