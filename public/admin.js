@@ -1,51 +1,54 @@
+// الصق الدالة هنا في الخارج لتصبح عامة
+function viewReceipt(base64Image) {
+    const newWindow = window.open();
+    if (newWindow) {
+        newWindow.document.write(`
+            <html><head><title>عرض الإيصال</title></head>
+            <body style="margin:0; display:flex; justify-content:center; align-items:center; background-color:#333;">
+            <img src="${base64Image}" style="max-width:100%; max-height:100vh;"></body></html>
+        `);
+        newWindow.document.close();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    // --- 1. إعداد الاتصال الفوري (Socket.IO) ---
+    const socket = io();
+
     // --- عناصر الصفحة العامة ---
     const loginOverlay = document.getElementById('login-overlay');
     const loginForm = document.getElementById('login-form');
     const passwordInput = document.getElementById('password-input');
     const loginError = document.getElementById('login-error');
     const adminDashboard = document.getElementById('admin-dashboard');
-
-    // عناصر القائمة الجانبية والأقسام
     const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
     const sections = document.querySelectorAll('.admin-section');
-
-    // عناصر قسم الإحصائيات
     const statsContainer = document.getElementById('stats-cards-container');
     const refreshStatsBtn = document.getElementById('refresh-stats-btn');
-
-    // عناصر قسم الطلبات
     const ordersTbody = document.getElementById('orders-tbody');
     const loadingSpinner = document.getElementById('loading-spinner');
     const refreshOrdersBtn = document.getElementById('refresh-orders-btn');
-
-    // عناصر قسم طلبات الشحن (جديد)
     const depositsTbody = document.getElementById('deposits-tbody');
     const refreshDepositsBtn = document.getElementById('refresh-deposits-btn');
-
-    // عناصر قسم الخدمات
     const addServiceForm = document.getElementById('add-service-form');
     const serviceFormResponse = document.getElementById('service-form-response');
     const servicesTbody = document.getElementById('services-tbody');
-
-    // عناصر نافذة تعديل الخدمة
     const editServicePopup = document.getElementById('edit-service-popup');
     const editServiceForm = document.getElementById('edit-service-form');
     const closeEditPopupBtn = document.getElementById('close-edit-popup-btn');
 
     const ADMIN_PASSWORD = "password123";
 
-    // --- 1. نظام الدخول والتنقل ---
+    // --- 2. نظام الدخول والتنقل ---
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         if (passwordInput.value === ADMIN_PASSWORD) {
             loginOverlay.classList.add('hidden');
             adminDashboard.classList.remove('hidden');
-            // جلب كل البيانات عند تسجيل الدخول
             fetchStats();
             fetchOrders();
             fetchServices();
-            fetchDeposits(); // جلب طلبات الشحن عند الدخول
+            fetchDeposits();
         } else {
             loginError.textContent = 'كلمة المرور غير صحيحة.';
         }
@@ -65,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- 2. قسم الإحصائيات ---
+    // --- 3. قسم الإحصائيات ---
     async function fetchStats() {
         statsContainer.innerHTML = '<div class="stat-card loading"></div><div class="stat-card loading"></div><div class="stat-card loading"></div><div class="stat-card loading"></div>';
         try {
@@ -74,21 +77,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const stats = await response.json();
             renderStats(stats);
         } catch (error) {
-            console.error('Failed to fetch stats:', error);
             statsContainer.innerHTML = `<p style="color:red; grid-column: 1 / -1;">${error.message}</p>`;
         }
     }
 
     function renderStats(stats) {
         statsContainer.innerHTML = `
-            <div class="stat-card"><div class="stat-icon" style="background-color: #e6f2ff;"><i class="ph-bold ph-wallet" style="color: #007bff;"></i></div><div class="stat-info"><p>إجمالي الدخل (المكتمل)</p><h3>${stats.totalRevenue.toFixed(2)} $</h3></div></div>
-            <div class="stat-card"><div class="stat-icon" style="background-color: #e4f8f0;"><i class="ph-bold ph-check-circle" style="color: #28a745;"></i></div><div class="stat-info"><p>الطلبات المكتملة</p><h3>${stats.completedOrders.toLocaleString()}</h3></div></div>
-            <div class="stat-card"><div class="stat-icon" style="background-color: #fff8e1;"><i class="ph-bold ph-timer" style="color: #ffc107;"></i></div><div class="stat-info"><p>الطلبات قيد المعالجة</p><h3>${stats.pendingOrders.toLocaleString()}</h3></div></div>
-            <div class="stat-card"><div class="stat-icon" style="background-color: #f3e8ff;"><i class="ph-bold ph-shopping-cart-simple" style="color: #6f42c1;"></i></div><div class="stat-info"><p>إجمالي كل الطلبات</p><h3>${stats.totalOrders.toLocaleString()}</h3></div></div>
+            <div class="stat-card"><div class="stat-icon" style="background-color: #e6f2ff;"><i class="ph-bold ph-wallet" style="color: #007bff;"></i></div><div class="stat-info"><p>إجمالي الدخل</p><h3>${stats.totalRevenue.toFixed(2)} $</h3></div></div>
+            <div class="stat-card"><div class="stat-icon" style="background-color: #e4f8f0;"><i class="ph-bold ph-check-circle" style="color: #28a745;"></i></div><div class="stat-info"><p>الطلبات المكتملة</p><h3>${stats.completedOrders}</h3></div></div>
+            <div class="stat-card"><div class="stat-icon" style="background-color: #fff8e1;"><i class="ph-bold ph-timer" style="color: #ffc107;"></i></div><div class="stat-info"><p>الطلبات قيد المعالجة</p><h3>${stats.pendingOrders}</h3></div></div>
+            <div class="stat-card"><div class="stat-icon" style="background-color: #f3e8ff;"><i class="ph-bold ph-shopping-cart-simple" style="color: #6f42c1;"></i></div><div class="stat-info"><p>إجمالي الطلبات</p><h3>${stats.totalOrders}</h3></div></div>
         `;
     }
 
-    // --- 3. قسم إدارة الطلبات ---
+    // --- 4. قسم إدارة الطلبات ---
     async function fetchOrders() {
         loadingSpinner.classList.remove('hidden');
         ordersTbody.innerHTML = '';
@@ -106,10 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderOrders(orders) {
         ordersTbody.innerHTML = '';
-        if (orders.length === 0) {
-            ordersTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات حالياً.</td></tr>';
-            return;
-        }
+        if (orders.length === 0) { ordersTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات حالياً.</td></tr>'; return; }
         orders.forEach(order => {
             const row = document.createElement('tr');
             const platformName = order.platform || 'غير محدد';
@@ -125,9 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             ordersTbody.appendChild(row);
         });
-        document.querySelectorAll('.status-select').forEach(select => {
-            select.addEventListener('change', handleStatusChange);
-        });
+        document.querySelectorAll('.status-select').forEach(select => select.addEventListener('change', handleStatusChange));
     }
 
     async function handleStatusChange(event) {
@@ -138,11 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         selectElement.disabled = true;
         row.style.opacity = '0.5';
         try {
-            const response = await fetch(`/api/orders/${orderId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: newStatus }),
-            });
+            const response = await fetch(`/api/orders/${orderId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) });
             if (!response.ok) throw new Error('فشل تحديث حالة الطلب');
             row.style.backgroundColor = '#d4edda';
             setTimeout(() => { row.style.backgroundColor = ''; }, 1000);
@@ -155,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 4. قسم إدارة الخدمات ---
+    // --- 5. قسم إدارة الخدمات ---
     async function fetchServices() {
         try {
             const response = await fetch('/api/services');
@@ -167,10 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderServices(services) {
         servicesTbody.innerHTML = '';
-        if (services.length === 0) {
-            servicesTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد خدمات مضافة.</td></tr>';
-            return;
-        }
+        if (services.length === 0) { servicesTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد خدمات مضافة.</td></tr>'; return; }
         services.forEach(service => {
             const row = document.createElement('tr');
             row.dataset.service = JSON.stringify(service);
@@ -197,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 serviceFormResponse.style.color = 'green';
                 addServiceForm.reset();
-                fetchServices();
             } else {
                 serviceFormResponse.style.color = 'red';
             }
@@ -213,14 +202,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!confirm(`هل أنت متأكد من حذف خدمة "${service.name}"؟`)) return;
         try {
             const response = await fetch(`/api/services/${service.id}`, { method: 'DELETE' });
-            if (response.ok) {
-                fetchServices();
-            } else {
-                alert('فشل حذف الخدمة.');
-            }
-        } catch (error) {
-            alert('فشل الاتصال بالخادم.');
-        }
+            if (!response.ok) alert('فشل حذف الخدمة.');
+        } catch (error) { alert('فشل الاتصال بالخادم.'); }
     }
 
     function handleOpenEditPopup(event) {
@@ -238,28 +221,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`/api/services/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedData) });
             if (response.ok) {
                 editServicePopup.classList.add('hidden');
-                fetchServices();
             } else {
                 alert('فشل تعديل الخدمة.');
             }
-        } catch (error) {
-            alert('فشل الاتصال بالخادم.');
-        }
+        } catch (error) { alert('فشل الاتصال بالخادم.'); }
     });
 
     closeEditPopupBtn.addEventListener('click', () => editServicePopup.classList.add('hidden'));
 
-    // --- 5. قسم إدارة طلبات الشحن (المنطق الجديد) ---
+    // --- 6. قسم إدارة طلبات الشحن ---
     async function fetchDeposits() {
-        if (!depositsTbody) return; // التأكد من وجود العنصر قبل استخدامه
-        depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">جاري تحميل طلبات الشحن...</td></tr>';
+        if (!depositsTbody) return;
+        depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">جاري تحميل...</td></tr>';
         try {
             const response = await fetch('/api/deposits');
             if (!response.ok) throw new Error('فشل جلب طلبات الشحن');
             const deposits = await response.json();
             renderDeposits(deposits);
         } catch (error) {
-            console.error('Failed to fetch deposits:', error);
             depositsTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">${error.message}</td></tr>`;
         }
     }
@@ -267,16 +246,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderDeposits(deposits) {
         if (!depositsTbody) return;
         depositsTbody.innerHTML = '';
-        if (deposits.length === 0) {
-            depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات شحن حالياً.</td></tr>';
-            return;
-        }
+        if (deposits.length === 0) { depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات شحن حالياً.</td></tr>'; return; }
         deposits.forEach(deposit => {
             const row = document.createElement('tr');
             row.dataset.depositId = deposit._id;
-            const statusClass = `status-${deposit.status}`; // pending, approved, rejected
+            const statusClass = `status-${deposit.status}`;
             const statusText = { pending: 'قيد المراجعة', approved: 'مقبول', rejected: 'مرفوض' }[deposit.status];
-
             row.innerHTML = `
                 <td>${deposit.user ? deposit.user.username : 'مستخدم محذوف'}</td>
                 <td>${deposit.amount.toFixed(2)} $</td>
@@ -285,17 +260,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><button onclick="viewReceipt('${deposit.receiptImage}')" class="pill-button-link">عرض الإيصال</button></td>
                 <td class="status ${statusClass}">${statusText}</td>
                 <td class="action-buttons">
-                    ${deposit.status === 'pending' ? `
-                        <button class="approve-btn pill-button primary-button">موافقة</button>
-                        <button class="reject-btn pill-button danger-button">رفض</button>
-                    ` : 'تمت المعالجة'}
+                    ${deposit.status === 'pending' ? `<button class="approve-btn pill-button primary-button">موافقة</button><button class="reject-btn pill-button danger-button">رفض</button>` : 'تمت المعالجة'}
                 </td>
             `;
             depositsTbody.appendChild(row);
         });
-
-        document.querySelectorAll('.approve-btn').forEach(btn => btn.addEventListener('click', handleDepositAction));
-        document.querySelectorAll('.reject-btn').forEach(btn => btn.addEventListener('click', handleDepositAction));
+        document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => btn.addEventListener('click', handleDepositAction));
     }
 
     async function handleDepositAction(event) {
@@ -303,62 +273,40 @@ document.addEventListener('DOMContentLoaded', () => {
         const action = btn.classList.contains('approve-btn') ? 'approve' : 'reject';
         const row = btn.closest('tr');
         const depositId = row.dataset.depositId;
-        const confirmationMessage = action === 'approve'
-            ? 'هل أنت متأكد من الموافقة على هذا الطلب وإضافة الرصيد للمستخدم؟'
-            : 'هل أنت متأكد من رفض هذا الطلب؟';
-
-        if (!confirm(confirmationMessage)) return;
-
+        if (!confirm(`هل أنت متأكد من ${action === 'approve' ? 'الموافقة على' : 'رفض'} هذا الطلب؟`)) return;
         btn.disabled = true;
         btn.textContent = 'جاري...';
-        const otherBtn = row.querySelector(action === 'approve' ? '.reject-btn' : '.approve-btn');
-        if (otherBtn) otherBtn.disabled = true;
-
         try {
             const response = await fetch(`/api/deposits/${depositId}/${action}`, { method: 'PUT' });
-            if (response.ok) {
-                fetchDeposits(); // إعادة تحميل القائمة لإظهار التغييرات
-                fetchStats(); // تحديث الإحصائيات بعد تغيير الرصيد
-            } else {
+            if (!response.ok) {
                 const result = await response.json();
-                alert(result.message || `فشل ${action === 'approve' ? 'الموافقة' : 'الرفض'}.`);
-                btn.disabled = false;
+                throw new Error(result.message || 'فشل الإجراء.');
             }
         } catch (error) {
-            alert('فشل الاتصال بالخادم.');
+            alert(error.message);
             btn.disabled = false;
         }
     }
 
+    // --- 7. الاستماع للتحديثات الفورية (Socket.IO) ---
     socket.on('new-order', () => {
-    fetchOrders();
-    fetchStats();
-});
-socket.on('new-deposit', () => {
-    fetchDeposits();
-});
-    
+        console.log('New order received!');
+        fetchOrders();
+        fetchStats();
+    });
+    socket.on('new-deposit', () => {
+        console.log('New deposit request received!');
+        fetchDeposits();
+    });
+    socket.on('new-service', () => {
+        console.log('Service list updated!');
+        fetchServices();
+    });
 
-    // --- 6. ربط أحداث التحديث ---
+    // --- 8. ربط أحداث التحديث ---
     refreshStatsBtn.addEventListener('click', fetchStats);
     refreshOrdersBtn.addEventListener('click', fetchOrders);
     if (refreshDepositsBtn) {
         refreshDepositsBtn.addEventListener('click', fetchDeposits);
     }
 });
-
-// الصق الدالة هنا في الخارج لتصبح عامة
-function viewReceipt(base64Image) {
-    const newWindow = window.open();
-    if (newWindow) {
-        newWindow.document.write(`
-            <html>
-                <head><title>عرض الإيصال</title></head>
-                <body style="margin:0; display:flex; justify-content:center; align-items:center; background-color:#333;">
-                    <img src="${base64Image}" style="max-width:100%; max-height:100vh;">
-                </body>
-            </html>
-        `);
-        newWindow.document.close();
-    }
-}
