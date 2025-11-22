@@ -17,29 +17,25 @@
     <header class="main-header">
         <div class="container">
             <div class="logo">متجر الخدمات</div>
-            <nav id="main-nav" class="main-nav">
-                <!-- سيتم تحديث هذا الجزء بواسطة JavaScript (أزرار الدخول/الخروج) -->
-                <button id="login-btn" class="pill-button secondary-button">تسجيل الدخول</button>
-                <button id="register-btn" class="pill-button primary-button">إنشاء حساب</button>
-            </nav>
+            <nav id="main-nav" class="main-nav"></nav>
         </div>
     </header>
 
     <!-- Main Content -->
     <main class="container">
         <section class="hero">
-            <h1>اختر المنصة التي تريدها دعمها</h1>
-            <p></p>
+            <h1>أفضل الخدمات الرقمية لمنصات التواصل الاجتماعي</h1>
+            <p>اختر المنصة التي تريدها وابدأ في تنمية حسابك اليوم!</p>
         </section>
-        <section id="services-container" class="services-grid">
-            <!-- بطاقات الخدمات سيتم تحميلها هنا بواسطة JavaScript -->
-        </section>
+        <section id="services-container" class="services-grid"></section>
     </main>
 
     <!-- Order Form Popup -->
     <div id="order-popup-overlay" class="popup-overlay hidden">
         <div class="popup-content">
             <button id="close-popup-btn" class="close-btn"><i class="ph-bold ph-x"></i></button>
+            
+            <!-- 1. Order Form Container -->
             <div id="order-form-container">
                 <div class="popup-header">
                     <i id="popup-icon" class="ph-bold ph-question"></i>
@@ -50,44 +46,34 @@
                     <div class="form-group"><label for="link-input">رابط الحساب أو المنشور</label><input type="url" id="link-input" placeholder="https://www.instagram.com/..." required><small id="link-warning">تأكد أن الحساب عام وليس خاصاً.</small><p id="link-error" class="error-message"></p></div>
                     <div class="form-group"><label for="quantity-input">الكمية المطلوبة</label><input type="number" id="quantity-input" min="100" step="100" value="1000" required></div>
                     <div class="price-section"><p>السعر الإجمالي</p><span id="price-display">0.00 $</span></div>
-                    <button type="submit" class="pill-button primary-button"><i class="ph-bold ph-shopping-cart-simple"></i><span>تأكيد الطلب</span></button>
+                    <button type="submit" class="pill-button primary-button"><i class="ph-bold ph-arrow-right"></i><span>متابعة للدفع</span></button>
                 </form>
-                <!-- هذا الكود يوضع بعد نهاية وسم </form> الخاص بـ order-form -->
-
-<!-- Payment Options (Initially Hidden) -->
-<div id="payment-options-container" class="hidden">
-    <div class="price-section">
-        <p>المبلغ المطلوب دفعه</p>
-        <span id="final-price-display">0.00 $</span>
-    </div>
-    <p class="payment-instructions">اختر طريقة الدفع لإكمال طلبك:</p>
-    <div class="payment-buttons">
-        <button id="pay-with-balance-btn" class="pill-button primary-button" disabled>
-            <i class="ph-bold ph-wallet"></i>
-            <span>الدفع بالرصيد</span>
-        </button>
-        <button id="pay-with-whatsapp-btn" class="pill-button secondary-button">
-            <i class="ph-bold ph-whatsapp-logo"></i>
-            <span>إرسال عبر واتساب</span>
-        </button>
-    </div>
-    <p id="balance-error" class="error-message"></p>
-</div>
-
             </div>
+            
+            <!-- 2. Payment Options Container (هذا هو الجزء الذي كان مفقوداً) -->
+            <div id="payment-options-container" class="hidden">
+                <div class="price-section"><p>المبلغ المطلوب دفعه</p><span id="final-price-display">0.00 $</span></div>
+                <p class="payment-instructions">اختر طريقة الدفع لإكمال طلبك:</p>
+                <div class="payment-buttons">
+                    <button id="pay-with-balance-btn" class="pill-button primary-button" disabled><i class="ph-bold ph-wallet"></i><span>الدفع بالرصيد</span></button>
+                    <button id="pay-with-whatsapp-btn" class="pill-button secondary-button"><i class="ph-bold ph-whatsapp-logo"></i><span>إرسال عبر واتساب</span></button>
+                </div>
+                <p id="balance-error" class="error-message"></p>
+            </div>
+
+            <!-- 3. Success Message Container -->
             <div id="success-message-container" class="hidden">
                  <div class="popup-header"><i class="ph-bold ph-check-circle success-icon"></i><h2>تم بنجاح!</h2></div>
-                <p id="form-response" class="success-text">تم استلام طلبك بنجاح وسيتم البدء في تنفيذه قريباً.</p>
+                <p id="form-response" class="success-text"></p>
                 <button id="success-ok-btn" class="pill-button secondary-button"><span>حسناً</span></button>
             </div>
         </div>
     </div>
 
-    <!-- Auth Popups (الجديد) -->
+    <!-- Auth Popups -->
     <div id="auth-popup-overlay" class="popup-overlay hidden">
-        <!-- Login Form -->
         <div id="login-form-container" class="popup-content hidden">
-            <button class="close-btn" data-target-popup="auth-popup-overlay"><i class="ph-bold ph-x"></i></button>
+            <button class="close-btn"><i class="ph-bold ph-x"></i></button>
             <div class="popup-header"><i class="ph-bold ph-sign-in"></i><h2>تسجيل الدخول</h2></div>
             <form id="login-form-popup">
                 <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="login-email" required></div>
@@ -97,10 +83,8 @@
                 <p class="switch-form-text">ليس لديك حساب؟ <a href="#" id="show-register">أنشئ حساباً جديداً</a></p>
             </form>
         </div>
-
-        <!-- Register Form -->
         <div id="register-form-container" class="popup-content hidden">
-            <button class="close-btn" data-target-popup="auth-popup-overlay"><i class="ph-bold ph-x"></i></button>
+            <button class="close-btn"><i class="ph-bold ph-x"></i></button>
             <div class="popup-header"><i class="ph-bold ph-user-plus"></i><h2>إنشاء حساب جديد</h2></div>
             <form id="register-form-popup">
                 <div class="form-group"><label>اسم المستخدم</label><input type="text" id="register-username" required></div>
