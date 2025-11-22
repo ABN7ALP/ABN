@@ -88,20 +88,18 @@
         </div>
     </div>
 
-    <!-- Deposit Popup (النافذة الجديدة) -->
+    <!-- Deposit Popup -->
     <div id="deposit-popup-overlay" class="popup-overlay hidden">
         <div class="popup-content">
             <button id="close-deposit-popup-btn" class="close-btn"><i class="ph-bold ph-x"></i></button>
-            <div class="popup-header">
-                <i class="ph-bold ph-money"></i>
-                <h2>شحن الرصيد</h2>
-            </div>
+            <div class="popup-header"><i class="ph-bold ph-money"></i><h2>شحن الرصيد</h2></div>
             <form id="deposit-form" enctype="multipart/form-data">
                 <p class="payment-instructions">اختر طريقة الدفع المفضلة لديك واتبع التعليمات.</p>
                 <div class="payment-method-selector">
-                    <button type="button" class="payment-method-btn" data-method="bank">تحويل بنكي</button>
-                    <button type="button" class="payment-method-btn" data-method="sham">شام كاش</button>
-                    <button type="button" class="payment-method-btn" data-method="whatsapp">حوالة مكتب</button>
+                    <!-- الأزرار الجديدة المحسّنة -->
+                    <button type="button" class="payment-method-btn" data-method="bank"><i class="ph-bold ph-bank"></i><span>تحويل بنكي</span></button>
+                    <button type="button" class="payment-method-btn" data-method="sham"><i class="ph-bold ph-qr-code"></i><span>شام كاش</span></button>
+                    <button type="button" class="payment-method-btn" data-method="whatsapp"><i class="ph-bold ph-storefront"></i><span>حوالة مكتب</span></button>
                 </div>
                 <div id="payment-details-container" class="hidden"></div>
                 <div class="form-group"><label for="deposit-amount">المبلغ الذي قمت بتحويله ($)</label><input type="number" id="deposit-amount" min="1" step="any" required></div>
