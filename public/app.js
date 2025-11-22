@@ -1,8 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- المتغيرات العامة ---
-    let servicesData = {}, currentPlatform = null, userInfo = null;
+    // --- 1. إعداد الاتصال الفوري (Socket.IO) ---
+    // هذا هو السطر الأهم الذي كان مفقوداً
+    const socket = io();
 
-    // --- عناصر الصفحة (تبقى كما هي) ---
+    // --- المتغيرات العامة ---
+    let servicesData = {}, currentPlatform = null, userInfo = null, currentOrderData = {};
+
+    // --- عناصر الصفحة ---
     const servicesContainer = document.getElementById('services-container');
     const orderPopupOverlay = document.getElementById('order-popup-overlay');
     const closePopupButton = document.getElementById('close-popup-btn');
@@ -34,8 +38,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const paymentMethodBtns = document.querySelectorAll('.payment-method-btn');
     const paymentDetailsContainer = document.getElementById('payment-details-container');
     const depositFormResponse = document.getElementById('deposit-form-response');
+    const paymentOptionsContainer = document.getElementById('payment-options-container');
+    const finalPriceDisplay = document.getElementById('final-price-display');
+    const payWithBalanceBtn = document.getElementById('pay-with-balance-btn');
+    const payWithWhatsappBtn = document.getElementById('pay-with-whatsapp-btn');
+    const balanceError = document.getElementById('balance-error');
 
-    // --- 1. نظام المصادقة والقائمة المنسدلة (تبقى كما هي) ---
+    // --- 2. نظام المصادقة والقائمة المنسدلة ---
     function updateUIForAuth() {
         const storedUser = localStorage.getItem('userInfo');
         if (storedUser) {
@@ -88,9 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
         authPopupOverlay.classList.remove('hidden');
     }
 
-    function hideAuthPopup() {
-        authPopupOverlay.classList.add('hidden');
-    }
+    function hideAuthPopup() { authPopupOverlay.classList.add('hidden'); }
 
     async function loginHandler(e) {
         e.preventDefault();
@@ -103,36 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('userInfo', JSON.stringify(data));
             hideAuthPopup();
             updateUIForAuth();
-        } catch (error) {
-            loginPopupError.textContent = error.message;
-        }
+        } catch (error) { loginPopupError.textContent = error.message; }
     }
-
-    // دالة جديدة لجلب وتحديث بيانات المستخدم
-async function refreshUserData() {
-    if (!userInfo || !userInfo._id) return; // لا تفعل شيئاً إذا لم يكن المستخدم مسجلاً دخوله
-
-    try {
-        const response = await fetch(`/api/auth/me?userId=${userInfo._id}`);
-        if (!response.ok) {
-            // إذا فشل (مثلاً انتهت الجلسة)، قم بتسجيل الخروج
-            logoutHandler();
-            return;
-        }
-        const updatedUser = await response.json();
-            
-        // تحديث البيانات المحلية
-        localStorage.setItem('userInfo', JSON.stringify(updatedUser));
-        userInfo = updatedUser; // تحديث المتغير المحلي
-            
-        // إعادة رسم واجهة المستخدم بالبيانات الجديدة
-        updateUIForAuth();
-
-    } catch (error) {
-        console.error('Failed to refresh user data:', error);
-    }
-}
-
 
     async function registerHandler(e) {
         e.preventDefault();
@@ -146,9 +125,7 @@ async function refreshUserData() {
             localStorage.setItem('userInfo', JSON.stringify(data));
             hideAuthPopup();
             updateUIForAuth();
-        } catch (error) {
-            registerPopupError.textContent = error.message;
-        }
+        } catch (error) { registerPopupError.textContent = error.message; }
     }
 
     function logoutHandler() {
@@ -156,7 +133,19 @@ async function refreshUserData() {
         updateUIForAuth();
     }
 
-    // --- 2. نظام شحن الرصيد (Deposit System) (تبقى كما هي) ---
+    async function refreshUserData() {
+        if (!userInfo || !userInfo._id) return;
+        try {
+            const response = await fetch(`/api/auth/me?userId=${userInfo._id}`);
+            if (!response.ok) { logoutHandler(); return; }
+            const updatedUser = await response.json();
+            localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+            userInfo = updatedUser;
+            updateUIForAuth();
+        } catch (error) { console.error('Failed to refresh user data:', error); }
+    }
+
+    // --- 3. نظام شحن الرصيد ---
     function showDepositPopup() {
         depositForm.reset();
         depositFormResponse.textContent = '';
@@ -166,9 +155,7 @@ async function refreshUserData() {
         depositPopupOverlay.classList.remove('hidden');
     }
 
-    function hideDepositPopup() {
-        depositPopupOverlay.classList.add('hidden');
-    }
+    function hideDepositPopup() { depositPopupOverlay.classList.add('hidden'); }
 
     function handlePaymentMethodSelect(event) {
         const selectedMethod = event.currentTarget.dataset.method;
@@ -176,78 +163,44 @@ async function refreshUserData() {
         event.currentTarget.classList.add('active');
         let detailsHTML = '';
         switch (selectedMethod) {
-            case 'bank':
-                detailsHTML = `<p>يرجى تحويل المبلغ إلى الحساب التالي:</p><p>الاسم: <span>BESSAR</span></p><p>رقم الحساب (IBAN): <span>TR9785431312751367319</span></p>`;
-                break;
-            case 'sham':
-                detailsHTML = `<p>يرجى مسح الباركود التالي والدفع عبر شام كاش:</p><img src="https://i.ibb.co/GvXw59R/bfa34fae23d4f3b4089e6d615bbd07d7.png" alt="Sham Cash QR Code">`;
-                break;
-            case 'whatsapp':
-                detailsHTML = `<p>للحوالة عبر مكتب، يرجى التواصل معنا عبر واتساب للحصول على التفاصيل. بعد إتمام الحوالة، قم برفع صورة الإيصال هنا.</p>`;
-                break;
+            case 'bank': detailsHTML = `<p>يرجى تحويل المبلغ إلى الحساب التالي:</p><p>الاسم: <span>BESSAR</span></p><p>رقم الحساب (IBAN): <span>TR9785431312751367319</span></p>`; break;
+            case 'sham': detailsHTML = `<p>يرجى مسح الباركود التالي والدفع عبر شام كاش:</p><img src="https://i.ibb.co/GvXw59R/bfa34fae23d4f3b4089e6d615bbd07d7.png" alt="Sham Cash QR Code">`; break;
+            case 'whatsapp': detailsHTML = `<p>للحوالة عبر مكتب، يرجى التواصل معنا عبر واتساب للحصول على التفاصيل. بعد إتمام الحوالة، قم برفع صورة الإيصال هنا.</p>`; break;
         }
         paymentDetailsContainer.innerHTML = detailsHTML;
         paymentDetailsContainer.classList.remove('hidden');
     }
 
     async function handleDepositSubmit(event) {
-    event.preventDefault();
-    depositFormResponse.textContent = 'جاري إرسال الطلب...';
-    depositFormResponse.className = 'form-message';
-
-    const receiptFile = document.getElementById('deposit-receipt').files[0];
-    const selectedMethod = document.querySelector('.payment-method-btn.active');
-
-    if (!selectedMethod) {
-        depositFormResponse.textContent = 'الرجاء اختيار طريقة الدفع.';
-        depositFormResponse.className = 'form-message error';
-        return;
-    }
-    if (!receiptFile) {
-        depositFormResponse.textContent = 'الرجاء رفع صورة الإيصال.';
-        depositFormResponse.className = 'form-message error';
-        return;
-    }
-
-    // دالة لتحويل الملف إلى Base64
-    const toBase64 = file => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-    });
-
-    try {
-        const imageBase64 = await toBase64(receiptFile);
-
-        const depositData = {
-            userId: userInfo._id,
-            amount: document.getElementById('deposit-amount').value,
-            depositorName: document.getElementById('depositor-name').value,
-            method: selectedMethod.dataset.method,
-            receiptImage: imageBase64 // إرسال الصورة كنص
-        };
-
-        const response = await fetch('/api/deposits', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }, // الآن نستخدم JSON
-            body: JSON.stringify(depositData)
+        event.preventDefault();
+        depositFormResponse.textContent = 'جاري إرسال الطلب...';
+        depositFormResponse.className = 'form-message';
+        const receiptFile = document.getElementById('deposit-receipt').files[0];
+        const selectedMethod = document.querySelector('.payment-method-btn.active');
+        if (!selectedMethod) { depositFormResponse.textContent = 'الرجاء اختيار طريقة الدفع.'; depositFormResponse.className = 'form-message error'; return; }
+        if (!receiptFile) { depositFormResponse.textContent = 'الرجاء رفع صورة الإيصال.'; depositFormResponse.className = 'form-message error'; return; }
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
         });
-
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.message || 'فشل إرسال الطلب.');
-
-        depositFormResponse.textContent = result.message;
-        depositFormResponse.className = 'form-message success';
-        setTimeout(hideDepositPopup, 3000);
-
-    } catch (error) {
-        depositFormResponse.textContent = error.message;
-        depositFormResponse.className = 'form-message error';
+        try {
+            const imageBase64 = await toBase64(receiptFile);
+            const depositData = { userId: userInfo._id, amount: document.getElementById('deposit-amount').value, depositorName: document.getElementById('depositor-name').value, method: selectedMethod.dataset.method, receiptImage: imageBase64 };
+            const response = await fetch('/api/deposits', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(depositData) });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || 'فشل إرسال الطلب.');
+            depositFormResponse.textContent = result.message;
+            depositFormResponse.className = 'form-message success';
+            setTimeout(hideDepositPopup, 3000);
+        } catch (error) {
+            depositFormResponse.textContent = error.message;
+            depositFormResponse.className = 'form-message error';
+        }
     }
-}
 
-    // --- 3. تحميل وعرض الخدمات (تبقى كما هي) ---
+    // --- 4. تحميل وعرض الخدمات ---
     async function loadServices() {
         try {
             const response = await fetch('/api/services');
@@ -266,36 +219,32 @@ async function refreshUserData() {
         }
     }
 
-    // ******** التعديل الأهم هنا ********
     function getPlatformIcon(platform) {
         const p = platform.toLowerCase().trim();
-        if (p.includes('instagram') || p.includes('انستغرام') || p.includes('انستا')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
-        if (p.includes('tiktok') || p.includes('تيك توك')) return 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg';
-        if (p.includes('twitter') || p.includes('تويتر') || p === 'x') return 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg';
-        if (p.includes('facebook') || p.includes('فيس بوك') || p.includes('فيس')) return 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg';
-        if (p.includes('youtube') || p.includes('يوتيوب')) return 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg';
-        if (p.includes('telegram') || p.includes('تلغرام')) return 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg';
-        if (p.includes('snapchat') || p.includes('سناب شات')) return 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg';
-        if (p.includes('threads') || p.includes('ثريدز')) return 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Threads_app_icon.svg';
+        if (p.includes('instagram')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
+        if (p.includes('tiktok')) return 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg';
+        if (p.includes('twitter')) return 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg';
+        if (p.includes('facebook')) return 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg';
+        if (p.includes('youtube')) return 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg';
+        if (p.includes('telegram')) return 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg';
+        if (p.includes('snapchat')) return 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg';
+        if (p.includes('threads')) return 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Threads_app_icon.svg';
         try {
             const initial = encodeURIComponent(platform.charAt(0).toUpperCase());
             return `https://ui-avatars.com/api/?name=${initial}&background=random&size=50&color=fff`;
-        } catch (e) {
-            return '';
-        }
+        } catch (e) { return ''; }
     }
-    // ******** نهاية التعديل ********
 
     function getPlatformValidation(platform) {
         const p = platform.toLowerCase().trim();
-        if (p.includes('instagram') || p.includes('انستغرام')) return /instagram\.com/;
-        if (p.includes('tiktok') || p.includes('تيك توك')) return /tiktok\.com/;
-        if (p.includes('twitter') || p.includes('تويتر') || p === 'x') return /(twitter|x)\.com/;
-        if (p.includes('facebook') || p.includes('فيس بوك')) return /facebook\.com/;
-        if (p.includes('youtube') || p.includes('يوتيوب')) return /(youtube\.com|youtu\.be)/;
-        if (p.includes('telegram') || p.includes('تلغرام')) return /(telegram\.me|t\.me)/;
-        if (p.includes('snapchat') || p.includes('سناب شات')) return /snapchat\.com/;
-        if (p.includes('threads') || p.includes('ثريدز')) return /threads\.net/;
+        if (p.includes('instagram')) return /instagram\.com/;
+        if (p.includes('tiktok')) return /tiktok\.com/;
+        if (p.includes('twitter')) return /(twitter|x)\.com/;
+        if (p.includes('facebook')) return /facebook\.com/;
+        if (p.includes('youtube')) return /(youtube\.com|youtu\.be)/;
+        if (p.includes('telegram')) return /(telegram\.me|t\.me)/;
+        if (p.includes('snapchat')) return /snapchat\.com/;
+        if (p.includes('threads')) return /threads\.net/;
         return new RegExp(`${p.replace(/\s/g, '')}\\.com`, 'i');
     }
 
@@ -312,13 +261,13 @@ async function refreshUserData() {
         }
     }
 
-    // --- 4. إظهار وتحديث نموذج الطلب (تبقى كما هي) ---
+    // --- 5. إظهار وتحديث نموذج الطلب ---
     function showOrderForm(platform) {
         refreshUserData();
         currentPlatform = platform;
         orderFormContainer.classList.remove('hidden');
         successMessageContainer.classList.add('hidden');
-        document.getElementById('payment-options-container')?.classList.add('hidden');
+        paymentOptionsContainer.classList.add('hidden');
         formTitle.textContent = `طلب خدمة لـ ${platform}`;
         const iconName = platform.toLowerCase().replace(/\s/g, '');
         popupIcon.className = `ph-bold ph-${iconName}-logo`;
@@ -371,75 +320,64 @@ async function refreshUserData() {
         return true;
     }
 
-    // --- 5. معالجة إرسال الطلب وخيارات الدفع (تبقى كما هي) ---
-    async function handleFormSubmit(event) {
+    // --- 6. معالجة إرسال الطلب وخيارات الدفع ---
+    function handleFormSubmit(event) {
         event.preventDefault();
         if (!validateLink()) { alert('الرجاء إدخال رابط صحيح.'); return; }
+        currentOrderData = { platform: currentPlatform, service: serviceSelect.value, link: linkInput.value, quantity: parseInt(quantityInput.value, 10), price: parseFloat(priceDisplay.textContent.replace(' $', '')), userId: userInfo ? userInfo._id : null };
         orderFormContainer.classList.add('hidden');
-        const paymentOptionsContainer = document.getElementById('payment-options-container');
         paymentOptionsContainer.classList.remove('hidden');
-        const price = parseFloat(priceDisplay.textContent.replace(' $', ''));
-        document.getElementById('final-price-display').textContent = `${price.toFixed(2)} $`;
-        const payWithBalanceBtn = document.getElementById('pay-with-balance-btn');
-        const payWithWhatsappBtn = document.getElementById('pay-with-whatsapp-btn');
-        const balanceError = document.getElementById('balance-error');
+        finalPriceDisplay.textContent = `${currentOrderData.price.toFixed(2)} $`;
         balanceError.textContent = '';
-        if (userInfo && userInfo.balance >= price) {
+        if (userInfo && userInfo.balance >= currentOrderData.price) {
             payWithBalanceBtn.disabled = false;
-            payWithBalanceBtn.onclick = () => executePayWithBalance(price);
         } else {
             payWithBalanceBtn.disabled = true;
-            balanceError.textContent = userInfo ? 'رصيدك الحالي غير كافٍ.' : 'سجل الدخول لتتمكن من الدفع بالرصيد.';
+            balanceError.textContent = userInfo ? 'رصيدك الحالي غير كافٍ.' : 'سجل الدخول للدفع بالرصيد.';
         }
-        payWithWhatsappBtn.onclick = () => executePayWithWhatsapp(price);
     }
 
-    async function executePayWithBalance(price) {
-        const orderData = { platform: currentPlatform, service: serviceSelect.value, link: linkInput.value, quantity: parseInt(quantityInput.value, 10), price: price, userId: userInfo._id };
+    async function executePayWithBalance() {
         try {
-            const response = await fetch('/api/orders/pay-with-balance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(orderData) });
+            const response = await fetch('/api/orders/pay-with-balance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(currentOrderData) });
             const result = await response.json();
             if (!response.ok) throw new Error(result.message || 'فشل الدفع بالرصيد.');
             userInfo.balance = result.newBalance;
             localStorage.setItem('userInfo', JSON.stringify(userInfo));
             updateUIForAuth();
-            document.getElementById('payment-options-container').classList.add('hidden');
+            paymentOptionsContainer.classList.add('hidden');
             formResponse.textContent = 'تم الدفع بنجاح! طلبك الآن قيد التنفيذ.';
             successMessageContainer.classList.remove('hidden');
         } catch (error) {
-            document.getElementById('balance-error').textContent = error.message;
+            balanceError.textContent = error.message;
         }
     }
 
-    async function executePayWithWhatsapp(price) {
-        const orderData = { platform: currentPlatform, service: serviceSelect.value, link: linkInput.value, quantity: parseInt(quantityInput.value, 10), price: price, user: userInfo ? userInfo._id : null };
+    async function executePayWithWhatsapp() {
+        const orderDataForWhatsapp = { ...currentOrderData, user: userInfo ? userInfo._id : null };
         try {
-            await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(orderData) });
-        } catch (error) {
-            console.error("Failed to save order to DB, but proceeding with WhatsApp link.", error);
-        }
-        const message = `*طلب جديد* 🎉\n---------------------\n*المنصة:* ${orderData.platform}\n*الخدمة:* ${orderData.service}\n*الكمية:* ${orderData.quantity}\n*السعر:* ${orderData.price.toFixed(2)}$\n*الرابط:* ${orderData.link}\n---------------------\n(رسالة منشأة تلقائياً)`;
+            await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(orderDataForWhatsapp) });
+        } catch (error) { console.error("Failed to save order to DB, but proceeding.", error); }
+        const message = `*طلب جديد* 🎉\n---------------------\n*المنصة:* ${orderDataForWhatsapp.platform}\n*الخدمة:* ${orderDataForWhatsapp.service}\n*الكمية:* ${orderDataForWhatsapp.quantity}\n*السعر:* ${orderDataForWhatsapp.price.toFixed(2)}$\n*الرابط:* ${orderDataForWhatsapp.link}\n---------------------\n(رسالة منشأة تلقائياً)`;
         const adminPhoneNumber = "905367893256";
         const encodedMessage = encodeURIComponent(message.trim());
         const whatsappUrl = `https://wa.me/${adminPhoneNumber}?text=${encodedMessage}`;
-        document.getElementById('payment-options-container').classList.add('hidden');
-        formResponse.textContent = 'ممتاز! سيتم الآن تحويلك إلى واتساب لإرسال تفاصيل طلبك.';
+        paymentOptionsContainer.classList.add('hidden');
+        formResponse.textContent = 'ممتاز! سيتم الآن تحويلك إلى واتساب.';
         successMessageContainer.classList.remove('hidden');
         setTimeout(() => { window.open(whatsappUrl, '_blank'); hidePopup(); }, 2500);
     }
 
-    function hidePopup() {
-        orderPopupOverlay.classList.add('hidden');
-    }
+    function hidePopup() { orderPopupOverlay.classList.add('hidden'); }
 
-    // --- 6. ربط الأحداث (تبقى كما هي) ---
+    // --- 7. ربط الأحداث ---
     closePopupButton.addEventListener('click', hidePopup);
     successOkButton.addEventListener('click', () => {
         hidePopup();
         setTimeout(() => {
             orderFormContainer.classList.remove('hidden');
             successMessageContainer.classList.add('hidden');
-            document.getElementById('payment-options-container')?.classList.add('hidden');
+            paymentOptionsContainer.classList.add('hidden');
         }, 500);
     });
     orderPopupOverlay.addEventListener('click', (e) => { if (e.target === orderPopupOverlay) hidePopup(); });
@@ -462,18 +400,23 @@ async function refreshUserData() {
             dropdown.classList.remove('active');
         }
     });
+    payWithBalanceBtn.addEventListener('click', executePayWithBalance);
+    payWithWhatsappBtn.addEventListener('click', executePayWithWhatsapp);
 
+    // --- 8. الاستماع للتحديثات الفورية (Socket.IO) ---
     socket.on('new-service', () => {
-    loadServices(); // أعد تحميل الخدمات عند إضافة خدمة جديدة
-});
-socket.on('deposit-approved', (data) => {
-    if (userInfo && userInfo._id === data.userId) {
-        refreshUserData(); // حدث بيانات المستخدم إذا كان هو المعني
-    }
-});
+        console.log('New service detected! Reloading services...');
+        loadServices();
+    });
 
+    socket.on('deposit-approved', (data) => {
+        if (userInfo && userInfo._id === data.userId) {
+            console.log('Your deposit was approved! Refreshing user data...');
+            refreshUserData();
+        }
+    });
 
-    // --- 7. البدء بتشغيل كل شيء ---
+    // --- 9. البدء بتشغيل كل شيء ---
     updateUIForAuth();
     loadServices();
 });
