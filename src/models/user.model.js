@@ -21,9 +21,16 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'كلمة المرور مطلوبة'],
         minlength: [6, 'يجب أن تكون كلمة المرور 6 أحرف على الأقل']
+    },
+
+    // --- الحقل الجديد هنا ---
+    balance: {
+        type: Number,
+        required: true,
+        default: 0 // الرصيد الافتراضي لأي مستخدم جديد هو صفر
     }
 }, {
-    timestamps: true // لإضافة حقلي createdAt و updatedAt تلقائياً
+    timestamps: true
 });
 
 // --- تشفير كلمة المرور قبل حفظ المستخدم ---
