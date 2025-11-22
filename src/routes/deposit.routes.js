@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const User = require('../models/user.model');
 const Deposit = require('../models/deposit.model');
 
 // POST /api/deposits - إنشاء طلب شحن جديد
