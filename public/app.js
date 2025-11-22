@@ -169,31 +169,47 @@ document.addEventListener('DOMContentLoaded', () => {
     depositFormResponse.textContent = 'جاري إرسال الطلب...';
     depositFormResponse.className = 'form-message';
 
-    const formData = new FormData();
-    formData.append('userId', userInfo._id);
-    formData.append('amount', document.getElementById('deposit-amount').value);
-    formData.append('depositorName', document.getElementById('depositor-name').value);
-    formData.append('receipt', document.getElementById('deposit-receipt').files[0]);
-        
+    const receiptFile = document.getElementById('deposit-receipt').files[0];
     const selectedMethod = document.querySelector('.payment-method-btn.active');
+
     if (!selectedMethod) {
         depositFormResponse.textContent = 'الرجاء اختيار طريقة الدفع.';
         depositFormResponse.className = 'form-message error';
         return;
     }
-    formData.append('method', selectedMethod.dataset.method);
+    if (!receiptFile) {
+        depositFormResponse.textContent = 'الرجاء رفع صورة الإيصال.';
+        depositFormResponse.className = 'form-message error';
+        return;
+    }
+
+    // دالة لتحويل الملف إلى Base64
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
 
     try {
+        const imageBase64 = await toBase64(receiptFile);
+
+        const depositData = {
+            userId: userInfo._id,
+            amount: document.getElementById('deposit-amount').value,
+            depositorName: document.getElementById('depositor-name').value,
+            method: selectedMethod.dataset.method,
+            receiptImage: imageBase64 // إرسال الصورة كنص
+        };
+
         const response = await fetch('/api/deposits', {
             method: 'POST',
-            body: formData // لا نستخدم headers هنا، المتصفح سيحددها تلقائياً مع FormData
+            headers: { 'Content-Type': 'application/json' }, // الآن نستخدم JSON
+            body: JSON.stringify(depositData)
         });
 
         const result = await response.json();
-
-        if (!response.ok) {
-            throw new Error(result.message || 'فشل إرسال الطلب.');
-        }
+        if (!response.ok) throw new Error(result.message || 'فشل إرسال الطلب.');
 
         depositFormResponse.textContent = result.message;
         depositFormResponse.className = 'form-message success';
