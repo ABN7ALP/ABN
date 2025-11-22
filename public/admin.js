@@ -330,7 +330,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function viewReceipt(base64Image) {
+socket.on('new-order', () => {
+    fetchOrders();
+    fetchStats();
+});
+socket.on('new-deposit', () => {
+    fetchDeposits();
+});
+
+
+    // --- 6. ربط أحداث التحديث ---
+    refreshStatsBtn.addEventListener('click', fetchStats);
+    refreshOrdersBtn.addEventListener('click', fetchOrders);
+    if (refreshDepositsBtn) {
+        refreshDepositsBtn.addEventListener('click', fetchDeposits);
+    }
+});
+
+// الصق الدالة هنا في الخارج لتصبح عامة
+function viewReceipt(base64Image) {
     const newWindow = window.open();
     if (newWindow) {
         newWindow.document.write(`
@@ -344,12 +362,3 @@ document.addEventListener('DOMContentLoaded', () => {
         newWindow.document.close();
     }
 }
-
-
-    // --- 6. ربط أحداث التحديث ---
-    refreshStatsBtn.addEventListener('click', fetchStats);
-    refreshOrdersBtn.addEventListener('click', fetchOrders);
-    if (refreshDepositsBtn) {
-        refreshDepositsBtn.addEventListener('click', fetchDeposits);
-    }
-});
