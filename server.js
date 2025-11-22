@@ -4,26 +4,32 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const fs = require('fs');
-const http = require('http'); // <-- استدعاء مكتبة http
-const { Server } = require("socket.io"); // <-- استدعاء socket.io
+const http = require('http');
+const { Server } = require("socket.io");
 
 // إعداد التطبيق والخادم
 const app = express();
-const server = http.createServer(app); // <-- إنشاء خادم http
-const io = new Server(server); // <-- ربط socket.io بالخادم
-
-// استدعاء مسارات الطلبات
-const orderRoutes = require('./src/routes/order.routes')(io); // <-- تمرير io للمسارات
-const serviceRoutes = require('./src/routes/service.routes')(io); // <-- تمرير io للمسارات
-const depositRoutes = require('./src/routes/deposit.routes')(io); // <-- تمرير io للمسارات
-const statsRoutes = require('./src/routes/stats.routes.js');
-const authRoutes = require('./src/routes/auth.routes.js');
-
-const PORT = process.env.PORT || 3000;
+const server = http.createServer(app);
+const io = new Server(server); // <-- تعريف io هنا
 
 // Middlewares
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// جعل io متاحاً لكل الطلبات (هذه هي الطريقة الصحيحة)
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
+
+// استدعاء مسارات الطلبات (بدون تمرير io هنا)
+const orderRoutes = require('./src/routes/order.routes');
+const serviceRoutes = require('./src/routes/service.routes');
+const depositRoutes = require('./src/routes/deposit.routes');
+const statsRoutes = require('./src/routes/stats.routes.js');
+const authRoutes = require('./src/routes/auth.routes.js');
+
+const PORT = process.env.PORT || 3000;
 
 // الاتصال بقاعدة البيانات
 mongoose.connect(process.env.MONGODB_URI)
@@ -57,7 +63,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
 });
 
-// تشغيل الخادم (نستخدم server.listen بدلاً من app.listen)
+// تشغيل الخادم
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
