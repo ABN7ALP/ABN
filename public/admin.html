@@ -29,17 +29,13 @@
     <div id="admin-dashboard" class="admin-dashboard hidden">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-header">
-                <h3>لوحة التحكم</h3>
-            </div>
+            <div class="sidebar-header"><h3>لوحة التحكم</h3></div>
             <nav class="sidebar-nav">
-                <ul class="sidebar-menu">
-                    <li><a href="#stats" class="nav-link active"><i class="ph-bold ph-chart-pie-slice"></i><span>الإحصائيات</span></a></li>
-                    <li><a href="#orders" class="nav-link"><i class="ph-bold ph-shopping-cart"></i><span>الطلبات</span></a></li>
-                    <li><a href="#deposits" class="nav-link"><i class="ph-bold ph-money"></i><span>طلبات الشحن</span></a></li>
-                    <li><a href="#services" class="nav-link"><i class="ph-bold ph-list-bullets"></i><span>الخدمات</span></a></li>
-                    <li><a href="/" class="nav-link logout-link"><i class="ph-bold ph-sign-out"></i><span>العودة للموقع</span></a></li>
-                </ul>
+                <a href="#stats" class="nav-link active"><i class="ph-bold ph-chart-pie-slice"></i><span>الإحصائيات</span></a>
+                <a href="#orders" class="nav-link"><i class="ph-bold ph-shopping-cart"></i><span>الطلبات</span></a>
+                <a href="#deposits" class="nav-link"><i class="ph-bold ph-bank"></i><span>طلبات الشحن</span></a>
+                <a href="#services" class="nav-link"><i class="ph-bold ph-list-bullets"></i><span>الخدمات</span></a>
+                <a href="/" class="nav-link logout-link"><i class="ph-bold ph-sign-out"></i><span>العودة للموقع</span></a>
             </nav>
         </aside>
 
@@ -49,18 +45,16 @@
             <section id="stats-section" class="admin-section active">
                 <div class="section-header">
                     <h2><i class="ph-bold ph-chart-pie-slice"></i> نظرة عامة</h2>
-                    <button id="refresh-stats-btn" class="pill-button secondary-button"><i class="ph-bold ph-arrow-clockwise"></i><span>تحديث</span></button>
+                    <!-- تم حذف زر التحديث من هنا -->
                 </div>
-                <div id="stats-cards-container" class="stats-grid">
-                    <div class="stat-card loading"></div><div class="stat-card loading"></div><div class="stat-card loading"></div><div class="stat-card loading"></div>
-                </div>
+                <div id="stats-cards-container" class="stats-grid"></div>
             </section>
 
             <!-- Orders Section -->
             <section id="orders-section" class="admin-section">
                 <div class="section-header">
                     <h2><i class="ph-bold ph-shopping-cart"></i> الطلبات الأخيرة</h2>
-                    <button id="refresh-orders-btn" class="pill-button secondary-button"><i class="ph-bold ph-arrow-clockwise"></i><span>تحديث</span></button>
+                    <!-- تم حذف زر التحديث من هنا -->
                 </div>
                 <div class="table-container">
                     <table id="orders-table">
@@ -71,28 +65,16 @@
                 </div>
             </section>
 
-            <!-- Deposits Section (القسم الجديد) -->
+            <!-- Deposits Section -->
             <section id="deposits-section" class="admin-section">
                 <div class="section-header">
-                    <h2><i class="ph-bold ph-money"></i> إدارة طلبات الشحن</h2>
-                    <button id="refresh-deposits-btn" class="pill-button secondary-button"><i class="ph-bold ph-arrow-clockwise"></i><span>تحديث</span></button>
+                    <h2><i class="ph-bold ph-bank"></i> طلبات شحن الرصيد</h2>
+                    <!-- تم حذف زر التحديث من هنا -->
                 </div>
                 <div class="table-container">
                     <table id="deposits-table">
-                        <thead>
-                            <tr>
-                                <th>المستخدم</th>
-                                <th>المبلغ</th>
-                                <th>الطريقة</th>
-                                <th>اسم المودع</th>
-                                <th>الإيصال</th>
-                                <th>الحالة</th>
-                                <th>الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="deposits-tbody">
-                            <!-- سيتم ملء طلبات الشحن هنا -->
-                        </tbody>
+                        <thead><tr><th>المستخدم</th><th>المبلغ</th><th>الطريقة</th><th>اسم المودع</th><th>الإيصال</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                        <tbody id="deposits-tbody"></tbody>
                     </table>
                 </div>
             </section>
@@ -101,15 +83,8 @@
             <section id="services-section" class="admin-section">
                 <h2><i class="ph-bold ph-plus-circle"></i> إضافة خدمة جديدة</h2>
                 <form id="add-service-form" class="admin-form">
-                    <div class="form-row">
-                        <div class="form-group"><label>المنصة</label><input type="text" id="service-platform" placeholder="مثال: Instagram أو يوتيوب" required></div>
-                        <div class="form-group"><label>اسم الخدمة</label><input type="text" id="service-name" placeholder="مثال: متابعين" required></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>السعر لكل 1000</label><input type="number" id="service-price" placeholder="10.5" step="0.01" required></div>
-                        <div class="form-group"><label>الحد الأدنى</label><input type="number" id="service-min" placeholder="100" required></div>
-                        <div class="form-group"><label>الحد الأقصى</label><input type="number" id="service-max" placeholder="100000" required></div>
-                    </div>
+                    <div class="form-row"><div class="form-group"><label>المنصة</label><input type="text" id="service-platform" placeholder="مثال: Instagram" required></div><div class="form-group"><label>اسم الخدمة</label><input type="text" id="service-name" placeholder="مثال: متابعين" required></div></div>
+                    <div class="form-row"><div class="form-group"><label>السعر لكل 1000</label><input type="number" id="service-price" placeholder="10.5" step="0.01" required></div><div class="form-group"><label>الحد الأدنى</label><input type="number" id="service-min" placeholder="100" required></div><div class="form-group"><label>الحد الأقصى</label><input type="number" id="service-max" placeholder="100000" required></div></div>
                     <button type="submit" class="pill-button primary-button">إضافة الخدمة</button>
                 </form>
                 <div id="service-form-response"></div>
