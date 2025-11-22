@@ -790,3 +790,69 @@ header p {
     width: 100%;
     justify-content: center;
 }
+
+/* --- 17. Deposit Popup --- */
+.payment-method-selector {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.payment-method-btn {
+    flex: 1;
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
+    background-color: transparent;
+    color: var(--text-light);
+    border-radius: var(--radius-card);
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.payment-method-btn.active,
+.payment-method-btn:hover {
+    background-color: var(--primary-color-light);
+    border-color: var(--primary-color);
+    color: var(--white-pure);
+}
+
+#payment-details-container {
+    background-color: var(--background-light);
+    padding: 1rem;
+    border-radius: var(--radius-card);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+#payment-details-container p {
+    margin: 0.5rem 0;
+    font-weight: 600;
+}
+
+#payment-details-container span {
+    background-color: var(--background-dark);
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-pill);
+    font-family: monospace;
+    color: var(--secondary-color);
+    display: block;
+    margin-top: 0.5rem;
+}
+
+#payment-details-container img {
+    max-width: 200px;
+    margin: 1rem auto 0;
+    display: block;
+    border-radius: var(--radius-card);
+}
+
+#deposit-form .form-message {
+    text-align: center;
+    margin-top: 1rem;
+    font-weight: 600;
+}
+#deposit-form .form-message.success { color: var(--success-color); }
+#deposit-form .form-message.error { color: var(--danger-color); }
