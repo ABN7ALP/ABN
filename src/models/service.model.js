@@ -1,34 +1,36 @@
 const mongoose = require('mongoose');
 
 const serviceSchema = new mongoose.Schema({
+    id: {
+        type: String,
+        unique: true, // فريد لكل خدمة
+        required: true
+    },
     platform: {
         type: String,
         required: true,
-        trim: true,
-        // مثال: Instagram, TikTok, etc.
+        trim: true
     },
     name: {
         type: String,
         required: true,
-        trim: true,
-        // مثال: متابعين, لايكات, etc.
+        trim: true
     },
     pricePer1000: {
         type: Number,
         required: true,
-        min: 0,
+        min: 0
     },
     min: {
         type: Number,
         required: true,
-        default: 100,
+        default: 100
     },
     max: {
         type: Number,
         required: true,
-        default: 100000,
-    },
-    // يمكن إضافة حقول أخرى مستقبلاً مثل 'type' (Default, Custom Comments, etc.)
+        default: 100000
+    }
 });
 
 const Service = mongoose.model('Service', serviceSchema);
