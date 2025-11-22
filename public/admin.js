@@ -330,14 +330,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-socket.on('new-order', () => {
+    socket.on('new-order', () => {
     fetchOrders();
     fetchStats();
 });
 socket.on('new-deposit', () => {
     fetchDeposits();
 });
-
+    
 
     // --- 6. ربط أحداث التحديث ---
     refreshStatsBtn.addEventListener('click', fetchStats);
