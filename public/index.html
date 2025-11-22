@@ -40,7 +40,13 @@
                 <form id="order-form">
                     <div class="form-group"><label for="service-select">نوع الخدمة</label><div class="select-wrapper"><select id="service-select" required></select></div></div>
                     <div class="form-group"><label for="link-input">رابط الحساب أو المنشور</label><input type="url" id="link-input" placeholder="https://www.instagram.com/..." required><small id="link-warning">تأكد أن الحساب عام وليس خاصاً.</small><p id="link-error" class="error-message"></p></div>
-                    <div class="form-group"><label for="quantity-input">الكمية المطلوبة</label><input type="number" id="quantity-input" min="100" step="100" value="1000" required></div>
+                    <!-- ******** هذا هو التعديل ******** -->
+                    <div class="form-group">
+                        <label for="quantity-input">الكمية المطلوبة</label>
+                        <input type="number" id="quantity-input" required>
+                        <p id="quantity-error" class="error-message"></p>
+                    </div>
+                    <!-- ******** نهاية التعديل ******** -->
                     <div class="price-section"><p>السعر الإجمالي</p><span id="price-display">0.00 $</span></div>
                     <button type="submit" class="pill-button primary-button"><i class="ph-bold ph-arrow-right"></i><span>متابعة للدفع</span></button>
                 </form>
@@ -91,13 +97,12 @@
 
     <!-- Deposit Popup -->
     <div id="deposit-popup-overlay" class="popup-overlay hidden">
-        <div class="popup-content">
+        <div class="popup-content scrollable">
             <button id="close-deposit-popup-btn" class="close-btn"><i class="ph-bold ph-x"></i></button>
             <div class="popup-header"><i class="ph-bold ph-money"></i><h2>شحن الرصيد</h2></div>
             <form id="deposit-form" enctype="multipart/form-data">
                 <p class="payment-instructions">اختر طريقة الدفع المفضلة لديك واتبع التعليمات.</p>
                 <div class="payment-method-selector">
-                    <!-- الأزرار الجديدة المحسّنة -->
                     <button type="button" class="payment-method-btn" data-method="bank"><i class="ph-bold ph-bank"></i><span>تحويل بنكي</span></button>
                     <button type="button" class="payment-method-btn" data-method="sham"><i class="ph-bold ph-qr-code"></i><span>شام كاش</span></button>
                     <button type="button" class="payment-method-btn" data-method="whatsapp"><i class="ph-bold ph-storefront"></i><span>حوالة مكتب</span></button>
