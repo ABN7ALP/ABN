@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const passwordInput = document.getElementById('password-input');
     const loginError = document.getElementById('login-error');
-    const adminContent = document.getElementById('admin-content');
+    const adminDashboard = document.getElementById('admin-dashboard');
     
     // عناصر الطلبات
     const ordersTbody = document.getElementById('orders-tbody');
@@ -16,25 +16,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const serviceFormResponse = document.getElementById('service-form-response');
     const servicesTbody = document.getElementById('services-tbody');
 
-    const ADMIN_PASSWORD = "password123"; // تذكر تغيير هذه الكلمة مستقبلاً
+    // عناصر نافذة التعديل
+    const editServicePopup = document.getElementById('edit-service-popup');
+    const editServiceForm = document.getElementById('edit-service-form');
+    const closeEditPopupBtn = editServicePopup.querySelector('.close-btn');
 
-    // --- 1. معالجة تسجيل الدخول ---
+    // عناصر القائمة الجانبية
+    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+    const sections = document.querySelectorAll('.admin-section');
+
+    const ADMIN_PASSWORD = "password123";
+
+    // --- 1. نظام الدخول والقائمة الجانبية ---
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         if (passwordInput.value === ADMIN_PASSWORD) {
             loginOverlay.classList.add('hidden');
-            adminContent.classList.remove('hidden');
-            // جلب كل البيانات عند تسجيل الدخول
+            adminDashboard.classList.remove('hidden');
             fetchOrders();
             fetchServices();
         } else {
             loginError.textContent = 'كلمة المرور غير صحيحة.';
-            passwordInput.focus();
         }
     });
 
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            if (!link.classList.contains('logout-link')) {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                sections.forEach(section => {
+                    section.classList.toggle('active', section.id === `${targetId}-section`);
+                });
+            }
+        });
+    });
+
     // --- 2. إدارة الطلبات (Orders Management) ---
-    
     async function fetchOrders() {
         loadingSpinner.classList.remove('hidden');
         ordersTbody.innerHTML = '';
@@ -51,15 +71,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderOrders(orders) {
+        ordersTbody.innerHTML = '';
         if (orders.length === 0) {
             ordersTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات حالياً.</td></tr>';
             return;
         }
-        ordersTbody.innerHTML = '';
         orders.forEach(order => {
             const row = document.createElement('tr');
             const platformName = order.platform || 'غير محدد';
-            const platformIcon = order.platform ? `ph-${order.platform.toLowerCase()}-logo` : 'ph-question';
+            const platformIcon = order.platform ? `ph-${order.platform.toLowerCase().replace(/\s/g, '')}-logo` : 'ph-question';
             row.innerHTML = `
                 <td><i class="ph-bold ${platformIcon}"></i> ${platformName}</td>
                 <td>${order.service || 'N/A'}</td>
@@ -111,37 +131,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 3. إدارة الخدمات (Services Management) ---
-    
     async function fetchServices() {
         try {
             const response = await fetch('/api/services');
             const services = await response.json();
             renderServices(services);
-        } catch (error) {
-            console.error('Failed to fetch services:', error);
-        }
+        } catch (error) { console.error('Failed to fetch services:', error); }
     }
 
     function renderServices(services) {
         servicesTbody.innerHTML = '';
         if (services.length === 0) {
-            servicesTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد خدمات مضافة حالياً.</td></tr>';
+            servicesTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد خدمات مضافة.</td></tr>';
             return;
         }
         services.forEach(service => {
             const row = document.createElement('tr');
+            row.dataset.service = JSON.stringify(service);
             row.innerHTML = `
                 <td>${service.platform}</td>
                 <td>${service.name}</td>
                 <td>${service.pricePer1000.toFixed(2)} $</td>
                 <td>${service.min.toLocaleString()} / ${service.max.toLocaleString()}</td>
-                <td><button class="delete-service-btn" data-id="${service._id}"><i class="ph-bold ph-trash"></i></button></td>
+                <td class="action-buttons">
+                    <button class="edit-btn"><i class="ph-bold ph-pencil-simple"></i></button>
+                    <button class="delete-btn"><i class="ph-bold ph-trash"></i></button>
+                </td>
             `;
             servicesTbody.appendChild(row);
         });
-        document.querySelectorAll('.delete-service-btn').forEach(btn => {
-            btn.addEventListener('click', handleDeleteService);
-        });
+        document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', handleDeleteService));
+        document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', handleOpenEditPopup));
     }
 
     addServiceForm.addEventListener('submit', async (e) => {
@@ -175,11 +195,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     async function handleDeleteService(event) {
-        const btn = event.currentTarget;
-        const id = btn.dataset.id;
-        if (!confirm('هل أنت متأكد من حذف هذه الخدمة؟')) return;
+        const row = event.currentTarget.closest('tr');
+        const service = JSON.parse(row.dataset.service);
+        if (!confirm(`هل أنت متأكد من حذف خدمة "${service.name}"؟`)) return;
         try {
-            const response = await fetch(`/api/services/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/services/${service._id}`, { method: 'DELETE' });
             if (response.ok) {
                 fetchServices();
             } else {
@@ -189,6 +209,51 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('فشل الاتصال بالخادم.');
         }
     }
+
+    // --- 4. تعديل الخدمة (Edit Service) ---
+    function handleOpenEditPopup(event) {
+        const row = event.currentTarget.closest('tr');
+        const service = JSON.parse(row.dataset.service);
+        editServiceForm.innerHTML = `
+            <input type="hidden" id="edit-service-id" value="${service._id}">
+            <div class="form-group"><label>المنصة</label><input type="text" id="edit-platform" value="${service.platform}" required></div>
+            <div class="form-group"><label>اسم الخدمة</label><input type="text" id="edit-name" value="${service.name}" required></div>
+            <div class="form-group"><label>السعر لكل 1000</label><input type="number" id="edit-price" value="${service.pricePer1000}" step="0.01" required></div>
+            <div class="form-group"><label>الحد الأدنى</label><input type="number" id="edit-min" value="${service.min}" required></div>
+            <div class="form-group"><label>الحد الأقصى</label><input type="number" id="edit-max" value="${service.max}" required></div>
+            <button type="submit" class="pill-button primary-button">حفظ التغييرات</button>
+        `;
+        editServicePopup.classList.remove('hidden');
+    }
+
+    editServiceForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('edit-service-id').value;
+        const updatedData = {
+            platform: document.getElementById('edit-platform').value.trim(),
+            name: document.getElementById('edit-name').value.trim(),
+            pricePer1000: parseFloat(document.getElementById('edit-price').value),
+            min: parseInt(document.getElementById('edit-min').value),
+            max: parseInt(document.getElementById('edit-max').value),
+        };
+        try {
+            const response = await fetch(`/api/services/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedData),
+            });
+            if (response.ok) {
+                editServicePopup.classList.add('hidden');
+                fetchServices();
+            } else {
+                alert('فشل تعديل الخدمة.');
+            }
+        } catch (error) {
+            alert('فشل الاتصال بالخادم.');
+        }
+    });
+
+    closeEditPopupBtn.addEventListener('click', () => editServicePopup.classList.add('hidden'));
 
     // --- ربط الأحداث ---
     refreshBtn.addEventListener('click', fetchOrders);
