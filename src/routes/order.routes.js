@@ -78,4 +78,24 @@ router.post('/pay-with-balance', async (req, res) => {
     }
 });
 
+// GET /api/orders/my-orders - جلب طلبات المستخدم المسجل دخوله
+router.get('/my-orders', async (req, res) => {
+    // سنحصل على هوية المستخدم من query parameter
+    const { userId } = req.query;
+
+    if (!userId) {
+        return res.status(401).json({ message: 'لم يتم تحديد المستخدم.' });
+    }
+
+    try {
+        const userOrders = await Order.find({ user: userId }).sort({ createdAt: -1 });
+        res.status(200).json(userOrders);
+    } catch (error) {
+        console.error("GET /my-orders error:", error);
+        res.status(500).json({ message: 'فشل جلب طلبات المستخدم.' });
+    }
+});
+// ******** نهاية المسار الجديد ********
+
 module.exports = router;
+
