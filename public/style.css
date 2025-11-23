@@ -1,6 +1,9 @@
 /* ===================================================================
-   SMM STORE - MASTER STYLESHEET (v4.0 - Final Touch)
-   - Fixes all remaining responsive and alignment issues.
+   SMM STORE - MASTER STYLESHEET (v5.0 - The Polishing Update)
+   - Fixes payment options popup alignment.
+   - Centers success message content.
+   - Centers hero section text on all devices.
+   - Improves admin form input visibility.
    =================================================================== */
 
 /* --- 1. Global Settings & Variables --- */
@@ -80,13 +83,14 @@ body {
 .user-dropdown.active .user-dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
 .user-dropdown-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--gray-border); margin-bottom: 0.5rem; }
 .user-dropdown-header h4 { margin: 0; font-size: 1rem; }
-.user-dropdown-header .balance-display { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--text-light); margin-top: 0.25rem; }
+.user-dropdown-header .balance-display { display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.9rem; color: var(--text-light); margin-top: 0.25rem; }
 .user-dropdown-header .balance-display i { color: var(--yellow-accent); }
 .user-dropdown-menu a, .user-dropdown-menu button { display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-soft); background: none; border: none; text-align: right; font-family: var(--font-main); font-size: 1rem; cursor: pointer; color: var(--text-dark); text-decoration: none; }
 .user-dropdown-menu a:hover, .user-dropdown-menu button:hover { background-color: var(--gray-light); }
 .user-dropdown-menu .logout-link { color: var(--danger-red); }
 
 /* --- 3. Hero Section & Service Cards --- */
+/* ** FIX **: Enforce center alignment for hero text */
 .hero { text-align: center; padding: 3rem 1rem; color: var(--white-pure); }
 .hero h1 { font-weight: 700; font-size: 2.8rem; margin-bottom: 0.5rem; }
 .hero p { font-weight: 400; font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto; }
@@ -111,7 +115,7 @@ body {
 .pill-button-link { background: none; border: none; color: var(--purple-main); font-weight: 600; cursor: pointer; padding: 0.5rem; font-family: var(--font-main); }
 
 /* --- 5. Popups (Modals) --- */
-.popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; padding: 1rem; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; /* ** FIX **: Changed align-items */ align-items: flex-start; padding-top: 5vh; }
+.popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; padding: 1rem; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; align-items: flex-start; padding-top: 5vh; }
 .popup-overlay:not(.hidden) { opacity: 1; visibility: visible; }
 .popup-content { background-color: var(--white-pure); border-radius: var(--radius-popup); width: 100%; max-width: 500px; position: relative; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); transform: scale(0.95); transition: transform 0.3s ease; display: flex; flex-direction: column; max-height: 90vh; }
 .popup-overlay:not(.hidden) .popup-content { transform: scale(1); }
@@ -122,18 +126,17 @@ body {
 .popup-header h2 { font-weight: 700; font-size: 1.75rem; margin-top: 0.5rem; }
 
 /* --- 6. Forms & Input Fields --- */
-/* ** FIX **: Adjusted padding for better mobile view */
 #order-form, #login-form-popup, #register-form-popup, #deposit-form, #edit-service-form { padding: 0 1.5rem 1.5rem; overflow-y: auto; flex-grow: 1; }
 .form-group { margin-bottom: 1.25rem; }
-.form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
+.form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; text-align: right; }
 .form-group input, .select-wrapper { width: 100%; background-color: var(--gray-light); border: 2px solid transparent; border-radius: var(--radius-soft); transition: border-color 0.3s ease; }
 .form-group input:focus, .select-wrapper:focus-within { border-color: var(--purple-main); }
 .form-group input { padding: 0.8rem 1rem; font-family: var(--font-main); font-size: 1rem; outline: none; }
 .select-wrapper { position: relative; }
 .select-wrapper::after { content: '\25BC'; position: absolute; top: 50%; left: 1rem; transform: translateY(-50%); color: var(--text-light); pointer-events: none; }
 .form-group select { width: 100%; padding: 0.8rem 1rem; font-family: var(--font-main); font-size: 1rem; border: none; background: transparent; outline: none; appearance: none; -webkit-appearance: none; -moz-appearance: none; }
-.form-group small { font-size: 0.85rem; color: var(--text-light); margin-top: 0.25rem; display: block; }
-.error-message { color: var(--danger-red); font-size: 0.9em; margin-top: 5px; min-height: 1.2em; }
+.form-group small { font-size: 0.85rem; color: var(--text-light); margin-top: 0.25rem; display: block; text-align: right; }
+.error-message { color: var(--danger-red); font-size: 0.9em; margin-top: 5px; min-height: 1.2em; text-align: right; }
 .price-section { display: flex; justify-content: space-between; align-items: center; background-color: var(--gray-light); padding: 1rem; border-radius: var(--radius-soft); margin: 1.5rem 0; }
 .price-section p { font-weight: 600; margin: 0; }
 .price-section span { font-size: 1.5rem; font-weight: 700; color: var(--yellow-accent); }
@@ -153,18 +156,18 @@ body {
 .form-message { text-align: center; margin-top: 1rem; font-weight: 600; }
 .form-message.success { color: var(--success-green); }
 .form-message.error { color: var(--danger-red); }
-/* ** FIX **: Removed padding from payment options container */
-#payment-options-container { padding: 0; }
-#payment-options-container .pill-button { margin-bottom: 0.75rem; }
+
+/* ** FIX **: Center payment options and success message */
+#payment-options-container, #success-message-container { padding: 1rem 1.5rem; text-align: center; }
+#payment-options-container .pill-button { margin: 0.5rem auto; }
+#payment-options-container p { margin-bottom: 1rem; font-weight: 600; }
+#final-price-display { font-size: 2rem; font-weight: 700; color: var(--purple-main); display: block; margin-bottom: 0.5rem; }
 
 /* --- 8. Admin Panel & My Orders --- */
 .admin-body, .my-orders-body { background-color: var(--gray-light); overflow-x: hidden; }
 .admin-body .background-gradient, .my-orders-body .background-gradient { display: none; }
-
-/* ** FIX **: Secure Admin Dashboard */
 #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; }
 #admin-dashboard.hidden { display: none; }
-
 .admin-dashboard { display: flex; min-height: 100vh; width: 100%; overflow-x: hidden; }
 .sidebar { width: 250px; background-color: var(--white-pure); box-shadow: 2px 0 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; padding: 1.5rem 0; transition: width 0.3s ease; flex-shrink: 0; }
 .sidebar-header { padding: 0 1.5rem; margin-bottom: 2rem; font-size: 1.5rem; font-weight: 700; }
@@ -231,7 +234,7 @@ body {
     .table-container table, .table-container thead, .table-container tbody, .table-container th, .table-container td, .table-container tr { display: block; }
     .table-container thead tr { position: absolute; top: -9999px; left: -9999px; }
     .table-container tr { border: 1px solid #e0e0e0; border-radius: var(--radius-card); margin-bottom: 1rem; background: var(--white-pure); padding: 1rem; }
-    .table-container td { border: none; border-bottom: 1px solid #f0f0f0; position: relative; padding: 0.75rem 0; min-height: 44px; display: flex; align-items: center; justify-content: space-between; /* This is the key */ }
+    .table-container td { border: none; border-bottom: 1px solid #f0f0f0; position: relative; padding: 0.75rem 0; min-height: 44px; display: flex; align-items: center; justify-content: space-between; }
     .table-container td:last-child { border-bottom: none; }
     .table-container td:before { content: attr(data-label); font-weight: 600; color: var(--text-dark); flex-shrink: 0; padding-left: 1rem; }
     .table-container td .status, .table-container td .select-wrapper { margin-left: 0; }
