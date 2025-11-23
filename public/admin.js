@@ -104,25 +104,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderOrders(orders) {
-        ordersTbody.innerHTML = '';
-        if (orders.length === 0) { ordersTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات حالياً.</td></tr>'; return; }
-        orders.forEach(order => {
-            const row = document.createElement('tr');
-            const platformName = order.platform || 'غير محدد';
-            const platformIcon = order.platform ? `ph-${order.platform.toLowerCase().replace(/\s/g, '')}-logo` : 'ph-question';
-            row.innerHTML = `
-                <td><i class="ph-bold ${platformIcon}"></i> ${platformName}</td>
-                <td>${order.service || 'N/A'}</td>
-                <td><a href="${order.link || '#'}" target="_blank">عرض الرابط</a></td>
-                <td>${order.quantity ? order.quantity.toLocaleString() : 'N/A'}</td>
-                <td>${order.price ? order.price.toFixed(2) : '0.00'} $</td>
-                <td>${order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG') : 'N/A'}</td>
-                <td><div class="select-wrapper status-select-wrapper"><select class="status-select" data-order-id="${order._id}"><option value="قيد المراجعة" ${order.status === 'قيد المراجعة' ? 'selected' : ''}>قيد المراجعة</option><option value="قيد التنفيذ" ${order.status === 'قيد التنفيذ' ? 'selected' : ''}>قيد التنفيذ</option><option value="مكتمل" ${order.status === 'مكتمل' ? 'selected' : ''}>مكتمل</option><option value="ملغي" ${order.status === 'ملغي' ? 'selected' : ''}>ملغي</option></select></div></td>
-            `;
-            ordersTbody.appendChild(row);
-        });
-        document.querySelectorAll('.status-select').forEach(select => select.addEventListener('change', handleStatusChange));
-    }
+    ordersTbody.innerHTML = '';
+    if (orders.length === 0) { ordersTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات حالياً.</td></tr>'; return; }
+    orders.forEach(order => {
+        const row = document.createElement('tr');
+        const platformName = order.platform || 'غير محدد';
+        const platformIcon = order.platform ? `ph-${order.platform.toLowerCase().replace(/\s/g, '')}-logo` : 'ph-question';
+        row.innerHTML = `
+            <td data-label="المنصة"><i class="ph-bold ${platformIcon}"></i> ${platformName}</td>
+            <td data-label="الخدمة">${order.service || 'N/A'}</td>
+            <td data-label="الرابط"><a href="${order.link || '#'}" target="_blank">عرض الرابط</a></td>
+            <td data-label="الكمية">${order.quantity ? order.quantity.toLocaleString() : 'N/A'}</td>
+            <td data-label="السعر">${order.price ? order.price.toFixed(2) : '0.00'} $</td>
+            <td data-label="تاريخ الطلب">${order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG') : 'N/A'}</td>
+            <td data-label="الحالة"><div class="select-wrapper status-select-wrapper"><select class="status-select" data-order-id="${order._id}"><option value="قيد المراجعة" ${order.status === 'قيد المراجعة' ? 'selected' : ''}>قيد المراجعة</option><option value="قيد التنفيذ" ${order.status === 'قيد التنفيذ' ? 'selected' : ''}>قيد التنفيذ</option><option value="مكتمل" ${order.status === 'مكتمل' ? 'selected' : ''}>مكتمل</option><option value="ملغي" ${order.status === 'ملغي' ? 'selected' : ''}>ملغي</option></select></div></td>
+        `;
+        ordersTbody.appendChild(row);
+    });
+    document.querySelectorAll('.status-select').forEach(select => select.addEventListener('change', handleStatusChange));
+}
 
     async function handleStatusChange(event) {
         const selectElement = event.target;
@@ -156,24 +156,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderServices(services) {
-        servicesTbody.innerHTML = '';
-        if (services.length === 0) { servicesTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد خدمات مضافة.</td></tr>'; return; }
-        services.forEach(service => {
-            const row = document.createElement('tr');
-            row.dataset.service = JSON.stringify(service);
-            row.innerHTML = `
-                <td>${service.platform}</td>
-                <td>${service.name}</td>
-                <td>${service.pricePer1000.toFixed(2)} $</td>
-                <td>${service.min.toLocaleString()} / ${service.max.toLocaleString()}</td>
-                <td>${service.step || 1}</td>
-                <td class="action-buttons"><button class="edit-btn"><i class="ph-bold ph-pencil-simple"></i></button><button class="delete-btn"><i class="ph-bold ph-trash"></i></button></td>
-            `;
-            servicesTbody.appendChild(row);
-        });
-        document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', handleDeleteService));
-        document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', handleOpenEditPopup));
-    }
+    servicesTbody.innerHTML = '';
+    if (services.length === 0) { servicesTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد خدمات مضافة.</td></tr>'; return; }
+    services.forEach(service => {
+        const row = document.createElement('tr');
+        row.dataset.service = JSON.stringify(service);
+        row.innerHTML = `
+            <td data-label="المنصة">${service.platform}</td>
+            <td data-label="الخدمة">${service.name}</td>
+            <td data-label="السعر/1000">${service.pricePer1000.toFixed(2)} $</td>
+            <td data-label="أدنى/أقصى حد">${service.min.toLocaleString()} / ${service.max.toLocaleString()}</td>
+            <td data-label="إجراءات" class="action-buttons"><button class="edit-btn"><i class="ph-bold ph-pencil-simple"></i></button><button class="delete-btn"><i class="ph-bold ph-trash"></i></button></td>
+        `;
+        servicesTbody.appendChild(row);
+    });
+    document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', handleDeleteService));
+    document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', handleOpenEditPopup));
+}
+
 
     addServiceForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -265,29 +265,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderDeposits(deposits) {
-        if (!depositsTbody) return;
-        depositsTbody.innerHTML = '';
-        if (deposits.length === 0) { depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات شحن حالياً.</td></tr>'; return; }
-        deposits.forEach(deposit => {
-            const row = document.createElement('tr');
-            row.dataset.depositId = deposit._id;
-            const statusClass = `status-${deposit.status}`;
-            const statusText = { pending: 'قيد المراجعة', approved: 'مقبول', rejected: 'مرفوض' }[deposit.status];
-            row.innerHTML = `
-                <td>${deposit.user ? deposit.user.username : 'مستخدم محذوف'}</td>
-                <td>${deposit.amount.toFixed(2)} $</td>
-                <td>${deposit.method}</td>
-                <td>${deposit.depositorName}</td>
-                <td><button onclick="viewReceipt('${deposit.receiptImage}')" class="pill-button-link">عرض الإيصال</button></td>
-                <td class="status ${statusClass}">${statusText}</td>
-                <td class="action-buttons">
-                    ${deposit.status === 'pending' ? `<button class="approve-btn pill-button primary-button">موافقة</button><button class="reject-btn pill-button danger-button">رفض</button>` : 'تمت المعالجة'}
-                </td>
-            `;
-            depositsTbody.appendChild(row);
-        });
-        document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => btn.addEventListener('click', handleDepositAction));
-    }
+    if (!depositsTbody) return;
+    depositsTbody.innerHTML = '';
+    if (deposits.length === 0) { depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات شحن حالياً.</td></tr>'; return; }
+    deposits.forEach(deposit => {
+        const row = document.createElement('tr');
+        row.dataset.depositId = deposit._id;
+        const statusClass = `status-${deposit.status}`;
+        const statusText = { pending: 'قيد المراجعة', approved: 'مقبول', rejected: 'مرفوض' }[deposit.status];
+        row.innerHTML = `
+            <td data-label="المستخدم">${deposit.user ? deposit.user.username : 'مستخدم محذوف'}</td>
+            <td data-label="المبلغ">${deposit.amount.toFixed(2)} $</td>
+            <td data-label="الطريقة">${deposit.method}</td>
+            <td data-label="اسم المودع">${deposit.depositorName}</td>
+            <td data-label="الإيصال"><button onclick="viewReceipt('${deposit.receiptImage}')" class="pill-button-link">عرض الإيصال</button></td>
+            <td data-label="الحالة"><span class="status ${statusClass}">${statusText}</span></td>
+            <td data-label="إجراءات" class="action-buttons">
+                ${deposit.status === 'pending' ? `<button class="approve-btn pill-button primary-button">موافقة</button><button class="reject-btn pill-button danger-button">رفض</button>` : 'تمت المعالجة'}
+            </td>
+        `;
+        depositsTbody.appendChild(row);
+    });
+    document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => btn.addEventListener('click', handleDepositAction));
+}
+
 
     async function handleDepositAction(event) {
         const btn = event.currentTarget;
