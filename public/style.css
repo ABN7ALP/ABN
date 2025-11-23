@@ -408,3 +408,118 @@ html[dir="rtl"] .select-wrapper::after {
 /* ===================================================================
    END PATCH
    =================================================================== */
+
+/* ======= Admin fixes patch (paste at END of style.css) ======= */
+
+/* 1) Login overlay / form spacing — يمنع اللزق على اليمين/اليسار */
+.popup-overlay .popup-content {
+    padding: 1.25rem;
+    max-width: 520px;
+    margin: 1.5rem auto;
+    box-sizing: border-box;
+}
+
+/* inputs/buttons داخل البوب أب ما يلتصقوا */
+.popup-overlay .form-group { margin-bottom: 0.8rem; }
+.popup-overlay .form-group label { display:block; margin-bottom:0.25rem; font-weight:600; }
+.popup-overlay input[type="password"], .popup-overlay input[type="text"], .popup-overlay input[type="number"], .popup-overlay .pill-button {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* زر الدخول منفصل ومسافة من الحواف */
+.popup-overlay .pill-button.primary-button {
+    margin-top: 0.6rem;
+    padding: 0.6rem 1rem;
+}
+
+/* 2) General table / desktop spacing fixes — يمنع التراكم على الكمبيوتر */
+.table-container { overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; }
+.table-container table { width: 100%; border-collapse: collapse; table-layout: auto; min-width: 720px; }
+
+/* اضف مسافات بين الخلايا لتخفيف الاكتظاظ */
+.table-container th, .table-container td {
+    padding: 0.6rem 0.9rem;
+    vertical-align: middle;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* السماح للكلمات بالانكسار بدل التداخل */
+.table-container td { white-space: normal; word-break: break-word; }
+
+/* تباعد صفوف أكتر */
+.table-container tbody tr { height: auto; }
+
+/* 3) Status select: make arrow visible & pill-like, keep RTL padding */
+.status-select-wrapper { display:inline-block; position:relative; min-width:160px; max-width:220px; }
+.status-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding: 0.45rem 2.4rem 0.45rem 0.9rem; /* leave room for caret on left (RTL) */
+    border-radius: 20px;
+    border: 1px solid rgba(0,0,0,0.08);
+    background-color: #fff;
+    box-shadow: none;
+    font-weight:600;
+    cursor: pointer;
+    text-align: right;
+}
+
+/* caret (arrow) for RTL (placed on left side visually) using SVG data URI */
+.status-select-wrapper::after {
+    content: "";
+    position: absolute;
+    left: 10px; /* left because dir=rtl — shows caret on left inside box */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-size: 14px 14px;
+    pointer-events: none;
+}
+
+/* small fix when select is disabled/processing */
+.status-select[disabled] { opacity:0.7; cursor:progress; }
+
+/* 4) Orders: move status visually nearer info (compact) but not overlapping */
+#orders-table td[data-label="الحالة"] { min-width: 180px; }
+
+/* If you want status to look like a tag instead of select on small screens */
+@media (max-width: 600px) {
+    .status-select { padding: 0.5rem 1rem; min-width: 140px; font-size: 0.95rem; }
+}
+
+/* 5) Deposits action buttons spacing */
+.action-buttons .pill-button { margin-left: 0.5rem; margin-right: 0; padding: 0.45rem 0.7rem; border-radius: 14px; min-height: 36px; }
+
+/* 6) Services action buttons — make icons + text aligned and not cramped */
+.action-buttons button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.42rem 0.7rem;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.06);
+    background: #fff;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.action-buttons button .ph-bold { font-size: 1rem; }
+
+/* hover states */
+.action-buttons button:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,0.06); }
+
+/* 7) Make sure services table columns don't shift: force consistent min-widths */
+#services-table th:nth-child(1), #services-table td:nth-child(1) { min-width: 120px; }
+#services-table th:nth-child(2), #services-table td:nth-child(2) { min-width: 140px; }
+#services-table th:nth-child(3), #services-table td:nth-child(3) { min-width: 110px; text-align: right; }
+#services-table th:nth-child(4), #services-table td:nth-child(4) { min-width: 160px; }
+#services-table th:nth-child(5), #services-table td:nth-child(5) { min-width: 80px; text-align: center; }
+#services-table th:nth-child(6), #services-table td:nth-child(6) { min-width: 140px; text-align: center; }
+
+/* 8) small visual polish */
+.pill-button-link { background: transparent; border: none; text-decoration: underline; padding: 0.25rem 0.4rem; cursor: pointer; }
