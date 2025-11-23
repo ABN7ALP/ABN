@@ -157,21 +157,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderServices(services) {
     servicesTbody.innerHTML = '';
-    if (services.length === 0) { servicesTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد خدمات مضافة.</td></tr>'; return; }
+    if (!Array.isArray(services) || services.length === 0) {
+        servicesTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد خدمات مضافة.</td></tr>';
+        return;
+    }
+
     services.forEach(service => {
         const row = document.createElement('tr');
+        // store the full service object for later actions
         row.dataset.service = JSON.stringify(service);
+
+        // ensure fields exist and have safe defaults
+        const platform = service.platform || 'غير محدد';
+        const name = service.name || 'اسم غير معروف';
+        const price = (typeof service.pricePer1000 === 'number') ? service.pricePer1000.toFixed(2) : (service.pricePer1000 || '0.00');
+        const min = service.min ? service.min.toLocaleString() : '-';
+        const max = service.max ? service.max.toLocaleString() : '-';
+        const step = service.step || service.step === 0 ? service.step : (service.multiple || 1);
+
         row.innerHTML = `
-            <td data-label="المنصة">${service.platform}</td>
-            <td data-label="الخدمة">${service.name}</td>
-            <td data-label="السعر/1000">${service.pricePer1000.toFixed(2)} $</td>
-            <td data-label="أدنى/أقصى حد">${service.min.toLocaleString()} / ${service.max.toLocaleString()}</td>
-            <td data-label="إجراءات" class="action-buttons"><button class="edit-btn"><i class="ph-bold ph-pencil-simple"></i></button><button class="delete-btn"><i class="ph-bold ph-trash"></i></button></td>
+            <td data-label="المنصة">${platform}</td>
+            <td data-label="الخدمة">${name}</td>
+            <td data-label="السعر/1000">${price} $</td>
+            <td data-label="أدنى/أقصى حد">${min} / ${max}</td>
+            <td data-label="الخطوة">${step}</td>
+            <td data-label="إجراءات" class="action-buttons">
+                <button class="edit-btn pill-button" title="تعديل"><i class="ph-bold ph-pencil-simple"></i><span class="sr-only">تعديل</span></button>
+                <button class="delete-btn pill-button" title="حذف"><i class="ph-bold ph-trash"></i><span class="sr-only">حذف</span></button>
+            </td>
         `;
         servicesTbody.appendChild(row);
     });
-    document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', handleDeleteService));
-    document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', handleOpenEditPopup));
+
+    // Attach handlers (re-bind safely: remove previous listeners if any)
+    // Simple approach: query and add listeners (listeners are lightweight here)
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.removeEventListener('click', handleDeleteService);
+        btn.addEventListener('click', handleDeleteService);
+    });
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.removeEventListener('click', handleOpenEditPopup);
+        btn.addEventListener('click', handleOpenEditPopup);
+    });
 }
 
 
