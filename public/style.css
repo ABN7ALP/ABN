@@ -1,1174 +1,7 @@
-/* --- 1. Global Settings & Variables --- */
-:root {
-    --purple-main: #7C1EFF;
-    --yellow-accent: #FFC107;
-    --white-pure: #FFFFFF;
-    --gray-light: #F5F5F5;
-    --text-dark: #1a1a1a;
-    --text-light: #6c757d;
-    --danger-red: #dc3545;
-    --success-green: #198754;
-
-    --font-main: 'Cairo', sans-serif;
-    
-    --radius-card: 20px;
-    --radius-popup: 25px;
-    --radius-button: 50px;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: var(--font-main);
-    background-color: var(--gray-light);
-    color: var(--text-dark);
-    line-height: 1.6;
-    position: relative;
-    min-height: 100vh;
-}
-
-.background-gradient {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 40vh;
-    background: linear-gradient(180deg, var(--purple-main) 0%, #a162f7 100%);
-    z-index: -1;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-}
-
-/* --- 2. Header --- */
-header {
-    text-align: center;
-    margin-bottom: 3rem;
-    color: var(--white-pure);
-}
-
-header h1 {
-    font-weight: 700;
-    font-size: 2.5rem;
-}
-
-header p {
-    font-weight: 400;
-    font-size: 1.1rem;
-    opacity: 0.9;
-}
-
-/* --- 3. Service Cards --- */
-.services-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-}
-
-.service-card {
-    background-color: var(--white-pure);
-    border-radius: var(--radius-card);
-    padding: 1.5rem;
-    text-align: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.service-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 20px rgba(124, 30, 255, 0.15);
-}
-
-.service-card .icon-wrapper {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-    background-color: var(--gray-light);
-}
-
-.service-card .icon-wrapper img {
-    width: 45px;
-    height: 45px;
-}
-
-.service-card h3 {
-    font-weight: 600;
-    font-size: 1.25rem;
-    margin-bottom: 0.5rem;
-}
-
-.service-card p {
-    color: var(--text-light);
-    font-size: 0.9rem;
-    margin-bottom: 1.5rem;
-}
-
-.pill-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    border: none;
-    border-radius: var(--radius-button);
-    padding: 0.75rem 1.5rem;
-    font-family: var(--font-main);
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-}
-
-.get-button {
-    background-color: var(--white-pure);
-    color: var(--purple-main);
-    border: 2px solid var(--gray-light);
-}
-
-.get-button:hover {
-    background-color: var(--gray-light);
-}
-
-/* --- 4. Popup (Order Form & Success Message) --- */
-.popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.popup-overlay:not(.hidden) {
-    opacity: 1;
-    visibility: visible;
-}
-
-.popup-content {
-    background-color: var(--white-pure);
-    border-radius: var(--radius-popup);
-    padding: 2rem;
-    width: 100%;
-    max-width: 500px;
-    position: relative;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    transform: scale(0.95);
-    transition: transform 0.3s ease;
-}
-
-.popup-overlay:not(.hidden) .popup-content {
-    transform: scale(1);
-}
-
-.close-btn {
-    position: absolute;
-    top: 1rem;
-    left: 1rem; /* Adjusted for RTL */
-    background: var(--gray-light);
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    color: var(--text-light);
-}
-
-.close-btn:hover {
-    background-color: #e0e0e0;
-}
-
-.popup-header {
-    text-align: center;
-    margin-bottom: 1.5rem;
-}
-
-.popup-header i {
-    font-size: 4rem;
-    color: var(--purple-main);
-}
-
-.popup-header h2 {
-    font-weight: 700;
-    font-size: 1.75rem;
-    margin-top: 0.5rem;
-}
-
-/* --- 5. Form Styles --- */
-.form-group {
-    margin-bottom: 1.25rem;
-}
-
-.form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.form-group input, .select-wrapper {
-    width: 100%;
-    background-color: var(--gray-light);
-    border: 2px solid transparent;
-    border-radius: 12px;
-    transition: border-color 0.3s ease;
-}
-
-.form-group input:focus, .select-wrapper:focus-within {
-    border-color: var(--purple-main);
-}
-
-.form-group input {
-    padding: 0.8rem 1rem;
-    font-family: var(--font-main);
-    font-size: 1rem;
-    outline: none;
-}
-
-.select-wrapper {
-    position: relative;
-}
-
-.select-wrapper::after {
-    content: '\25BC'; /* Down arrow */
-    position: absolute;
-    top: 50%;
-    left: 1rem; /* Adjusted for RTL */
-    transform: translateY(-50%);
-    color: var(--text-light);
-    pointer-events: none;
-}
-
-.form-group select {
-    width: 100%;
-    padding: 0.8rem 1rem;
-    font-family: var(--font-main);
-    font-size: 1rem;
-    border: none;
-    background: transparent;
-    outline: none;
-    appearance: none; /* Remove default arrow */
-    -webkit-appearance: none;
-    -moz-appearance: none;
-}
-
-.form-group small {
-    font-size: 0.85rem;
-    color: var(--text-light);
-    margin-top: 0.25rem;
-    display: block;
-}
-
-.error-message {
-    color: var(--danger-red);
-    font-size: 0.9em;
-    margin-top: 5px;
-}
-
-.price-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--gray-light);
-    padding: 1rem;
-    border-radius: 12px;
-    margin: 1.5rem 0;
-}
-
-.price-section p {
-    font-weight: 600;
-}
-
-.price-section span {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--yellow-accent);
-}
-
-.primary-button {
-    background-color: var(--purple-main);
-    color: var(--white-pure);
-    width: 100%;
-}
-
-.primary-button:hover {
-    background: #6a00e0;
-    box-shadow: 0 4px 15px rgba(124, 30, 255, 0.4);
-}
-
-.primary-button:disabled {
-    background-color: #c5a1ff;
-    cursor: not-allowed;
-}
-
-/* --- 6. Success Message --- */
-#success-message-container {
-    text-align: center;
-}
-
-.success-icon {
-    color: var(--success-green) !important;
-}
-
-.success-text {
-    font-size: 1.1rem;
-    color: var(--text-light);
-    margin-bottom: 1.5rem;
-}
-
-.secondary-button {
-    background-color: var(--yellow-accent);
-    color: var(--text-dark);
-}
-
-.secondary-button:hover {
-    background-color: #ffb300;
-    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
-}
-
-/* --- 7. Utility & Responsive --- */
-.hidden {
-    display: none !important;
-}
-
-.popup-overlay.hidden .popup-content {
-    transform: scale(0.9);
-}
-
-@media (max-width: 768px) {
-    header h1 {
-        font-size: 2rem;
-    }
-    .services-grid {
-        grid-template-columns: 1fr;
-    }
-}
-/* --- 8. Admin Panel Styles --- */
-.admin-body {
-    background-color: var(--gray-light);
-}
-
-.admin-body .background-gradient {
-    display: none; /* No gradient on admin page */
-}
-
-#login-overlay {
-    opacity: 1;
-    visibility: visible;
-}
-
-.admin-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.admin-header h1 {
-    color: var(--text-dark);
-    font-size: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.table-container {
-    background-color: var(--white-pure);
-    border-radius: var(--radius-card);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    overflow-x: auto; /* For responsiveness on small screens */
-    padding: 1rem;
-}
-
-#orders-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 800px; /* Ensure table has a minimum width */
-}
-
-#orders-table th, #orders-table td {
-    padding: 1rem;
-    text-align: right;
-    border-bottom: 1px solid var(--gray-light);
-}
-
-#orders-table th {
-    font-weight: 600;
-    color: var(--text-light);
-    font-size: 0.9rem;
-    text-transform: uppercase;
-}
-
-#orders-table td {
-    vertical-align: middle;
-}
-
-#orders-table td a {
-    color: var(--purple-main);
-    font-weight: 600;
-    text-decoration: none;
-}
-
-#orders-table td i {
-    font-size: 1.5rem;
-    vertical-align: middle;
-    margin-left: 0.5rem;
-}
-
-.status-select-wrapper {
-    border-radius: var(--radius-button);
-    padding: 0.2rem;
-}
-
-.status-select {
-    font-size: 0.9rem;
-    font-weight: 600;
-    padding: 0.4rem 0.6rem !important;
-}
-
-.loading-spinner {
-    text-align: center;
-    padding: 2rem;
-    font-size: 3rem;
-    color: var(--purple-main);
-}
-
-.animate-spin {
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-/* --- 9. Admin Panel Enhancements --- */
-.admin-main {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-.admin-section {
-    background-color: var(--white-pure);
-    padding: 1.5rem;
-    border-radius: var(--radius-card);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-.admin-section h2 {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
-}
-.admin-form .form-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-.divider {
-    border: none;
-    border-top: 1px solid var(--gray-light);
-    margin: 2rem 0;
-}
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-#service-form-response {
-    margin-top: 1rem;
-    font-weight: 600;
-}
-.delete-service-btn {
-    background: none;
-    border: none;
-    color: var(--danger-red);
-    cursor: pointer;
-    font-size: 1.2rem;
-}
-
-/* --- 10. Admin Dashboard Layout --- */
-.admin-dashboard {
-    display: flex;
-    min-height: 100vh;
-}
-
-.sidebar {
-    width: 250px;
-    background-color: var(--white-pure);
-    box-shadow: -2px 0 10px rgba(0,0,0,0.05);
-    display: flex;
-    flex-direction: column;
-    padding: 1.5rem 0;
-    transition: width 0.3s ease;
-}
-
-.sidebar-header {
-    padding: 0 1.5rem;
-    margin-bottom: 2rem;
-    font-size: 1.5rem;
-    font-weight: 700;
-}
-
-.sidebar-nav .nav-link {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.5rem;
-    color: var(--text-light);
-    text-decoration: none;
-    font-weight: 600;
-    border-right: 4px solid transparent;
-    transition: all 0.3s ease;
-}
-
-.sidebar-nav .nav-link:hover {
-    background-color: var(--gray-light);
-    color: var(--text-dark);
-}
-
-.sidebar-nav .nav-link.active {
-    color: var(--purple-main);
-    border-right-color: var(--purple-main);
-    background-color: #f0e8ff;
-}
-
-.sidebar-nav .nav-link i {
-    font-size: 1.5rem;
-}
-
-.logout-link {
-    margin-top: auto;
-}
-
-.main-content {
-    flex: 1;
-    padding: 2rem;
-    overflow-y: auto;
-}
-
-.admin-section {
-    display: none; /* Hide all sections by default */
-}
-
-.admin-section.active {
-    display: block; /* Show only the active section */
-}
-
-.action-buttons button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.2rem;
-    margin: 0 0.25rem;
-}
-.action-buttons .edit-btn { color: var(--purple-main); }
-.action-buttons .delete-btn { color: var(--danger-red); }
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .admin-dashboard { flex-direction: column; }
-    .sidebar { width: 100%; height: auto; flex-direction: row; align-items: center; justify-content: space-around; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-    .sidebar-header { display: none; }
-    .sidebar-nav { display: flex; width: 100%; justify-content: space-around; }
-    .sidebar-nav .nav-link { border-right: none; border-bottom: 4px solid transparent; padding: 1rem 0.5rem; }
-    .sidebar-nav .nav-link.active { border-bottom-color: var(--purple-main); }
-    .sidebar-nav .nav-link span { display: none; } /* Hide text on mobile */
-}
-
-/* --- 11. Statistics Cards --- */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
-}
-
-.stat-card {
-    background-color: var(--white-pure);
-    border-radius: var(--radius-card);
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-}
-
-.stat-card.loading {
-    min-height: 120px;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: loading-shimmer 1.5s infinite;
-}
-
-@keyframes loading-shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
-
-.stat-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.stat-icon i {
-    font-size: 2rem;
-}
-
-.stat-info p {
-    margin: 0 0 0.25rem 0;
-    color: var(--text-light);
-    font-size: 0.9rem;
-}
-
-.stat-info h3 {
-    margin: 0;
-    font-size: 2rem;
-    color: var(--text-dark);
-}
-
-/* --- 12. Auth Popups --- */
-.main-nav {
-    display: flex;
-    gap: 0.75rem;
-}
-
-.user-menu {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.user-menu span {
-    font-weight: 600;
-}
-
-.error-message {
-    color: var(--danger-color);
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
-    min-height: 1.2em; /* لمنع اهتزاز الواجهة */
-}
-
-.switch-form-text {
-    text-align: center;
-    margin-top: 1.5rem;
-    font-size: 0.9rem;
-    color: var(--text-light);
-}
-
-.switch-form-text a {
-    color: var(--primary-color);
-    font-weight: 600;
-    text-decoration: none;
-}
-
-.switch-form-text a:hover {
-    text-decoration: underline;
-}
-/* --- 13. Header Layout Fix --- */
-
-/* 
-  هذا الكود يضمن أن كل العناصر داخل الهيدر (الشعار + قائمة التنقل)
-  تكون على نفس السطر وتتباعد عن بعضها.
-*/
-.main-header .container {
-    display: flex;
-    justify-content: space-between; /* يضع الشعار في البداية والقائمة في النهاية */
-    align-items: center; /* يضمن أن تكون العناصر متوازية عمودياً */
-    width: 100%; /* يضمن أن الحاوية تأخذ العرض الكامل */
-}
-
-/* 
-  هذا الكود يضمن أن الأزرار داخل قائمة التنقل
-  تكون بجانب بعضها البعض.
-*/
-.main-nav {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem; /* مسافة بسيطة بين الأزرار */
-}
-
-/* 
-  هذا الكود يضمن أن رسالة الترحيب وزر الخروج
-  يكونان بجانب بعضهما البعض.
-*/
-.user-menu {
-    display: flex;
-    align-items: center;
-    gap: 1rem; /* مسافة بين اسم المستخدم وزر الخروج */
-}
-
-/* --- 14. Hero Section Spacing --- */
-
-/* 
-  هذا الكود يضيف مسافة فوق قسم "أفضل الخدمات الرقمية"
-  ليفصله عن الهيدر الذي أصبح فوقه الآن.
-*/
-.hero {
-    margin-top: 1rem; /* يمكنك تعديل هذه القيمة حسب رغبتك */
-    text-align: center; /* يضمن أن النص يبقى في المنتصف */
-    font-size: 0.9rem;
-}
-
-/* --- 15. Balance Display --- */
-.balance-display {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 0.4rem 0.8rem;
-    border-radius: var(--radius-pill);
-    color: var(--white-pure);
-    font-weight: 600;
-}
-
-.balance-display i {
-    font-size: 1.2rem;
-    color: var(--secondary-color); /* لون أصفر */
-}
-
-/* --- 16. Payment Options --- */
-.payment-instructions {
-    text-align: center;
-    margin: 1.5rem 0 1rem;
-    color: var(--text-light);
-}
-
-.payment-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.payment-buttons .pill-button {
-    width: 100%;
-    justify-content: center;
-}
-
-/* تعديل بسيط على زر الإرسال الأصلي */
-#order-form .pill-button {
-    width: 100%;
-    justify-content: center;
-}
-
-/* --- 17. Deposit Popup --- */
-.payment-method-selector {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.payment-method-btn {
-    flex: 1;
-    padding: 0.75rem;
-    border: 2px solid var(--border-color);
-    background-color: transparent;
-    color: var(--text-light);
-    border-radius: var(--radius-card);
-    cursor: pointer;
-    font-family: 'Cairo', sans-serif;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-.payment-method-btn.active,
-.payment-method-btn:hover {
-    background-color: var(--primary-color-light);
-    border-color: var(--primary-color);
-    color: var(--white-pure);
-}
-
-#payment-details-container {
-    background-color: var(--background-light);
-    padding: 1rem;
-    border-radius: var(--radius-card);
-    margin-bottom: 1.5rem;
-    text-align: center;
-}
-
-#payment-details-container p {
-    margin: 0.5rem 0;
-    font-weight: 600;
-}
-
-#payment-details-container span {
-    background-color: var(--background-dark);
-    padding: 0.25rem 0.75rem;
-    border-radius: var(--radius-pill);
-    font-family: monospace;
-    color: var(--secondary-color);
-    display: block;
-    margin-top: 0.5rem;
-}
-
-#payment-details-container img {
-    max-width: 200px;
-    margin: 1rem auto 0;
-    display: block;
-    border-radius: var(--radius-card);
-}
-
-#deposit-form .form-message {
-    text-align: center;
-    margin-top: 1rem;
-    font-weight: 600;
-}
-#deposit-form .form-message.success { color: var(--success-color); }
-#deposit-form .form-message.error { color: var(--danger-color); }
-
-/* --- 18. User Dropdown Menu --- */
-.user-dropdown {
-    position: relative;
-}
-
-.user-dropdown-toggle {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-pill);
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.user-dropdown-toggle:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-}
-
-.user-dropdown-toggle .ph-user-circle {
-    font-size: 1.5rem;
-}
-
-.user-dropdown-menu {
-    position: absolute;
-    left: 0;
-    top: calc(100% + 10px);
-    background-color: var(--white-pure);
-    color: var(--text-dark);
-    border-radius: var(--radius-card);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    width: 250px;
-    padding: 0.5rem;
-    z-index: 100;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(10px);
-    transition: all 0.2s ease-out;
-}
-
-.user-dropdown.active .user-dropdown-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-
-.user-dropdown-header {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--border-color);
-    margin-bottom: 0.5rem;
-}
-
-.user-dropdown-header h4 {
-    margin: 0;
-    font-size: 1rem;
-}
-
-.user-dropdown-header .balance-display {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    color: var(--text-light);
-    margin-top: 0.25rem;
-}
-
-.user-dropdown-menu a,
-.user-dropdown-menu button {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius-soft);
-    background: none;
-    border: none;
-    text-align: right;
-    font-family: 'Cairo', sans-serif;
-    font-size: 1rem;
-    cursor: pointer;
-    color: var(--text-dark);
-    text-decoration: none;
-}
-
-.user-dropdown-menu a:hover,
-.user-dropdown-menu button:hover {
-    background-color: var(--background-light);
-}
-
-.user-dropdown-menu .logout-link {
-    color: var(--danger-color);
-}
-
-/* --- 19. Improved Payment Method Buttons --- */
-.payment-method-selector {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.payment-method-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 1rem;
-    border: 2px solid var(--border-color);
-    background-color: var(--background-light);
-    color: var(--text-dark);
-    border-radius: var(--radius-card);
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-.payment-method-btn i {
-    font-size: 2rem;
-    color: var(--primary-color);
-}
-
-.payment-method-btn.active,
-.payment-method-btn:hover {
-    border-color: var(--primary-color);
-    background-color: var(--primary-color-light);
-    color: var(--white-pure);
-}
-
-.payment-method-btn.active i,
-.payment-method-btn:hover i {
-    color: var(--white-pure);
-}
-
-/* --- 20. Scrollable & Responsive Popup --- */
-.popup-content {
-    display: flex;
-    flex-direction: column;
-    max-height: 90vh; /* تحديد أقصى ارتفاع للنافذة */
-}
-
-/* اجعل رأس النافذة ثابتاً */
-.popup-content .popup-header {
-    flex-shrink: 0;
-}
-
-/* اجعل نموذج الإيداع يأخذ المساحة المتبقية ويكون قابلاً للتمرير */
-#deposit-form {
-    flex-grow: 1;
-    overflow-y: auto; /* الأهم: إضافة التمرير العمودي */
-    padding: 1rem 1.5rem; /* إضافة مساحة داخلية للمحتوى القابل للتمرير */
-    display: flex;
-    flex-direction: column;
-}
-
-/* اجعل زر الإرسال ثابتاً في الأسفل */
-#deposit-form button[type="submit"] {
-    margin-top: auto; /* يدفع الزر إلى الأسفل */
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-    position: sticky;
-    bottom: 0;
-    background-color: var(--white-pure); /* خلفية لضمان عدم تداخل المحتوى */
-    border-top: 1px solid var(--border-color);
-}
-
-/* --- FINAL: Responsive Design (Media Queries) --- */
-
-/* For Tablets and smaller devices */
-@media (max-width: 768px) {
-    .hero h1 {
-        font-size: 2rem;
-    }
-
-    .services-grid {
-        grid-template-columns: 1fr; /* Stack cards on mobile */
-    }
-
-    /* --- Admin Dashboard Responsive --- */
-    .admin-dashboard {
-        flex-direction: column;
-    }
-
-    .sidebar {
-        width: 100%;
-        height: auto;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-around;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        padding: 0;
-    }
-
-    .sidebar-header {
-        display: none;
-    }
-
-    .sidebar-nav {
-        display: flex;
-        flex-direction: row;
-        width: 100%;
-        justify-content: space-around;
-    }
-
-    .sidebar-nav .nav-link {
-        border-right: none;
-        border-bottom: 4px solid transparent;
-        padding: 1rem 0.5rem;
-        justify-content: center;
-    }
-
-    .sidebar-nav .nav-link.active {
-        border-bottom-color: var(--purple-main);
-        border-right-color: transparent;
-    }
-
-    .sidebar-nav .nav-link span {
-        display: none; /* Hide text, show only icons */
-    }
-    
-    .main-content {
-        padding: 1rem;
-    }
-
-    /* --- The Magic: Responsive Tables --- */
-    .table-container table, 
-    .table-container thead, 
-    .table-container tbody, 
-    .table-container th, 
-    .table-container td, 
-    .table-container tr {
-        display: block;
-    }
-
-    .table-container thead tr {
-        position: absolute;
-        top: -9999px;
-        left: -9999px;
-    }
-
-    .table-container tr {
-        border: 1px solid #e0e0e0;
-        border-radius: var(--radius-card);
-        margin-bottom: 1rem;
-        background: var(--white-pure);
-        padding: 0.5rem;
-    }
-
-    .table-container td {
-        border: none;
-        border-bottom: 1px solid #f0f0f0;
-        position: relative;
-        padding-left: 50%; /* Make space for the label */
-        text-align: left; /* Align content to the left */
-        padding-right: 1rem;
-        min-height: 44px; /* Ensure cells have a minimum height */
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-    }
-
-    .table-container td:last-child {
-        border-bottom: none;
-    }
-
-    .table-container td:before {
-        content: attr(data-label); /* Use the data-label attribute */
-        position: absolute;
-        top: 50%;
-        left: auto;
-        right: 1rem; /* Position label on the right */
-        transform: translateY(-50%);
-        width: 45%;
-        padding-left: 10px;
-        white-space: nowrap;
-        font-weight: 600;
-        text-align: right; /* Align label text to the right */
-        color: var(--text-dark);
-    }
-    
-    /* Specific adjustments for status and actions */
-    .table-container td .status,
-    .table-container td .select-wrapper {
-        margin-left: 0;
-    }
-    
-    .table-container td.action-buttons {
-        justify-content: flex-end;
-        gap: 10px;
-    }
-}
-
-/* For smaller mobile phones */
-@media (max-width: 480px) {
-    .container {
-        padding: 1rem;
-    }
-
-    .popup-content {
-        padding: 1.5rem;
-    }
-
-    .payment-method-selector {
-        grid-template-columns: 1fr; /* Stack payment methods */
-    }
-    
-    .main-header .container {
-        flex-direction: column;
-        gap: 1rem;
-    }
-}
+/* ===================================================================
+   SMM STORE - MASTER STYLESHEET (v3.0 - Unified & Repaired)
+   Based on user's original code. All conflicts resolved.
+   =================================================================== */
 
 /* --- 1. Global Settings & Variables --- */
 :root {
@@ -1225,17 +58,12 @@ body {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1rem; /* تعديل بسيط للـ padding */
+    padding: 0 1rem;
 }
 
-/* --- 2. Header & Hero --- */
+/* --- 2. Header & User Navigation --- */
 .main-header {
     padding: 1rem 0;
-    position: sticky;
-    top: 0;
-    background: var(--purple-main);
-    z-index: 999;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .main-header .container {
@@ -1251,6 +79,112 @@ body {
     text-decoration: none;
 }
 
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-dropdown {
+    position: relative;
+}
+
+.user-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-button);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: var(--white-pure);
+    font-weight: 600;
+}
+
+.user-dropdown-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.user-dropdown-toggle i {
+    font-size: 1.5rem;
+}
+
+.user-dropdown-menu {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 10px);
+    background-color: var(--white-pure);
+    color: var(--text-dark);
+    border-radius: var(--radius-card);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    width: 250px;
+    padding: 0.5rem;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.2s ease-out;
+}
+
+.user-dropdown.active .user-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.user-dropdown-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--gray-border);
+    margin-bottom: 0.5rem;
+}
+
+.user-dropdown-header h4 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.user-dropdown-header .balance-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-top: 0.25rem;
+}
+
+.user-dropdown-header .balance-display i {
+    color: var(--yellow-accent);
+}
+
+.user-dropdown-menu a,
+.user-dropdown-menu button {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-soft);
+    background: none;
+    border: none;
+    text-align: right;
+    font-family: var(--font-main);
+    font-size: 1rem;
+    cursor: pointer;
+    color: var(--text-dark);
+    text-decoration: none;
+}
+
+.user-dropdown-menu a:hover,
+.user-dropdown-menu button:hover {
+    background-color: var(--gray-light);
+}
+
+.user-dropdown-menu .logout-link {
+    color: var(--danger-red);
+}
+
+/* --- 3. Hero Section & Service Cards --- */
 .hero {
     text-align: center;
     padding: 3rem 1rem;
@@ -1271,7 +205,6 @@ body {
     margin: 0 auto;
 }
 
-/* --- 3. Service Cards --- */
 .services-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -1398,7 +331,7 @@ body {
     font-family: var(--font-main);
 }
 
-/* --- 5. Popups --- */
+/* --- 5. Popups (Modals) --- */
 .popup-overlay {
     position: fixed;
     top: 0;
@@ -1478,7 +411,13 @@ body {
     margin-top: 0.5rem;
 }
 
-/* --- 6. Forms --- */
+/* --- 6. Forms & Input Fields --- */
+#order-form, #login-form-popup, #register-form-popup, #deposit-form, #edit-service-form {
+    padding: 0 2rem 2rem;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
 .form-group {
     margin-bottom: 1.25rem;
 }
@@ -1561,24 +500,13 @@ body {
 
 .price-section p {
     font-weight: 600;
+    margin: 0;
 }
 
 .price-section span {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--yellow-accent);
-}
-
-/* --- 7. Auth & Deposit Popups --- */
-#order-form, #login-form-popup, #register-form-popup, #deposit-form {
-    padding: 0 2rem 2rem;
-    overflow-y: auto;
-    flex-grow: 1;
-}
-
-#deposit-form button[type="submit"] {
-    margin-top: auto;
-    padding-top: 1rem;
 }
 
 .switch-form-text {
@@ -1594,16 +522,11 @@ body {
     text-decoration: none;
 }
 
+/* --- 7. Deposit & Payment --- */
 .payment-instructions {
     text-align: center;
     margin: 1.5rem 0 1rem;
     color: var(--text-light);
-}
-
-.payment-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
 }
 
 .payment-method-selector {
@@ -1656,80 +579,15 @@ body {
 .form-message.success { color: var(--success-green); }
 .form-message.error { color: var(--danger-red); }
 
-/* --- 8. User Dropdown Menu --- */
-.main-nav { display: flex; gap: 0.75rem; }
-.user-dropdown { position: relative; }
-
-.user-dropdown-toggle {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-button);
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    color: var(--white-pure);
-    font-weight: 600;
+#payment-options-container {
+    padding: 0 2rem 2rem;
 }
 
-.user-dropdown-toggle:hover { background-color: rgba(255, 255, 255, 0.2); }
-.user-dropdown-toggle .ph-user-circle { font-size: 1.5rem; }
-
-.user-dropdown-menu {
-    position: absolute;
-    left: 0;
-    top: calc(100% + 10px);
-    background-color: var(--white-pure);
-    color: var(--text-dark);
-    border-radius: var(--radius-card);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    width: 250px;
-    padding: 0.5rem;
-    z-index: 100;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(10px);
-    transition: all 0.2s ease-out;
+#payment-options-container .pill-button {
+    margin-bottom: 0.75rem;
 }
 
-.user-dropdown.active .user-dropdown-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-
-.user-dropdown-header {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--gray-border);
-    margin-bottom: 0.5rem;
-}
-
-.user-dropdown-header h4 { margin: 0; font-size: 1rem; }
-.user-dropdown-header .balance-display { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--text-light); margin-top: 0.25rem; }
-.user-dropdown-header .balance-display i { color: var(--yellow-accent); }
-
-.user-dropdown-menu a, .user-dropdown-menu button {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius-soft);
-    background: none;
-    border: none;
-    text-align: right;
-    font-family: var(--font-main);
-    font-size: 1rem;
-    cursor: pointer;
-    color: var(--text-dark);
-    text-decoration: none;
-}
-
-.user-dropdown-menu a:hover, .user-dropdown-menu button:hover { background-color: var(--gray-light); }
-.user-dropdown-menu .logout-link { color: var(--danger-red); }
-
-/* --- 9. Admin & My Orders Layout --- */
+/* --- 8. Admin Panel & My Orders --- */
 .admin-body { background-color: var(--gray-light); }
 .admin-body .background-gradient { display: none; }
 #login-overlay { opacity: 1; visibility: visible; }
@@ -1753,49 +611,7 @@ body {
 .admin-form .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
 .divider { border: none; border-top: 1px solid var(--gray-border); margin: 2rem 0; }
 
-/* --- 10. Tables & Cards (Responsive) --- */
-.table-container {
-    background-color: var(--white-pure);
-    border-radius: var(--radius-card);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    padding: 1rem;
-}
-
-.responsive-table { width: 100%; border-collapse: collapse; }
-.responsive-table thead { display: none; } /* إخفاء رأس الجدول الافتراضي */
-.responsive-table tr { display: block; background-color: var(--white-pure); border-radius: var(--radius-card); box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 1.5rem; padding: 1rem; }
-.responsive-table td { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--gray-border); }
-.responsive-table td:last-child { border-bottom: none; }
-
-.responsive-table td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: var(--text-dark);
-}
-
-.responsive-table td a { color: var(--purple-main); font-weight: 600; text-decoration: none; }
-.responsive-table td i { font-size: 1.5rem; vertical-align: middle; margin-left: 0.5rem; }
-
-.status { font-weight: 600; padding: 0.25rem 0.75rem; border-radius: var(--radius-button); }
-.status-pending, .status-قيد-المراجعة { background-color: #fff3cd; color: #664d03; }
-.status-approved, .status-مكتمل { background-color: #d1e7dd; color: #0f5132; }
-.status-rejected, .status-ملغي { background-color: #f8d7da; color: #842029; }
-.status-قيد-التنفيذ { background-color: #cff4fc; color: #055160; }
-
-.action-buttons { display: flex; gap: 0.5rem; justify-content: flex-end; }
-.action-buttons .pill-button-icon { background: var(--gray-light); border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; position: relative; }
-.action-buttons .pill-button-icon:hover::after { content: attr(data-tooltip); position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); background-color: var(--text-dark); color: var(--white-pure); padding: 0.3rem 0.6rem; border-radius: var(--radius-soft); font-size: 0.8rem; white-space: nowrap; }
-.action-buttons .approve-btn i { color: var(--success-green); }
-.action-buttons .reject-btn i { color: var(--danger-red); }
-
-.status-select-wrapper { border-radius: var(--radius-button); padding: 0.2rem; background-color: var(--gray-light); }
-.status-select { font-size: 0.9rem; font-weight: 600; padding: 0.4rem 0.6rem !important; }
-
-.loading-spinner { text-align: center; padding: 2rem; font-size: 3rem; color: var(--purple-main); }
-.animate-spin { animation: spin 1s linear infinite; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-/* --- 11. Statistics Cards --- */
+/* --- 9. Statistics Cards --- */
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
 .stat-card { background-color: var(--white-pure); border-radius: var(--radius-card); padding: 1.5rem; display: flex; align-items: center; gap: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 .stat-card.loading { min-height: 120px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: loading-shimmer 1.5s infinite; }
@@ -1805,32 +621,146 @@ body {
 .stat-info p { margin: 0 0 0.25rem 0; color: var(--text-light); font-size: 0.9rem; }
 .stat-info h3 { margin: 0; font-size: 2rem; color: var(--text-dark); }
 
-/* --- 12. Final Responsive Polish --- */
+/* --- 10. Tables --- */
+.table-container {
+    background-color: var(--white-pure);
+    border-radius: var(--radius-card);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 1rem;
+    overflow-x: auto;
+}
+
+.responsive-table { width: 100%; border-collapse: collapse; }
+.responsive-table th, .responsive-table td { padding: 1rem; text-align: right; border-bottom: 1px solid var(--gray-border); vertical-align: middle; }
+.responsive-table th { font-weight: 600; color: var(--text-light); font-size: 0.9rem; text-transform: uppercase; }
+.responsive-table td a { color: var(--purple-main); font-weight: 600; text-decoration: none; }
+.responsive-table td i { font-size: 1.5rem; vertical-align: middle; margin-left: 0.5rem; }
+
+.status { font-weight: 600; padding: 0.25rem 0.75rem; border-radius: var(--radius-button); font-size: 0.85rem; }
+.status-pending, .status-قيد-المراجعة { background-color: #fff3cd; color: #664d03; }
+.status-approved, .status-مكتمل { background-color: #d1e7dd; color: #0f5132; }
+.status-rejected, .status-ملغي { background-color: #f8d7da; color: #842029; }
+.status-قيد-التنفيذ { background-color: #cff4fc; color: #055160; }
+
+.action-buttons { display: flex; gap: 0.5rem; justify-content: flex-end; }
+.action-buttons button { background: var(--gray-light); border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+.action-buttons .edit-btn i { color: var(--success-green); }
+.action-buttons .delete-btn i { color: var(--danger-red); }
+
+.status-select-wrapper { border-radius: var(--radius-button); padding: 0.2rem; background-color: var(--gray-light); }
+.status-select { font-size: 0.9rem; font-weight: 600; padding: 0.4rem 0.6rem !important; }
+
+.loading-spinner { text-align: center; padding: 2rem; font-size: 3rem; color: var(--purple-main); }
+.animate-spin { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* ===================================================================
+   --- 11. RESPONSIVE DESIGN (MOBILE) ---
+   This is the unified and corrected section for mobile devices.
+   =================================================================== */
 @media (max-width: 768px) {
     .hero h1 { font-size: 2.2rem; }
     .hero p { font-size: 1rem; }
     .services-grid { grid-template-columns: 1fr; }
-    .main-content { padding: 1.5rem; }
+    .main-content { padding: 1.5rem; padding-bottom: 80px; }
+
+    /* Admin Dashboard: Sidebar becomes Bottom Nav */
     .admin-dashboard { flex-direction: column; }
-    .sidebar { width: 100%; height: auto; flex-direction: row; align-items: center; justify-content: space-around; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 0; order: 1; position: fixed; bottom: 0; left: 0; right: 0; background: var(--white-pure); z-index: 1000; }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        padding: 0;
+        order: 1; /* Move to bottom */
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--white-pure);
+        z-index: 1000;
+    }
     .sidebar-header { display: none; }
     .sidebar-nav { display: flex; width: 100%; justify-content: space-around; }
-    .sidebar-nav .nav-link { border-left: none; border-top: 4px solid transparent; padding: 0.75rem 0.5rem; flex-direction: column; gap: 0.25rem; }
-    .sidebar-nav .nav-link.active { border-top-color: var(--purple-main); background: none; }
-    .sidebar-nav .nav-link span { font-size: 0.7rem; }
-    .main-content { padding-bottom: 80px; } /* لإعطاء مساحة للشريط السفلي */
-    
-    /* تعديل القائمة المنسدلة على الموبايل */
-    .user-dropdown-menu {
-        left: auto;
-        right: 0; /* تظهر على اليمين */
+    .sidebar-nav .nav-link {
+        border-left: none;
+        border-top: 4px solid transparent;
+        border-bottom: none; /* Remove conflicting border */
+        padding: 0.75rem 0.5rem;
+        flex-direction: column;
+        gap: 0.25rem;
+        justify-content: center;
     }
-}
+    .sidebar-nav .nav-link.active {
+        border-top-color: var(--purple-main);
+        border-left-color: transparent; /* Remove conflicting border */
+        background: none;
+    }
+    .sidebar-nav .nav-link span {
+        font-size: 0.7rem;
+        display: block; /* Ensure text is always visible */
+    }
+    
+    /* Responsive Tables: The Magic */
+    .table-container table, 
+    .table-container thead, 
+    .table-container tbody, 
+    .table-container th, 
+    .table-container td, 
+    .table-container tr {
+        display: block;
+    }
 
-/* Fallback for desktop if responsive table is not desired */
-@media (min-width: 769px) {
-    .responsive-table thead { display: table-header-group; }
-    .responsive-table tr { display: table-row; background: none; box-shadow: none; border-radius: 0; padding: 0; margin: 0; }
-    .responsive-table td { display: table-cell; border-bottom: 1px solid var(--gray-border); }
-    .responsive-table td::before { display: none; }
-}
+    .table-container thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    .table-container tr {
+        border: 1px solid #e0e0e0;
+        border-radius: var(--radius-card);
+        margin-bottom: 1rem;
+        background: var(--white-pure);
+        padding: 0.5rem;
+    }
+
+    .table-container td {
+        border: none;
+        border-bottom: 1px solid #f0f0f0;
+        position: relative;
+        padding-left: 50%;
+        text-align: left;
+        padding-right: 1rem;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .table-container td:last-child {
+        border-bottom: none;
+    }
+
+    .table-container td:before {
+        content: attr(data-label);
+        position: absolute;
+        top: 50%;
+        left: auto;
+        right: 1rem;
+        transform: translateY(-50%);
+        width: 45%;
+        padding-left: 10px;
+        white-space: nowrap;
+        font-weight: 600;
+        text-align: right;
+        color: var(--text-dark);
+    }
+    
+    /* Specific adjustments for status and actions */
+    .table-container td .status,
+    .table-container td .select-wrapper {
+        margin-left: 0;
+    }
