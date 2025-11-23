@@ -1,9 +1,6 @@
 /* ===================================================================
-   SMM STORE - MASTER STYLESHEET (v5.0 - The Polishing Update)
-   - Fixes payment options popup alignment.
-   - Centers success message content.
-   - Centers hero section text on all devices.
-   - Improves admin form input visibility.
+   SMM STORE - MASTER STYLESHEET (v6.0 - The Final Masterpiece)
+   - Polishes all remaining UI elements based on final feedback.
    =================================================================== */
 
 /* --- 1. Global Settings & Variables --- */
@@ -27,53 +24,23 @@
     --radius-soft: 12px;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; overflow-x: hidden; width: 100%; }
+body { font-family: var(--font-main); background-color: var(--gray-light); color: var(--text-dark); line-height: 1.6; position: relative; min-height: 100vh; width: 100%; overflow-x: hidden; }
+.background-gradient { position: absolute; top: 0; left: 0; right: 0; height: 45vh; background: linear-gradient(180deg, var(--purple-main) 0%, #a162f7 100%); z-index: -1; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+.hidden { display: none !important; }
 
-html {
-    scroll-behavior: smooth;
-    overflow-x: hidden;
-    width: 100%;
-}
-
-body {
-    font-family: var(--font-main);
-    background-color: var(--gray-light);
-    color: var(--text-dark);
-    line-height: 1.6;
-    position: relative;
-    min-height: 100vh;
-    width: 100%;
-    overflow-x: hidden;
-}
-
-.background-gradient {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 40vh;
-    background: linear-gradient(180deg, var(--purple-main) 0%, #a162f7 100%);
-    z-index: -1;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
-}
-
-.hidden {
-    display: none !important;
-}
-
-/* --- 2. Header & User Navigation --- */
+/* --- 2. Header & Hero Section --- */
 .main-header { padding: 1rem 0; }
 .main-header .container { display: flex; justify-content: space-between; align-items: center; }
 .logo { font-weight: 700; font-size: 1.5rem; color: var(--white-pure); text-decoration: none; }
+/* ** FIX **: Polished Hero Section */
+.hero { text-align: center; padding: 2rem 1rem 4rem; color: var(--white-pure); }
+.hero h1 { font-weight: 700; font-size: 2.5rem; margin-bottom: 0.75rem; }
+.hero p { font-weight: 400; font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+/* --- 3. User Navigation --- */
 .main-nav { display: flex; align-items: center; gap: 0.75rem; }
 .user-dropdown { position: relative; }
 .user-dropdown-toggle { display: flex; align-items: center; gap: 0.5rem; background-color: rgba(255, 255, 255, 0.1); padding: 0.5rem 1rem; border-radius: var(--radius-button); cursor: pointer; transition: background-color 0.2s ease; color: var(--white-pure); font-weight: 600; }
@@ -89,11 +56,7 @@ body {
 .user-dropdown-menu a:hover, .user-dropdown-menu button:hover { background-color: var(--gray-light); }
 .user-dropdown-menu .logout-link { color: var(--danger-red); }
 
-/* --- 3. Hero Section & Service Cards --- */
-/* ** FIX **: Enforce center alignment for hero text */
-.hero { text-align: center; padding: 3rem 1rem; color: var(--white-pure); }
-.hero h1 { font-weight: 700; font-size: 2.8rem; margin-bottom: 0.5rem; }
-.hero p { font-weight: 400; font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+/* --- 4. Service Cards & Buttons --- */
 .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; padding: 2rem 0; }
 .service-card { background-color: var(--white-pure); border-radius: var(--radius-card); padding: 1.5rem; text-align: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
 .service-card:hover { transform: translateY(-8px); box-shadow: 0 8px 20px rgba(124, 30, 255, 0.15); }
@@ -101,8 +64,6 @@ body {
 .service-card .icon-wrapper img { width: 45px; height: 45px; object-fit: contain; }
 .service-card h3 { font-weight: 600; font-size: 1.25rem; margin-bottom: 0.5rem; }
 .service-card p { color: var(--text-light); font-size: 0.9rem; margin-bottom: 1.5rem; flex-grow: 1; }
-
-/* --- 4. Buttons --- */
 .pill-button { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border: none; border-radius: var(--radius-button); padding: 0.75rem 1.5rem; font-family: var(--font-main); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; text-decoration: none; white-space: nowrap; }
 .get-button { background-color: var(--white-pure); color: var(--purple-main); border: 2px solid var(--gray-border); }
 .get-button:hover { background-color: var(--gray-light); }
@@ -126,14 +87,14 @@ body {
 .popup-header h2 { font-weight: 700; font-size: 1.75rem; margin-top: 0.5rem; }
 
 /* --- 6. Forms & Input Fields --- */
-#order-form, #login-form-popup, #register-form-popup, #deposit-form, #edit-service-form { padding: 0 1.5rem 1.5rem; overflow-y: auto; flex-grow: 1; }
+/* ** FIX **: Robust form styling for all sections */
 .form-group { margin-bottom: 1.25rem; }
 .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; text-align: right; }
-.form-group input, .select-wrapper { width: 100%; background-color: var(--gray-light); border: 2px solid transparent; border-radius: var(--radius-soft); transition: border-color 0.3s ease; }
-.form-group input:focus, .select-wrapper:focus-within { border-color: var(--purple-main); }
+.form-group input, .select-wrapper { width: 100%; background-color: var(--gray-light); border: 2px solid var(--gray-border); border-radius: var(--radius-soft); transition: border-color 0.3s ease; }
+.form-group input:focus, .select-wrapper:focus-within { border-color: var(--purple-main); background-color: var(--white-pure); }
 .form-group input { padding: 0.8rem 1rem; font-family: var(--font-main); font-size: 1rem; outline: none; }
 .select-wrapper { position: relative; }
-.select-wrapper::after { content: '\25BC'; position: absolute; top: 50%; left: 1rem; transform: translateY(-50%); color: var(--text-light); pointer-events: none; }
+.select-wrapper::after { content: '\f107'; font-family: "Font Awesome 5 Free"; font-weight: 900; position: absolute; top: 50%; left: 1rem; transform: translateY(-50%); color: var(--text-light); pointer-events: none; }
 .form-group select { width: 100%; padding: 0.8rem 1rem; font-family: var(--font-main); font-size: 1rem; border: none; background: transparent; outline: none; appearance: none; -webkit-appearance: none; -moz-appearance: none; }
 .form-group small { font-size: 0.85rem; color: var(--text-light); margin-top: 0.25rem; display: block; text-align: right; }
 .error-message { color: var(--danger-red); font-size: 0.9em; margin-top: 5px; min-height: 1.2em; text-align: right; }
@@ -142,9 +103,15 @@ body {
 .price-section span { font-size: 1.5rem; font-weight: 700; color: var(--yellow-accent); }
 .switch-form-text { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-light); }
 .switch-form-text a { color: var(--purple-main); font-weight: 600; text-decoration: none; }
+/* ** FIX **: Unified form container styling */
+#order-form, #login-form-popup, #register-form-popup, #deposit-form, #edit-service-form { padding: 0 1.5rem 1.5rem; overflow-y: auto; flex-grow: 1; }
 
-/* --- 7. Deposit & Payment --- */
-.payment-instructions { text-align: center; margin: 1.5rem 0 1rem; color: var(--text-light); }
+/* --- 7. Payment & Success Popups --- */
+/* ** FIX **: Center payment options and success message */
+#payment-options-container, #success-message-container { padding: 1rem 1.5rem; text-align: center; }
+#payment-options-container p { margin-bottom: 1rem; font-weight: 600; }
+#final-price-display { font-size: 2rem; font-weight: 700; color: var(--purple-main); display: block; margin-bottom: 0.5rem; }
+#payment-options-container .pill-button { margin: 0.5rem auto; max-width: 300px; }
 .payment-method-selector { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
 .payment-method-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem; border: 2px solid var(--gray-border); background-color: var(--gray-light); color: var(--text-dark); border-radius: var(--radius-card); cursor: pointer; font-weight: 600; transition: all 0.2s ease; }
 .payment-method-btn i { font-size: 2rem; color: var(--purple-main); }
@@ -156,12 +123,6 @@ body {
 .form-message { text-align: center; margin-top: 1rem; font-weight: 600; }
 .form-message.success { color: var(--success-green); }
 .form-message.error { color: var(--danger-red); }
-
-/* ** FIX **: Center payment options and success message */
-#payment-options-container, #success-message-container { padding: 1rem 1.5rem; text-align: center; }
-#payment-options-container .pill-button { margin: 0.5rem auto; }
-#payment-options-container p { margin-bottom: 1rem; font-weight: 600; }
-#final-price-display { font-size: 2rem; font-weight: 700; color: var(--purple-main); display: block; margin-bottom: 0.5rem; }
 
 /* --- 8. Admin Panel & My Orders --- */
 .admin-body, .my-orders-body { background-color: var(--gray-light); overflow-x: hidden; }
@@ -184,32 +145,27 @@ body {
 .admin-form .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
 .divider { border: none; border-top: 1px solid var(--gray-border); margin: 2rem 0; }
 
-/* --- 9. Statistics Cards & Tables --- */
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
-.stat-card { background-color: var(--white-pure); border-radius: var(--radius-card); padding: 1.5rem; display: flex; align-items: center; gap: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-.stat-card.loading { min-height: 120px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: loading-shimmer 1.5s infinite; }
-@keyframes loading-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-.stat-icon { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-.stat-icon i { font-size: 2rem; }
-.stat-info p { margin: 0 0 0.25rem 0; color: var(--text-light); font-size: 0.9rem; }
-.stat-info h3 { margin: 0; font-size: 2rem; color: var(--text-dark); }
+/* --- 9. Tables & Status Indicators --- */
 .table-container { background-color: var(--white-pure); border-radius: var(--radius-card); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); padding: 1rem; overflow-x: auto; }
 .responsive-table { width: 100%; border-collapse: collapse; }
 .responsive-table th, .responsive-table td { padding: 1rem; text-align: right; border-bottom: 1px solid var(--gray-border); vertical-align: middle; }
 .responsive-table th { font-weight: 600; color: var(--text-light); font-size: 0.9rem; text-transform: uppercase; }
 .responsive-table td a { color: var(--purple-main); font-weight: 600; text-decoration: none; }
-.responsive-table td i { font-size: 1.5rem; vertical-align: middle; margin-left: 0.5rem; }
 .status { font-weight: 600; padding: 0.25rem 0.75rem; border-radius: var(--radius-button); font-size: 0.85rem; }
 .status-pending, .status-قيد-المراجعة { background-color: #fff3cd; color: #664d03; }
 .status-approved, .status-مكتمل { background-color: #d1e7dd; color: #0f5132; }
 .status-rejected, .status-ملغي { background-color: #f8d7da; color: #842029; }
 .status-قيد-التنفيذ { background-color: #cff4fc; color: #055160; }
-.action-buttons { display: flex; gap: 0.5rem; justify-content: flex-end; }
-.action-buttons button { background: var(--gray-light); border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-.action-buttons .edit-btn i { color: var(--success-green); }
-.action-buttons .delete-btn i { color: var(--danger-red); }
-.status-select-wrapper { border-radius: var(--radius-button); padding: 0.2rem; background-color: var(--gray-light); }
-.status-select { font-size: 0.9rem; font-weight: 600; padding: 0.4rem 0.6rem !important; }
+/* ** FIX **: Polished Action Buttons */
+.action-buttons { display: flex; gap: 0.75rem; justify-content: flex-end; }
+.action-buttons .pill-button { width: auto; padding: 0.5rem 1rem; }
+.action-buttons .approve-btn { background-color: var(--success-green); }
+.action-buttons .reject-btn { background-color: var(--danger-red); }
+.action-buttons .edit-btn { background-color: var(--purple-main); }
+.action-buttons .delete-btn { background-color: var(--danger-red); }
+/* ** FIX **: Polished Status Select */
+.status-select-wrapper { border-radius: var(--radius-soft); border: 2px solid var(--gray-border); overflow: hidden; }
+.status-select { font-size: 0.9rem; font-weight: 600; padding: 0.5rem !important; border: none; background-color: transparent; width: 100%; }
 .loading-spinner { text-align: center; padding: 2rem; font-size: 3rem; color: var(--purple-main); }
 .animate-spin { animation: spin 1s linear infinite; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -219,8 +175,6 @@ body {
    =================================================================== */
 @media (max-width: 768px) {
     .hero h1 { font-size: 2.2rem; }
-    .hero p { font-size: 1rem; }
-    .services-grid { grid-template-columns: 1fr; }
     .main-content { padding: 1.5rem; padding-bottom: 80px; }
     .admin-dashboard { flex-direction: column; }
     .sidebar { width: 100%; height: auto; flex-direction: row; align-items: center; justify-content: space-around; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); padding: 0; order: 1; position: fixed; bottom: 0; left: 0; right: 0; background: var(--white-pure); z-index: 1000; }
@@ -230,14 +184,12 @@ body {
     .sidebar-nav .nav-link.active { border-top-color: var(--purple-main); border-left-color: transparent; background: none; }
     .sidebar-nav .nav-link span { font-size: 0.7rem; display: block; }
     
-    /* ** FIX **: Responsive Tables Alignment */
     .table-container table, .table-container thead, .table-container tbody, .table-container th, .table-container td, .table-container tr { display: block; }
     .table-container thead tr { position: absolute; top: -9999px; left: -9999px; }
     .table-container tr { border: 1px solid #e0e0e0; border-radius: var(--radius-card); margin-bottom: 1rem; background: var(--white-pure); padding: 1rem; }
     .table-container td { border: none; border-bottom: 1px solid #f0f0f0; position: relative; padding: 0.75rem 0; min-height: 44px; display: flex; align-items: center; justify-content: space-between; }
     .table-container td:last-child { border-bottom: none; }
     .table-container td:before { content: attr(data-label); font-weight: 600; color: var(--text-dark); flex-shrink: 0; padding-left: 1rem; }
-    .table-container td .status, .table-container td .select-wrapper { margin-left: 0; }
     
     .main-header .container { flex-direction: column; gap: 1rem; }
 }
