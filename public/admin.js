@@ -281,8 +281,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <td data-label="الإيصال"><button onclick="viewReceipt('${deposit.receiptImage}')" class="pill-button-link">عرض الإيصال</button></td>
             <td data-label="الحالة"><span class="status ${statusClass}">${statusText}</span></td>
             <td data-label="إجراءات" class="action-buttons">
-                ${deposit.status === 'pending' ? `<button class="approve-btn pill-button primary-button">موافقة</button><button class="reject-btn pill-button danger-button">رفض</button>` : 'تمت المعالجة'}
-            </td>
+            ${deposit.status === 'pending' ? `
+            <button class="approve-btn pill-button"><i class="ph-bold ph-check"></i> قبول</button>
+            <button class="reject-btn pill-button"><i class="ph-bold ph-x"></i> رفض</button>
+           ` : 'تمت المعالجة'}
+         </td>
+
         `;
         depositsTbody.appendChild(row);
     });
