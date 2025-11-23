@@ -9,8 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <!-- Bootstrap CSS (RTL) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" integrity="sha384-nU14brUcp6StFntEOOEBvcJm4huWjB0OcIeQ3fltAfSmuZFrkAif0T+UtNGlKKQv" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -34,146 +32,91 @@
     </main>
 
     <!-- Order Form Popup -->
-    <!-- ===================================================================
-     BOOTSTRAP MODALS (New Popups)
-     =================================================================== -->
-
-<!-- Auth Modal (Login & Register) -->
-<div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="authModalLabel">تسجيل الدخول</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Login Form -->
-                <div id="login-form-container">
-                    <form id="login-form-popup">
-                        <div class="mb-3">
-                            <label for="login-email" class="form-label">البريد الإلكتروني</label>
-                            <input type="email" class="form-control" id="login-email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="login-password" class="form-label">كلمة المرور</label>
-                            <input type="password" class="form-control" id="login-password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">دخول</button>
-                        <p id="login-popup-error" class="text-danger mt-2"></p>
-                    </form>
-                    <p class="text-center mt-3">ليس لديك حساب؟ <a href="#" id="show-register">أنشئ حساباً جديداً</a></p>
-                </div>
-                <!-- Register Form (Initially Hidden) -->
-                <div id="register-form-container" class="d-none">
-                    <form id="register-form-popup">
-                        <div class="mb-3">
-                            <label for="register-username" class="form-label">اسم المستخدم</label>
-                            <input type="text" class="form-control" id="register-username" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="register-email" class="form-label">البريد الإلكتروني</label>
-                            <input type="email" class="form-control" id="register-email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="register-password" class="form-label">كلمة المرور</label>
-                            <input type="password" class="form-control" id="register-password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">إنشاء الحساب</button>
-                        <p id="register-popup-error" class="text-danger mt-2"></p>
-                    </form>
-                    <p class="text-center mt-3">لديك حساب بالفعل؟ <a href="#" id="show-login">سجل الدخول</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Deposit Modal -->
-<div class="modal fade" id="depositModal" tabindex="-1" aria-labelledby="depositModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="depositModalLabel">شحن الرصيد</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="deposit-form" enctype="multipart/form-data">
-                    <p class="text-center text-muted mb-4">اختر طريقة الدفع المفضلة لديك واتبع التعليمات.</p>
-                    <div class="payment-method-selector d-flex justify-content-center gap-3 mb-4">
-                        <button type="button" class="payment-method-btn" data-method="bank"><i class="ph-bold ph-bank"></i><span>تحويل بنكي</span></button>
-                        <button type="button" class="payment-method-btn" data-method="sham"><i class="ph-bold ph-qr-code"></i><span>شام كاش</span></button>
-                        <button type="button" class="payment-method-btn" data-method="whatsapp"><i class="ph-bold ph-storefront"></i><span>حوالة مكتب</span></button>
+    <div id="order-popup-overlay" class="popup-overlay hidden">
+        <div class="popup-content">
+            <button id="close-popup-btn" class="close-btn"><i class="ph-bold ph-x"></i></button>
+            <div id="order-form-container">
+                <div class="popup-header"><i id="popup-icon" class="ph-bold ph-question"></i><h2 id="form-title">تفاصيل الطلب</h2></div>
+                <form id="order-form">
+                    <div class="form-group"><label for="service-select">نوع الخدمة</label><div class="select-wrapper"><select id="service-select" required></select></div></div>
+                    <div class="form-group"><label for="link-input">رابط الحساب أو المنشور</label><input type="url" id="link-input" placeholder="https://www.instagram.com/..." required><small id="link-warning">تأكد أن الحساب عام وليس خاصاً.</small><p id="link-error" class="error-message"></p></div>
+                    <!-- ******** هذا هو التعديل ******** -->
+                    <div class="form-group">
+                        <label for="quantity-input">الكمية المطلوبة</label>
+                        <input type="number" id="quantity-input" required>
+                        <p id="quantity-error" class="error-message"></p>
                     </div>
-                    <div id="payment-details-container" class="d-none alert alert-info text-center"></div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="deposit-amount" class="form-label">المبلغ الذي قمت بتحويله ($)</label>
-                            <input type="number" class="form-control" id="deposit-amount" min="1" step="any" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="depositor-name" class="form-label">اسمك الكامل (كما في الإيصال)</label>
-                            <input type="text" class="form-control" id="depositor-name" required>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="deposit-receipt" class="form-label">إيصال التحويل (صورة)</label>
-                        <input type="file" class="form-control" id="deposit-receipt" accept="image/*" required>
-                    </div>
-                    <p id="deposit-form-response" class="form-message text-center fw-bold"></p>
+                    <!-- ******** نهاية التعديل ******** -->
+                    <div class="price-section"><p>السعر الإجمالي</p><span id="price-display">0.00 $</span></div>
+                    <button type="submit" class="pill-button primary-button"><i class="ph-bold ph-arrow-right"></i><span>متابعة للدفع</span></button>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
-                <button type="submit" form="deposit-form" class="btn btn-primary">إرسال طلب الشحن</button>
+            <div id="payment-options-container" class="hidden">
+                <div class="price-section"><p>المبلغ المطلوب دفعه</p><span id="final-price-display">0.00 $</span></div>
+                <p class="payment-instructions">اختر طريقة الدفع لإكمال طلبك:</p>
+                <div class="payment-buttons">
+                    <button id="pay-with-balance-btn" class="pill-button primary-button" disabled><i class="ph-bold ph-wallet"></i><span>الدفع بالرصيد</span></button>
+                    <button id="pay-with-whatsapp-btn" class="pill-button secondary-button"><i class="ph-bold ph-whatsapp-logo"></i><span>إرسال عبر واتساب</span></button>
+                </div>
+                <p id="balance-error" class="error-message"></p>
+            </div>
+            <div id="success-message-container" class="hidden">
+                 <div class="popup-header"><i class="ph-bold ph-check-circle success-icon"></i><h2>تم بنجاح!</h2></div>
+                <p id="form-response" class="success-text"></p>
+                <button id="success-ok-btn" class="pill-button secondary-button"><span>حسناً</span></button>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Order Modal -->
-<div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <form id="order-form">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="orderModalLabel">تقديم طلب جديد</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="service-link" class="form-label">رابط الخدمة</label>
-                        <input type="text" class="form-control" id="service-link" required>
-                        <div id="link-warning" class="form-text text-warning-emphasis fw-bold mt-2 d-none">
-                            <i class="ph-bold ph-warning-circle"></i> تأكد من أن الحساب أو الفيديو عام وليس خاص.
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="service-quantity" class="form-label">الكمية</label>
-                        <input type="number" class="form-control" id="service-quantity" required>
-                        <div id="quantity-error" class="text-danger mt-1"></div>
-                        <div id="quantity-info" class="form-text"></div>
-                    </div>
-                    <div class="price-section alert alert-primary d-flex justify-content-between align-items-center">
-                        <p class="mb-0 fw-bold">السعر الإجمالي:</p>
-                        <span id="total-price" class="fs-4 fw-bolder">$0.00</span>
-                    </div>
-                    <div id="order-form-response" class="form-message text-center fw-bold"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="pay-with-balance-btn">
-                        <i class="ph-bold ph-wallet"></i> الدفع من الرصيد
-                    </button>
-                    <button type="button" class="btn btn-info text-white" id="pay-with-whatsapp-btn">
-                        <i class="ph-bold ph-whatsapp-logo"></i> الطلب عبر واتساب
-                    </button>
-                </div>
+    <!-- Auth Popups -->
+    <div id="auth-popup-overlay" class="popup-overlay hidden">
+        <div id="login-form-container" class="popup-content hidden">
+            <button class="close-btn"><i class="ph-bold ph-x"></i></button>
+            <div class="popup-header"><i class="ph-bold ph-sign-in"></i><h2>تسجيل الدخول</h2></div>
+            <form id="login-form-popup">
+                <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="login-email" required></div>
+                <div class="form-group"><label>كلمة المرور</label><input type="password" id="login-password" required></div>
+                <button type="submit" class="pill-button primary-button">دخول</button>
+                <p id="login-popup-error" class="error-message"></p>
+                <p class="switch-form-text">ليس لديك حساب؟ <a href="#" id="show-register">أنشئ حساباً جديداً</a></p>
+            </form>
+        </div>
+        <div id="register-form-container" class="popup-content hidden">
+            <button class="close-btn"><i class="ph-bold ph-x"></i></button>
+            <div class="popup-header"><i class="ph-bold ph-user-plus"></i><h2>إنشاء حساب جديد</h2></div>
+            <form id="register-form-popup">
+                <div class="form-group"><label>اسم المستخدم</label><input type="text" id="register-username" required></div>
+                <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="register-email" required></div>
+                <div class="form-group"><label>كلمة المرور</label><input type="password" id="register-password" required></div>
+                <button type="submit" class="pill-button primary-button">إنشاء الحساب</button>
+                <p id="register-popup-error" class="error-message"></p>
+                <p class="switch-form-text">لديك حساب بالفعل؟ <a href="#" id="show-login">سجل الدخول</a></p>
             </form>
         </div>
     </div>
-</div>
 
-<!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <!-- Deposit Popup -->
+    <div id="deposit-popup-overlay" class="popup-overlay hidden">
+        <div class="popup-content scrollable">
+            <button id="close-deposit-popup-btn" class="close-btn"><i class="ph-bold ph-x"></i></button>
+            <div class="popup-header"><i class="ph-bold ph-money"></i><h2>شحن الرصيد</h2></div>
+            <form id="deposit-form" enctype="multipart/form-data">
+                <p class="payment-instructions">اختر طريقة الدفع المفضلة لديك واتبع التعليمات.</p>
+                <div class="payment-method-selector">
+                    <button type="button" class="payment-method-btn" data-method="bank"><i class="ph-bold ph-bank"></i><span>تحويل بنكي</span></button>
+                    <button type="button" class="payment-method-btn" data-method="sham"><i class="ph-bold ph-qr-code"></i><span>شام كاش</span></button>
+                    <button type="button" class="payment-method-btn" data-method="whatsapp"><i class="ph-bold ph-storefront"></i><span>حوالة مكتب</span></button>
+                </div>
+                <div id="payment-details-container" class="hidden"></div>
+                <div class="form-group"><label for="deposit-amount">المبلغ الذي قمت بتحويله ($)</label><input type="number" id="deposit-amount" min="1" step="any" required></div>
+                <div class="form-group"><label for="depositor-name">اسمك الكامل (كما في الإيصال)</label><input type="text" id="depositor-name" required></div>
+                <div class="form-group"><label for="deposit-receipt">إيصال التحويل (صورة)</label><input type="file" id="deposit-receipt" accept="image/*" required></div>
+                <button type="submit" class="pill-button primary-button">إرسال طلب الشحن</button>
+                <p id="deposit-form-response" class="form-message"></p>
+            </form>
+        </div>
+    </div>
+
     <script src="app.js"></script>
 </body>
 </html>
