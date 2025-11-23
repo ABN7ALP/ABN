@@ -355,84 +355,7 @@ body {
 }
 
 /* --- 6. Popups (Modals) --- */
-.popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
 
-.popup-overlay:not(.hidden) {
-    opacity: 1;
-    visibility: visible;
-}
-
-.popup-content {
-    background-color: var(--white-pure);
-    border-radius: var(--radius-popup);
-    width: 100%;
-    max-width: 500px;
-    position: relative;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    transform: scale(0.95);
-    transition: transform 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    max-height: 90vh;
-}
-
-.popup-overlay:not(.hidden) .popup-content {
-    transform: scale(1);
-}
-
-.close-btn {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    background: var(--gray-light);
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    color: var(--text-light);
-    z-index: 10;
-}
-
-.close-btn:hover {
-    background-color: #e0e0e0;
-}
-
-.popup-header {
-    text-align: center;
-    padding: 2rem 2rem 1.5rem;
-    flex-shrink: 0;
-}
-
-.popup-header i {
-    font-size: 4rem;
-    color: var(--purple-main);
-}
-
-.popup-header h2 {
-    font-weight: 700;
-    font-size: 1.75rem;
-    margin-top: 0.5rem;
-}
 
 /* --- 7. Forms & Input Fields --- */
 #order-form, #login-form-popup, #register-form-popup, #deposit-form, #edit-service-form {
@@ -545,61 +468,6 @@ body {
 }
 
 /* --- 8. Deposit & Payment --- */
-.payment-instructions {
-    text-align: center;
-    margin: 1.5rem 0 1rem;
-    color: var(--text-light);
-}
-
-.payment-method-selector {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.payment-method-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 1rem;
-    border: 2px solid var(--gray-border);
-    background-color: var(--gray-light);
-    color: var(--text-dark);
-    border-radius: var(--radius-card);
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-.payment-method-btn i {
-    font-size: 2rem;
-    color: var(--purple-main);
-}
-
-.payment-method-btn.active, .payment-method-btn:hover {
-    border-color: var(--purple-main);
-    background-color: var(--purple-light);
-    color: var(--purple-main);
-}
-
-#payment-details-container {
-    background-color: var(--gray-light);
-    padding: 1rem;
-    border-radius: var(--radius-card);
-    margin-bottom: 1.5rem;
-    text-align: center;
-}
-
-#payment-details-container p { margin: 0.5rem 0; font-weight: 600; }
-#payment-details-container span { background-color: #e0e0e0; padding: 0.25rem 0.75rem; border-radius: var(--radius-button); font-family: monospace; color: var(--text-dark); display: inline-block; margin-top: 0.5rem; }
-#payment-details-container img { max-width: 200px; margin: 1rem auto 0; display: block; border-radius: var(--radius-soft); }
-
-.form-message { text-align: center; margin-top: 1rem; font-weight: 600; }
-.form-message.success { color: var(--success-green); }
-.form-message.error { color: var(--danger-red); }
 
 /* --- 9. Admin Panel & My Orders --- */
 .admin-body { background-color: var(--gray-light); }
