@@ -1,5 +1,5 @@
 /* ===================================================================
-   SMM STORE - MASTER STYLESHEET (v8.0 - Fixed Layout Version)
+   SMM STORE - MASTER STYLESHEET (v8.1 - Fixed Layout & Mobile Version)
    =================================================================== */
 
 /* --- 1. Global Settings & Variables --- */
@@ -747,30 +747,27 @@ body {
     color: var(--text-dark); 
 }
 
-/* --- FIXED TABLE STYLES --- */
+/* --- FIXED TABLE STYLES FOR DESKTOP --- */
 .table-container { 
     background-color: var(--white-pure); 
     border-radius: var(--radius-card); 
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
-    padding: 1rem; 
+    padding: 1.5rem; 
     overflow-x: auto; 
     width: 100%;
 }
 .table-container table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 800px;
+    min-width: 1000px;
 }
 .table-container th, 
 .table-container td { 
-    padding: 0.8rem 1rem; 
+    padding: 1rem 0.8rem; 
     text-align: right; 
     border-bottom: 1px solid var(--gray-border); 
     vertical-align: middle; 
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 200px;
 }
 .table-container th { 
     font-weight: 600; 
@@ -781,6 +778,61 @@ body {
     position: sticky;
     top: 0;
 }
+
+/* تحديد عرض الأعمدة على الشاشات الكبيرة */
+@media (min-width: 1200px) {
+    .table-container table {
+        min-width: 1100px;
+        table-layout: fixed;
+    }
+    
+    /* طلبات الجدول */
+    #orders-table th:nth-child(1),
+    #orders-table td:nth-child(1) { width: 12%; } /* المنصة */
+    #orders-table th:nth-child(2),
+    #orders-table td:nth-child(2) { width: 18%; } /* الخدمة */
+    #orders-table th:nth-child(3),
+    #orders-table td:nth-child(3) { width: 20%; } /* الرابط */
+    #orders-table th:nth-child(4),
+    #orders-table td:nth-child(4) { width: 8%; }  /* الكمية */
+    #orders-table th:nth-child(5),
+    #orders-table td:nth-child(5) { width: 10%; } /* السعر */
+    #orders-table th:nth-child(6),
+    #orders-table td:nth-child(6) { width: 12%; } /* التاريخ */
+    #orders-table th:nth-child(7),
+    #orders-table td:nth-child(7) { width: 20%; } /* الحالة */
+    
+    /* طلبات الشحن الجدول */
+    #deposits-table th:nth-child(1),
+    #deposits-table td:nth-child(1) { width: 12%; } /* المستخدم */
+    #deposits-table th:nth-child(2),
+    #deposits-table td:nth-child(2) { width: 8%; }  /* المبلغ */
+    #deposits-table th:nth-child(3),
+    #deposits-table td:nth-child(3) { width: 10%; } /* الطريقة */
+    #deposits-table th:nth-child(4),
+    #deposits-table td:nth-child(4) { width: 15%; } /* اسم المودع */
+    #deposits-table th:nth-child(5),
+    #deposits-table td:nth-child(5) { width: 12%; } /* الإيصال */
+    #deposits-table th:nth-child(6),
+    #deposits-table td:nth-child(6) { width: 12%; } /* الحالة */
+    #deposits-table th:nth-child(7),
+    #deposits-table td:nth-child(7) { width: 31%; } /* الإجراءات */
+    
+    /* الخدمات الجدول */
+    #services-table th:nth-child(1),
+    #services-table td:nth-child(1) { width: 15%; } /* المنصة */
+    #services-table th:nth-child(2),
+    #services-table td:nth-child(2) { width: 20%; } /* الخدمة */
+    #services-table th:nth-child(3),
+    #services-table td:nth-child(3) { width: 12%; } /* السعر/1000 */
+    #services-table th:nth-child(4),
+    #services-table td:nth-child(4) { width: 18%; } /* أدنى/أقصى حد */
+    #services-table th:nth-child(5),
+    #services-table td:nth-child(5) { width: 10%; } /* الخطوة */
+    #services-table th:nth-child(6),
+    #services-table td:nth-child(6) { width: 25%; } /* الإجراءات */
+}
+
 .table-container td a { 
     color: var(--purple-main); 
     font-weight: 600; 
@@ -788,11 +840,13 @@ body {
 }
 .status { 
     font-weight: 600; 
-    padding: 0.25rem 0.75rem; 
+    padding: 0.4rem 0.8rem; 
     border-radius: var(--radius-button); 
     font-size: 0.85rem; 
     display: inline-block;
     white-space: nowrap;
+    text-align: center;
+    min-width: 100px;
 }
 .status-pending, 
 .status-قيد-المراجعة { 
@@ -819,13 +873,15 @@ body {
     display: flex; 
     gap: 0.5rem; 
     justify-content: flex-end; 
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    min-width: 200px;
 }
 .action-buttons .pill-button { 
     width: auto; 
-    padding: 0.5rem 0.8rem; 
+    padding: 0.6rem 1rem; 
     font-size: 0.85rem;
-    min-width: auto;
+    min-width: 80px;
+    white-space: nowrap;
 }
 .action-buttons .approve-btn { 
     background-color: var(--success-green); 
@@ -847,7 +903,7 @@ body {
     overflow: hidden; 
     position: relative; 
     display: inline-block;
-    min-width: 150px;
+    min-width: 160px;
 }
 .status-select-wrapper::after { 
     content: '▼'; 
@@ -863,7 +919,7 @@ body {
 .status-select { 
     font-size: 0.9rem; 
     font-weight: 600; 
-    padding: 0.5rem 2rem 0.5rem 1rem !important; 
+    padding: 0.6rem 2rem 0.6rem 1rem !important; 
     border: none; 
     background-color: transparent; 
     width: 100%; 
@@ -886,7 +942,7 @@ body {
     to { transform: rotate(360deg); } 
 }
 
-/* --- 10. RESPONSIVE DESIGN --- */
+/* --- 10. RESPONSIVE DESIGN - MOBILE --- */
 @media (max-width: 768px) {
     .hero h1 { 
         font-size: 2rem; 
@@ -905,7 +961,7 @@ body {
         align-items: center; 
         justify-content: space-around; 
         box-shadow: 0 -2px 10px rgba(0,0,0,0.05); 
-        padding: 0; 
+        padding: 0.5rem 0; 
         order: 1; 
         position: fixed; 
         bottom: 0; 
@@ -927,11 +983,12 @@ body {
         border-left: none; 
         border-top: 4px solid transparent; 
         border-bottom: none; 
-        padding: 0.75rem 0.5rem; 
+        padding: 0.5rem 0.3rem; 
         flex-direction: column; 
         gap: 0.25rem; 
         justify-content: center; 
-        font-size: 0.8rem;
+        font-size: 0.75rem;
+        text-align: center;
     }
     .sidebar-nav .nav-link.active { 
         border-top-color: var(--purple-main); 
@@ -943,10 +1000,15 @@ body {
         display: block; 
     }
     .sidebar-nav .nav-link i { 
-        font-size: 1.2rem; 
+        font-size: 1.1rem; 
     }
     
-    /* Mobile table styles */
+    /* Mobile table styles - RETURN TO ORIGINAL DESIGN */
+    .table-container {
+        padding: 0.5rem;
+        overflow-x: auto;
+    }
+    
     .table-container table, 
     .table-container thead, 
     .table-container tbody, 
@@ -966,19 +1028,17 @@ body {
         margin-bottom: 1rem; 
         background: var(--white-pure); 
         padding: 1rem; 
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.5rem;
+        display: block;
     }
     .table-container td { 
         border: none; 
         border-bottom: 1px solid #f0f0f0; 
         position: relative; 
-        padding: 0.5rem 0; 
+        padding: 0.75rem 0; 
         min-height: 44px; 
-        display: flex; 
-        align-items: center; 
-        justify-content: space-between; 
+        display: block; 
+        text-align: left;
+        padding-left: 50%;
         white-space: normal;
         word-break: break-word;
     }
@@ -989,8 +1049,25 @@ body {
         content: attr(data-label); 
         font-weight: 600; 
         color: var(--text-dark); 
-        flex-shrink: 0; 
-        padding-left: 1rem; 
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 45%;
+        white-space: nowrap;
+    }
+    
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        justify-content: center;
+        width: 100%;
+    }
+    .action-buttons .pill-button {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
     }
     
     .main-header .container { 
@@ -1003,59 +1080,50 @@ body {
     .popup-overlay {
         padding: 0.5rem;
         align-items: flex-start;
-        padding-top: 2rem;
+        padding-top: 1rem;
     }
     .popup-content {
-        max-height: 85vh;
+        max-height: 95vh;
+        margin: 0 auto;
     }
     
-    .action-buttons {
-        justify-content: center;
-        gap: 0.25rem;
+    /* إصلاح نافذة تسجيل الدخول للإدمن */
+    #login-overlay .popup-content {
+        margin: 2rem auto;
+        max-width: 90%;
     }
-    .action-buttons .pill-button {
-        padding: 0.4rem 0.6rem;
+    #login-overlay .form-group input {
+        padding: 0.8rem 1rem;
+        width: 100%;
+    }
+    #login-overlay .pill-button {
+        width: 100%;
+        margin-top: 1rem;
+    }
+}
+
+/* إصلاح خاص للهواتف الصغيرة */
+@media (max-width: 480px) {
+    .popup-content {
+        max-width: 95%;
+        margin: 0.5rem auto;
+    }
+    
+    .table-container td {
+        padding-left: 45%;
+    }
+    
+    .table-container td:before {
+        width: 40%;
         font-size: 0.8rem;
     }
-}
-
-/* Desktop specific table improvements */
-@media (min-width: 769px) {
-    .table-container table {
-        table-layout: fixed;
+    
+    .hero h1 {
+        font-size: 1.8rem;
     }
     
-    /* Define column widths for better layout */
-    .table-container th:nth-child(1),
-    .table-container td:nth-child(1) { width: 15%; }
-    .table-container th:nth-child(2),
-    .table-container td:nth-child(2) { width: 20%; }
-    .table-container th:nth-child(3),
-    .table-container td:nth-child(3) { width: 20%; }
-    .table-container th:nth-child(4),
-    .table-container td:nth-child(4) { width: 10%; }
-    .table-container th:nth-child(5),
-    .table-container td:nth-child(5) { width: 10%; }
-    .table-container th:nth-child(6),
-    .table-container td:nth-child(6) { width: 15%; }
-    .table-container th:nth-child(7),
-    .table-container td:nth-child(7) { width: 10%; }
-    
-    .table-container td {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-}
-
-/* Large screens */
-@media (min-width: 1200px) {
-    .table-container {
-        padding: 1.5rem;
-    }
-    .table-container th,
-    .table-container td {
-        padding: 1rem 1.2rem;
+    .service-card {
+        padding: 1rem;
     }
 }
 
