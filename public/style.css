@@ -1,5 +1,7 @@
 /* ===================================================================
-   SMM STORE - MASTER STYLESHEET (v3.1 - Final Polish)
+   SMM STORE - MASTER STYLESHEET (v3.2 - Final Fixes)
+   - Fixes order popup content alignment.
+   - Secures admin dashboard visibility before login.
    =================================================================== */
 
 /* --- 1. Global Settings & Variables --- */
@@ -31,7 +33,6 @@
 
 html {
     scroll-behavior: smooth;
-    /* يمنع الصفحة من التمدد أفقياً بشكل نهائي */
     overflow-x: hidden;
     width: 100%;
 }
@@ -43,7 +44,6 @@ body {
     line-height: 1.6;
     position: relative;
     min-height: 100vh;
-    /* يضمن أن الجسم لا يتجاوز عرض الشاشة */
     width: 100%;
     overflow-x: hidden;
 }
@@ -62,6 +62,10 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 1rem;
+}
+
+.hidden {
+    display: none !important;
 }
 
 /* --- 2. Header & User Navigation --- */
@@ -109,7 +113,6 @@ body {
 
 /* --- 5. Popups (Modals) --- */
 .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; padding: 1rem; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
-.popup-overlay.hidden { display: none; } /* Use display:none for complete removal */
 .popup-overlay:not(.hidden) { opacity: 1; visibility: visible; }
 .popup-content { background-color: var(--white-pure); border-radius: var(--radius-popup); width: 100%; max-width: 500px; position: relative; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); transform: scale(0.95); transition: transform 0.3s ease; display: flex; flex-direction: column; max-height: 90vh; }
 .popup-overlay:not(.hidden) .popup-content { transform: scale(1); }
@@ -120,7 +123,6 @@ body {
 .popup-header h2 { font-weight: 700; font-size: 1.75rem; margin-top: 0.5rem; }
 
 /* --- 6. Forms & Input Fields --- */
-/* ** FIX **: Adjusted padding for better mobile view */
 #order-form, #login-form-popup, #register-form-popup, #deposit-form, #edit-service-form { padding: 0 1.5rem 1.5rem; overflow-y: auto; flex-grow: 1; }
 .form-group { margin-bottom: 1.25rem; }
 .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
@@ -151,14 +153,19 @@ body {
 .form-message { text-align: center; margin-top: 1rem; font-weight: 600; }
 .form-message.success { color: var(--success-green); }
 .form-message.error { color: var(--danger-red); }
-#payment-options-container { padding: 0 1.5rem 1.5rem; }
+/* ** FIX **: Removed padding from payment options container */
+#payment-options-container { padding: 0; }
 #payment-options-container .pill-button { margin-bottom: 0.75rem; }
 
 /* --- 8. Admin Panel & My Orders --- */
-.admin-body, .my-orders-body { background-color: var(--gray-light); overflow-x: hidden; } /* ** FIX ** */
+.admin-body, .my-orders-body { background-color: var(--gray-light); overflow-x: hidden; }
 .admin-body .background-gradient, .my-orders-body .background-gradient { display: none; }
-#login-overlay { opacity: 1; visibility: visible; }
-.admin-dashboard { display: flex; min-height: 100vh; width: 100%; overflow-x: hidden; } /* ** FIX ** */
+
+/* ** FIX **: Secure Admin Dashboard */
+#login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; }
+#admin-dashboard.hidden { display: none; }
+
+.admin-dashboard { display: flex; min-height: 100vh; width: 100%; overflow-x: hidden; }
 .sidebar { width: 250px; background-color: var(--white-pure); box-shadow: 2px 0 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; padding: 1.5rem 0; transition: width 0.3s ease; flex-shrink: 0; }
 .sidebar-header { padding: 0 1.5rem; margin-bottom: 2rem; font-size: 1.5rem; font-weight: 700; }
 .sidebar-nav .nav-link { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem; color: var(--text-light); text-decoration: none; font-weight: 600; border-left: 4px solid transparent; transition: all 0.3s ease; }
@@ -166,7 +173,7 @@ body {
 .sidebar-nav .nav-link.active { color: var(--purple-main); border-left-color: var(--purple-main); background-color: var(--purple-light); }
 .sidebar-nav .nav-link i { font-size: 1.5rem; }
 .sidebar-nav .logout-link { margin-top: auto; }
-.main-content { flex-grow: 1; padding: 2rem; overflow-y: auto; width: 100%; } /* ** FIX ** */
+.main-content { flex-grow: 1; padding: 2rem; overflow-y: auto; width: 100%; }
 .admin-section { display: none; }
 .admin-section.active { display: block; }
 .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
