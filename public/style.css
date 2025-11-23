@@ -1,6 +1,6 @@
 /* ===================================================================
-   SMM STORE - MASTER STYLESHEET (v6.0 - The Final Masterpiece)
-   - Polishes all remaining UI elements based on final feedback.
+   SMM STORE - MASTER STYLESHEET (v7.0 - The True Final Version)
+   - Based on user's v5.0, with all final fixes correctly applied.
    =================================================================== */
 
 /* --- 1. Global Settings & Variables --- */
@@ -24,23 +24,54 @@
     --radius-soft: 12px;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; overflow-x: hidden; width: 100%; }
-body { font-family: var(--font-main); background-color: var(--gray-light); color: var(--text-dark); line-height: 1.6; position: relative; min-height: 100vh; width: 100%; overflow-x: hidden; }
-.background-gradient { position: absolute; top: 0; left: 0; right: 0; height: 45vh; background: linear-gradient(180deg, var(--purple-main) 0%, #a162f7 100%); z-index: -1; }
-.container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
-.hidden { display: none !important; }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-/* --- 2. Header & Hero Section --- */
+html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--gray-light);
+    color: var(--text-dark);
+    line-height: 1.6;
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.background-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    /* ** FIX **: Increased height for better hero visibility */
+    height: 45vh;
+    background: linear-gradient(180deg, var(--purple-main) 0%, #a162f7 100%);
+    z-index: -1;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* --- 2. Header & User Navigation --- */
 .main-header { padding: 1rem 0; }
 .main-header .container { display: flex; justify-content: space-between; align-items: center; }
 .logo { font-weight: 700; font-size: 1.5rem; color: var(--white-pure); text-decoration: none; }
-/* ** FIX **: Polished Hero Section */
-.hero { text-align: center; padding: 2rem 1rem 4rem; color: var(--white-pure); }
-.hero h1 { font-weight: 700; font-size: 2.5rem; margin-bottom: 0.75rem; }
-.hero p { font-weight: 400; font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto; }
-
-/* --- 3. User Navigation --- */
 .main-nav { display: flex; align-items: center; gap: 0.75rem; }
 .user-dropdown { position: relative; }
 .user-dropdown-toggle { display: flex; align-items: center; gap: 0.5rem; background-color: rgba(255, 255, 255, 0.1); padding: 0.5rem 1rem; border-radius: var(--radius-button); cursor: pointer; transition: background-color 0.2s ease; color: var(--white-pure); font-weight: 600; }
@@ -56,7 +87,12 @@ body { font-family: var(--font-main); background-color: var(--gray-light); color
 .user-dropdown-menu a:hover, .user-dropdown-menu button:hover { background-color: var(--gray-light); }
 .user-dropdown-menu .logout-link { color: var(--danger-red); }
 
-/* --- 4. Service Cards & Buttons --- */
+/* --- 3. Hero Section & Service Cards --- */
+/* ** FIX **: Polished Hero Section */
+.hero { text-align: center; padding: 2rem 1rem 4rem; color: var(--white-pure); }
+.hero h1 { font-weight: 700; font-size: 2.5rem; margin-bottom: 0.75rem; }
+.hero p { font-weight: 400; font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
 .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; padding: 2rem 0; }
 .service-card { background-color: var(--white-pure); border-radius: var(--radius-card); padding: 1.5rem; text-align: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
 .service-card:hover { transform: translateY(-8px); box-shadow: 0 8px 20px rgba(124, 30, 255, 0.15); }
@@ -64,6 +100,8 @@ body { font-family: var(--font-main); background-color: var(--gray-light); color
 .service-card .icon-wrapper img { width: 45px; height: 45px; object-fit: contain; }
 .service-card h3 { font-weight: 600; font-size: 1.25rem; margin-bottom: 0.5rem; }
 .service-card p { color: var(--text-light); font-size: 0.9rem; margin-bottom: 1.5rem; flex-grow: 1; }
+
+/* --- 4. Buttons --- */
 .pill-button { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border: none; border-radius: var(--radius-button); padding: 0.75rem 1.5rem; font-family: var(--font-main); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; text-decoration: none; white-space: nowrap; }
 .get-button { background-color: var(--white-pure); color: var(--purple-main); border: 2px solid var(--gray-border); }
 .get-button:hover { background-color: var(--gray-light); }
@@ -73,7 +111,9 @@ body { font-family: var(--font-main); background-color: var(--gray-light); color
 .secondary-button { background-color: var(--yellow-accent); color: var(--text-dark); }
 .secondary-button:hover { background-color: #ffb300; box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4); }
 .danger-button { background-color: var(--danger-red); color: var(--white-pure); }
-.pill-button-link { background: none; border: none; color: var(--purple-main); font-weight: 600; cursor: pointer; padding: 0.5rem; font-family: var(--font-main); }
+/* ** FIX **: Polished pill-button-link */
+.pill-button-link { background-color: var(--purple-light); color: var(--purple-main); border-radius: var(--radius-button); padding: 0.5rem 1rem; font-weight: 600; cursor: pointer; font-family: var(--font-main); border: none; text-decoration: none; display: inline-block; }
+.pill-button-link:hover { background-color: #e0d1ff; }
 
 /* --- 5. Popups (Modals) --- */
 .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; padding: 1rem; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; align-items: flex-start; padding-top: 5vh; }
@@ -145,7 +185,15 @@ body { font-family: var(--font-main); background-color: var(--gray-light); color
 .admin-form .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
 .divider { border: none; border-top: 1px solid var(--gray-border); margin: 2rem 0; }
 
-/* --- 9. Tables & Status Indicators --- */
+/* --- 9. Statistics Cards & Tables --- */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+.stat-card { background-color: var(--white-pure); border-radius: var(--radius-card); padding: 1.5rem; display: flex; align-items: center; gap: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.stat-card.loading { min-height: 120px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: loading-shimmer 1.5s infinite; }
+@keyframes loading-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.stat-icon { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.stat-icon i { font-size: 2rem; }
+.stat-info p { margin: 0 0 0.25rem 0; color: var(--text-light); font-size: 0.9rem; }
+.stat-info h3 { margin: 0; font-size: 2rem; color: var(--text-dark); }
 .table-container { background-color: var(--white-pure); border-radius: var(--radius-card); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); padding: 1rem; overflow-x: auto; }
 .responsive-table { width: 100%; border-collapse: collapse; }
 .responsive-table th, .responsive-table td { padding: 1rem; text-align: right; border-bottom: 1px solid var(--gray-border); vertical-align: middle; }
@@ -164,8 +212,9 @@ body { font-family: var(--font-main); background-color: var(--gray-light); color
 .action-buttons .edit-btn { background-color: var(--purple-main); }
 .action-buttons .delete-btn { background-color: var(--danger-red); }
 /* ** FIX **: Polished Status Select */
-.status-select-wrapper { border-radius: var(--radius-soft); border: 2px solid var(--gray-border); overflow: hidden; }
-.status-select { font-size: 0.9rem; font-weight: 600; padding: 0.5rem !important; border: none; background-color: transparent; width: 100%; }
+.status-select-wrapper { border-radius: var(--radius-soft); border: 2px solid var(--gray-border); overflow: hidden; position: relative; }
+.status-select-wrapper::after { content: '\f107'; font-family: "Font Awesome 5 Free"; font-weight: 900; position: absolute; top: 50%; left: 0.75rem; transform: translateY(-50%); color: var(--text-light); pointer-events: none; }
+.status-select { font-size: 0.9rem; font-weight: 600; padding: 0.5rem 2rem 0.5rem 1rem !important; border: none; background-color: transparent; width: 100%; appearance: none; -webkit-appearance: none; -moz-appearance: none; }
 .loading-spinner { text-align: center; padding: 2rem; font-size: 3rem; color: var(--purple-main); }
 .animate-spin { animation: spin 1s linear infinite; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
