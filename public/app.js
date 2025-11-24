@@ -442,18 +442,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 6.5. نظام الإشعارات ---
     async function fetchNotifications() {
-        if (!userInfo) return;
-        try {
-            const response = await fetch('/api/notifications', {
-                headers: { 'Authorization': `Bearer ${userInfo.token}` }
-            });
-            if (!response.ok) throw new Error('Failed to fetch notifications');
-            const notifications = await response.json();
-            renderNotifications(notifications);
-        } catch (error) {
-            console.error(error);
-        }
+    // 1. تحقق إضافي: يتأكد من وجود التوكن نفسه، وليس فقط معلومات المستخدم.
+    if (!userInfo || !userInfo.token) {
+        console.log("User not logged in or token is missing.");
+        return;
     }
+
+    try {
+        const response = await fetch('/api/notifications', {
+            headers: { 'Authorization': `Bearer ${userInfo.token}` }
+        });
+
+        // 2. "أذكى" معالجة للأخطاء: يتعرف على خطأ 401 تحديداً.
+        if (response.status === 401) {
+            console.error("Authorization failed (401). Token is invalid. Logging out.");
+            logoutHandler(); // 3. الإجراء التصحيحي: يقوم بتسجيل خروج المستخدم تلقائياً!
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch notifications. Status: ${response.status}`);
+        }
+
+        const notifications = await response.json();
+        renderNotifications(notifications);
+
+    } catch (error) {
+        console.error("Error in fetchNotifications:", error);
+    }
+}
+
 
     function renderNotifications(notifications) {
         const list = document.getElementById('notifications-list');
