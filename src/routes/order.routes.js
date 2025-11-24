@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/order.model.js');
 const User = require('../models/user.model.js');
-
+const mongoose = require('mongoose');
 // --- POST /api/orders (للطلبات العادية عبر واتساب) ---
 router.post('/', async (req, res) => {
     try {
@@ -35,7 +35,7 @@ router.put('/:id', async (req, res) => {
             // ******** ابدأ الإضافة من هنا ********
 
             // التحقق مما إذا كان الطلب مرتبطاً بمستخدم لإرسال إشعار له
-            if (updatedOrder.user) {
+            if (updatedOrder.user && mongoose.Types.ObjectId.isValid(updatedOrder.user)) {
                 const notificationMessage = `تم تحديث حالة طلبك للخدمة "${updatedOrder.service}" إلى: ${newStatus}.`;
                 const newNotification = new Notification({
                     user: updatedOrder.user,
@@ -43,16 +43,16 @@ router.put('/:id', async (req, res) => {
                     link: '/my-orders.html'
                 });
                 await newNotification.save();
-
-                // إرسال الإشعار عبر Socket.IO
+    
                 req.io.emit('new-notification', {
                     userId: updatedOrder.user.toString(),
                     notification: newNotification
                 });
             }
+
             
             // ******** انتهت الإضافة ********
-
+            
             // إرسال إشارة بالتحديث إلى كل العملاء المتصلين
             req.io.emit('order-status-updated', updatedOrder);
 
@@ -61,6 +61,7 @@ router.put('/:id', async (req, res) => {
             res.status(404).json({ message: 'الطلب غير موجود' });
         }
     } catch (error) {
+        console.error("Order update error:", error);
         res.status(500).json({ message: 'فشل تحديث الطلب' });
     }
 });
