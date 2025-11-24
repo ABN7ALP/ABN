@@ -1145,3 +1145,114 @@ body {
         border: 1px solid #000;
     }
 }
+/* ===== إصلاح الجداول على الهواتف فقط ===== */
+@media (max-width: 768px) {
+    /* إصلاح الجداول على الهواتف - إزالة المسافات الكبيرة */
+    .table-container td {
+        border: none;
+        border-bottom: 1px solid #f0f0f0;
+        position: relative;
+        padding: 0.75rem 0.5rem;
+        padding-right: 45%; /* تقليل المسافة من اليمين */
+        min-height: 44px;
+        display: block;
+        text-align: right; /* تأكيد المحاذاة لليمين */
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .table-container td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-dark);
+        position: absolute;
+        right: 0.5rem; /* تغيير من left إلى right */
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40%; /* تقليل العرض */
+        white-space: nowrap;
+        text-align: right; /* محاذاة النص لليمين */
+    }
+
+    /* إصلاح أزرار الإجراءات على الهواتف */
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        justify-content: center;
+        width: 100%;
+        padding-right: 0; /* إزالة المسافة الزائدة */
+    }
+
+    .action-buttons .pill-button {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+        padding: 0.6rem 1rem; /* تقليل padding */
+        font-size: 0.85rem;
+    }
+
+    /* إصلاح تحديد الحالة على الهواتف */
+    .status-select-wrapper {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .status-select {
+        width: 100%;
+        padding: 0.6rem 2rem 0.6rem 1rem !important;
+    }
+}
+
+/* ===== إصلاح نافذة تسجيل الدخول للإدمن فقط ===== */
+#login-overlay .popup-content {
+    max-width: 400px; /* تحديد عرض ثابت */
+    margin: 2rem auto;
+    padding: 1.5rem;
+}
+
+#login-overlay .form-group {
+    margin-bottom: 1.5rem;
+}
+
+#login-overlay .form-group input {
+    padding: 0.8rem 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#login-overlay .pill-button {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.8rem 1.5rem;
+}
+
+/* إصلاح خاص للهواتف الصغيرة جداً */
+@media (max-width: 480px) {
+    .table-container td {
+        padding-right: 40%; /* تقليل أكثر للمسافة */
+    }
+
+    .table-container td:before {
+        width: 35%;
+        font-size: 0.8rem;
+        right: 0.5rem;
+    }
+
+    #login-overlay .popup-content {
+        max-width: 95%;
+        margin: 1rem auto;
+        padding: 1rem;
+    }
+}
+
+/* إصلاح إضافي للهواتف المتوسطة */
+@media (max-width: 768px) and (min-width: 481px) {
+    .table-container td {
+        padding-right: 42%; /* توازن أفضل للمسافة */
+    }
+
+    .table-container td:before {
+        width: 38%;
+    }
+}
