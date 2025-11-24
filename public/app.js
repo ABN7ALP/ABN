@@ -148,18 +148,35 @@ document.addEventListener('DOMContentLoaded', () => {
     function hideAuthPopup() { authPopupOverlay.classList.add('hidden'); }
 
     async function loginHandler(e) {
-        e.preventDefault();
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-password').value;
-        try {
-            const response = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.message || 'فشل تسجيل الدخول');
-            localStorage.setItem('userInfo', JSON.stringify(data));
-            hideAuthPopup();
-            updateUIForAuth();
-        } catch (error) { loginPopupError.textContent = error.message; }
+    e.preventDefault();
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    try {
+        const response = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'فشل تسجيل الدخول');
+            
+        // ******** ابدأ التعديل من هنا ********
+
+        // 1. قم بتخزين البيانات في localStorage أولاً
+        localStorage.setItem('userInfo', JSON.stringify(data));
+            
+        // 2. قم بتحديث المتغير العام userInfo مباشرةً من البيانات الجديدة
+        userInfo = data; 
+            
+        // 3. أغلق نافذة تسجيل الدخول
+        hideAuthPopup();
+            
+        // 4. الآن فقط، قم بتحديث الواجهة بالكامل
+        updateUIForAuth();
+
+        // ******** انتهى التعديل ********
+
+    } catch (error) { 
+        loginPopupError.textContent = error.message; 
     }
+}
+
 
     async function registerHandler(e) {
         e.preventDefault();
