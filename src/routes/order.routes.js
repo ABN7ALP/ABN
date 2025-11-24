@@ -32,6 +32,27 @@ router.put('/:id', async (req, res) => {
         if (order) {
             order.status = req.body.status || order.status;
             const updatedOrder = await order.save();
+            // ******** ابدأ الإضافة من هنا ********
+
+            // التحقق مما إذا كان الطلب مرتبطاً بمستخدم لإرسال إشعار له
+            if (updatedOrder.user) {
+                const notificationMessage = `تم تحديث حالة طلبك للخدمة "${updatedOrder.service}" إلى: ${newStatus}.`;
+                const newNotification = new Notification({
+                    user: updatedOrder.user,
+                    message: notificationMessage,
+                    link: '/my-orders.html'
+                });
+                await newNotification.save();
+
+                // إرسال الإشعار عبر Socket.IO
+                req.io.emit('new-notification', {
+                    userId: updatedOrder.user.toString(),
+                    notification: newNotification
+                });
+            }
+            
+            // ******** انتهت الإضافة ********
+
             // إرسال إشارة بالتحديث إلى كل العملاء المتصلين
             req.io.emit('order-status-updated', updatedOrder);
 
