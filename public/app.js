@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const linkInput = document.getElementById('link-input');
     const linkError = document.getElementById('link-error');
     const quantityInput = document.getElementById('quantity-input');
-    const quantityError = document.getElementById('quantity-error'); // <-- العنصر الجديد
+    const quantityError = document.getElementById('quantity-error');
     const priceDisplay = document.getElementById('price-display');
     const orderForm = document.getElementById('order-form');
     const formResponse = document.getElementById('form-response');
@@ -48,93 +48,94 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 2. نظام المصادقة والقائمة المنسدلة ---
     function updateUIForAuth() {
         const storedUser = localStorage.getItem('userInfo');
-        // استبدل هذا الجزء بالكامل
-if (storedUser) {
-    userInfo = JSON.parse(storedUser);
+        if (storedUser) {
+            userInfo = JSON.parse(storedUser);
 
-    // ******** ابدأ التعديل من هنا ********
-
-    // 1. إنشاء جرس الإشعارات
-    notificationBellContainer.innerHTML = `
-        <div class="notification-bell">
-            <i class="ph-bold ph-bell"></i>
-            <span id="notification-count" class="notification-count">0</span>
-            <div id="notifications-dropdown" class="notifications-dropdown">
-                <div class="notifications-header">
-                    <h4>الإشعارات</h4>
-                    <button id="mark-all-read-btn" class="mark-all-read-btn">تحديد الكل كمقروء</button>
-                </div>
-                <ul id="notifications-list" class="notifications-list">
-                    <li class="no-notifications">لا توجد إشعارات جديدة.</li>
-                </ul>
-            </div>
-        </div>
-    `;
-
-    // 2. إنشاء قائمة المستخدم
-    mainNav.innerHTML = `
-        <div class="user-dropdown">
-            <div class="user-dropdown-toggle">
-                <i class="ph-bold ph-user-circle"></i>
-                <span>${userInfo.username}</span>
-                <i class="ph-bold ph-caret-down"></i>
-            </div>
-            <div class="user-dropdown-menu">
-                <div class="user-dropdown-header">
-                    <h4>رصيدك الحالي</h4>
-                    <div class="balance-display">
-                        <i class="ph-bold ph-wallet"></i>
-                        <span>${(userInfo.balance || 0).toFixed(2)} $</span>
+            // 1. إنشاء جرس الإشعارات
+            notificationBellContainer.innerHTML = `
+                <div class="notification-bell">
+                    <i class="ph-bold ph-bell"></i>
+                    <span id="notification-count" class="notification-count">0</span>
+                    <div id="notifications-dropdown" class="notifications-dropdown">
+                        <div class="notifications-header">
+                            <h4>الإشعارات</h4>
+                            <button id="mark-all-read-btn" class="mark-all-read-btn">تحديد الكل كمقروء</button>
+                        </div>
+                        <ul id="notifications-list" class="notifications-list">
+                            <li class="no-notifications">لا توجد إشعارات جديدة.</li>
+                        </ul>
                     </div>
                 </div>
-                <a href="#" id="add-balance-link"><i class="ph-bold ph-plus-circle"></i> شحن الرصيد</a>
-                <a href="my-orders.html"><i class="ph-bold ph-list-checks"></i> طلباتي</a>
-                <button id="logout-btn" class="logout-link"><i class="ph-bold ph-sign-out"></i> تسجيل الخروج</button>
-            </div>
-        </div>
-    `;
+            `;
 
-    // 3. ربط الأحداث الخاصة بالقوائم المنسدلة
-    document.querySelector('.user-dropdown-toggle').addEventListener('click', (e) => {
-        e.stopPropagation(); // منع إغلاق القائمة فوراً
-        document.querySelector('.user-dropdown').classList.toggle('active');
-        document.querySelector('.notification-bell').classList.remove('active'); // إغلاق قائمة الإشعارات
-    });
+            // 2. إنشاء قائمة المستخدم
+            mainNav.innerHTML = `
+                <div class="user-dropdown">
+                    <div class="user-dropdown-toggle">
+                        <i class="ph-bold ph-user-circle"></i>
+                        <span>${userInfo.username}</span>
+                        <i class="ph-bold ph-caret-down"></i>
+                    </div>
+                    <div class="user-dropdown-menu">
+                        <div class="user-dropdown-header">
+                            <h4>رصيدك الحالي</h4>
+                            <div class="balance-display">
+                                <i class="ph-bold ph-wallet"></i>
+                                <span>${(userInfo.balance || 0).toFixed(2)} $</span>
+                            </div>
+                        </div>
+                        <a href="#" id="add-balance-link"><i class="ph-bold ph-plus-circle"></i> شحن الرصيد</a>
+                        <a href="my-orders.html"><i class="ph-bold ph-list-checks"></i> طلباتي</a>
+                        <button id="logout-btn" class="logout-link"><i class="ph-bold ph-sign-out"></i> تسجيل الخروج</button>
+                    </div>
+                </div>
+            `;
 
-    document.querySelector('.notification-bell .ph-bell').addEventListener('click', (e) => {
-        e.stopPropagation(); // منع إغلاق القائمة فوراً
-        const bell = document.querySelector('.notification-bell');
-        bell.classList.toggle('active');
-        document.querySelector('.user-dropdown').classList.remove('active'); // إغلاق قائمة المستخدم
-        if (bell.classList.contains('active')) {
-            markNotificationsAsRead(); // عند فتح القائمة، نحددها كمقروءة
+            // 3. ربط الأحداث الخاصة بالقوائم المنسدلة
+            document.querySelector('.user-dropdown-toggle').addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.querySelector('.user-dropdown').classList.toggle('active');
+                document.querySelector('.notification-bell').classList.remove('active');
+            });
+
+            const bellIcon = document.querySelector('.notification-bell .ph-bell');
+            if (bellIcon) {
+                bellIcon.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const bell = document.querySelector('.notification-bell');
+                    bell.classList.toggle('active');
+                    document.querySelector('.user-dropdown').classList.remove('active');
+                    if (bell.classList.contains('active')) {
+                        markNotificationsAsRead();
+                    }
+                });
+            }
+            
+            const markAllReadBtn = document.getElementById('mark-all-read-btn');
+            if(markAllReadBtn) {
+                markAllReadBtn.addEventListener('click', markNotificationsAsRead);
+            }
+
+            document.getElementById('logout-btn').addEventListener('click', logoutHandler);
+            document.getElementById('add-balance-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                showDepositPopup();
+                document.querySelector('.user-dropdown').classList.remove('active');
+            });
+
+            fetchNotifications();
+
+        } else {
+            userInfo = null;
+            notificationBellContainer.innerHTML = '';
+            mainNav.innerHTML = `
+                <button id="login-btn" class="pill-button secondary-button">تسجيل الدخول</button>
+                <button id="register-btn" class="pill-button primary-button">إنشاء حساب</button>
+            `;
+            document.getElementById('login-btn').addEventListener('click', () => showAuthPopup('login'));
+            document.getElementById('register-btn').addEventListener('click', () => showAuthPopup('register'));
         }
-    });
-
-    // ربط الأحداث الأخرى
-    document.getElementById('logout-btn').addEventListener('click', logoutHandler);
-    document.getElementById('add-balance-link').addEventListener('click', (e) => {
-        e.preventDefault();
-        showDepositPopup();
-        document.querySelector('.user-dropdown').classList.remove('active');
-    });
-
-    // جلب الإشعارات للمستخدم
-    fetchNotifications();
-
-    // ******** انتهى التعديل ********
-
-} else {
-    userInfo = null;
-    // ******** أضف هذا السطر هنا ********
-    notificationBellContainer.innerHTML = ''; // إخفاء الجرس عند تسجيل الخروج
-    mainNav.innerHTML = `
-        <button id="login-btn" class="pill-button secondary-button">تسجيل الدخول</button>
-        <button id="register-btn" class="pill-button primary-button">إنشاء حساب</button>
-    `;
-    document.getElementById('login-btn').addEventListener('click', () => showAuthPopup('login'));
-    document.getElementById('register-btn').addEventListener('click', () => showAuthPopup('register'));
-}
+    }
 
     function showAuthPopup(formType) {
         loginPopupError.textContent = '';
@@ -325,13 +326,13 @@ if (storedUser) {
             option.dataset.price = service.pricePer1000;
             option.dataset.min = service.min;
             option.dataset.max = service.max;
-            option.dataset.step = service.step || 1; // <-- إضافة هنا
+            option.dataset.step = service.step || 1;
             option.textContent = `${service.name}`;
             serviceSelect.appendChild(option);
         });
         orderForm.reset();
         linkError.textContent = '';
-        quantityError.textContent = ''; // <-- مسح خطأ الكمية
+        quantityError.textContent = '';
         orderPopupOverlay.classList.remove('hidden');
         updateFormBasedOnService();
     }
@@ -341,10 +342,10 @@ if (storedUser) {
         if (!selectedOption) return;
         const min = selectedOption.dataset.min;
         const max = selectedOption.dataset.max;
-        const step = selectedOption.dataset.step; // <-- إضافة هنا
+        const step = selectedOption.dataset.step;
         quantityInput.min = min;
         quantityInput.max = max;
-        quantityInput.step = step; // <-- إضافة هنا
+        quantityInput.step = step;
         quantityInput.value = Math.max(min, 1000);
         quantityInput.placeholder = `الكمية (بين ${min} و ${max})`;
         updatePrice();
@@ -371,7 +372,6 @@ if (storedUser) {
         return true;
     }
 
-    // ******** دالة تحقق جديدة ********
     function validateQuantity() {
         const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
         if (!selectedOption) return false;
@@ -386,7 +386,6 @@ if (storedUser) {
         quantityError.textContent = '';
         return true;
     }
-    // ******** نهاية الدالة ********
 
     // --- 6. معالجة إرسال الطلب وخيارات الدفع ---
     function handleFormSubmit(event) {
@@ -441,68 +440,63 @@ if (storedUser) {
 
     function hidePopup() { orderPopupOverlay.classList.add('hidden'); }
 
-// --- 6.5. نظام الإشعارات ---
-
-// دالة لجلب الإشعارات من الخادم
-async function fetchNotifications() {
-    if (!userInfo) return;
-    try {
-        const response = await fetch('/api/notifications', {
-            headers: { 'Authorization': `Bearer ${userInfo.token}` }
-        });
-        if (!response.ok) throw new Error('Failed to fetch notifications');
-        const notifications = await response.json();
-        renderNotifications(notifications);
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-// دالة لعرض الإشعارات في القائمة
-function renderNotifications(notifications) {
-    const list = document.getElementById('notifications-list');
-    const countBadge = document.getElementById('notification-count');
-    if (!list || !countBadge) return;
-
-    const unreadCount = notifications.filter(n => !n.read).length;
-    countBadge.textContent = unreadCount;
-    countBadge.classList.toggle('visible', unreadCount > 0);
-
-    if (notifications.length === 0) {
-        list.innerHTML = '<li class="no-notifications">لا توجد إشعارات حالياً.</li>';
-        return;
+    // --- 6.5. نظام الإشعارات ---
+    async function fetchNotifications() {
+        if (!userInfo) return;
+        try {
+            const response = await fetch('/api/notifications', {
+                headers: { 'Authorization': `Bearer ${userInfo.token}` }
+            });
+            if (!response.ok) throw new Error('Failed to fetch notifications');
+            const notifications = await response.json();
+            renderNotifications(notifications);
+        } catch (error) {
+            console.error(error);
+        }
     }
 
-    list.innerHTML = notifications.map(n => `
-        <li>
-            <a href="${n.link || '#'}" class="notification-item ${!n.read ? 'unread' : ''}">
-                <p>${n.message}</p>
-                <span class="timestamp">${new Date(n.createdAt).toLocaleString('ar-EG')}</span>
-            </a>
-        </li>
-    `).join('');
-}
+    function renderNotifications(notifications) {
+        const list = document.getElementById('notifications-list');
+        const countBadge = document.getElementById('notification-count');
+        if (!list || !countBadge) return;
 
-// دالة لتحديد الإشعارات كمقروءة
-async function markNotificationsAsRead() {
-    const countBadge = document.getElementById('notification-count');
-    if (!userInfo || !countBadge || countBadge.textContent === '0') return;
+        const unreadCount = notifications.filter(n => !n.read).length;
+        countBadge.textContent = unreadCount;
+        countBadge.classList.toggle('visible', unreadCount > 0);
 
-    try {
-        await fetch('/api/notifications/mark-read', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${userInfo.token}` }
-        });
-        // تحديث الواجهة فوراً
-        countBadge.textContent = '0';
-        countBadge.classList.remove('visible');
-        document.querySelectorAll('.notification-item.unread').forEach(item => {
-            item.classList.remove('unread');
-        });
-    } catch (error) {
-        console.error('Failed to mark notifications as read:', error);
+        if (notifications.length === 0) {
+            list.innerHTML = '<li class="no-notifications">لا توجد إشعارات حالياً.</li>';
+            return;
+        }
+
+        list.innerHTML = notifications.map(n => `
+            <li>
+                <a href="${n.link || '#'}" class="notification-item ${!n.read ? 'unread' : ''}">
+                    <p>${n.message}</p>
+                    <span class="timestamp">${new Date(n.createdAt).toLocaleString('ar-EG')}</span>
+                </a>
+            </li>
+        `).join('');
     }
-}
+
+    async function markNotificationsAsRead() {
+        const countBadge = document.getElementById('notification-count');
+        if (!userInfo || !countBadge || countBadge.textContent === '0') return;
+
+        try {
+            await fetch('/api/notifications/mark-read', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${userInfo.token}` }
+            });
+            countBadge.textContent = '0';
+            countBadge.classList.remove('visible');
+            document.querySelectorAll('.notification-item.unread').forEach(item => {
+                item.classList.remove('unread');
+            });
+        } catch (error) {
+            console.error('Failed to mark notifications as read:', error);
+        }
+    }
         
     // --- 7. ربط الأحداث ---
     closePopupButton.addEventListener('click', hidePopup);
@@ -528,20 +522,17 @@ async function markNotificationsAsRead() {
     depositPopupOverlay.addEventListener('click', (e) => { if (e.target === depositPopupOverlay) hideDepositPopup(); });
     paymentMethodBtns.forEach(btn => btn.addEventListener('click', handlePaymentMethodSelect));
     depositForm.addEventListener('submit', handleDepositSubmit);
+    
     document.addEventListener('click', (e) => {
-    const userDropdown = document.querySelector('.user-dropdown');
-    const notificationBell = document.querySelector('.notification-bell');
-
-    // إغلاق قائمة المستخدم إذا لم يتم الضغط عليها
-    if (userDropdown && !userDropdown.contains(e.target)) {
-        userDropdown.classList.remove('active');
-    }
-
-    // إغلاق قائمة الإشعارات إذا لم يتم الضغط عليها
-    if (notificationBell && !notificationBell.contains(e.target)) {
-        notificationBell.classList.remove('active');
-    }
-});
+        const userDropdown = document.querySelector('.user-dropdown');
+        const notificationBell = document.querySelector('.notification-bell');
+        if (userDropdown && !userDropdown.contains(e.target)) {
+            userDropdown.classList.remove('active');
+        }
+        if (notificationBell && !notificationBell.contains(e.target)) {
+            notificationBell.classList.remove('active');
+        }
+    });
 
     payWithBalanceBtn.addEventListener('click', executePayWithBalance);
     payWithWhatsappBtn.addEventListener('click', executePayWithWhatsapp);
@@ -550,16 +541,20 @@ async function markNotificationsAsRead() {
     socket.on('new-service', loadServices);
     socket.on('service-updated', loadServices);
     socket.on('service-deleted', loadServices);
+    socket.on('deposit-approved', (data) => {
+        if (userInfo && userInfo._id === data.userId) {
+            refreshUserData();
+        }
+    });
     socket.on('new-notification', (data) => {
-    // التأكد من أن الإشعار يخص المستخدم الحالي
-    if (userInfo && userInfo._id === data.userId) {
-        console.log('New notification received!');
-        // تشغيل صوت تنبيه خفيف
-        new Audio('/sounds/notification.mp3').play().catch(e => console.log("User interaction needed to play audio."));
-        // إعادة جلب الإشعارات لتحديث القائمة
-        fetchNotifications();
-    }
-});
+        if (userInfo && userInfo._id === data.userId) {
+            console.log('New notification received!');
+            // يمكنك إضافة ملف صوتي هنا إذا أردت
+            // new Audio('/sounds/notification.mp3').play().catch(e => console.log("User interaction needed to play audio."));
+            fetchNotifications();
+        }
+    });
+
     // --- 9. البدء بتشغيل كل شيء ---
     updateUIForAuth();
     loadServices();
