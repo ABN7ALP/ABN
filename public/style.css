@@ -1256,3 +1256,79 @@ body {
         width: 38%;
     }
 }
+/* ===== إصلاح المسافات الطويلة في الجداول على الهواتف ===== */
+@media (max-width: 768px) {
+    .table-container td {
+        padding: 0.6rem 0.5rem !important;
+        padding-right: 35% !important; /* تقليل كبير في المسافة */
+        text-align: right;
+    }
+
+    .table-container td:before {
+        right: 0.5rem;
+        width: 30% !important; /* تقليل عرض التسميات */
+        text-align: right;
+        font-size: 0.8rem;
+    }
+
+    /* إصلاح أزرار التعديل والحذف في قسم الخدمات */
+    #services-table .action-buttons .pill-button {
+        padding: 0.4rem 0.8rem !important;
+        font-size: 0.75rem !important;
+        min-width: 60px !important;
+    }
+
+    /* ألوان جديدة لأزرار التعديل والحذف */
+    #services-table .edit-btn {
+        background-color: #4CAF50 !important; /* أخضر */
+        color: white !important;
+    }
+
+    #services-table .delete-btn {
+        background-color: #f44336 !important; /* أحمر */
+        color: white !important;
+    }
+
+    /* تحسين شكل أزرار الإجراءات */
+    .action-buttons .pill-button {
+        border-radius: 8px !important;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .action-buttons .pill-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+}
+
+/* ===== إصلاح إضافي للهواتف الصغيرة جداً ===== */
+@media (max-width: 480px) {
+    .table-container td {
+        padding-right: 30% !important; /* تقليل أكثر */
+    }
+
+    .table-container td:before {
+        width: 25% !important;
+        font-size: 0.75rem;
+    }
+
+    #services-table .action-buttons .pill-button {
+        padding: 0.3rem 0.6rem !important;
+        font-size: 0.7rem !important;
+        min-width: 50px !important;
+    }
+}
+
+/* ===== إصلاح لصفحة طلباتي ===== */
+@media (max-width: 768px) {
+    #my-orders-table td {
+        padding: 0.6rem 0.5rem !important;
+        padding-right: 35% !important;
+    }
+
+    #my-orders-table td:before {
+        right: 0.5rem;
+        width: 30% !important;
+    }
+}
