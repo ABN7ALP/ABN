@@ -1260,13 +1260,13 @@ body {
 @media (max-width: 768px) {
     .table-container td {
         padding: 0.6rem 0.5rem !important;
-        padding-right: 15% !important; /* تقليل كبير في المسافة */
+        padding-right: 25% !important; /* تقليل كبير في المسافة */
         text-align: right;
     }
 
     .table-container td:before {
         right: 0.5rem;
-        width: 10% !important; /* تقليل عرض التسميات */
+        width: 30% !important; /* تقليل عرض التسميات */
         text-align: right;
         font-size: 0.8rem;
     }
@@ -1305,7 +1305,7 @@ body {
 /* ===== إصلاح إضافي للهواتف الصغيرة جداً ===== */
 @media (max-width: 480px) {
     .table-container td {
-        padding-right: 10% !important; /* تقليل أكثر */
+        padding-right: 20% !important; /* تقليل أكثر */
     }
 
     .table-container td:before {
