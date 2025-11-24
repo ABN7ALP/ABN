@@ -1332,3 +1332,170 @@ body {
         width: 30% !important;
     }
 }
+/* ===== كود ذكي لإصلاح الجداول على الهواتف ===== */
+@media (max-width: 768px) {
+    /* قاعدة ذكية لجميع الجداول - إصلاح المسافات */
+    .table-container td {
+        padding: 0.5rem 0.3rem !important;
+        padding-right: 40% !important;
+        text-align: right;
+        min-height: 40px;
+    }
+
+    .table-container td:before {
+        right: 0.3rem !important;
+        width: 35% !important;
+        text-align: right;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    /* كود ذكي لأزرار الإجراءات - يتعرف تلقائي */
+    .action-buttons {
+        display: flex;
+        flex-direction: row;
+        gap: 0.3rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .action-buttons .pill-button {
+        padding: 0.35rem 0.6rem !important;
+        font-size: 0.7rem !important;
+        min-width: auto !important;
+        flex: 1;
+        max-width: 80px;
+        text-align: center;
+        border-radius: 6px !important;
+    }
+
+    /* كود ذكي لألوان الأزرار - يتعرف تلقائي على أنواع الأزرار */
+    .action-buttons .pill-button[class*="edit"],
+    .action-buttons .pill-button:has(.ph-pencil) {
+        background-color: #28a745 !important;
+        color: white !important;
+        border: none !important;
+    }
+
+    .action-buttons .pill-button[class*="delete"],
+    .action-buttons .pill-button:has(.ph-trash) {
+        background-color: #dc3545 !important;
+        color: white !important;
+        border: none !important;
+    }
+
+    .action-buttons .pill-button[class*="approve"],
+    .action-buttons .pill-button:has(.ph-check) {
+        background-color: #17a2b8 !important;
+        color: white !important;
+        border: none !important;
+    }
+
+    .action-buttons .pill-button[class*="reject"],
+    .action-buttons .pill-button:has(.ph-x) {
+        background-color: #ffc107 !important;
+        color: #212529 !important;
+        border: none !important;
+    }
+
+    /* كود ذكي لزر تغيير الحالة */
+    .status-select-wrapper {
+        width: 100% !important;
+        min-width: auto !important;
+    }
+
+    .status-select {
+        width: 100% !important;
+        padding: 0.4rem 1.8rem 0.4rem 0.6rem !important;
+        font-size: 0.75rem !important;
+        max-width: 120px;
+        margin: 0 auto;
+        display: block;
+    }
+
+    /* تحسين الشكل العام للأزرار */
+    .action-buttons .pill-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        opacity: 0.9;
+    }
+}
+
+/* ===== كود ذكي للهواتف الصغيرة جداً ===== */
+@media (max-width: 480px) {
+    .table-container td {
+        padding-right: 38% !important;
+    }
+
+    .table-container td:before {
+        width: 32% !important;
+        font-size: 0.7rem;
+    }
+
+    .action-buttons .pill-button {
+        padding: 0.3rem 0.5rem !important;
+        font-size: 0.65rem !important;
+        max-width: 70px;
+    }
+
+    .status-select {
+        max-width: 100px;
+        font-size: 0.7rem !important;
+    }
+}
+
+/* ===== كود ذكي للهواتف المتوسطة ===== */
+@media (max-width: 768px) and (min-width: 481px) {
+    .table-container td {
+        padding-right: 42% !important;
+    }
+
+    .table-container td:before {
+        width: 38% !important;
+    }
+
+    .action-buttons .pill-button {
+        max-width: 90px;
+        font-size: 0.75rem !important;
+    }
+}
+
+/* ===== كود ذكي للتأكد من محاذاة صحيحة ===== */
+@media (max-width: 768px) {
+    /* تأكيد محاذاة اليمين لجميع العناصر */
+    .table-container td,
+    .table-container td:before,
+    .action-buttons,
+    .status-select {
+        text-align: right !important;
+        direction: rtl !important;
+    }
+
+    /* إصلاح خاص للعناصر التي قد تكون متروكة */
+    [data-label]:before {
+        right: 0.3rem !important;
+        left: auto !important;
+    }
+}
+
+/* ===== كود ذكي لتحسين المظهر العام ===== */
+@media (max-width: 768px) {
+    .table-container tr {
+        margin-bottom: 0.8rem;
+        padding: 0.8rem;
+    }
+
+    .table-container {
+        padding: 0.8rem;
+    }
+
+    /* تحسين شكل الأزرار في كل الحالات */
+    .pill-button {
+        transition: all 0.2s ease-in-out;
+    }
+
+    .pill-button:active {
+        transform: scale(0.98);
+    }
+}
