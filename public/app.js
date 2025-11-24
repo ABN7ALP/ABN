@@ -550,7 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (userInfo && userInfo._id === data.userId) {
             console.log('New notification received!');
             // يمكنك إضافة ملف صوتي هنا إذا أردت
-            // new Audio('/sounds/notification.mp3').play().catch(e => console.log("User interaction needed to play audio."));
+            new Audio('/sounds/notification.mp3').play().catch(e => console.log("User interaction needed to play audio."));
             fetchNotifications();
         }
     });
