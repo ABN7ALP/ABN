@@ -26,15 +26,23 @@ router.get('/', async (req, res) => {
 });
 
 // --- PUT /api/orders/:id (لتحديث حالة الطلب) ---
+// --- PUT /api/orders/:id (لتحديث حالة الطلب) ---
 router.put('/:id', async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
-        if (order) {
-            order.status = req.body.status || order.status;
+        if (!order) {
+            return res.status(404).json({ message: 'الطلب غير موجود' });
+        }
+    
+        const oldStatus = order.status;
+        const newStatus = req.body.status;
+    
+        if (oldStatus !== newStatus) {
+            order.status = newStatus;
             const updatedOrder = await order.save();
-            // ******** ابدأ الإضافة من هنا ********
-
-            // التحقق مما إذا كان الطلب مرتبطاً بمستخدم لإرسال إشعار له
+    
+            // --- منطق إرسال الإشعار الآمن ---
+            // تحقق من وجود مستخدم وأن الـ ID صالح قبل المتابعة
             if (updatedOrder.user && mongoose.Types.ObjectId.isValid(updatedOrder.user)) {
                 const notificationMessage = `تم تحديث حالة طلبك للخدمة "${updatedOrder.service}" إلى: ${newStatus}.`;
                 const newNotification = new Notification({
@@ -49,22 +57,21 @@ router.put('/:id', async (req, res) => {
                     notification: newNotification
                 });
             }
-
-            
-            // ******** انتهت الإضافة ********
-            
-            // إرسال إشارة بالتحديث إلى كل العملاء المتصلين
+            // --- نهاية منطق الإشعار ---
+    
             req.io.emit('order-status-updated', updatedOrder);
-
             res.json(updatedOrder);
+    
         } else {
-            res.status(404).json({ message: 'الطلب غير موجود' });
+            res.json(order);
         }
+    
     } catch (error) {
-        console.error("Order update error:", error);
+        console.error("Order update error:", error); 
         res.status(500).json({ message: 'فشل تحديث الطلب' });
     }
 });
+
 
 
 // --- POST /api/orders/pay-with-balance (الكود المصحح) ---
