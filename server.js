@@ -33,6 +33,8 @@ const serviceRoutes = require('./src/routes/service.routes');
 const depositRoutes = require('./src/routes/deposit.routes');
 const statsRoutes = require('./src/routes/stats.routes.js');
 const authRoutes = require('./src/routes/auth.routes.js');
+const notificationRoutes = require('./src/routes/notification.routes');
+
 
 const PORT = process.env.PORT || 3000;
 
@@ -54,6 +56,7 @@ app.use('/api/services', serviceRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/deposits', depositRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // منطق Socket.IO
 io.on('connection', (socket) => {
