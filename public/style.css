@@ -1536,3 +1536,162 @@ body {
         transition: all 0.2s ease;
     }
 }
+/* ===================================================================
+   --- 11. NOTIFICATION BELL STYLES ---
+   =================================================================== */
+
+/* حاوية لتنظيم الجرس وقائمة المستخدم */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.notification-bell {
+    position: relative;
+    cursor: pointer;
+}
+
+.notification-bell .ph-bell {
+    font-size: 1.8rem;
+    color: var(--white-pure);
+    transition: color 0.2s ease;
+}
+
+.notification-bell:hover .ph-bell {
+    color: var(--yellow-accent);
+}
+
+/* الشارة الحمراء لعدد الإشعارات غير المقروءة */
+.notification-count {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background-color: var(--danger-red);
+    color: var(--white-pure);
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 2px solid var(--purple-main);
+    transform: scale(0);
+    transition: transform 0.2s ease-out;
+}
+
+.notification-count.visible {
+    transform: scale(1);
+}
+
+/* القائمة المنسدلة للإشعارات */
+.notifications-dropdown {
+    position: absolute;
+    top: calc(100% + 15px);
+    left: 0;
+    transform: translateX(-40%); /* لضبط التوسيط */
+    width: 350px;
+    max-height: 400px;
+    background-color: var(--white-pure);
+    border-radius: var(--radius-card);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    z-index: 101;
+    opacity: 0;
+    visibility: hidden;
+    transform-origin: top center;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-bell.active .notifications-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-40%) scale(1);
+}
+
+.notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--gray-border);
+    flex-shrink: 0;
+}
+
+.notifications-header h4 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.mark-all-read-btn {
+    background: none;
+    border: none;
+    color: var(--purple-main);
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.notifications-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.notification-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--gray-border);
+    transition: background-color 0.2s ease;
+    display: block;
+    text-decoration: none;
+    color: var(--text-dark);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background-color: var(--gray-light);
+}
+
+.notification-item.unread {
+    background-color: var(--purple-light);
+}
+
+.notification-item p {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.notification-item .timestamp {
+    font-size: 0.75rem;
+    color: var(--text-light);
+}
+
+.no-notifications {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-light);
+}
+
+/* تعديلات للشاشات الصغيرة */
+@media (max-width: 768px) {
+    .notifications-dropdown {
+        width: 90vw;
+        max-width: 350px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .notification-bell.active .notifications-dropdown {
+        transform: translateX(-50%) scale(1);
+    }
+}
+
+
