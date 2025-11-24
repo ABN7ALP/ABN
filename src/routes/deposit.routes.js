@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/user.model');
 const Deposit = require('../models/deposit.model');
+const Notification = require('../models/notification.model');
 
 // POST إنشاء طلب شحن جديد
 router.post('/', async (req, res) => {
@@ -53,6 +54,24 @@ router.put('/:id/approve', async (req, res) => {
         await User.findByIdAndUpdate(deposit.user, { $inc: { balance: deposit.amount } });
         deposit.status = 'approved';
         await deposit.save();
+        
+
+        // 1. إنشاء إشعار جديد
+        const notificationMessage = `تمت الموافقة على طلب الشحن الخاص بك وإضافة ${deposit.amount.toFixed(2)}$ إلى رصيدك.`;
+        const newNotification = new Notification({
+            user: deposit.user,
+            message: notificationMessage,
+            link: '/my-orders.html' // رابط يوجه المستخدم لصفحة طلباته
+        });
+        await newNotification.save();
+
+        // 2. إرسال الإشعار عبر Socket.IO إلى المستخدم المحدد
+        const userIdString = deposit.user.toString();
+        req.io.emit('new-notification', { 
+            userId: userIdString,
+            notification: newNotification 
+        });
+
         
         req.io.emit('deposit-approved', { userId: deposit.user.toString() });
         req.io.emit('new-deposit');
