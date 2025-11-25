@@ -62,6 +62,7 @@ router.post('/login', async (req, res) => {
                 username: user.username,
                 email: user.email,
                 balance: user.balance,
+                isAdmin: user.isAdmin,
                 token: generateToken(user._id),
             });
         } else {
@@ -81,11 +82,20 @@ router.get('/me', async (req, res) => {
         return res.status(400).json({ message: 'User ID is required' });
     }
     try {
-        const user = await User.findById(userId).select('-password'); // .select('-password') يمنع إرسال كلمة المرور
+        const user = await User.findById(userId).select('-password');
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        res.json(user);
+        
+        // ******** نحدد البيانات التي نريد إرجاعها ********
+        res.json({
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            balance: user.balance,
+            isAdmin: user.isAdmin // <-- حقل المدير 
+        });
+
     } catch (error) {
         res.status(500).json({ message: 'Server error' });
     }
