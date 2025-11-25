@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/order.model.js');
+const authMiddleware = require('../middleware/auth.middleware');
+const adminMiddleware = require('../middleware/admin.middleware');
+// ****************************
 
 // GET /api/stats - جلب الإحصائيات الرئيسية
-router.get('/', async (req, res) => {
+router.get('/', authMiddleware, adminMiddleware, async (req, res) => { // <--- التعديل هنا
     try {
         // حساب إجمالي الدخل من الطلبات المكتملة
         const totalRevenueResult = await Order.aggregate([
