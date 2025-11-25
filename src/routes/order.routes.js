@@ -5,7 +5,6 @@ const User = require('../models/user.model.js');
 const mongoose = require('mongoose');
 const Service = require('../models/service.model.js');
 const Notification = require('../models/notification.model.js');
-// في بداية order.routes.js (بعد استدعاء النماذج الأخرى)
 const authMiddleware = require('../middleware/auth.middleware');
 const adminMiddleware = require('../middleware/admin.middleware');
 
@@ -22,19 +21,21 @@ router.post('/', async (req, res) => {
     }
 });
 
-// --- GET /api/orders (للوحة التحكم) ---
-router.get('/', authMiddleware, adminMiddleware, async (req, res) => { // <--- التعديل هنا
+// --- GET /api/orders (للوحة التحكم - حماية إدارية) ---
+router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const orders = await Order.find({}).sort({ createdAt: -1 });
+        // نستخدم populate لجلب بيانات المستخدم المرتبط بالطلب إن وجدت
+        const orders = await Order.find({})
+            .populate('user', 'username email') // جلب اسم المستخدم والبريد فقط
+            .sort({ createdAt: -1 });
         res.json(orders);
     } catch (error) {
         res.status(500).json({ message: 'فشل جلب الطلبات' });
     }
 });
 
-// --- PUT /api/orders/:id (لتحديث حالة الطلب) ---
-// --- PUT /api/orders/:id (لتحديث حالة الطلب) ---
-router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => { // <--- التعديل هنا
+// --- PUT /api/orders/:id (لتحديث حالة الطلب - حماية إدارية) ---
+router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
         if (!order) {
@@ -49,7 +50,7 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => { // <--
             const updatedOrder = await order.save();
     
             // --- منطق إرسال الإشعار الآمن ---
-            // تحقق من وجود مستخدم وأن الـ ID صالح قبل المتابعة
+            // نتحقق من وجود حقل المستخدم وأن الـ ID صالح قبل المتابعة
             if (updatedOrder.user && mongoose.Types.ObjectId.isValid(updatedOrder.user)) {
                 const notificationMessage = `تم تحديث حالة طلبك للخدمة "${updatedOrder.service}" إلى: ${newStatus}.`;
                 const newNotification = new Notification({
@@ -80,14 +81,40 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => { // <--
 });
 
 
+// --- GET /api/orders/my-orders - جلب طلبات المستخدم المسجل دخوله ---
+// لا نحتاج لـ authMiddleware هنا لأننا نستخدم الـ userId من الـ query
+// ولكن يجب أن يتأكد الـ Frontend من إرسال التوكن مع الطلب إلى الـ /api/auth/me
+router.get('/my-orders', async (req, res) => {
+    // سنحصل على هوية المستخدم من query parameter
+    const { userId } = req.query;
 
-// --- POST /api/orders/pay-with-balance (الكود المصحح) ---
-// --- POST /api/orders/pay-with-balance (النسخة الآمنة) ---
+    if (!userId) {
+        return res.status(401).json({ message: 'لم يتم تحديد المستخدم.' });
+    }
+
+    try {
+        // ابحث عن كل طلبات المستخدم وقم بترتيبها من الأحدث للأقدم
+        const userOrders = await Order.find({ user: userId }).sort({ createdAt: -1 });
+        res.status(200).json(userOrders);
+    } catch (error) {
+        console.error("GET /my-orders error:", error);
+        res.status(500).json({ message: 'فشل جلب الطلبات.' });
+    }
+});
+
+
+// --- POST /api/orders/pay-with-balance (النسخة الآمنة والمكتملة) ---
 router.post('/pay-with-balance', async (req, res) => {
     // 1. نستلم البيانات الأساسية (ونتجاهل السعر القادم من المستخدم للأمان)
     const { userId, service: serviceName, link, quantity, platform } = req.body;
 
     if (!userId) return res.status(401).json({ message: 'يجب تسجيل الدخول.' });
+
+    // التحقق من أن الكمية رقم صحيح وموجب
+    const requestedQuantity = parseInt(quantity);
+    if (isNaN(requestedQuantity) || requestedQuantity <= 0) {
+        return res.status(400).json({ message: 'الكمية غير صالحة.' });
+    }
 
     try {
         // 2. نجلب المستخدم
@@ -98,64 +125,69 @@ router.post('/pay-with-balance', async (req, res) => {
         const serviceDoc = await Service.findOne({ name: serviceName, platform: platform });
         
         if (!serviceDoc) {
-             return res.status(404).json({ message: 'الخدمة المطلوبة غير متوفرة حالياً أو تم تغيير اسمها.' });
+            return res.status(404).json({ message: 'الخدمة غير متوفرة حالياً.' });
         }
 
-        // 4. السيرفر يقوم بحساب السعر الإجمالي
-        // المعادلة: (الكمية / 1000) * السعر_لكل_ألف
-        const realPrice = (quantity / 1000) * serviceDoc.pricePer1000;
-
-        // 5. نتحقق من الرصيد بناءً على السعر الحقيقي المحسوب بالسيرفر
-        if (user.balance < realPrice) {
-            return res.status(400).json({ message: 'رصيدك غير كافٍ لإتمام العملية.' });
+        // 4. التحقق من قيود الخدمة (min, max, step)
+        if (requestedQuantity < serviceDoc.min || requestedQuantity > serviceDoc.max) {
+            return res.status(400).json({ message: `الكمية المطلوبة يجب أن تكون بين ${serviceDoc.min} و ${serviceDoc.max}.` });
+        }
+        if (serviceDoc.step > 1 && requestedQuantity % serviceDoc.step !== 0) {
+            return res.status(400).json({ message: `الكمية يجب أن تكون مضاعفاً للخطوة: ${serviceDoc.step}.` });
         }
 
-        // 6. الخصم والحفظ
-        user.balance -= realPrice;
+        // 5. حساب السعر الفعلي
+        // السعر لكل وحدة = سعر الألف / 1000
+        const pricePerUnit = serviceDoc.pricePer1000 / 1000;
+        const finalPrice = pricePerUnit * requestedQuantity;
+        const price = parseFloat(finalPrice.toFixed(4)); // لضمان دقة تصل إلى 4 منازل عشرية
+
+        // 6. التحقق من الرصيد
+        if (user.balance < price) {
+            return res.status(400).json({ message: 'رصيدك غير كافٍ لإتمام هذا الطلب.' });
+        }
+
+        // 7. خصم المبلغ وحفظ المستخدم
+        user.balance -= price;
         await user.save();
 
+        // 8. إنشاء الطلب
         const newOrder = new Order({
             platform,
             service: serviceName,
             link,
-            quantity,
-            price: realPrice, // نستخدم السعر الحقيقي المحسوب
+            quantity: requestedQuantity,
+            price,
             user: userId,
-            status: 'قيد التنفيذ'
+            status: 'قيد التنفيذ' // نبدأه مباشرة كـ 'قيد التنفيذ' لطلبات الرصيد
         });
         await newOrder.save();
 
+        // 9. إشعار للمدير والعميل
         req.io.emit('new-order');
+        
+        const notificationMessage = `تم تنفيذ طلبك للخدمة "${serviceName}" بنجاح، بتكلفة ${price.toFixed(2)}$`;
+        const newNotification = new Notification({
+            user: user._id,
+            message: notificationMessage,
+            link: '/my-orders.html' 
+        });
+        await newNotification.save();
+        req.io.emit('new-notification', { userId: user._id.toString() });
 
+
+        // 10. إرسال الاستجابة
         res.status(201).json({
-            message: 'تم الدفع بنجاح!',
-            newBalance: user.balance
+            message: 'تم خصم المبلغ وإنشاء الطلب بنجاح!',
+            newBalance: user.balance,
+            order: newOrder
         });
 
     } catch (error) {
         console.error("Pay with balance error:", error);
-        res.status(500).json({ message: 'حدث خطأ أثناء معالجة الدفع.' });
+        res.status(500).json({ message: 'حدث خطأ أثناء معالجة الدفع بالرصيد.' });
     }
 });
 
-// GET /api/orders/my-orders - جلب طلبات المستخدم المسجل دخوله
-router.get('/my-orders', async (req, res) => {
-    // سنحصل على هوية المستخدم من query parameter
-    const { userId } = req.query;
-
-    if (!userId) {
-        return res.status(401).json({ message: 'لم يتم تحديد المستخدم.' });
-    }
-
-    try {
-        const userOrders = await Order.find({ user: userId }).sort({ createdAt: -1 });
-        res.status(200).json(userOrders);
-    } catch (error) {
-        console.error("GET /my-orders error:", error);
-        res.status(500).json({ message: 'فشل جلب طلبات المستخدم.' });
-    }
-});
-// ******** نهاية المسار الجديد ********
 
 module.exports = router;
-
