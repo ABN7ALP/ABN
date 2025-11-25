@@ -11,32 +11,21 @@
     <script src="/socket.io/socket.io.js"></script>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="admin.css">
-
 </head>
-<body class="admin-body"> 
-    
-    <div id="admin-dashboard" class="admin-dashboard hidden">
-        
-        <aside class="sidebar">...</aside>
-        
-        <main class="main-content">...</main>
+<body class="admin-body">
 
-
-    <!-- Login Overlay -->
     <div id="login-overlay" class="popup-overlay">
         <div class="popup-content">
-            <div class="popup-header"><i class="ph-bold ph-lock"></i><h2>تسجيل الدخول</h2></div>
-            <form id="login-form">
-                <div class="form-group"><label for="password-input">كلمة المرور</label><input type="password" id="password-input" required></div>
-                <button type="submit" class="pill-button primary-button">دخول</button>
-                <p id="login-error" class="error-message" style="text-align: center; margin-top: 1rem;"></p>
-            </form>
+            <div class="popup-header"><i class="ph-bold ph-lock-key"></i><h2>دخول المدير</h2></div>
+            <div style="text-align: center;">
+                <p>جاري التحقق من الصلاحيات...</p>
+                <div class="loading-spinner"><i class="ph-bold ph-spinner animate-spin"></i></div>
+            </div>
         </div>
     </div>
 
-    <!-- Admin Dashboard Layout -->
     <div id="admin-dashboard" class="admin-dashboard hidden">
-        <!-- Sidebar -->
+        
         <aside class="sidebar">
             <div class="sidebar-header"><h3>لوحة التحكم</h3></div>
             <nav class="sidebar-nav">
@@ -48,74 +37,67 @@
             </nav>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
-            <!-- Stats Section -->
+            
             <section id="stats-section" class="admin-section active">
-                <div class="section-header"><h2><i class="ph-bold ph-chart-pie-slice"></i> نظرة عامة</h2></div>
+                <div class="section-header"><h2>نظرة عامة</h2></div>
                 <div id="stats-cards-container" class="stats-grid"></div>
             </section>
 
-            <!-- Orders Section -->
             <section id="orders-section" class="admin-section">
-                <div class="section-header"><h2><i class="ph-bold ph-shopping-cart"></i> الطلبات الأخيرة</h2></div>
+                <div class="section-header"><h2>إدارة الطلبات</h2></div>
                 <div class="table-container">
                     <table id="orders-table">
-                        <thead><tr><th>المنصة</th><th>الخدمة</th><th>الرابط</th><th>الكمية</th><th>السعر</th><th>تاريخ الطلب</th><th>الحالة</th></tr></thead>
+                        <thead><tr><th>المنصة</th><th>الخدمة</th><th>الرابط</th><th>الكمية</th><th>السعر</th><th>التاريخ</th><th>الحالة</th></tr></thead>
                         <tbody id="orders-tbody"></tbody>
                     </table>
-                    <div id="loading-spinner" class="loading-spinner"><i class="ph-bold ph-spinner-gap animate-spin"></i></div>
                 </div>
             </section>
 
-            <!-- Deposits Section -->
             <section id="deposits-section" class="admin-section">
-                <div class="section-header"><h2><i class="ph-bold ph-bank"></i> طلبات شحن الرصيد</h2></div>
+                <div class="section-header"><h2>طلبات الشحن</h2></div>
                 <div class="table-container">
                     <table id="deposits-table">
-                        <thead><tr><th>المستخدم</th><th>المبلغ</th><th>الطريقة</th><th>اسم المودع</th><th>الإيصال</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                        <thead><tr><th>المستخدم</th><th>المبلغ</th><th>الطريقة</th><th>الاسم</th><th>الإيصال</th><th>الحالة</th><th>إجراءات</th></tr></thead>
                         <tbody id="deposits-tbody"></tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- Services Section -->
             <section id="services-section" class="admin-section">
-                <h2><i class="ph-bold ph-plus-circle"></i> إضافة خدمة جديدة</h2>
-                <form id="add-service-form" class="admin-form">
-                    <div class="form-row">
-                        <div class="form-group"><label>المنصة</label><input type="text" id="service-platform" placeholder="مثال: Instagram" required></div>
-                        <div class="form-group"><label>اسم الخدمة</label><input type="text" id="service-name" placeholder="مثال: متابعين" required></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>السعر لكل 1000</label><input type="number" id="service-price" placeholder="10.5" step="0.01" required></div>
-                        <div class="form-group"><label>الحد الأدنى</label><input type="number" id="service-min" placeholder="100" required></div>
-                        <div class="form-group"><label>الحد الأقصى</label><input type="number" id="service-max" placeholder="100000" required></div>
-                        <!-- ******** هذا هو الحقل الجديد ******** -->
-                        <div class="form-group"><label>الخطوة (المضاعف)</label><input type="number" id="service-step" placeholder="100" value="1" required></div>
-                        <!-- ******** نهاية الإضافة ******** -->
-                    </div>
-                    <button type="submit" class="pill-button primary-button">إضافة الخدمة</button>
-                </form>
-                <div id="service-form-response"></div>
-                <hr class="divider">
-                <h2><i class="ph-bold ph-list-bullets"></i> الخدمات الحالية</h2>
+                <div class="section-header"><h2>إدارة الخدمات</h2></div>
+                
+                <div class="stat-card" style="margin-bottom: 2rem; display: block;">
+                    <h3 style="margin-bottom: 1rem;">إضافة خدمة جديدة</h3>
+                    <form id="add-service-form" class="service-form-grid">
+                        <div class="form-group"><input type="text" id="service-platform" placeholder="المنصة (مثال: Instagram)" required></div>
+                        <div class="form-group"><input type="text" id="service-name" placeholder="اسم الخدمة" required></div>
+                        <div class="form-group"><input type="number" id="service-price" placeholder="السعر لكل 1000" step="0.01" required></div>
+                        <div class="form-group"><input type="number" id="service-min" placeholder="الحد الأدنى" required></div>
+                        <div class="form-group"><input type="number" id="service-max" placeholder="الحد الأقصى" required></div>
+                        <div class="form-group"><input type="number" id="service-step" placeholder="الخطوة (Step)" value="1" required></div>
+                        <button type="submit" class="pill-button primary-button" style="grid-column: 1 / -1;">إضافة</button>
+                    </form>
+                    <p id="service-form-response" class="success-message"></p>
+                </div>
+
                 <div class="table-container">
                     <table id="services-table">
-                        <thead><tr><th>المنصة</th><th>الخدمة</th><th>السعر/1000</th><th>أدنى/أقصى حد</th><th>الخطوة</th><th>إجراءات</th></tr></thead>
+                        <thead><tr><th>المنصة</th><th>الخدمة</th><th>السعر</th><th>الحدود</th><th>الخطوة</th><th>إجراءات</th></tr></thead>
                         <tbody id="services-tbody"></tbody>
                     </table>
                 </div>
             </section>
+
         </main>
     </div>
 
-    <!-- Edit Service Popup -->
     <div id="edit-service-popup" class="popup-overlay hidden">
         <div class="popup-content">
             <button class="close-btn" id="close-edit-popup-btn"><i class="ph-bold ph-x"></i></button>
             <div class="popup-header"><h2>تعديل الخدمة</h2></div>
-            <form id="edit-service-form"></form>
+            <form id="edit-service-form">
+                </form>
         </div>
     </div>
 
