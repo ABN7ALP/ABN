@@ -3,87 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>طلباتي - متجر الخدمات</title>
+    <title>سجلاتي - متجر الخدمات</title>
+    
+    <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Socket.IO -->
     <script src="/socket.io/socket.io.js"></script>
     
-    <!-- استدعاء ملفات الأنماط بالترتيب الصحيح -->
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="my-orders.css">
 </head>
-<body class="my-orders-body"> <!-- إضافة كلاس للجسم لتمييز الصفحة -->
+<body class="my-orders-body">
 
     <!-- Header -->
     <header class="main-header">
         <div class="container">
             <a href="/" class="logo">متجر الخدمات</a>
-            <!-- سيتم ملء القائمة هنا بواسطة JavaScript -->
-            <nav id="main-nav" class="main-nav"></nav>
+            <nav id="main-nav" class="main-nav">
+                <!-- سيتم ملء القائمة هنا بواسطة JavaScript -->
+            </nav>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="container">
-        <section class="hero">
-            <h1>سجلاتي</h1>
-            <p>هنا يمكنك متابعة حالة جميع معاملاتك وطلباتك السابقة والحالية.</p>
-        </section>
-
-        <!-- ======================================= -->
-        <!--      سجل معاملات الشحن             -->
-        <!-- ======================================= -->
-        <div class="section-header">
-            <h2><i class="ph-bold ph-money"></i> سجل معاملات الشحن</h2>
-        </div>
-        <div class="table-wrapper"> <!-- ** FIX **: استخدام table-wrapper بدلاً من table-container -->
-            <table id="deposits-table">
-                <thead>
-                    <tr>
-                        <th>المبلغ</th>
-                        <th>الطريقة</th>
-                        <th>تاريخ الطلب</th>
-                        <th>الحالة</th>
-                    </tr>
-                </thead>
-                <tbody id="deposits-tbody">
-                    <!-- سيتم ملء البيانات هنا عبر JavaScript -->
-                </tbody>
-            </table>
-        </div>
-
-        <!-- ======================================= -->
-        <!--      سجل طلبات الخدمات             -->
-        <!-- ======================================= -->
-        <div class="section-header">
-            <h2><i class="ph-bold ph-shopping-cart"></i> سجل طلبات الخدمات</h2>
-        </div>
-        <div class="table-wrapper"> <!-- ** FIX **: استخدام table-wrapper بدلاً من table-container -->
-            <table id="my-orders-table">
-                <thead>
-                    <tr>
-                        <th>المنصة</th>
-                        <th>الخدمة</th>
-                        <th>الكمية</th>
-                        <th>السعر</th>
-                        <th>تاريخ الطلب</th>
-                        <th>الحالة</th>
-                    </tr>
-                </thead>
-                <tbody id="my-orders-tbody">
-                    <!-- سيتم ملء البيانات هنا عبر JavaScript -->
-                </tbody>
-            </table>
-        </div>
+    <main id="main-content" class="container">
+        <!-- سيتم ملء المحتوى هنا بواسطة JavaScript -->
     </main>
 
-    <!-- Popups (إذا احتجناها في المستقبل) -->
-    <!-- يمكن إضافة النوافذ المنبثقة هنا إذا أردنا فتحها من هذه الصفحة مباشرة -->
-
-    <!-- السكربت الخاص بهذه الصفحة -->
+    <!-- JavaScript File -->
     <script src="my-orders.js"></script>
 </body>
 </html>
-
