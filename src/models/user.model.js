@@ -27,8 +27,14 @@ const userSchema = new mongoose.Schema({
     balance: {
         type: Number,
         required: true,
-        default: 0 // الرصيد الافتراضي لأي مستخدم جديد هو صفر
+        default: 0
+    },
+    // ******** إضافة جديدة: صلاحيات الأدمن ********
+    isAdmin: { 
+        type: Boolean,
+        default: false // القيمة الافتراضية لأي مستخدم جديد هي 'ليس أدمن'
     }
+    
 }, {
     timestamps: true
 });
