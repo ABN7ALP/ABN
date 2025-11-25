@@ -45,20 +45,25 @@ function checkAdminAccess() {
     const loginOverlay = document.getElementById('login-overlay');
     const adminDashboard = document.getElementById('admin-dashboard');
 
+    // ******** إضافة مؤقتة للتحقق (هذه هي النقطة الحاسمة) ********
+    console.log('--- Admin Access Check Values ---');
+    console.log('userInfo exists:', !!userInfo); // يجب أن تكون: true
+    console.log('token exists:', !!token); // يجب أن تكون: true
+    console.log('isAdmin value:', userInfo ? userInfo.isAdmin : 'N/A'); // يجب أن تكون: true
+    console.log('Condition result:', userInfo && token && (userInfo.isAdmin === true || userInfo.isAdmin === 'true'));
+    // *********************************************************
+
     // 2. التحقق من وجود بيانات المستخدم والتوكن وصلاحية الأدمن
-    // تم التعديل هنا ليكون التحقق مرناً: يقبل القيمة المنطقية (true) أو النصية ("true")
     if (userInfo && token && (userInfo.isAdmin === true || userInfo.isAdmin === 'true')) {
-        // إذا كان المستخدم مسجلاً دخوله و مديراً، نفتح لوحة التحكم
+        // ... (كود السماح بالدخول)
         loginOverlay.classList.add('hidden');
         adminDashboard.classList.remove('hidden');
         loadDashboardData();
     } else {
-        // إذا لم يكن مديراً، نمنعه من الدخول
+        // ... (كود الرفض)
         alert('غير مصرح لك بالدخول إلى لوحة التحكم. يرجى تسجيل الدخول بحساب مدير.');
-        // نمسح بيانات المستخدم لضمان عدم المحاولة مجدداً بالتوكن القديم
         localStorage.removeItem('token');
         localStorage.removeItem('userInfo');
-        // يتم توجيه المستخدم لصفحة تسجيل الدخول في الواجهة الرئيسية
         window.location.href = '/index.html#login';
     }
 }
