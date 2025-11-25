@@ -46,7 +46,8 @@ function checkAdminAccess() {
     const adminDashboard = document.getElementById('admin-dashboard');
 
     // 2. التحقق من وجود بيانات المستخدم والتوكن وصلاحية الأدمن
-    if (userInfo && token && userInfo.isAdmin === true) {
+    // تم التعديل هنا ليكون التحقق مرناً: يقبل القيمة المنطقية (true) أو النصية ("true")
+    if (userInfo && token && (userInfo.isAdmin === true || userInfo.isAdmin === 'true')) {
         // إذا كان المستخدم مسجلاً دخوله و مديراً، نفتح لوحة التحكم
         loginOverlay.classList.add('hidden');
         adminDashboard.classList.remove('hidden');
