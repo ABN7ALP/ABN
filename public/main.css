@@ -499,3 +499,179 @@
         transform: translateX(-50%) translateY(0);
     }
 }
+.price-section {
+    background: var(--purple-light);
+    padding: 1.5rem;
+    border-radius: var(--radius-card);
+    margin: 1.5rem 0;
+    text-align: center;
+    border: 2px solid var(--purple-main);
+}
+
+.price-section p {
+    font-size: 1rem;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+#price-display, #final-price-display {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--purple-main);
+    display: block;
+}
+
+.popup-content {
+    max-height: 85vh;
+}
+
+#order-form-container {
+    min-height: 400px;
+}
+#payment-options-container {
+    text-align: center;
+}
+
+.payment-instructions {
+    text-align: center;
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    font-size: 1rem;
+}
+
+.payment-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.payment-buttons .pill-button {
+    justify-content: center;
+    padding: 1.2rem 2rem;
+    font-size: 1.1rem;
+}
+
+.pill-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.pill-button:disabled:hover::before {
+    width: 0;
+    height: 0;
+}
+#deposit-form-response {
+    text-align: center;
+    padding: 1rem;
+    border-radius: var(--radius-input);
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+#deposit-form-response:not(:empty) {
+    animation: fadeIn 0.3s ease;
+}
+
+.form-message.success {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.form-message.error {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+}
+
+.form-message {
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+}
+
+#payment-details-container {
+    background: var(--gray-bg);
+    padding: 1.5rem;
+    border-radius: var(--radius-card);
+    margin: 1.5rem 0;
+    border: 2px dashed var(--gray-border);
+}
+
+#payment-details-container p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    color: var(--text-dark);
+}
+
+#payment-details-container p:last-child {
+    margin-bottom: 0;
+}
+
+#payment-details-container span {
+    background: var(--purple-light);
+    padding: 0.3rem 0.8rem;
+    border-radius: var(--radius-input);
+    font-weight: 600;
+    color: var(--purple-main);
+    font-family: monospace;
+    direction: ltr;
+    display: inline-block;
+    margin: 0.2rem 0;
+}
+
+#payment-details-container img {
+    max-width: 200px;
+    height: auto;
+    display: block;
+    margin: 1rem auto;
+    border-radius: var(--radius-input);
+    box-shadow: var(--shadow-sm);
+}
+
+.payment-method-btn {
+    min-height: 100px;
+}
+
+.payment-method-btn span {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.notification-item {
+    position: relative;
+    padding-right: 2.5rem;
+}
+
+.notification-item .timestamp {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-top: 0.3rem;
+    display: block;
+}
+
+.notification-item.unread {
+    border-right: 4px solid var(--purple-main);
+}
+
+.notification-item.unread::after {
+    content: '';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background: var(--purple-main);
+    border-radius: 50%;
+}
+
+.notifications-dropdown {
+    max-height: 500px;
+}
+
+.notifications-list {
+    max-height: 400px;
+}
