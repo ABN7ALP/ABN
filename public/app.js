@@ -384,16 +384,28 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePrice();
     }
 
-    function updatePrice() {
-        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
-        if (!selectedOption) return;
-        const pricePer1000 = parseFloat(selectedOption.dataset.price);
-        const quantity = parseInt(quantityInput.value, 10);
-        if (isNaN(quantity) || quantity <= 0) { priceDisplay.textContent = '0.00 $'; return; }
-        const totalPrice = (quantity / 1000) * pricePer1000;
-        priceDisplay.textContent = `${totalPrice.toFixed(2)} $`;
+    // 🔽 ابحث عن دالة updatePrice في app.js واستبدلها:
+function updatePrice() {
+    const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+    if (!selectedOption) return;
+    
+    const pricePer1000 = parseFloat(selectedOption.dataset.price);
+    const quantity = parseInt(quantityInput.value, 10);
+    
+    if (isNaN(quantity) || quantity <= 0) { 
+        priceDisplay.textContent = '0.00 $'; 
+        return; 
     }
-
+    
+    const totalPrice = (quantity / 1000) * pricePer1000;
+    priceDisplay.textContent = `${totalPrice.toFixed(2)} $`;
+    
+    // إضافة تأثير عند تغيير السعر
+    priceDisplay.style.transform = 'scale(1.1)';
+    setTimeout(() => {
+        priceDisplay.style.transform = 'scale(1)';
+    }, 200);
+}
     function validateLink() {
         const link = linkInput.value;
         const platformData = servicesData[currentPlatform];
