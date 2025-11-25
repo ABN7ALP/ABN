@@ -1,96 +1,104 @@
 /* ===================================================================
-   4. ADMIN PANEL STYLES (admin.css) - Layout Fixed
+   4. ADMIN PANEL STYLES (admin.css) - Fixed & Styled
    =================================================================== */
 
-/* --- Layout Structure (FIXED) --- */
+/* تأكد من أن الجسم يأخذ كامل الشاشة */
 body.admin-body {
-    overflow: hidden; /* منع سكرول الجسم لأن المحتوى الداخلي هو الذي يتحرك */
+    margin: 0; padding: 0;
     background-color: #f0f2f5;
-}
-
-.admin-dashboard {
-    display: flex; /* استخدام Flexbox هو المفتاح */
     height: 100vh; width: 100vw;
+    overflow: hidden; /* منع سكرول المتصفح */
 }
 
-/* --- Sidebar (Fixed width, Full height) --- */
+/* الحاوية الرئيسية: فليكس بوكس لتقسيم الشاشة */
+.admin-dashboard {
+    display: flex;
+    width: 100%; height: 100%;
+}
+
+/* --- 1. Sidebar (القائمة الجانبية) --- */
 .sidebar {
-    width: 260px; background: #2C3E50; color: white;
+    width: 260px;
+    background: #1A1A1A; /* لون غامق */
+    color: white;
     display: flex; flex-direction: column;
     flex-shrink: 0; /* منع التقلص */
-    height: 100%; overflow-y: auto;
+    height: 100%;
+    overflow-y: auto;
     transition: 0.3s;
 }
-
-.sidebar-header { padding: 2rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
+.sidebar-header { padding: 2rem 1rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
 .sidebar-header h3 { margin: 0; font-size: 1.4rem; color: var(--white-pure); }
 
-.sidebar-nav { padding: 1.5rem 1rem; flex-grow: 1; }
+.sidebar-nav { padding: 1.5rem 1rem; flex-grow: 1; display: flex; flex-direction: column; gap: 0.5rem; }
 .nav-link {
     display: flex; align-items: center; gap: 1rem;
-    padding: 1rem; margin-bottom: 0.5rem;
-    color: rgba(255,255,255,0.7); border-radius: 12px;
-    font-weight: 600; transition: 0.2s;
+    padding: 1rem; color: rgba(255,255,255,0.7);
+    border-radius: 12px; font-weight: 600; transition: 0.2s;
+    text-decoration: none;
 }
 .nav-link:hover, .nav-link.active {
     background: var(--purple-main); color: white;
     box-shadow: 0 4px 15px rgba(124, 30, 255, 0.3);
 }
-.nav-link i { font-size: 1.3rem; }
+.nav-link i { font-size: 1.4rem; }
 .logout-link { margin-top: auto; color: #ff6b6b; }
-.logout-link:hover { background: rgba(255, 107, 107, 0.1); color: #ff6b6b; }
 
-/* --- Main Content Area (Fluid width) --- */
+/* --- 2. Main Content (المحتوى الرئيسي) --- */
 .main-content {
     flex-grow: 1; /* يأخذ باقي المساحة */
-    overflow-y: auto; /* السكرول هنا فقط */
     padding: 2rem;
+    overflow-y: auto; /* السكرول هنا */
     height: 100%;
+    display: block; /* لضمان الظهور */
 }
 
-/* --- Sections --- */
-.admin-section { display: none; animation: fadeIn 0.3s ease; }
-.admin-section.active { display: block; }
+/* الأقسام (Stats, Orders...) */
+.admin-section { display: none; } /* مخفي افتراضياً */
+.admin-section.active { display: block; animation: fadeIn 0.4s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.section-header { margin-bottom: 2rem; }
-.section-header h2 { font-size: 1.8rem; font-weight: 800; color: var(--text-dark); }
+.section-header h2 { margin-bottom: 1.5rem; font-size: 1.8rem; font-weight: 800; }
 
-/* --- Cards & Tables --- */
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+/* --- 3. Cards & Tables --- */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
 .stat-card {
-    background: white; padding: 1.5rem; border-radius: var(--radius-card);
-    box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 1.5rem;
+    background: white; padding: 1.5rem; border-radius: 20px;
+    box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 1rem;
 }
-.stat-icon { width: 60px; height: 60px; background: var(--purple-light); color: var(--purple-main); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
-.stat-info h3 { font-size: 1.8rem; margin: 0; font-weight: 800; }
-.stat-info p { margin: 0; color: var(--text-light); font-size: 0.9rem; }
+.stat-icon { width: 55px; height: 55px; background: var(--purple-light); color: var(--purple-main); border-radius: 14px; display: flex; justify-content: center; align-items: center; font-size: 1.8rem; }
+.stat-info h3 { margin: 0; font-size: 1.8rem; font-weight: 800; }
+.stat-info p { margin: 0; font-size: 0.9rem; color: var(--text-light); }
 
-.table-container { background: white; border-radius: var(--radius-card); padding: 1rem; box-shadow: var(--shadow-sm); overflow-x: auto; }
+.table-container { background: white; border-radius: 20px; padding: 1.5rem; box-shadow: var(--shadow-sm); overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; min-width: 800px; }
 th, td { padding: 1rem; text-align: right; border-bottom: 1px solid var(--gray-border); }
-th { background: var(--gray-bg); font-weight: 700; color: var(--text-dark); }
+th { background: #F8F9FA; color: var(--text-dark); font-weight: 700; }
 
-/* Action Buttons in Table */
-.action-buttons { display: flex; gap: 0.5rem; }
-.action-buttons button { padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 8px; }
-.approve-btn { background: var(--success-green); color: white; border: none; }
-.reject-btn { background: var(--danger-red); color: white; border: none; }
+/* --- 4. Action Buttons (Fixed Styles) --- */
+.action-buttons { display: flex; gap: 0.5rem; justify-content: flex-start; }
 
-/* --- Mobile Responsive (Critical Fix) --- */
+/* زر عام للأكشن */
+.action-btn {
+    width: 36px; height: 36px; border-radius: 10px; border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: 0.2s; color: white; font-size: 1.1rem;
+}
+.edit-btn { background-color: #3498DB; } /* أزرق للتعديل */
+.edit-btn:hover { background-color: #2980B9; }
+
+.delete-btn { background-color: var(--danger-red); } /* أحمر للحذف */
+.delete-btn:hover { background-color: #c0392b; }
+
+.approve-btn { background-color: var(--success-green); width: auto; padding: 0 1rem; font-weight: bold; font-size: 0.85rem; gap: 0.3rem; }
+.reject-btn { background-color: var(--danger-red); width: auto; padding: 0 1rem; font-weight: bold; font-size: 0.85rem; gap: 0.3rem; }
+
+/* --- Responsive --- */
 @media (max-width: 992px) {
     .admin-dashboard { flex-direction: column; }
-    
-    /* تحويل السايد بار إلى شريط سفلي أو علوي */
-    .sidebar {
-        width: 100%; height: auto; flex-direction: row;
-        position: fixed; bottom: 0; left: 0; z-index: 1000;
-        padding: 0.5rem; justify-content: space-around;
-        background: #2C3E50;
-    }
-    .sidebar-header, .sidebar-nav span { display: none; } /* إخفاء النصوص */
-    .sidebar-nav { padding: 0; display: flex; width: 100%; justify-content: space-around; }
-    .nav-link { margin: 0; padding: 0.8rem; border-radius: 50%; }
-    
-    .main-content { padding-bottom: 80px; /* مساحة للشريط السفلي */ }
+    .sidebar { width: 100%; height: auto; position: fixed; bottom: 0; left: 0; flex-direction: row; padding: 0.5rem; z-index: 1000; justify-content: space-around; }
+    .sidebar-header, .sidebar-nav span { display: none; }
+    .sidebar-nav { flex-direction: row; padding: 0; justify-content: space-around; width: 100%; }
+    .nav-link { padding: 0.8rem; margin: 0; border-radius: 50%; }
+    .main-content { padding-bottom: 80px; }
 }
