@@ -1,9 +1,9 @@
 /* ===================================================================
-   SMM STORE - GLOBAL & BASE STYLESHEET
+   SMM STORE - GLOBAL BASE STYLES (Shared Variables & Components)
    =================================================================== */
 
-/* --- 1. Global Settings & Variables --- */
 :root {
+    /* الألوان الأساسية */
     --purple-main: #7C1EFF;
     --purple-light: #f0e8ff;
     --yellow-accent: #FFC107;
@@ -15,165 +15,139 @@
     --danger-red: #dc3545;
     --success-green: #198754;
 
+    /* الخطوط */
     --font-main: 'Cairo', sans-serif;
-    
+
+    /* التباعد والحواف */
     --radius-card: 20px;
     --radius-popup: 25px;
     --radius-button: 50px;
     --radius-soft: 12px;
+    
+    /* الظلال */
+    --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-card: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* --- Reset & Typography --- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-html {
-    scroll-behavior: smooth;
-    overflow-x: hidden;
-    width: 100%;
-    direction: rtl;
-}
+html { scroll-behavior: smooth; width: 100%; direction: rtl; }
 
 body {
     font-family: var(--font-main);
     background-color: var(--gray-light);
     color: var(--text-dark);
     line-height: 1.6;
-    position: relative;
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
-/* --- 2. Layout & Typography Basics --- */
+a { text-decoration: none; color: inherit; transition: 0.3s; }
+ul { list-style: none; }
+
 .container {
-    width: 90%;
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 1rem;
 }
 
-h1 { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; }
-h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; }
-p { margin-bottom: 1rem; color: var(--text-light); }
+.hidden { display: none !important; }
 
-/* --- 3. Buttons & Forms (Shared) --- */
+/* --- Shared Buttons --- */
 .pill-button {
-    padding: 0.65rem 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
     border: none;
     border-radius: var(--radius-button);
+    padding: 0.75rem 1.5rem;
+    font-family: var(--font-main);
     font-weight: 600;
+    font-size: 1rem;
     cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
 .primary-button {
     background-color: var(--purple-main);
     color: var(--white-pure);
 }
-
 .primary-button:hover {
-    background-color: #661be6;
-    box-shadow: 0 4px 10px rgba(124, 30, 255, 0.4);
+    background-color: #6415cc;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
+}
+.primary-button:disabled {
+    background-color: #c5a1ff;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .secondary-button {
-    background-color: transparent;
-    color: var(--purple-main);
-    border: 2px solid var(--purple-main);
-    padding: 0.5rem 1.4rem;
-}
-
-.secondary-button:hover {
-    background-color: var(--purple-light);
-}
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--gray-border);
-    border-radius: var(--radius-soft);
-    font-family: inherit;
-    font-size: 1rem;
+    background-color: var(--yellow-accent);
     color: var(--text-dark);
-    background-color: var(--white-pure);
-    transition: border-color 0.2s ease;
+}
+.secondary-button:hover {
+    background-color: #ffb300;
+    transform: translateY(-2px);
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    border-color: var(--purple-main);
-    outline: none;
+.danger-button {
+    background-color: var(--danger-red);
+    color: var(--white-pure);
 }
 
-/* --- 4. Popups (Shared) --- */
+/* --- Shared Popups Structure --- */
 .popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-    transition: opacity 0.3s ease;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex; justify-content: center; align-items: center;
+    padding: 1rem; z-index: 2000;
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
+.popup-overlay:not(.hidden) { opacity: 1; visibility: visible; }
 
 .popup-content {
     background-color: var(--white-pure);
-    padding: 2rem;
     border-radius: var(--radius-popup);
-    width: 90%;
-    max-width: 450px;
+    width: 100%; max-width: 500px;
     position: relative;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    transform: scale(1);
+    box-shadow: var(--shadow-card);
+    transform: scale(0.95);
     transition: transform 0.3s ease;
+    max-height: 90vh; overflow-y: auto;
+    padding: 2rem;
 }
-
-.popup-header {
-    text-align: center;
-    margin-bottom: 1.5rem;
-}
-
-.popup-header i {
-    font-size: 2rem;
-    color: var(--purple-main);
-    display: block;
-    margin-bottom: 0.5rem;
-}
+.popup-overlay:not(.hidden) .popup-content { transform: scale(1); }
 
 .close-btn {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--text-light);
+    position: absolute; top: 1rem; left: 1rem;
+    background: var(--gray-light); border: none;
+    width: 35px; height: 35px; border-radius: 50%;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; color: var(--text-light);
+    transition: 0.2s;
 }
+.close-btn:hover { background-color: #e0e0e0; color: var(--danger-red); }
 
-.close-btn:hover {
-    color: var(--danger-red);
+/* --- Shared Forms --- */
+.form-group { margin-bottom: 1.25rem; }
+.form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
+.form-group input, .form-group select {
+    width: 100%; padding: 0.8rem 1rem;
+    border: 2px solid var(--gray-border);
+    border-radius: var(--radius-soft);
+    font-family: var(--font-main); font-size: 1rem;
+    transition: border-color 0.3s;
+    background-color: var(--gray-light);
 }
-
-.hidden {
-    display: none !important;
+.form-group input:focus, .form-group select:focus {
+    border-color: var(--purple-main);
+    background-color: var(--white-pure);
+    outline: none;
 }
+.error-message { color: var(--danger-red); font-size: 0.9em; margin-top: 5px; }
