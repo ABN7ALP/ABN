@@ -5,6 +5,11 @@ const User = require('../models/user.model.js');
 const mongoose = require('mongoose');
 const Service = require('../models/service.model.js');
 const Notification = require('../models/notification.model.js');
+// في بداية order.routes.js (بعد استدعاء النماذج الأخرى)
+const authMiddleware = require('../middleware/auth.middleware');
+const adminMiddleware = require('../middleware/admin.middleware');
+
+
 // --- POST /api/orders (للطلبات العادية عبر واتساب) ---
 router.post('/', async (req, res) => {
     try {
@@ -18,7 +23,7 @@ router.post('/', async (req, res) => {
 });
 
 // --- GET /api/orders (للوحة التحكم) ---
-router.get('/', async (req, res) => {
+router.get('/', authMiddleware, adminMiddleware, async (req, res) => { // <--- التعديل هنا
     try {
         const orders = await Order.find({}).sort({ createdAt: -1 });
         res.json(orders);
@@ -29,7 +34,7 @@ router.get('/', async (req, res) => {
 
 // --- PUT /api/orders/:id (لتحديث حالة الطلب) ---
 // --- PUT /api/orders/:id (لتحديث حالة الطلب) ---
-router.put('/:id', async (req, res) => {
+router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => { // <--- التعديل هنا
     try {
         const order = await Order.findById(req.params.id);
         if (!order) {
