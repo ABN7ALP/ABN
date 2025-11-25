@@ -1,109 +1,501 @@
 /* ===================================================================
-   2. MAIN PAGE STYLES (main.css) - index.html
+   2. ENHANCED MAIN PAGE STYLES (main.css) - index.html
    =================================================================== */
 
-/* --- Header Layout --- */
-.main-header { padding: 1rem 0; position: relative; z-index: 100; }
-.main-header .container { display: flex; justify-content: space-between; align-items: center; }
-.logo { font-size: 1.5rem; font-weight: 800; color: var(--purple-main); } /* أرجواني في الصفحة الرئيسية */
+/* --- Header Layout محسن --- */
+.main-header {
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.main-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: var(--purple-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-decoration: none;
+}
 
 .background-gradient {
-    position: absolute; top: 0; left: 0; width: 100%; height: 400px;
-    background: linear-gradient(180deg, rgba(124, 30, 255, 0.05) 0%, rgba(255,255,255,0) 100%);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 500px;
+    background: linear-gradient(180deg, rgba(124, 30, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
     z-index: -1;
 }
 
-/* --- Hero --- */
-.hero { text-align: center; padding: 3rem 0 4rem; }
-.hero h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; color: var(--text-dark); }
-.hero p { font-size: 1.1rem; color: var(--text-light); max-width: 600px; margin: 0 auto; }
+/* --- Hero Section محسن --- */
+.hero {
+    text-align: center;
+    padding: 4rem 0 5rem;
+    position: relative;
+}
 
-/* --- Dropdowns & Notifications (FIXED) --- */
-.header-actions { display: flex; align-items: center; gap: 1.5rem; }
+.hero h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--text-dark) 0%, var(--purple-main) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.2;
+}
 
-/* 1. Notification Bell */
-.notification-bell { position: relative; cursor: pointer; font-size: 1.5rem; }
+.hero p {
+    font-size: 1.2rem;
+    color: var(--text-light);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* --- Dropdowns & Notifications محسن --- */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* 1. Notification Bell محسن */
+.notification-bell {
+    position: relative;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--text-dark);
+    transition: all var(--transition-fast);
+}
+
+.notification-bell:hover {
+    color: var(--purple-main);
+    transform: scale(1.1);
+}
+
 .notification-bell .notification-count {
-    position: absolute; top: -5px; right: -5px;
-    background: var(--danger-red); color: white;
-    font-size: 0.7rem; padding: 2px 6px; border-radius: 10px;
-    border: 2px solid white; font-weight: bold;
-    display: none; /* مخفي إذا كان 0 */
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--danger-red);
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 2px solid white;
+    font-weight: bold;
+    min-width: 18px;
+    text-align: center;
+    display: none;
 }
-.notification-bell .notification-count.visible { display: block; }
 
-/* Notification Dropdown (Fixed Positioning) */
+.notification-bell .notification-count.visible {
+    display: block;
+}
+
+/* Notification Dropdown محسن */
 .notifications-dropdown {
-    position: absolute; top: 150%; left: 50%; transform: translateX(-50%) translateY(10px);
-    width: 320px; background: var(--white-pure); border-radius: var(--radius-card);
-    box-shadow: var(--shadow-md); border: 1px solid var(--gray-border);
-    opacity: 0; visibility: hidden; transition: 0.2s; z-index: 1000;
-    /* هام: لمنع الاختفاء */
-    display: flex; flex-direction: column;
+    position: absolute;
+    top: 150%;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    width: 350px;
+    background: var(--white-pure);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-border);
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-smooth);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
 }
+
 .notification-bell.active .notifications-dropdown {
-    opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
 }
-/* سهم صغير فوق القائمة */
+
 .notifications-dropdown::before {
-    content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%) rotate(45deg);
-    width: 12px; height: 12px; background: var(--white-pure); border-top: 1px solid var(--gray-border); border-left: 1px solid var(--gray-border);
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 12px;
+    height: 12px;
+    background: var(--white-pure);
+    border-top: 1px solid var(--gray-border);
+    border-left: 1px solid var(--gray-border);
 }
 
-.notifications-header { padding: 1rem; border-bottom: 1px solid var(--gray-border); display: flex; justify-content: space-between; align-items: center; }
-.notifications-header h4 { font-size: 0.9rem; margin: 0; }
-.mark-all-read-btn { background: none; border: none; color: var(--purple-main); font-size: 0.8rem; cursor: pointer; font-weight: bold; }
-.notifications-list { max-height: 300px; overflow-y: auto; }
-.notification-item { padding: 0.8rem 1rem; border-bottom: 1px solid var(--gray-bg); font-size: 0.9rem; display: block; }
-.notification-item:hover { background: var(--gray-bg); }
-.notification-item.unread { background: var(--purple-light); }
-.no-notifications { padding: 1.5rem; text-align: center; color: var(--text-light); font-size: 0.9rem; }
+.notifications-header {
+    padding: 1.2rem;
+    border-bottom: 1px solid var(--gray-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--purple-light);
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+}
 
-/* 2. User Dropdown */
-.user-dropdown { position: relative; cursor: pointer; }
-.user-dropdown-toggle { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; background: white; padding: 0.5rem 1rem; border-radius: 30px; box-shadow: var(--shadow-sm); }
+.notifications-header h4 {
+    font-size: 0.95rem;
+    margin: 0;
+    font-weight: 700;
+    color: var(--purple-main);
+}
+
+.mark-all-read-btn {
+    background: none;
+    border: none;
+    color: var(--purple-main);
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all var(--transition-fast);
+}
+
+.mark-all-read-btn:hover {
+    color: var(--purple-dark);
+}
+
+.notifications-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid var(--gray-bg);
+    font-size: 0.9rem;
+    display: block;
+    text-decoration: none;
+    color: var(--text-dark);
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.notification-item:hover {
+    background: var(--purple-light);
+    transform: translateX(-5px);
+}
+
+.notification-item.unread {
+    background: var(--purple-light);
+    border-right: 4px solid var(--purple-main);
+}
+
+.notification-item.unread::before {
+    content: '';
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background: var(--purple-main);
+    border-radius: 50%;
+}
+
+.no-notifications {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+/* 2. User Dropdown محسن */
+.user-dropdown {
+    position: relative;
+    cursor: pointer;
+}
+
+.user-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    background: var(--white-pure);
+    padding: 0.7rem 1.2rem;
+    border-radius: var(--radius-button);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-border);
+    transition: all var(--transition-fast);
+}
+
+.user-dropdown-toggle:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--purple-main);
+}
+
 .user-dropdown-menu {
-    position: absolute; top: 130%; left: 0;
-    width: 240px; background: white; border-radius: 16px;
-    box-shadow: var(--shadow-md); border: 1px solid var(--gray-border);
-    opacity: 0; visibility: hidden; transition: 0.2s; z-index: 1000;
-    padding: 0.5rem; transform: translateY(10px);
+    position: absolute;
+    top: 130%;
+    left: 0;
+    width: 280px;
+    background: var(--white-pure);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-border);
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-smooth);
+    z-index: 1000;
+    padding: 0.8rem;
+    transform: translateY(10px);
 }
-.user-dropdown.active .user-dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
-.user-dropdown-header { padding: 1rem; background: var(--purple-light); border-radius: 12px; margin-bottom: 0.5rem; text-align: center; }
-.balance-display { font-size: 1.2rem; font-weight: 800; color: var(--purple-main); display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
-.user-dropdown-menu a, .user-dropdown-menu button {
-    display: flex; align-items: center; gap: 0.8rem; width: 100%;
-    padding: 0.8rem; border-radius: 8px; font-weight: 600;
-    background: none; border: none; font-size: 0.95rem; color: var(--text-dark); cursor: pointer; font-family: inherit;
-}
-.user-dropdown-menu a:hover, .user-dropdown-menu button:hover { background: var(--gray-bg); }
-.logout-link { color: var(--danger-red) !important; }
 
-/* --- Services Grid --- */
-.services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; padding-bottom: 3rem; }
+.user-dropdown.active .user-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.user-dropdown-header {
+    padding: 1.2rem;
+    background: var(--purple-gradient);
+    border-radius: var(--radius-input);
+    margin-bottom: 0.5rem;
+    text-align: center;
+    color: white;
+}
+
+.user-dropdown-header h4 {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.9;
+}
+
+.balance-display {
+    font-size: 1.4rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.user-dropdown-menu a,
+.user-dropdown-menu button {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border-radius: var(--radius-input);
+    font-weight: 600;
+    background: none;
+    border: none;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+}
+
+.user-dropdown-menu a:hover,
+.user-dropdown-menu button:hover {
+    background: var(--purple-light);
+    color: var(--purple-main);
+    transform: translateX(-5px);
+}
+
+.logout-link {
+    color: var(--danger-red) !important;
+}
+
+.logout-link:hover {
+    background: #fef2f2 !important;
+}
+
+/* --- Services Grid محسن --- */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    padding-bottom: 4rem;
+}
+
 .service-card {
-    background: white; border-radius: var(--radius-card); padding: 2rem;
-    text-align: center; transition: 0.3s; border: 1px solid transparent;
-    box-shadow: var(--shadow-sm); cursor: pointer;
+    background: var(--white-pure);
+    border-radius: var(--radius-card);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    transition: all var(--transition-smooth);
+    border: 1px solid transparent;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
 }
-.service-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); border-color: var(--purple-main); }
-.icon-wrapper { width: 70px; height: 70px; margin: 0 auto 1rem; border-radius: 50%; background: var(--gray-bg); display: flex; align-items: center; justify-content: center; }
-.icon-wrapper img { width: 40px; height: 40px; object-fit: contain; }
-.service-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
-.service-card p { font-size: 0.9rem; color: var(--text-light); margin-bottom: 1.5rem; }
 
-/* --- Payment Methods (Popup) --- */
-.payment-method-selector { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1.5rem; }
+.service-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--purple-gradient);
+    transform: scaleX(0);
+    transition: transform var(--transition-smooth);
+}
+
+.service-card:hover::before {
+    transform: scaleX(1);
+}
+
+.service-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--purple-main);
+}
+
+.icon-wrapper {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    border-radius: 50%;
+    background: var(--purple-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-smooth);
+}
+
+.service-card:hover .icon-wrapper {
+    background: var(--purple-gradient);
+    transform: scale(1.1);
+}
+
+.icon-wrapper img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    transition: all var(--transition-smooth);
+}
+
+.service-card:hover .icon-wrapper img {
+    filter: brightness(0) invert(1);
+}
+
+.service-card h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    color: var(--text-dark);
+}
+
+.service-card p {
+    font-size: 0.95rem;
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.get-button {
+    width: auto;
+    margin: 0 auto;
+}
+
+/* --- Payment Methods محسن --- */
+.payment-method-selector {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
 .payment-method-btn {
-    flex: 1; min-width: 100px; padding: 1rem; border: 2px solid var(--gray-border);
-    border-radius: var(--radius-input); background: white; cursor: pointer;
-    display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: 0.2s;
+    flex: 1;
+    min-width: 120px;
+    padding: 1.5rem 1rem;
+    border: 2px solid var(--gray-border);
+    border-radius: var(--radius-input);
+    background: var(--white-pure);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    transition: all var(--transition-smooth);
 }
-.payment-method-btn.active { border-color: var(--purple-main); background: var(--purple-light); color: var(--purple-main); }
-.payment-method-btn i { font-size: 1.8rem; }
 
+.payment-method-btn:hover {
+    border-color: var(--purple-main);
+    transform: translateY(-2px);
+}
+
+.payment-method-btn.active {
+    border-color: var(--purple-main);
+    background: var(--purple-light);
+    color: var(--purple-main);
+    box-shadow: var(--shadow-sm);
+}
+
+.payment-method-btn i {
+    font-size: 2rem;
+}
+
+/* --- Responsive --- */
 @media (max-width: 768px) {
-    .main-header .container { flex-direction: column; gap: 1rem; }
-    .header-actions { width: 100%; justify-content: center; }
+    .main-header .container {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .header-actions {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .services-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .service-card {
+        padding: 2rem 1.5rem;
+    }
+    
+    .hero h1 {
+        font-size: 2.2rem;
+    }
+    
+    .hero p {
+        font-size: 1.1rem;
+    }
+    
+    .notifications-dropdown {
+        width: 300px;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+    }
+    
+    .user-dropdown-menu {
+        width: 250px;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+    }
+    
+    .user-dropdown.active .user-dropdown-menu {
+        transform: translateX(-50%) translateY(0);
+    }
 }
