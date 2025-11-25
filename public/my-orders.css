@@ -1,0 +1,71 @@
+/* ======================================= */
+/* SMM STORE - MY ORDERS PAGE STYLES */
+/* ======================================= */
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-top: 1rem;
+}
+
+/* 1. Shared Table Styling */
+.table-container {
+    width: 100%;
+    overflow-x: auto; 
+    border-radius: var(--radius-soft);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    background-color: var(--white-pure);
+    margin-bottom: 3rem;
+}
+
+#my-orders-table, #deposits-table {
+    width: 100%;
+    min-width: 600px; /* للتحسين على الجوال */
+    border-collapse: collapse;
+}
+
+#my-orders-table th, #my-orders-table td,
+#deposits-table th, #deposits-table td {
+    padding: 1rem;
+    text-align: right;
+    border-bottom: 1px solid var(--gray-border);
+}
+
+#my-orders-table th, #deposits-table th {
+    background-color: var(--gray-light);
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+/* 2. Status Labels */
+.status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-button);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--white-pure);
+    text-align: center;
+    min-width: 90px;
+}
+
+.status-pending { 
+    background-color: var(--yellow-accent);
+    color: var(--text-dark); 
+}
+
+.status-approved, 
+.status-مكتمل { 
+    background-color: var(--success-green);
+}
+
+.status-rejected,
+.status-ملغي { 
+    background-color: var(--danger-red);
+}
+
+.status-قيد\ التنفيذ {
+    background-color: var(--purple-main);
+}
