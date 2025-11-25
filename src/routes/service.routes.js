@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Service = require('../models/service.model');
 const { v4: uuidv4 } = require('uuid');
+// ******** إضافة جديدة ********
+const authMiddleware = require('../middleware/auth.middleware');
+const adminMiddleware = require('../middleware/admin.middleware');
+// ****************************
 
 // GET كل الخدمات
 router.get('/', async (req, res) => {
@@ -13,8 +17,8 @@ router.get('/', async (req, res) => {
     }
 });
 
-// POST إضافة خدمة جديدة
-router.post('/', async (req, res) => {
+// POST إضافة خدمة جديدة (الآن محمي)
+  router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const newService = new Service({ id: uuidv4(), ...req.body });
         await newService.save();
@@ -29,7 +33,7 @@ router.post('/', async (req, res) => {
 });
 
 // DELETE حذف خدمة
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         await Service.findOneAndDelete({ id: req.params.id });
 
@@ -43,7 +47,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 // PUT تعديل خدمة
-router.put('/:id', async (req, res) => {
+router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         await Service.findOneAndUpdate({ id: req.params.id }, req.body, { new: true });
 
