@@ -1,105 +1,394 @@
 /* ===================================================================
-   1. SMM STORE - BASE STYLES (style.css)
-   هذا الملف يضمن ظهور النوافذ والحقول بشكل صحيح في كل الصفحات
+   1. SMM STORE - ENHANCED BASE STYLES (style.css)
+   تصميم متقدم مع إصلاح الأخطاء
    =================================================================== */
 
 :root {
+    /* نظام ألوان متكامل */
     --purple-main: #7C1EFF;
     --purple-dark: #5a16ba;
     --purple-light: #f3e8ff;
+    --purple-gradient: linear-gradient(135deg, #7C1EFF 0%, #5a16ba 100%);
+    
     --yellow-accent: #FFC107;
     --white-pure: #FFFFFF;
-    --gray-bg: #F4F7F6;
-    --gray-border: #DEE2E6;
-    --text-dark: #212529;
-    --text-light: #6C757D;
-    --danger-red: #DC3545;
-    --success-green: #198754;
+    --gray-bg: #F8FAFC;
+    --gray-border: #E2E8F0;
+    --text-dark: #1E293B;
+    --text-light: #64748B;
+    --danger-red: #EF4444;
+    --success-green: #10B981;
+    --warning-orange: #F59E0B;
+    --info-blue: #3B82F6;
 
     --font-main: 'Cairo', sans-serif;
-    --radius-card: 16px;
+    --radius-card: 20px;
     --radius-button: 50px;
     --radius-input: 12px;
+    
+    /* ظلال محسنة */
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
     --shadow-md: 0 8px 30px rgba(0,0,0,0.12);
+    --shadow-lg: 0 16px 50px rgba(0,0,0,0.15);
+    
+    /* أنيميشن */
+    --transition-fast: 0.2s ease;
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; direction: rtl; }
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
+
+html { 
+    scroll-behavior: smooth; 
+    direction: rtl; 
+}
+
 body {
     font-family: var(--font-main);
     background-color: var(--gray-bg);
     color: var(--text-dark);
     line-height: 1.6;
+    overflow-x: hidden;
 }
 
-/* --- 1. تنسيق النوافذ المنبثقة (Popups) - إصلاح شامل --- */
-.popup-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.6); z-index: 9999;
-    display: flex; justify-content: center; align-items: center;
-    opacity: 0; visibility: hidden; transition: 0.3s;
-    backdrop-filter: blur(5px); /* تأثير ضبابي للخلفية */
+/* --- scrollbar مخصص --- */
+::-webkit-scrollbar {
+    width: 8px;
 }
-.popup-overlay:not(.hidden) { opacity: 1; visibility: visible; }
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--purple-main);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--purple-dark);
+}
+
+/* --- Container --- */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+/* --- 1. تنسيق النوافذ المنبثقة (Popups) - محسن --- */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-smooth);
+    padding: 1rem;
+}
+
+.popup-overlay:not(.hidden) {
+    opacity: 1;
+    visibility: visible;
+}
 
 .popup-content {
-    background: var(--white-pure); width: 95%; max-width: 500px;
-    border-radius: 24px; padding: 2rem; position: relative;
-    box-shadow: var(--shadow-md); transform: scale(0.95); transition: 0.3s;
-    max-height: 90vh; overflow-y: auto;
+    background: var(--white-pure);
+    width: 95%;
+    max-width: 500px;
+    border-radius: 24px;
+    padding: 2rem;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(255,255,255,0.1);
+    transform: scale(0.95) translateY(20px);
+    transition: all var(--transition-smooth);
+    max-height: 90vh;
+    overflow-y: auto;
 }
-.popup-overlay:not(.hidden) .popup-content { transform: scale(1); }
 
-.popup-header { text-align: center; margin-bottom: 1.5rem; }
-.popup-header i { font-size: 3rem; color: var(--purple-main); margin-bottom: 0.5rem; display: block; }
-.popup-header h2 { font-size: 1.5rem; font-weight: 800; margin: 0; }
+.popup-overlay:not(.hidden) .popup-content {
+    transform: scale(1) translateY(0);
+}
+
+.popup-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.popup-header i {
+    font-size: 3rem;
+    background: var(--purple-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.popup-header h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--text-dark);
+}
 
 .close-btn {
-    position: absolute; top: 1rem; left: 1rem;
-    width: 36px; height: 36px; border-radius: 50%;
-    background: var(--gray-bg); border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.2rem; color: var(--text-light); transition: 0.2s;
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--gray-bg);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: var(--text-light);
+    transition: all var(--transition-fast);
+    z-index: 1;
 }
-.close-btn:hover { background: #e9ecef; color: var(--danger-red); }
 
-/* --- 2. تنسيق الحقول (Inputs) - لضمان ظهورها في الـ Index --- */
-.form-group { margin-bottom: 1.2rem; text-align: right; }
-.form-group label { display: block; margin-bottom: 0.5rem; font-weight: 700; font-size: 0.95rem; }
+.close-btn:hover {
+    background: var(--danger-red);
+    color: white;
+    transform: rotate(90deg);
+}
 
-/* هذا الجزء يضمن شكل الحقول في كل مكان */
-input[type="text"], input[type="email"], input[type="password"], 
-input[type="number"], input[type="url"], input[type="file"], select {
-    width: 100%; padding: 0.9rem 1rem;
+/* --- 2. تنسيق الحقول (Inputs) - محسن --- */
+.form-group {
+    margin-bottom: 1.5rem;
+    text-align: right;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="url"],
+input[type="file"],
+select,
+textarea {
+    width: 100%;
+    padding: 1rem 1.2rem;
     border: 2px solid var(--gray-border);
     border-radius: var(--radius-input);
-    font-family: inherit; font-size: 1rem;
-    background: var(--gray-bg);
-    transition: 0.2s; outline: none;
+    font-family: inherit;
+    font-size: 1rem;
+    background: var(--white-pure);
+    transition: all var(--transition-fast);
+    outline: none;
 }
 
-input:focus, select:focus {
+input:focus,
+select:focus,
+textarea:focus {
     border-color: var(--purple-main);
     background: var(--white-pure);
     box-shadow: 0 0 0 4px rgba(124, 30, 255, 0.1);
+    transform: translateY(-2px);
 }
 
-/* --- 3. تنسيق الأزرار (Buttons) --- */
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper::after {
+    content: '⌄';
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    pointer-events: none;
+}
+
+/* --- 3. تنسيق الأزرار (Buttons) - متطور --- */
 .pill-button {
-    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-    padding: 0.8rem 1.5rem; border-radius: var(--radius-button);
-    font-weight: 700; font-size: 1rem; cursor: pointer; border: none;
-    transition: all 0.2s ease; width: 100%; /* افتراضياً الزر عريض */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-button);
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    transition: all var(--transition-smooth);
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.pill-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transition: all 0.6s ease;
+    transform: translate(-50%, -50%);
+}
+
+.pill-button:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.primary-button {
+    background: var(--purple-gradient);
+    color: var(--white-pure);
+}
+
+.primary-button:hover {
+    box-shadow: 0 8px 25px rgba(124, 30, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.secondary-button {
+    background: transparent;
+    border: 2px solid var(--purple-main);
+    color: var(--purple-main);
+}
+
+.secondary-button:hover {
+    background: var(--purple-light);
+    transform: translateY(-2px);
+}
+
+/* --- حالات النص --- */
+.error-message {
+    color: var(--danger-red);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.error-message::before {
+    content: '⚠';
+}
+
+.success-text {
+    color: var(--success-green);
+    font-weight: 700;
+    text-align: center;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.switch-form-text {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.switch-form-text a {
+    color: var(--purple-main);
+    font-weight: 700;
     text-decoration: none;
 }
-.primary-button { background-color: var(--purple-main); color: var(--white-pure); }
-.primary-button:hover { background-color: var(--purple-dark); transform: translateY(-2px); }
 
-.secondary-button { background: transparent; border: 2px solid var(--purple-main); color: var(--purple-main); }
-.secondary-button:hover { background: var(--purple-light); }
+.switch-form-text a:hover {
+    text-decoration: underline;
+}
 
-.error-message { color: var(--danger-red); font-size: 0.85rem; margin-top: 5px; font-weight: 600; }
-.success-text { color: var(--success-green); font-weight: 700; text-align: center; font-size: 1.1rem; }
-.switch-form-text { text-align: center; margin-top: 1rem; font-size: 0.9rem; }
-.switch-form-text a { color: var(--purple-main); font-weight: 700; }
-.hidden { display: none !important; }
+.hidden {
+    display: none !important;
+}
+
+/* --- أنيميشن التحميل --- */
+.loading-spinner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* --- Skeleton Loading --- */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: var(--radius-input);
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 1rem;
+    }
+    
+    .popup-content {
+        margin: 1rem;
+        width: calc(100% - 2rem);
+        padding: 1.5rem;
+    }
+    
+    .pill-button {
+        padding: 0.9rem 1.5rem;
+        font-size: 0.95rem;
+    }
+    
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="url"],
+    select {
+        padding: 0.9rem 1rem;
+    }
+}
