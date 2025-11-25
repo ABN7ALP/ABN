@@ -1,172 +1,83 @@
-/* ======================================= */
-/* SMM STORE - ADMIN PAGE STYLES */
-/* ======================================= */
+/* ===================================================================
+   SMM STORE - ADMIN PANEL STYLES (admin.html)
+   =================================================================== */
 
-.admin-body {
-    background-color: var(--white-pure); /* خلفية بيضاء للوحة التحكم */
-}
+body.admin-body { background-color: var(--gray-light); display: flex; overflow: hidden; }
 
-/* 1. Sidebar & Layout */
-.admin-container {
-    display: flex;
-    min-height: 100vh;
-}
-
+/* --- Sidebar --- */
 .sidebar {
-    width: 250px;
-    background-color: #212529; /* لون غامق */
-    color: var(--white-pure);
-    padding: 1.5rem 1rem;
-    flex-shrink: 0;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
+    width: 260px; background: var(--white-pure);
+    height: 100vh; display: flex; flex-direction: column;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.05); z-index: 100;
+    transition: transform 0.3s ease;
 }
+.sidebar-header { padding: 1.5rem; border-bottom: 1px solid var(--gray-border); }
+.sidebar-header h3 { color: var(--purple-main); font-weight: 700; margin: 0; }
 
-.sidebar h2 {
+.sidebar-nav { padding: 1rem; flex-grow: 1; }
+.nav-link {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 0.9rem 1rem; margin-bottom: 0.5rem;
+    color: var(--text-light); border-radius: var(--radius-soft);
+    font-weight: 600; transition: 0.3s;
+}
+.nav-link:hover, .nav-link.active {
+    background-color: var(--purple-light);
     color: var(--purple-main);
-    margin-bottom: 2rem;
-    text-align: center;
 }
+.nav-link i { font-size: 1.4rem; }
+.nav-link.logout-link { color: var(--danger-red); margin-top: auto; }
+.nav-link.logout-link:hover { background-color: #ffe5e7; }
 
-.sidebar-nav .nav-link {
-    display: block;
-    padding: 0.75rem 1rem;
-    margin-bottom: 0.5rem;
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-    border-radius: var(--radius-soft);
-    transition: background-color 0.2s, color 0.2s;
-    font-weight: 600;
+/* --- Main Content --- */
+.main-content { flex-grow: 1; padding: 2rem; overflow-y: auto; height: 100vh; }
+
+/* --- Stats Cards --- */
+.stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem; margin-bottom: 2rem;
 }
-
-.sidebar-nav .nav-link i {
-    margin-left: 0.75rem;
-    font-size: 1.2rem;
-}
-
-.sidebar-nav .nav-link:hover,
-.sidebar-nav .nav-link.active {
-    background-color: var(--purple-main);
-    color: var(--white-pure);
-}
-
-/* 2. Main Content & Sections */
-.admin-main {
-    flex-grow: 1;
-    padding: 2rem;
-    background-color: var(--gray-light);
-}
-
-.admin-section {
-    background-color: var(--white-pure);
-    padding: 2rem;
-    border-radius: var(--radius-card);
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-}
-
-/* 3. Stats Cards */
-#stats-cards-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
 .stat-card {
-    background-color: var(--white-pure);
-    padding: 1.5rem;
-    border-radius: var(--radius-soft);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    text-align: right;
-    border-right: 4px solid var(--purple-main);
+    background: var(--white-pure); padding: 1.5rem;
+    border-radius: var(--radius-card);
+    display: flex; align-items: center; gap: 1rem;
+    box-shadow: var(--shadow-soft);
 }
-
-.stat-card h3 {
-    font-size: 0.9rem;
-    color: var(--text-light);
-    margin-bottom: 0.5rem;
+.stat-icon {
+    width: 50px; height: 50px; border-radius: 12px;
+    background: var(--purple-light); color: var(--purple-main);
+    display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
 }
+.stat-info h3 { font-size: 1.8rem; margin: 0; font-weight: 700; }
+.stat-info p { font-size: 0.9rem; color: var(--text-light); margin: 0; }
 
-.stat-card p {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--text-dark);
-    margin: 0;
-}
-
-/* 4. Service Form Grid (New Field 'Step') */
-.service-form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-/* 5. Admin Tables (Services, Orders, Deposits) */
+/* --- Tables (Admin Specific) --- */
 .table-container {
-    width: 100%;
-    overflow-x: auto; 
-    border-radius: var(--radius-soft);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    background-color: var(--white-pure);
+    background: var(--white-pure); border-radius: var(--radius-card);
+    padding: 1rem; overflow-x: auto; box-shadow: var(--shadow-soft);
 }
+table { width: 100%; border-collapse: collapse; min-width: 800px; }
+th, td { padding: 1rem; text-align: right; border-bottom: 1px solid var(--gray-border); }
+th { background-color: var(--gray-light); font-weight: 700; color: var(--text-dark); }
+td { font-size: 0.95rem; }
 
-#orders-table, #deposits-table, #services-table {
-    width: 100%;
-    min-width: 900px; /* زيادة العرض ليتسع للخطوة والإجراءات */
-    border-collapse: collapse;
-}
+/* Status Labels */
+.status { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+.status-pending { background: #fff3cd; color: #856404; }
+.status-approved, .status-completed { background: #d1e7dd; color: #0f5132; }
+.status-rejected, .status-cancelled { background: #f8d7da; color: #721c24; }
+.status-processing { background: #cff4fc; color: #055160; }
 
-#orders-table th, #orders-table td,
-#deposits-table th, #deposits-table td,
-#services-table th, #services-table td {
-    padding: 1rem;
-    text-align: right;
-    border-bottom: 1px solid var(--gray-border);
-}
+/* Action Buttons */
+.action-buttons { display: flex; gap: 0.5rem; }
+.action-buttons .pill-button { padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 8px; }
 
-#orders-table th, #deposits-table th, #services-table th {
-    background-color: var(--gray-light);
-    font-weight: 700;
-    color: var(--text-dark);
-    position: sticky;
-    top: 0;
-}
-
-/* تنسيق خاص لعمود الخطوة (Step) */
-#services-table th:nth-child(5), 
-#services-table td:nth-child(5) {
-    width: 80px; 
-    text-align: center;
-}
-
-/* تنسيق زر عرض الإيصال */
-.receipt-btn {
-    background-color: var(--yellow-accent);
-    color: var(--text-dark);
-    padding: 0.4rem 0.8rem;
-    border-radius: var(--radius-soft);
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-}
-
-/* 6. Responsive Adjustments */
-@media (max-width: 992px) {
-    .admin-container {
-        flex-direction: column;
-    }
-    .sidebar {
-        width: 100%;
-        height: auto;
-        position: static;
-        overflow-y: visible;
-    }
-    .admin-main {
-        padding: 1rem;
-    }
+/* --- Responsive Admin --- */
+@media (max-width: 768px) {
+    .admin-dashboard { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: fixed; bottom: 0; flex-direction: row; padding: 0.5rem; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+    .sidebar-header, .sidebar-nav .nav-link span { display: none; }
+    .sidebar-nav { display: flex; width: 100%; justify-content: space-around; padding: 0; }
+    .nav-link { margin: 0; padding: 0.5rem; }
+    .main-content { padding: 1rem; padding-bottom: 80px; } /* Space for bottom nav */
 }
