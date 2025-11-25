@@ -11,15 +11,68 @@ function viewReceipt(base64Image) {
     }
 }
 
+// ===============================================
+// ******** الدوال المساعدة للأمان (الجديدة) ********
+// ===============================================
+
+// دالة لجلب الـ Headers اللازمة لإرسال التوكن مع كل طلب
+function getAuthHeaders(extraHeaders = {}) {
+    const token = localStorage.getItem('token');
+    // إذا لم يكن هناك توكن، فإن السيرفر سيقوم برفض الطلب، لكن نرسل Content-Type لعمليات POST/PUT
+    const headers = {
+        'Content-Type': 'application/json',
+        ...extraHeaders
+    };
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+}
+
+// دالة مجمعة لجلب جميع البيانات
+function loadDashboardData() {
+    fetchStats();
+    fetchOrders();
+    fetchServices();
+    fetchDeposits();
+}
+
+// دالة التحقق من صلاحيات الأدمن والتوكن
+function checkAdminAccess() {
+    // 1. جلب بيانات المستخدم من التخزين المحلي
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const token = localStorage.getItem('token');
+    const loginOverlay = document.getElementById('login-overlay');
+    const adminDashboard = document.getElementById('admin-dashboard');
+
+    // 2. التحقق من وجود بيانات المستخدم والتوكن وصلاحية الأدمن
+    if (userInfo && token && userInfo.isAdmin === true) {
+        // إذا كان المستخدم مسجلاً دخوله و مديراً، نفتح لوحة التحكم
+        loginOverlay.classList.add('hidden');
+        adminDashboard.classList.remove('hidden');
+        loadDashboardData();
+    } else {
+        // إذا لم يكن مديراً، نمنعه من الدخول
+        alert('غير مصرح لك بالدخول إلى لوحة التحكم. يرجى تسجيل الدخول بحساب مدير.');
+        // نمسح بيانات المستخدم لضمان عدم المحاولة مجدداً بالتوكن القديم
+        localStorage.removeItem('token');
+        localStorage.removeItem('userInfo');
+        // يتم توجيه المستخدم لصفحة تسجيل الدخول في الواجهة الرئيسية
+        window.location.href = '/index.html#login';
+    }
+}
+
+// ===============================================
+// ******** بدء تشغيل السكربت (DOMContentLoaded) ********
+// ===============================================
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. إعداد الاتصال الفوري (Socket.IO) ---
     const socket = io();
 
     // --- عناصر الصفحة العامة ---
     const loginOverlay = document.getElementById('login-overlay');
-    const loginForm = document.getElementById('login-form');
-    const passwordInput = document.getElementById('password-input');
-    const loginError = document.getElementById('login-error');
+    // تم حذف loginForm, passwordInput, loginError لأنها لم تعد تستخدم
     const adminDashboard = document.getElementById('admin-dashboard');
     const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
     const sections = document.querySelectorAll('.admin-section');
@@ -34,22 +87,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const editServiceForm = document.getElementById('edit-service-form');
     const closeEditPopupBtn = document.getElementById('close-edit-popup-btn');
 
-    const ADMIN_PASSWORD = "password123";
+    // تم حذف const ADMIN_PASSWORD = "password123";
 
-    // --- 2. نظام الدخول والتنقل ---
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (passwordInput.value === ADMIN_PASSWORD) {
-            loginOverlay.classList.add('hidden');
-            adminDashboard.classList.remove('hidden');
-            fetchStats();
-            fetchOrders();
-            fetchServices();
-            fetchDeposits();
-        } else {
-            loginError.textContent = 'كلمة المرور غير صحيحة.';
-        }
-    });
+    // --- 2. نظام الدخول والتنقل (تم تعديله) ---
+    // تم حذف eventListener القديم لتسجيل الدخول
 
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
@@ -65,12 +106,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- 3. قسم الإحصائيات ---
+    // --- 3. قسم الإحصائيات (تم تحديثها لطلب التوكن) ---
     async function fetchStats() {
         statsContainer.innerHTML = '<div class="stat-card loading"></div><div class="stat-card loading"></div><div class="stat-card loading"></div><div class="stat-card loading"></div>';
         try {
-            const response = await fetch('/api/stats');
-            if (!response.ok) throw new Error('فشل جلب الإحصائيات');
+            // التعديل هنا: إضافة الـ Headers
+            const response = await fetch('/api/stats', { headers: getAuthHeaders() });
+            if (!response.ok) throw new Error('فشل جلب الإحصائيات. (قد تكون الصلاحيات غير كافية).');
             const stats = await response.json();
             renderStats(stats);
         } catch (error) {
@@ -87,13 +129,14 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    // --- 4. قسم إدارة الطلبات ---
+    // --- 4. قسم إدارة الطلبات (تم تحديثها لطلب التوكن) ---
     async function fetchOrders() {
         loadingSpinner.classList.remove('hidden');
         ordersTbody.innerHTML = '';
         try {
-            const response = await fetch('/api/orders');
-            if (!response.ok) throw new Error('فشل جلب الطلبات');
+            // التعديل هنا: إضافة الـ Headers
+            const response = await fetch('/api/orders', { headers: getAuthHeaders() });
+            if (!response.ok) throw new Error('فشل جلب الطلبات. (قد تكون الصلاحيات غير كافية).');
             const orders = await response.json();
             renderOrders(orders);
         } catch (error) {
@@ -132,7 +175,12 @@ document.addEventListener('DOMContentLoaded', () => {
         selectElement.disabled = true;
         row.style.opacity = '0.5';
         try {
-            const response = await fetch(`/api/orders/${orderId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) });
+            // التعديل هنا: إضافة الـ Headers
+            const response = await fetch(`/api/orders/${orderId}`, { 
+                method: 'PUT', 
+                headers: getAuthHeaders(), // استخدام الدالة المساعدة
+                body: JSON.stringify({ status: newStatus }) 
+            });
             if (!response.ok) throw new Error('فشل تحديث حالة الطلب');
             row.style.backgroundColor = '#d4edda';
             setTimeout(() => { row.style.backgroundColor = ''; }, 1000);
@@ -145,11 +193,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 5. قسم إدارة الخدمات ---
+    // --- 5. قسم إدارة الخدمات (تم تحديثها لطلب التوكن) ---
     async function fetchServices() {
         try {
-            const response = await fetch('/api/services');
-            if (!response.ok) throw new Error('فشل جلب الخدمات');
+            // التعديل هنا: إضافة الـ Headers
+            const response = await fetch('/api/services', { headers: getAuthHeaders() });
+            if (!response.ok) throw new Error('فشل جلب الخدمات. (قد تكون الصلاحيات غير كافية).');
             const services = await response.json();
             renderServices(services);
         } catch (error) { console.error('Failed to fetch services:', error); }
@@ -213,7 +262,12 @@ document.addEventListener('DOMContentLoaded', () => {
             step: parseInt(document.getElementById('service-step').value) || 1
         };
         try {
-            const response = await fetch('/api/services', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(serviceData) });
+            // التعديل هنا: إضافة الـ Headers
+            const response = await fetch('/api/services', { 
+                method: 'POST', 
+                headers: getAuthHeaders(), // استخدام الدالة المساعدة
+                body: JSON.stringify(serviceData) 
+            });
             const result = await response.json();
             serviceFormResponse.textContent = result.message;
             if (response.ok) {
@@ -233,7 +287,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const service = JSON.parse(row.dataset.service);
         if (!confirm(`هل أنت متأكد من حذف خدمة "${service.name}"؟`)) return;
         try {
-            const response = await fetch(`/api/services/${service.id}`, { method: 'DELETE' });
+            // التعديل هنا: إضافة الـ Headers
+            const response = await fetch(`/api/services/${service.id}`, { 
+                method: 'DELETE',
+                headers: getAuthHeaders() // استخدام الدالة المساعدة
+            });
             if (!response.ok) alert('فشل حذف الخدمة.');
         } catch (error) { alert('فشل الاتصال بالخادم.'); }
     }
@@ -266,9 +324,16 @@ document.addEventListener('DOMContentLoaded', () => {
             step: parseInt(document.getElementById('edit-step').value) || 1
         };
         try {
-            const response = await fetch(`/api/services/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedData) });
+            // التعديل هنا: إضافة الـ Headers
+            const response = await fetch(`/api/services/${id}`, { 
+                method: 'PUT', 
+                headers: getAuthHeaders(), // استخدام الدالة المساعدة
+                body: JSON.stringify(updatedData) 
+            });
             if (response.ok) {
                 editServicePopup.classList.add('hidden');
+                // تحديث الخدمات بعد التعديل
+                fetchServices(); 
             } else {
                 alert('فشل تعديل الخدمة.');
             }
@@ -277,13 +342,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     closeEditPopupBtn.addEventListener('click', () => editServicePopup.classList.add('hidden'));
 
-    // --- 6. قسم إدارة طلبات الشحن ---
+    // --- 6. قسم إدارة طلبات الشحن (تم تحديثها لطلب التوكن) ---
     async function fetchDeposits() {
         if (!depositsTbody) return;
         depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">جاري تحميل...</td></tr>';
         try {
-            const response = await fetch('/api/deposits');
-            if (!response.ok) throw new Error('فشل جلب طلبات الشحن');
+            // التعديل هنا: إضافة الـ Headers
+            const response = await fetch('/api/deposits', { headers: getAuthHeaders() });
+            if (!response.ok) throw new Error('فشل جلب طلبات الشحن. (قد تكون الصلاحيات غير كافية).');
             const deposits = await response.json();
             renderDeposits(deposits);
         } catch (error) {
@@ -330,7 +396,11 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.disabled = true;
         btn.textContent = 'جاري...';
         try {
-            const response = await fetch(`/api/deposits/${depositId}/${action}`, { method: 'PUT' });
+            // التعديل هنا: إضافة الـ Headers
+            const response = await fetch(`/api/deposits/${depositId}/${action}`, { 
+                method: 'PUT',
+                headers: getAuthHeaders() // استخدام الدالة المساعدة
+            });
             if (!response.ok) {
                 const result = await response.json();
                 throw new Error(result.message || 'فشل الإجراء.');
@@ -354,5 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('new-service', fetchServices);
     socket.on('service-updated', fetchServices);
     socket.on('service-deleted', fetchServices);
+    
+    // ******** إضافة جديدة: تشغيل التحقق من الصلاحيات عند تحميل الصفحة ********
+    checkAdminAccess();
 });
-
