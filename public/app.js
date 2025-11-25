@@ -152,23 +152,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
     try {
-        const response = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+        const response = await fetch('/api/auth/login', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ email, password }) 
+        });
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || 'فشل تسجيل الدخول');
             
-        // ******** ابدأ التعديل من هنا ********
+        // ******** ✅ التعديل الحاسم: تخزين التوكن والـ userInfo ********
 
-        // 1. قم بتخزين البيانات في localStorage أولاً
+        // 1. تخزين التوكن أولاً (وهو الحقل الذي كان مفقوداً)
+        localStorage.setItem('token', data.token);
+        
+        // 2. تخزين بيانات المستخدم (والتي تحتوي على isAdmin)
         localStorage.setItem('userInfo', JSON.stringify(data));
             
-        // 2. قم بتحديث المتغير العام userInfo مباشرةً من البيانات الجديدة
+        // 3. قم بتحديث المتغير العام userInfo مباشرةً من البيانات الجديدة
         userInfo = data; 
             
-        // 3. أغلق نافذة تسجيل الدخول
+        // 4. أغلق نافذة تسجيل الدخول (لا تزال ضرورية)
         hideAuthPopup();
             
-        // 4. الآن فقط، قم بتحديث الواجهة بالكامل
-        updateUIForAuth();
+        // 5. تحديث الواجهة والتوجيه المناسب
+        updateUIForAuth(); // لتحديث القائمة الرئيسية والرصيد
+
+        // 6. التوجيه بناءً على الصلاحيات (لفتح لوحة التحكم مباشرة)
+        if (data.isAdmin === true) { // يمكنك أيضاً استخدام data.isAdmin
+            window.location.href = '/admin.html';
+        } else {
+             // توجيه المستخدم العادي إلى صفحة الطلبات (كمثال)
+            window.location.href = '/my-orders.html';
+        }
+
 
         // ******** انتهى التعديل ********
 
