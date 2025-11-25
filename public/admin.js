@@ -29,7 +29,35 @@ function getAuthHeaders(extraHeaders = {}) {
     return headers;
 }
 
-// دالة مجمعة لجلب جميع البيانات
+
+
+// ===============================================
+// ******** بدء تشغيل السكربت (DOMContentLoaded) ********
+// ===============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    // --- 1. إعداد الاتصال الفوري (Socket.IO) ---
+    const socket = io();
+
+    // --- عناصر الصفحة العامة ---
+    const loginOverlay = document.getElementById('login-overlay');
+    // تم حذف loginForm, passwordInput, loginError لأنها لم تعد تستخدم
+    const adminDashboard = document.getElementById('admin-dashboard');
+    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+    const sections = document.querySelectorAll('.admin-section');
+    const statsContainer = document.getElementById('stats-cards-container');
+    const ordersTbody = document.getElementById('orders-tbody');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const depositsTbody = document.getElementById('deposits-tbody');
+    const addServiceForm = document.getElementById('add-service-form');
+    const serviceFormResponse = document.getElementById('service-form-response');
+    const servicesTbody = document.getElementById('services-tbody');
+    const editServicePopup = document.getElementById('edit-service-popup');
+    const editServiceForm = document.getElementById('edit-service-form');
+    const closeEditPopupBtn = document.getElementById('close-edit-popup-btn');
+
+
+    // دالة مجمعة لجلب جميع البيانات
 function loadDashboardData() {
     fetchStats();
     fetchOrders();
@@ -68,31 +96,7 @@ function checkAdminAccess() {
     }
 }
 
-// ===============================================
-// ******** بدء تشغيل السكربت (DOMContentLoaded) ********
-// ===============================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    // --- 1. إعداد الاتصال الفوري (Socket.IO) ---
-    const socket = io();
-
-    // --- عناصر الصفحة العامة ---
-    const loginOverlay = document.getElementById('login-overlay');
-    // تم حذف loginForm, passwordInput, loginError لأنها لم تعد تستخدم
-    const adminDashboard = document.getElementById('admin-dashboard');
-    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
-    const sections = document.querySelectorAll('.admin-section');
-    const statsContainer = document.getElementById('stats-cards-container');
-    const ordersTbody = document.getElementById('orders-tbody');
-    const loadingSpinner = document.getElementById('loading-spinner');
-    const depositsTbody = document.getElementById('deposits-tbody');
-    const addServiceForm = document.getElementById('add-service-form');
-    const serviceFormResponse = document.getElementById('service-form-response');
-    const servicesTbody = document.getElementById('services-tbody');
-    const editServicePopup = document.getElementById('edit-service-popup');
-    const editServiceForm = document.getElementById('edit-service-form');
-    const closeEditPopupBtn = document.getElementById('close-edit-popup-btn');
-
+    
     // تم حذف const ADMIN_PASSWORD = "password123";
 
     // --- 2. نظام الدخول والتنقل (تم تعديله) ---
