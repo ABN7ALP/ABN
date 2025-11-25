@@ -126,7 +126,18 @@ body.admin-body {
     height: 100%;
     background: var(--gray-bg);
 }
+.main-content {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
 
+#stats-section {
+    margin-top: 0;
+}
+
+.stats-grid {
+    margin-top: 1rem;
+}
 /* الأقسام (Stats, Orders...) */
 .admin-section {
     display: none;
@@ -306,6 +317,27 @@ tr:hover td {
     justify-content: flex-start;
 }
 
+.pill-button-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background: var(--info-blue);
+    color: white;
+    border-radius: var(--radius-button);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all var(--transition-fast);
+    border: none;
+    cursor: pointer;
+}
+
+.pill-button-link:hover {
+    background: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
 /* زر عام للأكشن */
 .action-btn {
     width: 40px;
@@ -461,8 +493,20 @@ tr:hover td {
     .table-container {
         padding: 1rem;
     }
-}
 
+ .main-content {
+        padding-bottom: 120px;
+    }
+    
+    .sidebar {
+        height: 80px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+}
 @media (max-width: 768px) {
     .main-content {
         padding: 1.5rem 1rem;
