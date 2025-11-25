@@ -1,10 +1,9 @@
 /* ===================================================================
    1. SMM STORE - BASE STYLES (style.css)
-   يحتوي على: المتغيرات، الريسيت، الأزرار العامة، النوافذ المنبثقة
+   يحتوي على: المتغيرات، الريسيت، الأزرار، النوافذ، والقوائم المشتركة
    =================================================================== */
 
 :root {
-    /* الألوان */
     --purple-main: #7C1EFF;
     --purple-dark: #5a16ba;
     --purple-light: #f3e8ff;
@@ -17,7 +16,6 @@
     --danger-red: #DC3545;
     --success-green: #198754;
 
-    /* التنسيق */
     --font-main: 'Cairo', sans-serif;
     --radius-card: 16px;
     --radius-button: 50px;
@@ -26,7 +24,6 @@
     --shadow-md: 0 8px 24px rgba(0,0,0,0.12);
 }
 
-/* --- Reset --- */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; direction: rtl; }
 body {
@@ -41,45 +38,26 @@ ul { list-style: none; }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
 .hidden { display: none !important; }
 
-/* --- Shared Buttons --- */
+/* --- Buttons --- */
 .pill-button {
     display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-    padding: 0.7rem 1.5rem; border-radius: var(--radius-button);
-    font-weight: 700; font-size: 0.95rem; cursor: pointer; border: none;
+    padding: 0.6rem 1.2rem; border-radius: var(--radius-button);
+    font-weight: 700; font-size: 0.9rem; cursor: pointer; border: none;
     transition: all 0.2s ease-in-out; white-space: nowrap;
 }
 .primary-button { background-color: var(--purple-main); color: var(--white-pure); }
-.primary-button:hover { background-color: var(--purple-dark); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-.primary-button:disabled { background-color: #ccc; cursor: not-allowed; transform: none; }
-
+.primary-button:hover { background-color: var(--purple-dark); transform: translateY(-2px); }
 .secondary-button { background-color: transparent; border: 2px solid var(--purple-main); color: var(--purple-main); }
 .secondary-button:hover { background-color: var(--purple-light); }
 
-/* --- Shared Forms --- */
-.form-group { margin-bottom: 1.2rem; }
-.form-group label { display: block; margin-bottom: 0.5rem; font-weight: 700; font-size: 0.9rem; }
-.form-group input, .form-group select, .form-group textarea {
-    width: 100%; padding: 0.8rem 1rem;
-    border: 1px solid var(--gray-border); border-radius: var(--radius-input);
-    font-family: inherit; font-size: 1rem; background: var(--white-pure);
-    transition: border-color 0.2s;
-}
-.form-group input:focus, .form-group select:focus {
-    border-color: var(--purple-main); outline: none;
-    box-shadow: 0 0 0 3px rgba(124, 30, 255, 0.1);
-}
-.error-message { color: var(--danger-red); font-size: 0.85rem; margin-top: 0.4rem; }
-
-/* --- Shared Popups (Critical Fix) --- */
+/* --- Popups --- */
 .popup-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-color: rgba(0, 0, 0, 0.6); z-index: 9999;
     display: flex; justify-content: center; align-items: center;
-    opacity: 0; visibility: hidden; transition: 0.3s;
-    backdrop-filter: blur(4px);
+    opacity: 0; visibility: hidden; transition: 0.3s; backdrop-filter: blur(4px);
 }
 .popup-overlay:not(.hidden) { opacity: 1; visibility: visible; }
-
 .popup-content {
     background: var(--white-pure); width: 90%; max-width: 480px;
     border-radius: 24px; padding: 2rem; position: relative;
@@ -87,15 +65,44 @@ ul { list-style: none; }
     max-height: 90vh; overflow-y: auto;
 }
 .popup-overlay:not(.hidden) .popup-content { transform: scale(1); }
-
 .close-btn {
-    position: absolute; top: 1rem; left: 1rem;
-    width: 32px; height: 32px; border-radius: 50%;
-    background: var(--gray-bg); border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--text-light); transition: 0.2s;
+    position: absolute; top: 1rem; left: 1rem; width: 32px; height: 32px;
+    border-radius: 50%; background: var(--gray-bg); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
 }
-.close-btn:hover { background: #e9ecef; color: var(--danger-red); }
-.popup-header { text-align: center; margin-bottom: 1.5rem; }
-.popup-header i { font-size: 2.5rem; color: var(--purple-main); margin-bottom: 0.5rem; }
-.popup-header h2 { font-size: 1.5rem; font-weight: 800; }
+
+/* --- ✅ HEADER & DROPDOWNS (SHARED FIX) --- */
+.main-header { padding: 1rem 0; background: var(--white-pure); box-shadow: var(--shadow-sm); position: relative; z-index: 100; }
+.main-header .container { display: flex; justify-content: space-between; align-items: center; }
+.header-actions { display: flex; align-items: center; gap: 1rem; }
+
+/* User Dropdown Styling */
+.user-dropdown { position: relative; cursor: pointer; }
+.user-dropdown-toggle {
+    display: flex; align-items: center; gap: 0.5rem; font-weight: 700;
+    background: var(--gray-bg); padding: 0.5rem 1rem; border-radius: 30px;
+    color: var(--text-dark); transition: 0.2s;
+}
+.user-dropdown-toggle:hover { background: #e9ecef; }
+.user-dropdown-menu {
+    position: absolute; top: 130%; left: 0; width: 240px;
+    background: var(--white-pure); border-radius: 16px;
+    box-shadow: var(--shadow-md); border: 1px solid var(--gray-border);
+    opacity: 0; visibility: hidden; transition: 0.2s; z-index: 1000;
+    padding: 0.5rem; transform: translateY(10px);
+    display: flex; flex-direction: column;
+}
+.user-dropdown.active .user-dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+.user-dropdown-header {
+    padding: 1rem; background: var(--purple-light); border-radius: 12px;
+    margin-bottom: 0.5rem; text-align: center;
+}
+.user-dropdown-menu a, .user-dropdown-menu button {
+    display: flex; align-items: center; gap: 0.8rem; width: 100%;
+    padding: 0.8rem; border-radius: 8px; font-weight: 600;
+    background: none; border: none; font-size: 0.95rem; color: var(--text-dark);
+    cursor: pointer; font-family: inherit; text-decoration: none;
+}
+.user-dropdown-menu a:hover, .user-dropdown-menu button:hover { background: var(--gray-bg); }
+.logout-link { color: var(--danger-red) !important; }
+.balance-display { font-weight: 800; color: var(--purple-main); display: flex; justify-content: center; gap: 0.5rem; }
