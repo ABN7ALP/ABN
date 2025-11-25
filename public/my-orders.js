@@ -1,150 +1,35 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. تعريف العناصر والمتغيرات ---
-    const mainContent = document.getElementById('main-content');
+    const myOrdersTbody = document.getElementById('my-orders-tbody');
+    const depositsTbody = document.getElementById('deposits-tbody');
+    const mainContent = document.querySelector('main.container');
     const mainNav = document.getElementById('main-nav');
+    const heroSection = document.querySelector('.hero');
+
+    // جلب معلومات المستخدم من التخزين المحلي
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-    const token = localStorage.getItem('token');
 
-    // --- 2. دالة لإنشاء واجهة المستخدم ---
-    function buildUI() {
-        // بناء الهيكل الأساسي للصفحة
+    // --- 2. التحقق من تسجيل الدخول ---
+    if (!userInfo || !userInfo._id) {
+        // إخفاء المحتوى الرئيسي وعرض رسالة لتسجيل الدخول
+        heroSection.style.display = 'none';
         mainContent.innerHTML = `
-            <section class="hero-section">
-                <h1>سجلاتي</h1>
-                <p>هنا يمكنك متابعة حالة جميع معاملاتك وطلباتك السابقة والحالية.</p>
-            </section>
-
-            <section class="data-section" id="deposits-section">
-                <h2 class="section-title"><i class="ph-bold ph-money"></i> سجل معاملات الشحن</h2>
-                <div id="deposits-container"></div>
-            </section>
-
-            <section class="data-section" id="orders-section">
-                <h2 class="section-title"><i class="ph-bold ph-list-checks"></i> سجل طلبات الخدمات</h2>
-                <div id="orders-container"></div>
-            </section>
-        `;
-    }
-
-    // --- 3. دوال عرض الحالات (تحميل، خطأ، فارغ) ---
-    function renderLoadingState(containerId) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = `
-            <div class="state-container">
-                <div class="loading-spinner"><i class="ph-bold ph-circle-notch animate-spin"></i></div>
-                <p>جاري تحميل البيانات...</p>
-            </div>
-        `;
-    }
-
-    function renderErrorState(containerId, message) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = `
-            <div class="state-container">
-                <p class="error-message">${message}</p>
-            </div>
-        `;
-    }
-
-    function renderEmptyState(containerId, message) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = `
-            <div class="state-container">
-                <p>${message}</p>
-            </div>
-        `;
-    }
-
-    // --- 4. دوال جلب وعرض البيانات ---
-    async function fetchAndRenderData(url, containerId, renderFunction, emptyMessage) {
-        renderLoadingState(containerId);
-        try {
-            const response = await fetch(url, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (!response.ok) {
-                throw new Error(`فشل جلب البيانات (خطأ ${response.status})`);
-            }
-            const data = await response.json();
-            if (data.length === 0) {
-                renderEmptyState(containerId, emptyMessage);
-            } else {
-                renderFunction(containerId, data);
-            }
-        } catch (error) {
-            renderErrorState(containerId, error.message);
-        }
-    }
-
-    function renderDeposits(containerId, deposits) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = `
-            <div class="cards-container">
-                <div class="table-header">
-                    <div class="data-card">
-                        <div class="card-row">المبلغ</div>
-                        <div class="card-row">الطريقة</div>
-                        <div class="card-row">التاريخ</div>
-                        <div class="card-row">الحالة</div>
-                    </div>
-                </div>
-                ${deposits.map(deposit => {
-                    const statusText = { pending: 'قيد المراجعة', approved: 'مقبول', rejected: 'مرفوض' }[deposit.status] || deposit.status;
-                    return `
-                        <div class="data-card">
-                            <div class="card-row"><span class="card-label">المبلغ:</span> <span class="card-value">${deposit.amount.toFixed(2)} $</span></div>
-                            <div class="card-row"><span class="card-label">الطريقة:</span> <span class="card-value">${deposit.method}</span></div>
-                            <div class="card-row"><span class="card-label">التاريخ:</span> <span class="card-value">${new Date(deposit.createdAt).toLocaleDateString('ar-EG')}</span></div>
-                            <div class="card-row"><span class="card-label">الحالة:</span> <span class="card-value"><span class="status-badge status-${deposit.status}">${statusText}</span></span></div>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        `;
-    }
-
-    function renderOrders(containerId, orders) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = `
-            <div class="cards-container">
-                <div class="table-header">
-                     <div class="data-card">
-                        <div class="card-row">المنصة</div>
-                        <div class="card-row">الخدمة</div>
-                        <div class="card-row">الكمية</div>
-                        <div class="card-row">السعر</div>
-                        <div class="card-row">التاريخ</div>
-                        <div class="card-row">الحالة</div>
-                    </div>
-                </div>
-                ${orders.map(order => `
-                    <div class="data-card">
-                        <div class="card-row"><span class="card-label">المنصة:</span> <span class="card-value">${order.platform || 'N/A'}</span></div>
-                        <div class="card-row"><span class="card-label">الخدمة:</span> <span class="card-value">${order.service || 'N/A'}</span></div>
-                        <div class="card-row"><span class="card-label">الكمية:</span> <span class="card-value">${order.quantity ? order.quantity.toLocaleString() : 'N/A'}</span></div>
-                        <div class="card-row"><span class="card-label">السعر:</span> <span class="card-value">${order.price ? order.price.toFixed(2) : '0.00'} $</span></div>
-                        <div class="card-row"><span class="card-label">التاريخ:</span> <span class="card-value">${new Date(order.createdAt).toLocaleDateString('ar-EG')}</span></div>
-                        <div class="card-row"><span class="card-label">الحالة:</span> <span class="card-value"><span class="status-badge status-${order.status.replace(/\s/g, '-')}">${order.status}</span></span></div>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    }
-
-    // --- 5. دوال المصادقة وتحديث الهيدر ---
-    function renderLoginPrompt() {
-        mainContent.innerHTML = `
-            <div class="state-container" style="margin-top: 2rem;">
+            <div style="text-align: center; padding: 4rem 1rem; background: white; border-radius: 20px; margin-top: 2rem;">
                 <h2>يرجى تسجيل الدخول</h2>
-                <p>يجب عليك تسجيل الدخول أولاً لرؤية سجلاتك.</p>
-                <a href="index.html" class="pill-button primary-button" style="margin-top: 1rem; display: inline-block; width: auto;">العودة لتسجيل الدخول</a>
+                <p>يجب عليك تسجيل الدخول أولاً لتتمكن من رؤية سجلاتك.</p>
+                <a href="index.html" class="pill-button primary-button" style="margin-top: 1rem; display: inline-block; width: auto;">العودة إلى الصفحة الرئيسية</a>
             </div>
         `;
-        mainNav.innerHTML = ''; // إفراغ قائمة التنقل
+        // تحديث الهيدر لعرض أزرار تسجيل الدخول
+        mainNav.innerHTML = `
+            <a href="index.html#login" class="pill-button secondary-button">تسجيل الدخول</a>
+            <a href="index.html#register" class="pill-button primary-button">إنشاء حساب</a>
+        `;
+        return; // إيقاف تنفيذ بقية الكود
     }
 
+    // --- 3. تحديث واجهة المستخدم للمستخدم المسجل دخوله ---
     function updateHeaderUI() {
-        // هذا الكود مطابق للكود في app.js لتوحيد الشكل
         mainNav.innerHTML = `
             <div class="user-dropdown">
                 <div class="user-dropdown-toggle">
@@ -153,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <i class="ph-bold ph-caret-down"></i>
                 </div>
                 <div class="user-dropdown-menu">
-                     <div class="user-dropdown-header">
+                    <div class="user-dropdown-header">
                         <h4>رصيدك الحالي</h4>
                         <div class="balance-display">
                             <i class="ph-bold ph-wallet"></i>
@@ -166,21 +51,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
-        
+        // ربط أحداث القائمة المنسدلة
         const dropdown = mainNav.querySelector('.user-dropdown');
-        const toggle = mainNav.querySelector('.user-dropdown-toggle');
-
-        toggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            dropdown.classList.toggle('active');
+        dropdown.addEventListener('click', (e) => {
+            if (e.target.closest('.user-dropdown-toggle')) {
+                dropdown.classList.toggle('active');
+            }
         });
-
         document.getElementById('logout-btn').addEventListener('click', () => {
             localStorage.removeItem('userInfo');
-            localStorage.removeItem('token');
             window.location.href = '/';
         });
-
         document.addEventListener('click', (e) => {
             if (dropdown && !dropdown.contains(e.target)) {
                 dropdown.classList.remove('active');
@@ -188,20 +69,94 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 6. نقطة البداية الرئيسية ---
-    function initialize() {
-        if (!userInfo || !token) {
-            renderLoginPrompt();
-            return;
-        }
-        
-        updateHeaderUI();
-        buildUI();
-        
-        // جلب البيانات
-        fetchAndRenderData(`/api/deposits/my-deposits?userId=${userInfo._id}`, 'deposits-container', renderDeposits, 'لا توجد معاملات شحن سابقة.');
-        fetchAndRenderData(`/api/orders/my-orders?userId=${userInfo._id}`, 'orders-container', renderOrders, 'لم تقم بأي طلبات خدمات بعد.');
+    // --- 4. دوال جلب وعرض البيانات ---
+
+    // دالة لعرض رسالة التحميل في أي جدول
+    function showLoading(tbody, colspan) {
+        tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align:center; padding: 2rem;"><div class="loading-spinner" style="display:block;"><i class="ph-bold ph-circle-notch animate-spin"></i></div></td></tr>`;
     }
 
-    initialize();
+    // دالة لجلب وعرض طلبات الخدمات
+    async function fetchMyOrders() {
+        showLoading(myOrdersTbody, 6);
+        try {
+            const response = await fetch(`/api/orders/my-orders?userId=${userInfo._id}`);
+            if (!response.ok) throw new Error('فشل جلب طلبات الخدمات');
+            const orders = await response.json();
+            renderMyOrders(orders);
+        } catch (error) {
+            myOrdersTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">${error.message}</td></tr>`;
+        }
+    }
+
+    function renderMyOrders(orders) {
+        myOrdersTbody.innerHTML = '';
+        if (orders.length === 0) {
+            myOrdersTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لم تقم بأي طلبات خدمات بعد.</td></tr>';
+            return;
+        }
+        orders.forEach(order => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td data-label="المنصة">${order.platform || 'N/A'}</td>
+                <td data-label="الخدمة">${order.service || 'N/A'}</td>
+                <td data-label="الكمية">${order.quantity ? order.quantity.toLocaleString() : 'N/A'}</td>
+                <td data-label="السعر">${order.price ? order.price.toFixed(2) : '0.00'} $</td>
+                <td data-label="تاريخ الطلب">${new Date(order.createdAt).toLocaleDateString('ar-EG')}</td>
+                <td data-label="الحالة"><span class="status status-${order.status.replace(/\s/g, '-')}">${order.status}</span></td>
+            `;
+            myOrdersTbody.appendChild(row);
+        });
+    }
+
+    // دالة لجلب وعرض معاملات الشحن
+    async function fetchMyDeposits() {
+        showLoading(depositsTbody, 4);
+        try {
+            const response = await fetch(`/api/deposits/my-deposits?userId=${userInfo._id}`);
+            if (!response.ok) throw new Error('فشل جلب معاملات الشحن');
+            const deposits = await response.json();
+            renderMyDeposits(deposits);
+        } catch (error) {
+            depositsTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">${error.message}</td></tr>`;
+        }
+    }
+
+    function renderMyDeposits(deposits) {
+        depositsTbody.innerHTML = '';
+        if (deposits.length === 0) {
+            depositsTbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد معاملات شحن سابقة.</td></tr>';
+            return;
+        }
+        deposits.forEach(deposit => {
+            const row = document.createElement('tr');
+            const statusText = { pending: 'قيد المراجعة', approved: 'مقبول', rejected: 'مرفوض' }[deposit.status] || deposit.status;
+            row.innerHTML = `
+                <td data-label="المبلغ">${deposit.amount.toFixed(2)} $</td>
+                <td data-label="الطريقة">${deposit.method}</td>
+                <td data-label="تاريخ الطلب">${new Date(deposit.createdAt).toLocaleDateString('ar-EG')}</td>
+                <td data-label="الحالة"><span class="status status-${deposit.status}">${statusText}</span></td>
+            `;
+            depositsTbody.appendChild(row);
+        });
+    }
+
+    // --- 5. الاستماع للتحديثات الفورية (Socket.IO) ---
+    const socket = io();
+    socket.on('order-status-updated', (updatedOrder) => {
+        if (userInfo && updatedOrder.user === userInfo._id) {
+            fetchMyOrders(); // تحديث جدول الطلبات فقط
+        }
+    });
+    socket.on('deposit-approved', (data) => {
+        if (userInfo && data.userId === userInfo._id) {
+            fetchMyDeposits(); // تحديث جدول الشحن
+            // يمكنك أيضاً تحديث الرصيد في الهيدر هنا إذا أردت
+        }
+    });
+
+    // --- 6. بدء تشغيل كل شيء ---
+    updateHeaderUI();
+    fetchMyOrders();
+    fetchMyDeposits();
 });
