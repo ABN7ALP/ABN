@@ -77,27 +77,44 @@ router.put('/:id', async (req, res) => {
 
 
 // --- POST /api/orders/pay-with-balance (الكود المصحح) ---
+// --- POST /api/orders/pay-with-balance (النسخة الآمنة) ---
 router.post('/pay-with-balance', async (req, res) => {
-    // ******** هذا هو التصحيح ********
-    const { userId, price, platform, service, link, quantity } = req.body;
-    // ******** نهاية التصحيح ********
+    // 1. نستلم البيانات الأساسية (ونتجاهل السعر القادم من المستخدم للأمان)
+    const { userId, service: serviceName, link, quantity, platform } = req.body;
 
     if (!userId) return res.status(401).json({ message: 'يجب تسجيل الدخول.' });
 
     try {
+        // 2. نجلب المستخدم
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ message: 'المستخدم غير موجود.' });
-        if (user.balance < price) return res.status(400).json({ message: 'رصيدك غير كافٍ.' });
 
-        user.balance -= price;
+        // 3. (هام جداً) نبحث عن الخدمة في قاعدة البيانات للحصول على سعرها الحقيقي
+        const serviceDoc = await Service.findOne({ name: serviceName, platform: platform });
+        
+        if (!serviceDoc) {
+             return res.status(404).json({ message: 'الخدمة المطلوبة غير متوفرة حالياً أو تم تغيير اسمها.' });
+        }
+
+        // 4. السيرفر يقوم بحساب السعر الإجمالي
+        // المعادلة: (الكمية / 1000) * السعر_لكل_ألف
+        const realPrice = (quantity / 1000) * serviceDoc.pricePer1000;
+
+        // 5. نتحقق من الرصيد بناءً على السعر الحقيقي المحسوب بالسيرفر
+        if (user.balance < realPrice) {
+            return res.status(400).json({ message: 'رصيدك غير كافٍ لإتمام العملية.' });
+        }
+
+        // 6. الخصم والحفظ
+        user.balance -= realPrice;
         await user.save();
 
         const newOrder = new Order({
             platform,
-            service,
+            service: serviceName,
             link,
             quantity,
-            price,
+            price: realPrice, // نستخدم السعر الحقيقي المحسوب
             user: userId,
             status: 'قيد التنفيذ'
         });
