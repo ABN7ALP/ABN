@@ -95,4 +95,22 @@ router.put('/:id/reject', async (req, res) => {
     }
 });
 
+// GET /api/deposits/my-deposits - جلب طلبات الشحن للمستخدم الحالي
+router.get('/my-deposits', async (req, res) => {
+    const { userId } = req.query;
+
+    if (!userId) {
+        return res.status(401).json({ message: 'لم يتم تحديد المستخدم.' });
+    }
+
+    try {
+        // ابحث عن كل طلبات الشحن التي تطابق هوية المستخدم وقم بترتيبها من الأحدث للأقدم
+        const userDeposits = await Deposit.find({ user: userId }).sort({ createdAt: -1 });
+        res.status(200).json(userDeposits);
+    } catch (error) {
+        console.error("GET /my-deposits error:", error);
+        res.status(500).json({ message: 'فشل جلب معاملات الشحن.' });
+    }
+});
+
 module.exports = router;
