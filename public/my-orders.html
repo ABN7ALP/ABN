@@ -9,16 +9,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- استدعاء ملفات الأنماط بالترتيب الصحيح -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="my-orders.css">
 </head>
-<body>
-    <div class="background-gradient"></div>
+<body class="my-orders-body"> <!-- إضافة كلاس للجسم لتمييز الصفحة -->
 
     <!-- Header -->
     <header class="main-header">
         <div class="container">
             <a href="/" class="logo">متجر الخدمات</a>
+            <!-- سيتم ملء القائمة هنا بواسطة JavaScript -->
             <nav id="main-nav" class="main-nav"></nav>
         </div>
     </header>
@@ -26,18 +28,18 @@
     <!-- Main Content -->
     <main class="container">
         <section class="hero">
-            <h1>سجل طلباتك</h1>
-            <p>هنا يمكنك متابعة حالة جميع طلباتك السابقة والحالية.</p>
+            <h1>سجلاتي</h1>
+            <p>هنا يمكنك متابعة حالة جميع معاملاتك وطلباتك السابقة والحالية.</p>
         </section>
 
         <!-- ======================================= -->
-        <!--  القسم الجديد: سجل معاملات الشحن  -->
+        <!--      سجل معاملات الشحن             -->
         <!-- ======================================= -->
         <div class="section-header">
             <h2><i class="ph-bold ph-money"></i> سجل معاملات الشحن</h2>
         </div>
-        <div class="table-container">
-            <table id="deposits-table" class="responsive-table">
+        <div class="table-wrapper"> <!-- ** FIX **: استخدام table-wrapper بدلاً من table-container -->
+            <table id="deposits-table">
                 <thead>
                     <tr>
                         <th>المبلغ</th>
@@ -52,16 +54,17 @@
             </table>
         </div>
 
-        <div class="divider"></div> <!-- فاصل بين الجدولين -->
-
-        
-    <h2><i class="ph-bold ph-shopping-cart"></i> سجل طلبات الخدمات</h2>
-</div>
-        <!-- Orders Table -->
-        <section class="table-container admin-table-container">
+        <!-- ======================================= -->
+        <!--      سجل طلبات الخدمات             -->
+        <!-- ======================================= -->
+        <div class="section-header">
+            <h2><i class="ph-bold ph-shopping-cart"></i> سجل طلبات الخدمات</h2>
+        </div>
+        <div class="table-wrapper"> <!-- ** FIX **: استخدام table-wrapper بدلاً من table-container -->
             <table id="my-orders-table">
                 <thead>
                     <tr>
+                        <th>المنصة</th>
                         <th>الخدمة</th>
                         <th>الكمية</th>
                         <th>السعر</th>
@@ -70,65 +73,17 @@
                     </tr>
                 </thead>
                 <tbody id="my-orders-tbody">
-                    <!-- سيتم ملء الصفوف هنا بواسطة JavaScript -->
+                    <!-- سيتم ملء البيانات هنا عبر JavaScript -->
                 </tbody>
             </table>
-            <div id="my-orders-loading" class="loading-spinner">
-                <i class="ph-bold ph-spinner-gap animate-spin"></i>
-            </div>
-        </section>
+        </div>
     </main>
 
-    <!-- Auth Popups (مملوءة بالكامل) -->
-    <div id="auth-popup-overlay" class="popup-overlay hidden">
-        <div id="login-form-container" class="popup-content hidden">
-            <button class="close-btn"><i class="ph-bold ph-x"></i></button>
-            <div class="popup-header"><i class="ph-bold ph-sign-in"></i><h2>تسجيل الدخول</h2></div>
-            <form id="login-form-popup">
-                <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="login-email" required></div>
-                <div class="form-group"><label>كلمة المرور</label><input type="password" id="login-password" required></div>
-                <button type="submit" class="pill-button primary-button">دخول</button>
-                <p id="login-popup-error" class="error-message"></p>
-                <p class="switch-form-text">ليس لديك حساب؟ <a href="#" id="show-register">أنشئ حساباً جديداً</a></p>
-            </form>
-        </div>
-        <div id="register-form-container" class="popup-content hidden">
-            <button class="close-btn"><i class="ph-bold ph-x"></i></button>
-            <div class="popup-header"><i class="ph-bold ph-user-plus"></i><h2>إنشاء حساب جديد</h2></div>
-            <form id="register-form-popup">
-                <div class="form-group"><label>اسم المستخدم</label><input type="text" id="register-username" required></div>
-                <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="register-email" required></div>
-                <div class="form-group"><label>كلمة المرور</label><input type="password" id="register-password" required></div>
-                <button type="submit" class="pill-button primary-button">إنشاء الحساب</button>
-                <p id="register-popup-error" class="error-message"></p>
-                <p class="switch-form-text">لديك حساب بالفعل؟ <a href="#" id="show-login">سجل الدخول</a></p>
-            </form>
-        </div>
-    </div>
+    <!-- Popups (إذا احتجناها في المستقبل) -->
+    <!-- يمكن إضافة النوافذ المنبثقة هنا إذا أردنا فتحها من هذه الصفحة مباشرة -->
 
-    <!-- Deposit Popup (مملوءة بالكامل) -->
-    <div id="deposit-popup-overlay" class="popup-overlay hidden">
-        <div class="popup-content scrollable">
-            <button id="close-deposit-popup-btn" class="close-btn"><i class="ph-bold ph-x"></i></button>
-            <div class="popup-header"><i class="ph-bold ph-money"></i><h2>شحن الرصيد</h2></div>
-            <form id="deposit-form" enctype="multipart/form-data">
-                <p class="payment-instructions">اختر طريقة الدفع المفضلة لديك واتبع التعليمات.</p>
-                <div class="payment-method-selector">
-                    <button type="button" class="payment-method-btn" data-method="bank"><i class="ph-bold ph-bank"></i><span>تحويل بنكي</span></button>
-                    <button type="button" class="payment-method-btn" data-method="sham"><i class="ph-bold ph-qr-code"></i><span>شام كاش</span></button>
-                    <button type="button" class="payment-method-btn" data-method="whatsapp"><i class="ph-bold ph-storefront"></i><span>حوالة مكتب</span></button>
-                </div>
-                <div id="payment-details-container" class="hidden"></div>
-                <div class="form-group"><label for="deposit-amount">المبلغ الذي قمت بتحويله ($)</label><input type="number" id="deposit-amount" min="1" step="any" required></div>
-                <div class="form-group"><label for="depositor-name">اسمك الكامل (كما في الإيصال)</label><input type="text" id="depositor-name" required></div>
-                <div class="form-group"><label for="deposit-receipt">إيصال التحويل (صورة)</label><input type="file" id="deposit-receipt" accept="image/*" required></div>
-                <button type="submit" class="pill-button primary-button">إرسال طلب الشحن</button>
-                <p id="deposit-form-response" class="form-message"></p>
-            </form>
-        </div>
-    </div>
-
-    <!-- السكربت الجديد الخاص بهذه الصفحة -->
+    <!-- السكربت الخاص بهذه الصفحة -->
     <script src="my-orders.js"></script>
 </body>
 </html>
+
