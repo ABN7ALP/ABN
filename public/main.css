@@ -1,0 +1,218 @@
+/* ======================================= */
+/* SMM STORE - MAIN PAGE STYLES */
+/* ======================================= */
+
+/* 1. Header & Navigation */
+.main-header {
+    background-color: var(--white-pure);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+}
+
+.main-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--purple-main);
+    text-decoration: none;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* 2. Notification Bell & Dropdown */
+.notification-bell-container {
+    position: relative;
+}
+
+.notification-bell {
+    position: relative;
+    cursor: pointer;
+    padding: 0.5rem; 
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.notification-bell:hover {
+    background-color: var(--gray-border);
+}
+
+.notification-bell i {
+    font-size: 1.5rem;
+    color: var(--text-dark);
+}
+
+.notification-bell.has-unread::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 8px;
+    height: 8px;
+    background-color: var(--danger-red);
+    border-radius: 50%;
+    border: 1px solid var(--white-pure);
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: 100%; 
+    right: 0;
+    width: 350px; 
+    max-height: 80vh; 
+    background-color: var(--white-pure);
+    border-radius: var(--radius-soft);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    z-index: 1000; 
+    display: none; 
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.2s ease;
+    flex-direction: column; 
+}
+
+.notification-bell.active .notification-dropdown {
+    display: flex; 
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--gray-border);
+    flex-shrink: 0; 
+}
+
+.notifications-header h4 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.mark-all-read-btn {
+    background: none;
+    border: none;
+    color: var(--purple-main);
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.notifications-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto; 
+    flex-grow: 1;
+}
+
+.notification-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--gray-border);
+    transition: background-color 0.2s ease;
+    display: block;
+    text-decoration: none;
+    color: var(--text-dark);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background-color: var(--gray-light);
+}
+
+.notification-item.unread {
+    background-color: var(--purple-light); 
+}
+
+.notification-item p {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.notification-item small {
+    display: block;
+    color: var(--text-light);
+    font-size: 0.75rem;
+}
+
+.notifications-footer {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--gray-border);
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    flex-shrink: 0;
+}
+
+/* 3. Payment Methods (Shared between index & my-orders) */
+.payment-method-selector {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap; 
+    justify-content: center;
+}
+
+.payment-method-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 1rem;
+    border: 2px solid var(--gray-border);
+    border-radius: var(--radius-soft);
+    background-color: var(--white-pure);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.payment-method-btn i {
+    font-size: 1.8rem;
+    color: var(--text-light);
+    transition: color 0.2s ease;
+}
+
+.payment-method-btn.selected {
+    border-color: var(--purple-main);
+    background-color: var(--purple-light);
+}
+
+.payment-method-btn.selected i {
+    color: var(--purple-main);
+}
+
+.payment-method-btn:not(.selected):hover {
+    background-color: var(--gray-light);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .notification-dropdown {
+        width: 90vw;
+        left: 50%;
+        right: auto;
+        transform: translateX(50%) translateY(10px);
+    }
+    .notification-bell.active .notification-dropdown {
+        transform: translateX(50%) translateY(0);
+    }
+}
