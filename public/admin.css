@@ -1,0 +1,172 @@
+/* ======================================= */
+/* SMM STORE - ADMIN PAGE STYLES */
+/* ======================================= */
+
+.admin-body {
+    background-color: var(--white-pure); /* خلفية بيضاء للوحة التحكم */
+}
+
+/* 1. Sidebar & Layout */
+.admin-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #212529; /* لون غامق */
+    color: var(--white-pure);
+    padding: 1.5rem 1rem;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.sidebar h2 {
+    color: var(--purple-main);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.sidebar-nav .nav-link {
+    display: block;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    border-radius: var(--radius-soft);
+    transition: background-color 0.2s, color 0.2s;
+    font-weight: 600;
+}
+
+.sidebar-nav .nav-link i {
+    margin-left: 0.75rem;
+    font-size: 1.2rem;
+}
+
+.sidebar-nav .nav-link:hover,
+.sidebar-nav .nav-link.active {
+    background-color: var(--purple-main);
+    color: var(--white-pure);
+}
+
+/* 2. Main Content & Sections */
+.admin-main {
+    flex-grow: 1;
+    padding: 2rem;
+    background-color: var(--gray-light);
+}
+
+.admin-section {
+    background-color: var(--white-pure);
+    padding: 2rem;
+    border-radius: var(--radius-card);
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* 3. Stats Cards */
+#stats-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background-color: var(--white-pure);
+    padding: 1.5rem;
+    border-radius: var(--radius-soft);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    text-align: right;
+    border-right: 4px solid var(--purple-main);
+}
+
+.stat-card h3 {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+}
+
+.stat-card p {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+/* 4. Service Form Grid (New Field 'Step') */
+.service-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* 5. Admin Tables (Services, Orders, Deposits) */
+.table-container {
+    width: 100%;
+    overflow-x: auto; 
+    border-radius: var(--radius-soft);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    background-color: var(--white-pure);
+}
+
+#orders-table, #deposits-table, #services-table {
+    width: 100%;
+    min-width: 900px; /* زيادة العرض ليتسع للخطوة والإجراءات */
+    border-collapse: collapse;
+}
+
+#orders-table th, #orders-table td,
+#deposits-table th, #deposits-table td,
+#services-table th, #services-table td {
+    padding: 1rem;
+    text-align: right;
+    border-bottom: 1px solid var(--gray-border);
+}
+
+#orders-table th, #deposits-table th, #services-table th {
+    background-color: var(--gray-light);
+    font-weight: 700;
+    color: var(--text-dark);
+    position: sticky;
+    top: 0;
+}
+
+/* تنسيق خاص لعمود الخطوة (Step) */
+#services-table th:nth-child(5), 
+#services-table td:nth-child(5) {
+    width: 80px; 
+    text-align: center;
+}
+
+/* تنسيق زر عرض الإيصال */
+.receipt-btn {
+    background-color: var(--yellow-accent);
+    color: var(--text-dark);
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--radius-soft);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+}
+
+/* 6. Responsive Adjustments */
+@media (max-width: 992px) {
+    .admin-container {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        overflow-y: visible;
+    }
+    .admin-main {
+        padding: 1rem;
+    }
+}
