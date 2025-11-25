@@ -1,172 +1,349 @@
 /* ===================================================================
-   MY ORDERS STYLES (v2.0 - Rebuilt & Redesigned)
+   3. ENHANCED MY ORDERS STYLES (my-orders.css) - Redesigned
    =================================================================== */
 
-/* --- 1. Page Body & Header --- */
-.my-orders-body {
-    background-color: #f4f7f6;
+/* --- Header Adjustment for this page --- */
+.main-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
-.my-orders-body .main-header {
-    background: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    border-bottom: 1px solid #e9ecef;
+
+.logo {
+    color: var(--purple-main);
+    font-weight: 800;
+    text-decoration: none;
+    font-size: 1.8rem;
+    background: var(--purple-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
-.my-orders-body .logo {
+
+/* --- Hero Section محسن --- */
+.hero {
+    background: var(--purple-gradient);
+    border-radius: var(--radius-card);
+    padding: 4rem 2rem;
+    text-align: center;
+    color: white;
+    margin-bottom: 3rem;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.05)" points="0,1000 1000,0 1000,1000"/></svg>');
+    background-size: cover;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 800;
+    position: relative;
+}
+
+.hero p {
+    opacity: 0.9;
+    font-size: 1.2rem;
+    max-width: 500px;
+    margin: 0 auto;
+    position: relative;
+    line-height: 1.6;
+}
+
+/* --- Section Titles محسن --- */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-right: 4px solid var(--purple-main);
+    padding-right: 1.5rem;
+    background: var(--white-pure);
+    padding: 1.5rem;
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-sm);
+}
+
+.section-header h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.section-header h2 i {
+    background: var(--purple-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.8rem;
+}
+
+/* --- Modern Tables (The Core Fix) محسن --- */
+.table-wrapper {
+    background: var(--white-pure);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-bottom: 3rem;
+    border: 1px solid var(--gray-border);
+    transition: all var(--transition-smooth);
+}
+
+.table-wrapper:hover {
+    box-shadow: var(--shadow-md);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+
+thead {
+    background: var(--purple-gradient);
+    border-bottom: 3px solid var(--purple-main);
+}
+
+th {
+    padding: 1.5rem 1.2rem;
+    text-align: right;
+    font-weight: 700;
+    color: white;
+    font-size: 1rem;
+    position: sticky;
+    top: 0;
+}
+
+td {
+    padding: 1.3rem 1.2rem;
+    border-bottom: 1px solid var(--gray-border);
+    font-size: 0.95rem;
+    transition: all var(--transition-fast);
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover td {
+    background: var(--purple-light);
+    transform: scale(1.02);
+}
+
+/* --- Status Badges محسن --- */
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    min-width: 120px;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.status-pending {
+    background: #fffbeb;
+    color: #d97706;
+    border: 1px solid #fbbf24;
+}
+
+.status-approved,
+.status-مكتمل {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #22c55e;
+}
+
+.status-rejected,
+.status-ملغي {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+}
+
+.status-processing,
+.status-قيد-التنفيذ {
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #60a5fa;
+}
+
+/* --- Divider محسن --- */
+.divider {
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--purple-main), transparent);
+    margin: 4rem 0;
+    border: none;
+    border-radius: 2px;
+}
+
+/* --- Loading States --- */
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem;
+}
+
+.loading-spinner i {
+    font-size: 2rem;
     color: var(--purple-main);
 }
 
-/* --- 2. Hero Section --- */
-.hero-section {
-    padding: 2rem 0;
+/* --- Mobile Responsive (Card View) محسن --- */
+@media (max-width: 768px) {
+    .table-wrapper {
+        background: transparent;
+        box-shadow: none;
+        border: none;
+        margin: 0 -1rem;
+    }
+    
+    table,
+    thead,
+    tbody,
+    th,
+    td,
+    tr {
+        display: block;
+    }
+    
+    thead {
+        display: none;
+    }
+    
+    tr {
+        background: var(--white-pure);
+        margin-bottom: 1rem;
+        border-radius: var(--radius-card);
+        box-shadow: var(--shadow-sm);
+        padding: 1.5rem;
+        border: 1px solid var(--gray-border);
+        transition: all var(--transition-smooth);
+    }
+    
+    tr:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    td {
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--gray-bg);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+    }
+    
+    td:last-child {
+        border-bottom: none;
+    }
+    
+    /* إضافة العناوين (Labels) قبل القيمة */
+    td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: var(--text-light);
+        font-size: 0.9rem;
+        min-width: 100px;
+    }
+    
+    .hero {
+        padding: 3rem 1.5rem;
+        margin: 0 -1rem 2rem -1rem;
+        border-radius: 0;
+    }
+    
+    .hero h1 {
+        font-size: 2rem;
+    }
+    
+    .hero p {
+        font-size: 1.1rem;
+    }
+    
+    .section-header {
+        margin: 0 -1rem 2rem -1rem;
+        border-radius: 0;
+        border-right: none;
+        border-bottom: 4px solid var(--purple-main);
+        padding: 1.5rem;
+    }
+    
+    .section-header h2 {
+        font-size: 1.4rem;
+    }
+}
+
+/* --- Empty States --- */
+.empty-state {
     text-align: center;
-}
-.hero-section h1 {
-    font-size: 2.2rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
-}
-.hero-section p {
-    font-size: 1.1rem;
+    padding: 4rem 2rem;
     color: var(--text-light);
-    max-width: 500px;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-dark);
+}
+
+.empty-state p {
+    font-size: 1rem;
+    max-width: 400px;
     margin: 0 auto;
 }
 
-/* --- 3. Section Styling --- */
-.data-section {
-    margin-bottom: 2.5rem;
-}
-.section-title {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    font-size: 1.5rem;
-    font-weight: 800;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid #e9ecef;
-}
-.section-title i {
-    color: var(--purple-main);
+/* --- Animation for table rows --- */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
-/* --- 4. Card-Based Table for Mobile --- */
-.cards-container {
-    display: grid;
-    gap: 1rem;
-}
-.data-card {
-    background: white;
-    border-radius: 16px;
-    padding: 1.2rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-    border: 1px solid #e9ecef;
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-}
-.card-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.95rem;
-    padding-bottom: 0.8rem;
-    border-bottom: 1px solid #f4f7f6;
-}
-.data-card .card-row:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-}
-.card-label {
-    font-weight: 600;
-    color: var(--text-light);
-}
-.card-value {
-    font-weight: 700;
-    text-align: left;
+tbody tr {
+    animation: slideIn 0.3s ease-out;
 }
 
-/* --- 5. Status Badges --- */
-.status-badge {
-    display: inline-block;
-    padding: 0.3rem 0.8rem;
-    border-radius: 30px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-align: center;
-}
-.status-pending, .status-قيد-المراجعة { background: #FFF3CD; color: #856404; }
-.status-approved, .status-مكتمل { background: #D1E7DD; color: #0F5132; }
-.status-rejected, .status-ملغي { background: #F8D7DA; color: #721C24; }
-.status-قيد-التنفيذ { background: #CFF4FC; color: #055160; }
-
-/* --- 6. Loading & Message States --- */
-.state-container {
-    background: white;
-    border-radius: 16px;
-    padding: 3rem 1rem;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-}
-.state-container .loading-spinner {
-    font-size: 2.5rem;
-    color: var(--purple-main);
-    margin-bottom: 1rem;
-}
-.state-container .animate-spin {
-    animation: spin 1s linear infinite;
-}
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-.state-container p {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-light);
-}
-.state-container .error-message {
-    color: var(--danger-red);
-}
-
-/* --- 7. Desktop Table View --- */
-@media (min-width: 769px) {
-    .cards-container {
-        display: block;
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-        overflow: hidden;
-        border: 1px solid #e9ecef;
-    }
-    .data-card { /* Becomes a table row */
-        display: table-row;
-        box-shadow: none;
-        border-radius: 0;
-        padding: 0;
-        border: none;
-    }
-    .card-row { /* Becomes a table cell */
-        display: table-cell;
-        padding: 1.2rem 1rem;
-        border-bottom: 1px solid #e9ecef;
-        vertical-align: middle;
-    }
-    .card-label {
-        display: none; /* Hide labels on desktop */
-    }
-    .data-card:last-child .card-row {
-        border-bottom: none;
-    }
-    /* Header for the table */
-    .table-header {
-        display: table-header-group;
-        background: #f8f9fa;
-        font-weight: 700;
-        font-size: 0.9rem;
-        color: var(--text-dark);
-    }
-    .table-header .card-row {
-        font-weight: 800;
-    }
+tbody tr:nth-child(even) {
+    animation-delay: 0.1s;
 }
