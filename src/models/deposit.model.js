@@ -8,8 +8,7 @@ const depositSchema = new mongoose.Schema({
     // تم التغيير هنا: سيتم تخزين الصورة كنص Base64
     receiptImage: { type: String, required: true },
     status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
-    // هذا الحقل سيجعل MongoDB تحذف المستند تلقائياً بعد 3 أيام
-    createdAt: { type: Date, default: Date.now, expires: '3d' }
+    
 }, { timestamps: true }); // timestamps يضيف createdAt و updatedAt
 
 const Deposit = mongoose.model('Deposit', depositSchema);
