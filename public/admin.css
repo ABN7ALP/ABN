@@ -1,104 +1,486 @@
 /* ===================================================================
-   4. ADMIN PANEL STYLES (admin.css) - Fixed & Styled
+   4. ENHANCED ADMIN PANEL STYLES (admin.css) - Fixed & Styled
    =================================================================== */
 
 /* تأكد من أن الجسم يأخذ كامل الشاشة */
 body.admin-body {
-    margin: 0; padding: 0;
-    background-color: #f0f2f5;
-    height: 100vh; width: 100vw;
-    overflow: hidden; /* منع سكرول المتصفح */
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    font-family: var(--font-main);
 }
 
 /* الحاوية الرئيسية: فليكس بوكس لتقسيم الشاشة */
 .admin-dashboard {
     display: flex;
-    width: 100%; height: 100%;
+    width: 100%;
+    height: 100%;
+    background: var(--white-pure);
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
 }
 
-/* --- 1. Sidebar (القائمة الجانبية) --- */
+/* --- 1. Sidebar (القائمة الجانبية) محسن --- */
 .sidebar {
-    width: 260px;
-    background: #1A1A1A; /* لون غامق */
+    width: 280px;
+    background: linear-gradient(180deg, var(--text-dark) 0%, #1a202c 100%);
     color: white;
-    display: flex; flex-direction: column;
-    flex-shrink: 0; /* منع التقلص */
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
     height: 100%;
     overflow-y: auto;
-    transition: 0.3s;
+    transition: all var(--transition-smooth);
+    box-shadow: var(--shadow-md);
 }
-.sidebar-header { padding: 2rem 1rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
-.sidebar-header h3 { margin: 0; font-size: 1.4rem; color: var(--white-pure); }
 
-.sidebar-nav { padding: 1.5rem 1rem; flex-grow: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+.sidebar-header {
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--white-pure);
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.sidebar-nav {
+    padding: 2rem 1rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
 .nav-link {
-    display: flex; align-items: center; gap: 1rem;
-    padding: 1rem; color: rgba(255,255,255,0.7);
-    border-radius: 12px; font-weight: 600; transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.2rem 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: var(--radius-input);
+    font-weight: 600;
+    transition: all var(--transition-smooth);
     text-decoration: none;
+    position: relative;
+    overflow: hidden;
 }
-.nav-link:hover, .nav-link.active {
-    background: var(--purple-main); color: white;
-    box-shadow: 0 4px 15px rgba(124, 30, 255, 0.3);
-}
-.nav-link i { font-size: 1.4rem; }
-.logout-link { margin-top: auto; color: #ff6b6b; }
 
-/* --- 2. Main Content (المحتوى الرئيسي) --- */
-.main-content {
-    flex-grow: 1; /* يأخذ باقي المساحة */
-    padding: 2rem;
-    overflow-y: auto; /* السكرول هنا */
+.nav-link::before {
+    content: '';
+    position: absolute;
+    right: -100%;
+    top: 0;
+    width: 100%;
     height: 100%;
-    display: block; /* لضمان الظهور */
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: all 0.6s ease;
+}
+
+.nav-link:hover::before {
+    right: 100%;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background: var(--purple-gradient);
+    color: white;
+    box-shadow: 0 8px 25px rgba(124, 30, 255, 0.3);
+    transform: translateX(-5px);
+}
+
+.nav-link i {
+    font-size: 1.4rem;
+    width: 24px;
+    text-align: center;
+}
+
+.logout-link {
+    margin-top: auto;
+    color: #fecaca;
+    border: 1px solid rgba(254, 202, 202, 0.3);
+}
+
+.logout-link:hover {
+    background: #ef4444 !important;
+    color: white !important;
+    border-color: #ef4444;
+}
+
+/* --- 2. Main Content (المحتوى الرئيسي) محسن --- */
+.main-content {
+    flex-grow: 1;
+    padding: 2.5rem;
+    overflow-y: auto;
+    height: 100%;
+    background: var(--gray-bg);
 }
 
 /* الأقسام (Stats, Orders...) */
-.admin-section { display: none; } /* مخفي افتراضياً */
-.admin-section.active { display: block; animation: fadeIn 0.4s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-.section-header h2 { margin-bottom: 1.5rem; font-size: 1.8rem; font-weight: 800; }
-
-/* --- 3. Cards & Tables --- */
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-.stat-card {
-    background: white; padding: 1.5rem; border-radius: 20px;
-    box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 1rem;
+.admin-section {
+    display: none;
+    animation: fadeInUp 0.5s var(--transition-smooth);
 }
-.stat-icon { width: 55px; height: 55px; background: var(--purple-light); color: var(--purple-main); border-radius: 14px; display: flex; justify-content: center; align-items: center; font-size: 1.8rem; }
-.stat-info h3 { margin: 0; font-size: 1.8rem; font-weight: 800; }
-.stat-info p { margin: 0; font-size: 0.9rem; color: var(--text-light); }
 
-.table-container { background: white; border-radius: 20px; padding: 1.5rem; box-shadow: var(--shadow-sm); overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; min-width: 800px; }
-th, td { padding: 1rem; text-align: right; border-bottom: 1px solid var(--gray-border); }
-th { background: #F8F9FA; color: var(--text-dark); font-weight: 700; }
+.admin-section.active {
+    display: block;
+}
 
-/* --- 4. Action Buttons (Fixed Styles) --- */
-.action-buttons { display: flex; gap: 0.5rem; justify-content: flex-start; }
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.section-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--gray-border);
+}
+
+.section-header h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.section-header h2 i {
+    background: var(--purple-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 2.2rem;
+}
+
+/* --- 3. Cards & Tables محسن --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: var(--white-pure);
+    padding: 2rem;
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: all var(--transition-smooth);
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--purple-gradient);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--purple-main);
+}
+
+.stat-icon {
+    width: 70px;
+    height: 70px;
+    background: var(--purple-light);
+    color: var(--purple-main);
+    border-radius: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    transition: all var(--transition-smooth);
+}
+
+.stat-card:hover .stat-icon {
+    background: var(--purple-gradient);
+    color: white;
+    transform: scale(1.1);
+}
+
+.stat-info h3 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-dark);
+}
+
+.stat-info p {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.95rem;
+    color: var(--text-light);
+    font-weight: 600;
+}
+
+/* Tables محسنة */
+.table-container {
+    background: var(--white-pure);
+    border-radius: var(--radius-card);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+    overflow-x: auto;
+    border: 1px solid var(--gray-border);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+th {
+    background: var(--purple-light);
+    color: var(--purple-main);
+    font-weight: 700;
+    padding: 1.3rem 1rem;
+    text-align: right;
+    border-bottom: 3px solid var(--purple-main);
+    font-size: 0.95rem;
+    position: sticky;
+    top: 0;
+}
+
+td {
+    padding: 1.2rem 1rem;
+    text-align: right;
+    border-bottom: 1px solid var(--gray-border);
+    transition: background-color var(--transition-fast);
+}
+
+tr:hover td {
+    background: var(--purple-light);
+}
+
+/* Status Select محسن */
+.status-select-wrapper {
+    min-width: 150px;
+}
+
+.status-select-wrapper select {
+    background: var(--white-pure);
+    border: 2px solid var(--gray-border);
+    border-radius: var(--radius-input);
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    transition: all var(--transition-fast);
+}
+
+.status-select-wrapper select:focus {
+    border-color: var(--purple-main);
+    box-shadow: 0 0 0 3px rgba(124, 30, 255, 0.1);
+}
+
+/* --- 4. Action Buttons محسن --- */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-start;
+}
 
 /* زر عام للأكشن */
 .action-btn {
-    width: 36px; height: 36px; border-radius: 10px; border: none;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: 0.2s; color: white; font-size: 1.1rem;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-input);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+    color: white;
+    font-size: 1.1rem;
 }
-.edit-btn { background-color: #3498DB; } /* أزرق للتعديل */
-.edit-btn:hover { background-color: #2980B9; }
 
-.delete-btn { background-color: var(--danger-red); } /* أحمر للحذف */
-.delete-btn:hover { background-color: #c0392b; }
+.edit-btn {
+    background-color: var(--info-blue);
+}
 
-.approve-btn { background-color: var(--success-green); width: auto; padding: 0 1rem; font-weight: bold; font-size: 0.85rem; gap: 0.3rem; }
-.reject-btn { background-color: var(--danger-red); width: auto; padding: 0 1rem; font-weight: bold; font-size: 0.85rem; gap: 0.3rem; }
+.edit-btn:hover {
+    background-color: #2563eb;
+    transform: scale(1.1);
+}
+
+.delete-btn {
+    background-color: var(--danger-red);
+}
+
+.delete-btn:hover {
+    background-color: #dc2626;
+    transform: scale(1.1);
+}
+
+.approve-btn {
+    background-color: var(--success-green);
+    width: auto;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    font-size: 0.85rem;
+    gap: 0.3rem;
+}
+
+.reject-btn {
+    background-color: var(--danger-red);
+    width: auto;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    font-size: 0.85rem;
+    gap: 0.3rem;
+}
+
+.approve-btn:hover,
+.reject-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Forms في الأدمن */
+.admin-form {
+    background: var(--white-pure);
+    padding: 2rem;
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 2rem;
+    border: 1px solid var(--gray-border);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.admin-form .form-group {
+    margin-bottom: 0;
+}
+
+.admin-form label {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.divider {
+    height: 2px;
+    background: var(--gray-border);
+    margin: 3rem 0;
+    border: none;
+}
 
 /* --- Responsive --- */
 @media (max-width: 992px) {
-    .admin-dashboard { flex-direction: column; }
-    .sidebar { width: 100%; height: auto; position: fixed; bottom: 0; left: 0; flex-direction: row; padding: 0.5rem; z-index: 1000; justify-content: space-around; }
-    .sidebar-header, .sidebar-nav span { display: none; }
-    .sidebar-nav { flex-direction: row; padding: 0; justify-content: space-around; width: 100%; }
-    .nav-link { padding: 0.8rem; margin: 0; border-radius: 50%; }
-    .main-content { padding-bottom: 80px; }
+    .admin-dashboard {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        flex-direction: row;
+        padding: 0.5rem;
+        z-index: 1000;
+        justify-content: space-around;
+        border-radius: var(--radius-card) var(--radius-card) 0 0;
+    }
+    
+    .sidebar-header {
+        display: none;
+    }
+    
+    .sidebar-nav {
+        flex-direction: row;
+        padding: 0;
+        justify-content: space-around;
+        width: 100%;
+        gap: 0;
+    }
+    
+    .nav-link {
+        padding: 0.8rem;
+        margin: 0;
+        border-radius: var(--radius-input);
+        flex-direction: column;
+        gap: 0.3rem;
+        font-size: 0.8rem;
+        min-width: 70px;
+    }
+    
+    .nav-link span {
+        font-size: 0.75rem;
+    }
+    
+    .nav-link i {
+        font-size: 1.2rem;
+    }
+    
+    .main-content {
+        padding-bottom: 100px;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .table-container {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        padding: 1.5rem 1rem;
+    }
+    
+    .section-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .stat-card {
+        padding: 1.5rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
 }
