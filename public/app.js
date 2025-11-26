@@ -134,9 +134,16 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             document.getElementById('login-btn').addEventListener('click', () => showAuthPopup('login'));
             document.getElementById('register-btn').addEventListener('click', () => showAuthPopup('register'));
-        }
+    // 🆕 أضف event listener لنسيت كلمة المرور
+    const forgotPasswordLink = document.getElementById('forgot-password-link');
+    if (forgotPasswordLink) {
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            showForgotPasswordPopup();
+        });
     }
-
+}
+        
     function showAuthPopup(formType) {
         loginPopupError.textContent = '';
         registerPopupError.textContent = '';
