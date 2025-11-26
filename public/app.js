@@ -486,81 +486,145 @@ function updatePrice() {
     function hidePopup() { orderPopupOverlay.classList.add('hidden'); }
 
     // --- 6.5. نظام الإشعارات ---
-    async function fetchNotifications() {
-    // 1. تحقق إضافي: يتأكد من وجود التوكن نفسه، وليس فقط معلومات المستخدم.
-    if (!userInfo || !userInfo.token) {
-        console.log("User not logged in or token is missing.");
+    // --- 6.5. نظام الإشعارات ---
+async function fetchNotifications() {
+    // التحقق من وجود المستخدم والتوكن
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const token = localStorage.getItem('token');
+    
+    if (!userInfo || !token) {
+        console.log("المستخدم غير مسجل دخول أو التوكن مفقود");
         return;
     }
 
     try {
         const response = await fetch('/api/notifications', {
-            headers: { 'Authorization': `Bearer ${userInfo.token}` }
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         });
 
-        // 2. "أذكى" معالجة للأخطاء: يتعرف على خطأ 401 تحديداً.
+        // إذا كان الخطأ 401 (غير مصرح)، قم بتسجيل الخروج
         if (response.status === 401) {
-            console.error("Authorization failed (401). Token is invalid. Logging out.");
-            logoutHandler(); // 3. الإجراء التصحيحي: يقوم بتسجيل خروج المستخدم تلقائياً!
+            console.error("التوكن منتهي الصلاحية - جاري تسجيل الخروج");
+            logoutHandler();
             return;
         }
 
         if (!response.ok) {
-            throw new Error(`Failed to fetch notifications. Status: ${response.status}`);
+            throw new Error(`فشل جلب الإشعارات. الحالة: ${response.status}`);
         }
 
         const notifications = await response.json();
+        console.log('📨 الإشعارات المستلمة:', notifications);
         renderNotifications(notifications);
 
     } catch (error) {
-        console.error("Error in fetchNotifications:", error);
+        console.error("خطأ في جلب الإشعارات:", error);
+        // لا تقم بتسجيل الخروج تلقائياً، فقط أظهر رسالة خطأ
+        const notificationList = document.getElementById('notifications-list');
+        if (notificationList) {
+            notificationList.innerHTML = '<li class="no-notifications">فشل تحميل الإشعارات</li>';
+        }
     }
 }
 
 
     function renderNotifications(notifications) {
-        const list = document.getElementById('notifications-list');
-        const countBadge = document.getElementById('notification-count');
-        if (!list || !countBadge) return;
-
-        const unreadCount = notifications.filter(n => !n.read).length;
-        countBadge.textContent = unreadCount;
-        countBadge.classList.toggle('visible', unreadCount > 0);
-
-        if (notifications.length === 0) {
-            list.innerHTML = '<li class="no-notifications">لا توجد إشعارات حالياً.</li>';
-            return;
-        }
-
-        list.innerHTML = notifications.map(n => `
-            <li>
-                <a href="${n.link || '#'}" class="notification-item ${!n.read ? 'unread' : ''}">
-                    <p>${n.message}</p>
-                    <span class="timestamp">${new Date(n.createdAt).toLocaleString('ar-EG')}</span>
-                </a>
-            </li>
-        `).join('');
+    const list = document.getElementById('notifications-list');
+    const countBadge = document.getElementById('notification-count');
+    
+    if (!list || !countBadge) {
+        console.log('عناصر الإشعارات غير موجودة في الصفحة');
+        return;
     }
 
-    async function markNotificationsAsRead() {
-        const countBadge = document.getElementById('notification-count');
-        if (!userInfo || !countBadge || countBadge.textContent === '0') return;
+    // حساب عدد الإشعارات غير المقروءة
+    const unreadCount = notifications.filter(n => !n.read).length;
+    countBadge.textContent = unreadCount;
+    countBadge.classList.toggle('visible', unreadCount > 0);
 
-        try {
-            await fetch('/api/notifications/mark-read', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${userInfo.token}` }
-            });
-            countBadge.textContent = '0';
-            countBadge.classList.remove('visible');
+    // إذا لم توجد إشعارات
+    if (!notifications || notifications.length === 0) {
+        list.innerHTML = '<li class="no-notifications">لا توجد إشعارات حالياً</li>';
+        return;
+    }
+
+    // عرض الإشعارات
+    list.innerHTML = notifications.map(notification => `
+        <li>
+            <a href="${notification.link || '#'}" class="notification-item ${notification.read ? '' : 'unread'}" data-notification-id="${notification._id}">
+                <p>${notification.message}</p>
+                <span class="timestamp">${formatNotificationDate(notification.createdAt)}</span>
+            </a>
+        </li>
+    `).join('');
+
+    console.log('✅ تم عرض الإشعارات بنجاح');
+}
+
+    async function markNotificationsAsRead() {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const token = localStorage.getItem('token');
+    
+    if (!userInfo || !token) {
+        console.log("لا يمكن تحديد الإشعارات كمقروءة - المستخدم غير مسجل");
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/notifications/mark-read', {
+            method: 'POST',
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            // تحديث الواجهة محلياً
+            const countBadge = document.getElementById('notification-count');
+            if (countBadge) {
+                countBadge.textContent = '0';
+                countBadge.classList.remove('visible');
+            }
+            
+            // إزالة حالة "غير مقروء" من جميع الإشعارات
             document.querySelectorAll('.notification-item.unread').forEach(item => {
                 item.classList.remove('unread');
             });
-        } catch (error) {
-            console.error('Failed to mark notifications as read:', error);
+            
+            console.log('✅ تم تحديد جميع الإشعارات كمقروءة');
+        } else {
+            console.error('فشل تحديد الإشعارات كمقروءة');
         }
+    } catch (error) {
+        console.error('خطأ في تحديد الإشعارات كمقروءة:', error);
     }
-        
+}
+
+    // 🆕 دالة تنسيق التاريخ للإشعارات
+function formatNotificationDate(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMins < 1) return 'الآن';
+    if (diffMins < 60) return `قبل ${diffMins} دقيقة`;
+    if (diffHours < 24) return `قبل ${diffHours} ساعة`;
+    if (diffDays < 7) return `قبل ${diffDays} يوم`;
+    
+    return date.toLocaleDateString('ar-EG', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+    
     // --- 7. ربط الأحداث ---
     // --- 7. ربط الأحداث ---
     closePopupButton.addEventListener('click', (e) => {
@@ -616,6 +680,7 @@ function updatePrice() {
     payWithBalanceBtn.addEventListener('click', executePayWithBalance);
     payWithWhatsappBtn.addEventListener('click', executePayWithWhatsapp);
     // --- 8. الاستماع للتحديثات الفورية (Socket.IO) ---
+        // --- 8. الاستماع للتحديثات الفورية (Socket.IO) ---
     socket.on('new-service', loadServices);
     socket.on('service-updated', loadServices);
     socket.on('service-deleted', loadServices);
@@ -625,13 +690,92 @@ function updatePrice() {
         }
     });
     socket.on('new-notification', (data) => {
-        if (userInfo && userInfo._id === data.userId) {
-            console.log('New notification received!');
-            // يمكنك إضافة ملف صوتي هنا إذا أردت
-            new Audio('/sounds/notification.mp3').play().catch(e => console.log("User interaction needed to play audio."));
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        
+        if (userInfo && data.userId === userInfo._id) {
+            console.log('🔔 إشعار جديد مستلم!', data);
+            
+            // تشغيل صوت الإشعار (اختياري)
+            try {
+                new Audio('/sounds/notification.mp3').play().catch(e => {
+                    console.log("يتطلب تفاعل المستخدم لتشغيل الصوت");
+                });
+            } catch (e) {
+                console.log("تعذر تشغيل صوت الإشعار");
+            }
+            
+            // إعادة جلب الإشعارات فوراً
             fetchNotifications();
+            
+            // إظهار تنبيه صغير (اختياري)
+            showNotificationAlert(data.notification);
         }
     });
+
+    // 🆕 دالة لعرض تنبيه صغير للإشعارات الجديدة
+    function showNotificationAlert(notification) {
+        // إنشاء عنصر تنبيه صغير
+        const alert = document.createElement('div');
+        alert.className = 'notification-alert';
+        alert.innerHTML = `
+            <div class="alert-content">
+                <i class="ph-bold ph-bell-ringing"></i>
+                <span>${notification.message}</span>
+            </div>
+        `;
+        
+        // إضافة الأنيميشن والتنسيق
+        alert.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--purple-gradient);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-lg);
+            z-index: 10000;
+            animation: slideDown 0.5s ease forwards;
+            max-width: 400px;
+            text-align: center;
+        `;
+        
+        document.body.appendChild(alert);
+        
+        // إزالة التنبيه بعد 5 ثواني
+        setTimeout(() => {
+            alert.style.animation = 'slideUp 0.5s ease forwards';
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 500);
+        }, 5000);
+    }
+
+    // 🆕 أضف أنيميشن للتنبيهات (مرة واحدة فقط)
+    if (!document.querySelector('#notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            @keyframes slideDown {
+                from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+                to { transform: translateX(-50%) translateY(0); opacity: 1; }
+            }
+            @keyframes slideUp {
+                from { transform: translateX(-50%) translateY(0); opacity: 1; }
+                to { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+            }
+            .notification-alert .alert-content {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-weight: 600;
+            }
+        `;
+        document.head.appendChild(style);
+    }
 
     // --- 9. البدء بتشغيل كل شيء ---
     updateUIForAuth();
