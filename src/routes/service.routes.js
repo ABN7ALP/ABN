@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Service = require('../models/service.model');
+const User = require('../models/user.model'); // 🆕 أضف هذا السطر
+const Notification = require('../models/notification.model'); // 🆕 أضف هذا السطر
 const { v4: uuidv4 } = require('uuid');
-// ******** إضافة جديدة ********
 const authMiddleware = require('../middleware/auth.middleware');
 const adminMiddleware = require('../middleware/admin.middleware');
-// ****************************
 
 // GET كل الخدمات
 router.get('/', async (req, res) => {
