@@ -166,7 +166,14 @@ function checkAdminAccess() {
         row.innerHTML = `
             <td data-label="المنصة"><i class="ph-bold ${platformIcon}"></i> ${platformName}</td>
             <td data-label="الخدمة">${order.service || 'N/A'}</td>
-            <td data-label="الرابط"><a href="${order.link || '#'}" target="_blank">عرض الرابط</a></td>
+            <td data-label="الرابط">
+    <div class="link-container">
+        <a href="${order.link || '#'}" target="_blank" class="link-preview">عرض الرابط</a>
+        <button class="copy-link-btn" data-link="${order.link}" title="نسخ الرابط">
+            <i class="ph-bold ph-copy"></i>
+        </button>
+    </div>
+</td>
             <td data-label="الكمية">${order.quantity ? order.quantity.toLocaleString() : 'N/A'}</td>
             <td data-label="السعر">${order.price ? order.price.toFixed(2) : '0.00'} $</td>
             <td data-label="تاريخ الطلب">${order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG') : 'N/A'}</td>
