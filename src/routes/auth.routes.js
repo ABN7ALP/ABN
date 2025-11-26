@@ -160,6 +160,81 @@ router.post('/verify-email', async (req, res) => {
     }
 });
 
+// 🆕 POST /api/auth/forgot-password - طلب إعادة تعيين كلمة المرور
+router.post('/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
 
+        if (!email) {
+            return res.status(400).json({ message: 'البريد الإلكتروني مطلوب' });
+        }
+
+        // البحث عن المستخدم
+        const user = await User.findOne({ email });
+        
+        // لأسباب أمنية، لا نخبر المستخدم إذا كان البريد غير موجود
+        if (!user) {
+            return res.json({ 
+                message: 'إذا كان البريد الإلكتروني مسجلاً، سيصلك رابط إعادة التعيين قريباً.' 
+            });
+        }
+
+        // إنشاء توكن إعادة التعيين
+        const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = Date.now() + 1 * 60 * 60 * 1000; // صلاحية ساعة واحدة
+        
+        await user.save();
+
+        // هنا في بيئة الإنتاج، ستقوم بإرسال الإيميل فعلياً
+        console.log(`🔑 كود إعادة تعيين كلمة المرور لـ ${email}: ${resetToken}`);
+        
+        res.json({ 
+            message: 'إذا كان البريد الإلكتروني مسجلاً، سيصلك رابط إعادة التعيين قريباً.',
+            // في التطوير يمكنك إرجاع التوكن للاختبار
+            resetToken: process.env.NODE_ENV === 'development' ? resetToken : undefined
+        });
+
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        res.status(500).json({ message: 'فشل إرسال رابط التعيين' });
+    }
+});
+
+// 🆕 POST /api/auth/reset-password - إعادة تعيين كلمة المرور
+router.post('/reset-password', async (req, res) => {
+    try {
+        const { email, token, newPassword } = req.body;
+
+        if (!email || !token || !newPassword) {
+            return res.status(400).json({ message: 'جميع الحقول مطلوبة' });
+        }
+
+        // البحث عن المستخدم مع التحقق من التوكن ومدى صلاحيته
+        const user = await User.findOne({
+            email,
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'رابط إعادة التعيين غير صالح أو منتهي الصلاحية' });
+        }
+
+        // تحديث كلمة المرور
+        user.password = newPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        
+        await user.save();
+
+        res.json({ message: 'تم إعادة تعيين كلمة المرور بنجاح' });
+
+    } catch (error) {
+        console.error('Reset password error:', error);
+        res.status(500).json({ message: 'فشل إعادة تعيين كلمة المرور' });
+    }
+});
 
 module.exports = router;
