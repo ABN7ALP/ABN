@@ -1,19 +1,26 @@
 const nodemailer = require('nodemailer');
 
-// إعداد transporter باستخدام Gmail
+// إعداد transporter باستخدام إعدادات SMTP المباشرة
 const createTransporter = () => {
     return nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false, // استخدام TLS
         auth: {
             user: process.env.GMAIL_USER,
             pass: process.env.GMAIL_APP_PASSWORD
-        }
+        },
+        connectionTimeout: 10000, // 10 ثواني
+        greetingTimeout: 10000,
+        socketTimeout: 10000
     });
 };
 
 // دالة إرسال كود التحقق
 const sendVerificationEmail = async (email, verificationCode) => {
     try {
+        console.log(`🔄 محاولة إرسال إيميل إلى: ${email}`);
+        
         const transporter = createTransporter();
         
         const mailOptions = {
@@ -47,12 +54,12 @@ const sendVerificationEmail = async (email, verificationCode) => {
             `
         };
 
-        await transporter.sendMail(mailOptions);
-        console.log(`✅ تم إرسال كود التحقق إلى: ${email}`);
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`✅ تم إرسال كود التحقق إلى: ${email} - Message ID: ${info.messageId}`);
         return true;
         
     } catch (error) {
-        console.error('❌ فشل إرسال الإيميل:', error);
+        console.error('❌ فشل إرسال الإيميل:', error.message);
         return false;
     }
 };
@@ -60,6 +67,8 @@ const sendVerificationEmail = async (email, verificationCode) => {
 // دالة إرسال كود إعادة تعيين كلمة المرور
 const sendPasswordResetEmail = async (email, resetCode) => {
     try {
+        console.log(`🔄 محاولة إرسال إيميل إعادة تعيين إلى: ${email}`);
+        
         const transporter = createTransporter();
         
         const mailOptions = {
@@ -93,12 +102,12 @@ const sendPasswordResetEmail = async (email, resetCode) => {
             `
         };
 
-        await transporter.sendMail(mailOptions);
-        console.log(`✅ تم إرسال كود إعادة التعيين إلى: ${email}`);
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`✅ تم إرسال كود إعادة التعيين إلى: ${email} - Message ID: ${info.messageId}`);
         return true;
         
     } catch (error) {
-        console.error('❌ فشل إرسال إيميل إعادة التعيين:', error);
+        console.error('❌ فشل إرسال إيميل إعادة التعيين:', error.message);
         return false;
     }
 };
