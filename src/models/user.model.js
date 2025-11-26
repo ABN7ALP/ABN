@@ -33,12 +33,19 @@ const userSchema = new mongoose.Schema({
     isAdmin: { 
         type: Boolean,
         default: false // القيمة الافتراضية لأي مستخدم جديد هي 'ليس أدمن'
-    }
+    },
     
+    emailVerified: {
+        type: Boolean,
+        default: false
+    },
+    emailVerificationToken: String,
+    emailVerificationExpires: Date,
+    resetPasswordToken: String,
+    resetPasswordExpires: Date
 }, {
     timestamps: true
 });
-
 // --- تشفير كلمة المرور قبل حفظ المستخدم ---
 // هذا الكود يعمل تلقائياً قبل أي عملية حفظ 'save'
 userSchema.pre('save', async function(next) {
