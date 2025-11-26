@@ -29,4 +29,31 @@ router.post('/mark-read', authMiddleware, async (req, res) => {
     }
 });
 
+// 🆕 إرسال إشعار لجميع المستخدمين
+router.post('/broadcast', async (req, res) => {
+    try {
+        const { message, link } = req.body;
+        
+        // جلب جميع المستخدمين
+        const users = await User.find({});
+        
+        // إنشاء إشعار لكل مستخدم
+        const notifications = users.map(user => ({
+            user: user._id,
+            message,
+            link: link || '#',
+            type: 'broadcast'
+        }));
+        
+        await Notification.insertMany(notifications);
+        
+        // إرسال عبر Socket.io لجميع المستخدمين المتصلين
+        req.io.emit('broadcast-notification', { message, link });
+        
+        res.json({ message: 'تم إرسال الإشعار لجميع المستخدمين' });
+    } catch (error) {
+        res.status(500).json({ message: 'فشل إرسال الإشعار' });
+    }
+});
+
 module.exports = router;
