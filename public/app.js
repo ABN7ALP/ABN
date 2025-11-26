@@ -562,26 +562,25 @@ function updatePrice() {
     }
         
     // --- 7. ربط الأحداث ---
-    successOkButton.addEventListener('click', () => {
-    // إضافة تأثير قبل الإغلاق
-    successOkButton.style.transform = 'scale(0.95)';
-    
-    setTimeout(() => {
+    // --- 7. ربط الأحداث ---
+    closePopupButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         hidePopup();
-        // إعادة تعيين النموذج
-        orderForm.reset();
-        // إعادة عرض النموذج الأساسي
-        orderFormContainer.classList.remove('hidden');
-        successMessageContainer.classList.add('hidden');
-        paymentOptionsContainer.classList.add('hidden');
-        
-        // إعادة تعيين الزر
+    });
+    successOkButton.addEventListener('click', () => {
+        hidePopup();
         setTimeout(() => {
-            successOkButton.style.transform = 'scale(1)';
-        }, 200);
-    }, 150);
-});
-    orderPopupOverlay.addEventListener('click', (e) => { if (e.target === orderPopupOverlay) hidePopup(); });
+            orderFormContainer.classList.remove('hidden');
+            successMessageContainer.classList.add('hidden');
+            paymentOptionsContainer.classList.add('hidden');
+        }, 500);
+    });
+    orderPopupOverlay.addEventListener('click', (e) => {
+        if (e.target === orderPopupOverlay) {
+            hidePopup();
+        }
+    });
     serviceSelect.addEventListener('change', updateFormBasedOnService);
     quantityInput.addEventListener('input', () => { updatePrice(); validateQuantity(); });
     linkInput.addEventListener('input', validateLink);
@@ -591,8 +590,15 @@ function updatePrice() {
     loginFormPopup.addEventListener('submit', loginHandler);
     registerFormPopup.addEventListener('submit', registerHandler);
     authPopupOverlay.addEventListener('click', (e) => { if (e.target === authPopupOverlay || e.target.closest('.close-btn')) hideAuthPopup(); });
-    closeDepositPopupBtn.addEventListener('click', hideDepositPopup);
-    depositPopupOverlay.addEventListener('click', (e) => { if (e.target === depositPopupOverlay) hideDepositPopup(); });
+    closeDepositPopupBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        hideDepositPopup();
+    });
+    depositPopupOverlay.addEventListener('click', (e) => {
+        if (e.target === depositPopupOverlay) {
+            hideDepositPopup();
+        }
+    });
     paymentMethodBtns.forEach(btn => btn.addEventListener('click', handlePaymentMethodSelect));
     depositForm.addEventListener('submit', handleDepositSubmit);
     
@@ -609,7 +615,6 @@ function updatePrice() {
 
     payWithBalanceBtn.addEventListener('click', executePayWithBalance);
     payWithWhatsappBtn.addEventListener('click', executePayWithWhatsapp);
-
     // --- 8. الاستماع للتحديثات الفورية (Socket.IO) ---
     socket.on('new-service', loadServices);
     socket.on('service-updated', loadServices);
