@@ -504,14 +504,9 @@ async function handleResetPassword(e) {
             <p style="text-align: center; margin-bottom: 1.5rem;">
                 تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول.
             </p>
-            // بدل من innerHTML، استخدم:
-const button = document.createElement('button');
-button.textContent = 'تسجيل الدخول';
-button.className = 'pill-button primary-button';
-button.addEventListener('click', () => {
-    hideAuthPopup();
-    showAuthPopup('login');
-});
+            <button onclick="window.hideAuthPopup(); window.showAuthPopup('login')" class="pill-button primary-button">
+                تسجيل الدخول
+            </button>
         `;
         
     } catch (error) {
