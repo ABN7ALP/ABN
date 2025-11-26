@@ -157,9 +157,14 @@ function checkAdminAccess() {
         }
     }
 
-    function renderOrders(orders) {
+    // 🔽 في دالة renderOrders، استبدل الكود كاملاً:
+function renderOrders(orders) {
     ordersTbody.innerHTML = '';
-    if (orders.length === 0) { ordersTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات حالياً.</td></tr>'; return; }
+    if (orders.length === 0) { 
+        ordersTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات حالياً.</td></tr>'; 
+        return; 
+    }
+    
     orders.forEach(order => {
         const row = document.createElement('tr');
         const platformName = order.platform || 'غير محدد';
@@ -168,13 +173,13 @@ function checkAdminAccess() {
             <td data-label="المنصة"><i class="ph-bold ${platformIcon}"></i> ${platformName}</td>
             <td data-label="الخدمة">${order.service || 'N/A'}</td>
             <td data-label="الرابط">
-    <div class="link-container">
-        <a href="${order.link || '#'}" target="_blank" class="link-preview">عرض الرابط</a>
-        <button class="copy-link-btn" data-link="${order.link}" title="نسخ الرابط">
-            <i class="ph-bold ph-copy"></i>
-        </button>
-    </div>
-</td>
+                <div class="link-container">
+                    <a href="${order.link || '#'}" target="_blank" class="link-preview">عرض الرابط</a>
+                    <button class="copy-link-btn" data-link="${order.link}" title="نسخ الرابط">
+                        <i class="ph-bold ph-copy"></i>
+                    </button>
+                </div>
+            </td>
             <td data-label="الكمية">${order.quantity ? order.quantity.toLocaleString() : 'N/A'}</td>
             <td data-label="السعر">${order.price ? order.price.toFixed(2) : '0.00'} $</td>
             <td data-label="تاريخ الطلب">${order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG') : 'N/A'}</td>
@@ -182,33 +187,60 @@ function checkAdminAccess() {
         `;
         ordersTbody.appendChild(row);
     });
-    document.querySelectorAll('.status-select').forEach(select => select.addEventListener('change', handleStatusChange));
-}
-
-
-    // 🆕 أضف بعد دالة renderOrders
-function handleCopyLink(event) {
-    const button = event.currentTarget;
-    const link = button.dataset.link;
     
-    navigator.clipboard.writeText(link).then(() => {
-        button.classList.add('copied');
-        button.innerHTML = '<i class="ph-bold ph-check"></i>';
-        
-        setTimeout(() => {
-            button.classList.remove('copied');
-            button.innerHTML = '<i class="ph-bold ph-copy"></i>';
-        }, 2000);
-    }).catch(err => {
-        console.error('Failed to copy: ', err);
-        alert('فشل نسخ الرابط');
+    // 🆕 أضف event listeners هنا
+    document.querySelectorAll('.status-select').forEach(select => {
+        select.addEventListener('change', handleStatusChange);
+    });
+    
+    // 🆕 أضف event listeners لأزرار النسخ
+    document.querySelectorAll('.copy-link-btn').forEach(btn => {
+        btn.addEventListener('click', handleCopyLink);
     });
 }
 
-// في دالة renderOrders، أضف هذا السطر في النهاية:
-document.querySelectorAll('.copy-link-btn').forEach(btn => {
-    btn.addEventListener('click', handleCopyLink);
-});
+// 🆕 أضف دالة handleCopyLink بعد renderOrders مباشرة
+async function handleCopyLink(event) {
+    const button = event.currentTarget;
+    const link = button.getAttribute('data-link');
+    
+    if (!link) {
+        console.error('No link found');
+        return;
+    }
+    
+    try {
+        await navigator.clipboard.writeText(link);
+        
+        // تغيير الأيقونة مؤقتاً
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="ph-bold ph-check"></i>';
+        button.style.background = 'var(--success-green)';
+        
+        setTimeout(() => {
+            button.innerHTML = originalHTML;
+            button.style.background = '';
+        }, 2000);
+        
+    } catch (err) {
+        console.error('Failed to copy: ', err);
+        // طريقة بديلة للنسخ
+        const textArea = document.createElement('textarea');
+        textArea.value = link;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        button.innerHTML = '<i class="ph-bold ph-check"></i>';
+        button.style.background = 'var(--success-green)';
+        setTimeout(() => {
+            button.innerHTML = '<i class="ph-bold ph-copy"></i>';
+            button.style.background = '';
+        }, 2000);
+    }
+}
+
     
     async function handleStatusChange(event) {
         const selectElement = event.target;
