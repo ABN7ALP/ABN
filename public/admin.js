@@ -418,14 +418,13 @@ async function handleCopyLink(event) {
     closeEditPopupBtn.addEventListener('click', () => editServicePopup.classList.add('hidden'));
 
     // --- 6. قسم إدارة طلبات الشحن (تم تحديثها لطلب التوكن) ---
-    // --- 6. قسم إدارة طلبات الشحن (تم تحديثها لطلب التوكن) ---
+ // --- 6. قسم إدارة طلبات الشحن ---
 async function fetchDeposits() {
     if (!depositsTbody) return;
     depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">جاري تحميل...</td></tr>';
     try {
-        // التعديل هنا: إضافة الـ Headers
         const response = await fetch('/api/deposits', { headers: getAuthHeaders() });
-        if (!response.ok) throw new Error('فشل جلب طلبات الشحن. (قد تكون الصلاحيات غير كافية).');
+        if (!response.ok) throw new Error('فشل جلب طلبات الشحن.');
         const deposits = await response.json();
         renderDeposits(deposits);
     } catch (error) {
@@ -433,7 +432,7 @@ async function fetchDeposits() {
     }
 }
 
-// 🆕 أضف مع الدوال الأخرى
+// --- قسم إدارة المستخدمين ---
 async function fetchUsers() {
     const tbody = document.getElementById('users-tbody');
     if (!tbody) return;
@@ -446,7 +445,6 @@ async function fetchUsers() {
         });
         
         if (!response.ok) {
-            const errorText = await response.text();
             throw new Error(`فشل جلب المستخدمين: ${response.status}`);
         }
         
@@ -464,11 +462,11 @@ function renderUsers(users) {
     
     tbody.innerHTML = users.map(user => `
         <tr>
-            <td>${user.username}</td>
-            <td>${user.email}</td>
-            <td>${new Date(user.createdAt).toLocaleDateString('ar-EG')}</td>
+            <td>${user.username || 'غير محدد'}</td>
+            <td>${user.email || 'غير محدد'}</td>
+            <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString('ar-EG') : 'غير محدد'}</td>
             <td><span class="status ${user.emailVerified ? 'status-approved' : 'status-pending'}">${user.emailVerified ? 'مفعل' : 'غير مفعل'}</span></td>
-            <td>${user.balance.toFixed(2)} $</td>
+            <td>${user.balance ? user.balance.toFixed(2) : '0.00'} $</td>
             <td class="action-buttons">
                 <button class="edit-user-btn pill-button" data-user-id="${user._id}">
                     <i class="ph-bold ph-pencil-simple"></i>
@@ -477,11 +475,15 @@ function renderUsers(users) {
         </tr>
     `).join('');
 }
-    
-    function renderDeposits(deposits) {
+
+function renderDeposits(deposits) {
     if (!depositsTbody) return;
     depositsTbody.innerHTML = '';
-    if (deposits.length === 0) { depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات شحن حالياً.</td></tr>'; return; }
+    if (deposits.length === 0) { 
+        depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات شحن حالياً.</td></tr>'; 
+        return; 
+    }
+    
     deposits.forEach(deposit => {
         const row = document.createElement('tr');
         row.dataset.depositId = deposit._id;
@@ -495,42 +497,51 @@ function renderUsers(users) {
             <td data-label="الإيصال"><button onclick="viewReceipt('${deposit.receiptImage}')" class="pill-button-link">عرض الإيصال</button></td>
             <td data-label="الحالة"><span class="status ${statusClass}">${statusText}</span></td>
             <td data-label="إجراءات" class="action-buttons">
-            ${deposit.status === 'pending' ? `
-            <button class="approve-btn pill-button"><i class="ph-bold ph-check"></i> قبول</button>
-            <button class="reject-btn pill-button"><i class="ph-bold ph-x"></i> رفض</button>
-           ` : 'تمت المعالجة'}
-         </td>
-
+                ${deposit.status === 'pending' ? `
+                <button class="approve-btn pill-button"><i class="ph-bold ph-check"></i> قبول</button>
+                <button class="reject-btn pill-button"><i class="ph-bold ph-x"></i> رفض</button>
+                ` : 'تمت المعالجة'}
+            </td>
         `;
         depositsTbody.appendChild(row);
     });
-    document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => btn.addEventListener('click', handleDepositAction));
+    
+    document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
+        btn.addEventListener('click', handleDepositAction);
+    });
 }
 
-
-    async function handleDepositAction(event) {
-        const btn = event.currentTarget;
-        const action = btn.classList.contains('approve-btn') ? 'approve' : 'reject';
-        const row = btn.closest('tr');
-        const depositId = row.dataset.depositId;
-        if (!confirm(`هل أنت متأكد من ${action === 'approve' ? 'الموافقة على' : 'رفض'} هذا الطلب؟`)) return;
-        btn.disabled = true;
-        btn.textContent = 'جاري...';
-        try {
-            // التعديل هنا: إضافة الـ Headers
-            const response = await fetch(`/api/deposits/${depositId}/${action}`, { 
-                method: 'PUT',
-                headers: getAuthHeaders() // استخدام الدالة المساعدة
-            });
-            if (!response.ok) {
-                const result = await response.json();
-                throw new Error(result.message || 'فشل الإجراء.');
-            }
-        } catch (error) {
-            alert(error.message);
-            btn.disabled = false;
+async function handleDepositAction(event) {
+    const btn = event.currentTarget;
+    const action = btn.classList.contains('approve-btn') ? 'approve' : 'reject';
+    const row = btn.closest('tr');
+    const depositId = row.dataset.depositId;
+    
+    if (!confirm(`هل أنت متأكد من ${action === 'approve' ? 'الموافقة على' : 'رفض'} هذا الطلب؟`)) return;
+    
+    btn.disabled = true;
+    btn.textContent = 'جاري...';
+    
+    try {
+        const response = await fetch(`/api/deposits/${depositId}/${action}`, { 
+            method: 'PUT',
+            headers: getAuthHeaders()
+        });
+        
+        if (!response.ok) {
+            const result = await response.json();
+            throw new Error(result.message || 'فشل الإجراء.');
         }
+        
+        // تحديث القائمة بعد النجاح
+        fetchDeposits();
+        
+    } catch (error) {
+        alert(error.message);
+        btn.disabled = false;
+        btn.textContent = action === 'approve' ? 'قبول' : 'رفض';
     }
+}
 
     // --- 7. الاستماع للتحديثات الفورية (Socket.IO) ---
     socket.on('new-order', () => {
