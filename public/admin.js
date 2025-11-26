@@ -434,16 +434,28 @@ async function handleCopyLink(event) {
 
 
     // 🆕 أضف مع الدوال الأخرى
+// 🔽 استبدل هذا الكود:
 async function fetchUsers() {
+    const tbody = document.getElementById('users-tbody');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">جاري التحميل...</td></tr>';
+    
     try {
         const response = await fetch('/api/admin/users', { 
             headers: getAuthHeaders() 
         });
-        if (!response.ok) throw new Error('فشل جلب المستخدمين');
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`فشل جلب المستخدمين: ${response.status}`);
+        }
+        
         const users = await response.json();
         renderUsers(users);
     } catch (error) {
         console.error('Failed to fetch users:', error);
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">${error.message}</td></tr>`;
     }
 }
 
