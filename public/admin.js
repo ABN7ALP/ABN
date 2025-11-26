@@ -184,6 +184,31 @@ function checkAdminAccess() {
     document.querySelectorAll('.status-select').forEach(select => select.addEventListener('change', handleStatusChange));
 }
 
+
+    // 🆕 أضف بعد دالة renderOrders
+function handleCopyLink(event) {
+    const button = event.currentTarget;
+    const link = button.dataset.link;
+    
+    navigator.clipboard.writeText(link).then(() => {
+        button.classList.add('copied');
+        button.innerHTML = '<i class="ph-bold ph-check"></i>';
+        
+        setTimeout(() => {
+            button.classList.remove('copied');
+            button.innerHTML = '<i class="ph-bold ph-copy"></i>';
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy: ', err);
+        alert('فشل نسخ الرابط');
+    });
+}
+
+// في دالة renderOrders، أضف هذا السطر في النهاية:
+document.querySelectorAll('.copy-link-btn').forEach(btn => {
+    btn.addEventListener('click', handleCopyLink);
+});
+    
     async function handleStatusChange(event) {
         const selectElement = event.target;
         const orderId = selectElement.dataset.orderId;
