@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const http = require('http');
 const { Server } = require("socket.io");
+const adminRoutes = require('./src/routes/admin.routes');
 
 // إعداد التطبيق والخادم
 const app = express();
@@ -57,6 +58,7 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/deposits', depositRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/admin', adminRoutes);
 
 // منطق Socket.IO
 io.on('connection', (socket) => {
