@@ -418,23 +418,22 @@ async function handleCopyLink(event) {
     closeEditPopupBtn.addEventListener('click', () => editServicePopup.classList.add('hidden'));
 
     // --- 6. قسم إدارة طلبات الشحن (تم تحديثها لطلب التوكن) ---
-    async function fetchDeposits() {
-        if (!depositsTbody) return;
-        depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">جاري تحميل...</td></tr>';
-        try {
-            // التعديل هنا: إضافة الـ Headers
-            const response = await fetch('/api/deposits', { headers: getAuthHeaders() });
-            if (!response.ok) throw new Error('فشل جلب طلبات الشحن. (قد تكون الصلاحيات غير كافية).');
-            const deposits = await response.json();
-            renderDeposits(deposits);
-        } catch (error) {
-            depositsTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">${error.message}</td></tr>`;
-        }
+    // --- 6. قسم إدارة طلبات الشحن (تم تحديثها لطلب التوكن) ---
+async function fetchDeposits() {
+    if (!depositsTbody) return;
+    depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">جاري تحميل...</td></tr>';
+    try {
+        // التعديل هنا: إضافة الـ Headers
+        const response = await fetch('/api/deposits', { headers: getAuthHeaders() });
+        if (!response.ok) throw new Error('فشل جلب طلبات الشحن. (قد تكون الصلاحيات غير كافية).');
+        const deposits = await response.json();
+        renderDeposits(deposits);
+    } catch (error) {
+        depositsTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">${error.message}</td></tr>`;
     }
+}
 
-
-    // 🆕 أضف مع الدوال الأخرى
-// 🔽 استبدل هذا الكود:
+// 🆕 أضف مع الدوال الأخرى
 async function fetchUsers() {
     const tbody = document.getElementById('users-tbody');
     if (!tbody) return;
@@ -478,7 +477,6 @@ function renderUsers(users) {
         </tr>
     `).join('');
 }
-
     
     function renderDeposits(deposits) {
     if (!depositsTbody) return;
