@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/user.model.js');
 const jwt = require('jsonwebtoken');
+const { sendVerificationEmail, sendPasswordResetEmail } = require('./emailService');
 
 // --- دالة لإنشاء توكن JWT ---
 const generateToken = (id) => {
@@ -11,8 +12,6 @@ const generateToken = (id) => {
 };
 
 // --- POST /api/auth/register ---
-// لإنشاء حساب مستخدم جديد
-// لإنشاء حساب مستخدم جديد مع التحقق من البريد
 router.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
 
@@ -39,8 +38,14 @@ router.post('/register', async (req, res) => {
             emailVerificationExpires: Date.now() + 24 * 60 * 60 * 1000, // 24 ساعة
         });
 
-        // هنا يمكنك إرسال الإيميل فعلياً
-        console.log(`🔐 كود التحقق للمستخدم ${email}: ${verificationCode}`);
+        // 🆕 إرسال إيميل حقيقي بدل console.log
+        const emailSent = await sendVerificationEmail(email, verificationCode);
+        
+        if (!emailSent) {
+            // إذا فشل إرسال الإيميل، احذف المستخدم
+            await User.findByIdAndDelete(user._id);
+            return res.status(500).json({ message: 'فشل إرسال كود التحقق. يرجى المحاولة مرة أخرى.' });
+        }
         
         // إرجاع رسالة للمستخدم لتفعيل الحساب
         res.status(201).json({ 
@@ -54,8 +59,8 @@ router.post('/register', async (req, res) => {
         res.status(500).json({ message: 'فشل إنشاء الحساب' });
     }
 });
+
 // --- POST /api/auth/login ---
-// لتسجيل دخول المستخدم
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -83,8 +88,6 @@ router.post('/login', async (req, res) => {
 
 // GET /api/auth/me - جلب بيانات المستخدم المسجل دخوله حالياً
 router.get('/me', async (req, res) => {
-    // هذا المسار يفترض أننا سنرسل التوكن في المستقبل
-    // حالياً، سنعتمد على الـ ID الذي يرسله العميل
     const { userId } = req.query;
     if (!userId) {
         return res.status(400).json({ message: 'User ID is required' });
@@ -95,13 +98,12 @@ router.get('/me', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
         
-        // ******** نحدد البيانات التي نريد إرجاعها ********
         res.json({
             _id: user._id,
             username: user.username,
             email: user.email,
             balance: user.balance,
-            isAdmin: user.isAdmin // <-- حقل المدير 
+            isAdmin: user.isAdmin
         });
 
     } catch (error) {
@@ -109,7 +111,7 @@ router.get('/me', async (req, res) => {
     }
 });
 
-// 🆕 إرسال كود التحقق
+// 🆕 إرسال كود التحقق - محدث
 router.post('/send-verification', async (req, res) => {
     try {
         const { email } = req.body;
@@ -126,8 +128,12 @@ router.post('/send-verification', async (req, res) => {
         
         await user.save();
 
-        // هنا يمكنك إرسال الإيميل (ستحتخدم خدمة مثل SendGrid)
-        console.log(`كود التحقق لـ ${email}: ${verificationCode}`);
+        // 🆕 إرسال إيميل حقيقي بدل console.log
+        const emailSent = await sendVerificationEmail(email, verificationCode);
+        
+        if (!emailSent) {
+            return res.status(500).json({ message: 'فشل إرسال كود التحقق' });
+        }
         
         res.json({ message: 'تم إرسال كود التحقق إلى بريدك الإلكتروني' });
     } catch (error) {
@@ -160,7 +166,7 @@ router.post('/verify-email', async (req, res) => {
     }
 });
 
-// 🆕 POST /api/auth/forgot-password - طلب إعادة تعيين كلمة المرور
+// 🆕 POST /api/auth/forgot-password - محدث
 router.post('/forgot-password', async (req, res) => {
     try {
         const { email } = req.body;
@@ -187,13 +193,15 @@ router.post('/forgot-password', async (req, res) => {
         
         await user.save();
 
-        // هنا في بيئة الإنتاج، ستقوم بإرسال الإيميل فعلياً
-        console.log(`🔑 كود إعادة تعيين كلمة المرور لـ ${email}: ${resetToken}`);
+        // 🆕 إرسال إيميل حقيقي بدل console.log
+        const emailSent = await sendPasswordResetEmail(email, resetToken);
+        
+        if (!emailSent) {
+            return res.status(500).json({ message: 'فشل إرسال كود إعادة التعيين' });
+        }
         
         res.json({ 
-            message: 'إذا كان البريد الإلكتروني مسجلاً، سيصلك رابط إعادة التعيين قريباً.',
-            // في التطوير يمكنك إرجاع التوكن للاختبار
-            resetToken: process.env.NODE_ENV === 'development' ? resetToken : undefined
+            message: 'تم إرسال كود إعادة التعيين إلى بريدك الإلكتروني.'
         });
 
     } catch (error) {
