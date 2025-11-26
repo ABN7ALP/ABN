@@ -473,6 +473,7 @@ function showResetPasswordPopup(email) {
 }
 
 // 🆕 دالة معالجة إعادة تعيين كلمة المرور
+// 🆕 دالة معالجة إعادة تعيين كلمة المرور
 async function handleResetPassword(e) {
     e.preventDefault();
     const email = document.getElementById('reset-email').value;
@@ -504,16 +505,34 @@ async function handleResetPassword(e) {
             <p style="text-align: center; margin-bottom: 1.5rem;">
                 تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول.
             </p>
-            <button onclick="window.hideAuthPopup(); window.showAuthPopup('login')" class="pill-button primary-button">
+            <button id="success-login-btn" class="pill-button primary-button">
                 تسجيل الدخول
             </button>
         `;
+        
+        // 🆕 أضف event listener للزر الجديد
+        document.getElementById('success-login-btn').addEventListener('click', () => {
+            // إخفاء كل النوافذ
+            authPopupOverlay.classList.add('hidden');
+            resetPasswordContainer.classList.add('hidden');
+            
+            // إظهار نافذة تسجيل الدخول بعد نصف ثانية
+            setTimeout(() => {
+                authPopupOverlay.classList.remove('hidden');
+                loginFormContainer.classList.remove('hidden');
+                registerFormContainer.classList.add('hidden');
+                
+                // تنظيف الحقول
+                document.getElementById('login-email').value = email; // تعبئة الإيميل تلقائياً
+                document.getElementById('login-password').value = '';
+                loginPopupError.textContent = '';
+            }, 500);
+        });
         
     } catch (error) {
         errorElement.textContent = error.message;
     }
 }
-
     
     
 
