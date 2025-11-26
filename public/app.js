@@ -816,6 +816,23 @@ function formatNotificationDate(dateString) {
             refreshUserData();
         }
     });
+    // 🔽 في قسم Socket.IO، أضف:
+socket.on('broadcast-notification', (data) => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    
+    if (userInfo) {
+        console.log('🔔 إشعار جماعي مستلم:', data);
+        
+        // إعادة جلب الإشعارات
+        fetchNotifications();
+        
+        // إظهار تنبيه
+        showNotificationAlert({
+            message: data.message,
+            link: data.link
+        });
+    }
+});
     socket.on('new-notification', (data) => {
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
         
