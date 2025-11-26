@@ -134,16 +134,18 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             document.getElementById('login-btn').addEventListener('click', () => showAuthPopup('login'));
             document.getElementById('register-btn').addEventListener('click', () => showAuthPopup('register'));
-    // 🆕 أضف event listener لنسيت كلمة المرور
-    const forgotPasswordLink = document.getElementById('forgot-password-link');
-    if (forgotPasswordLink) {
-        forgotPasswordLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            showForgotPasswordPopup();
-        });
+            
+            // 🆕 أضف event listener لنسيت كلمة المرور
+            const forgotPasswordLink = document.getElementById('forgot-password-link');
+            if (forgotPasswordLink) {
+                forgotPasswordLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showForgotPasswordPopup();
+                });
+            }
+        }
     }
-}
-        
+
     function showAuthPopup(formType) {
         loginPopupError.textContent = '';
         registerPopupError.textContent = '';
@@ -152,199 +154,262 @@ document.addEventListener('DOMContentLoaded', () => {
         authPopupOverlay.classList.remove('hidden');
     }
 
-    function hideAuthPopup() { authPopupOverlay.classList.add('hidden'); }
+    function hideAuthPopup() { 
+        authPopupOverlay.classList.add('hidden'); 
+    }
 
     async function loginHandler(e) {
-    e.preventDefault();
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
         const rememberMe = document.getElementById('remember-me')?.checked || false;
-    try {
-        const response = await fetch('/api/auth/login', { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ email, password, rememberMe }) 
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || 'فشل تسجيل الدخول');
-            
-        // ******** ✅ التعديل الحاسم: تخزين التوكن والـ userInfo ********
-
-        // 1. تخزين التوكن أولاً (وهو الحقل الذي كان مفقوداً)
-        localStorage.setItem('token', data.token);
         
-        // 2. تخزين بيانات المستخدم (والتي تحتوي على isAdmin)
-        localStorage.setItem('userInfo', JSON.stringify(data));
-            
-        // 3. قم بتحديث المتغير العام userInfo مباشرةً من البيانات الجديدة
-        userInfo = data; 
-            
-        // 4. أغلق نافذة تسجيل الدخول (لا تزال ضرورية)
-        hideAuthPopup();
-            
-        // 5. تحديث الواجهة والتوجيه المناسب
-        updateUIForAuth(); // لتحديث القائمة الرئيسية والرصيد
-
-        // 6. التوجيه بناءً على الصلاحيات (لفتح لوحة التحكم مباشرة)
-        if (data.isAdmin === true) { // يمكنك أيضاً استخدام data.isAdmin
-            window.location.href = '/admin.html';
-        } else {
-             // توجيه المستخدم العادي إلى صفحة الطلبات (كمثال)
-            window.location.href = '/my-orders.html';
-        }
-
-
-        // ******** انتهى التعديل ********
-
-    } catch (error) { 
-        loginPopupError.textContent = error.message; 
-    }
-}
-
-
-    // 🔽 استبدل دالة registerHandler:
-async function registerHandler(e) {
-    e.preventDefault();
-    const username = document.getElementById('register-username').value;
-    const email = document.getElementById('register-email').value;
-    const password = document.getElementById('register-password').value;
-    
-    registerPopupError.textContent = '';
-    
-    try {
-        const response = await fetch('/api/auth/register', { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ username, email, password }) 
-        });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.message || 'فشل إنشاء الحساب');
-        }
-        
-        if (data.requiresVerification) {
-            // إظهار نافذة التحقق بدلاً من تسجيل الدخول المباشر
-            showVerificationPopup(data.email);
-        } else {
-            // الطريقة القديمة (للتوافق مع السيرفرات القديمة)
+        try {
+            const response = await fetch('/api/auth/login', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ email, password, rememberMe }) 
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'فشل تسجيل الدخول');
+                
+            // تخزين التوكن والبيانات
+            localStorage.setItem('token', data.token);
             localStorage.setItem('userInfo', JSON.stringify(data));
+            userInfo = data; 
+                
             hideAuthPopup();
             updateUIForAuth();
+
+            // التوجيه بناءً على الصلاحيات
+            if (data.isAdmin === true) {
+                window.location.href = '/admin.html';
+            } else {
+                window.location.href = '/my-orders.html';
+            }
+
+        } catch (error) { 
+            loginPopupError.textContent = error.message; 
         }
-        
-    } catch (error) { 
-        registerPopupError.textContent = error.message; 
     }
-}
 
-// 🆕 أضف دالة إظهار نافذة التحقق
-function showVerificationPopup(email) {
-    // إخفاء نموذج التسجيل
-    registerFormContainer.classList.add('hidden');
-    
-    // إنشاء نافذة التحقق
-    const verificationHTML = `
-        <div class="popup-header">
-            <i class="ph-bold ph-envelope-simple"></i>
-            <h2>التحقق من البريد الإلكتروني</h2>
-        </div>
-        <p style="text-align: center; margin-bottom: 1.5rem;">
-            تم إرسال كود تحقق إلى: <strong>${email}</strong>
-        </p>
-        <form id="verification-form">
-            <div class="form-group">
-                <label for="verification-code">كود التحقق (6 أرقام)</label>
-                <input type="text" id="verification-code" maxlength="6" required 
-                       pattern="[0-9]{6}" placeholder="123456">
-            </div>
-            <button type="submit" class="pill-button primary-button">تحقق</button>
-            <button type="button" id="resend-code-btn" class="pill-button secondary-button" style="margin-top: 0.5rem;">
-                إعادة إرسال الكود
-            </button>
-        </form>
-        <p id="verification-error" class="error-message" style="text-align: center;"></p>
-    `;
-    
-    registerFormContainer.innerHTML = verificationHTML;
-    registerFormContainer.classList.remove('hidden');
-    
-    // إضافة event listeners
-    document.getElementById('verification-form').addEventListener('submit', handleVerification);
-    document.getElementById('resend-code-btn').addEventListener('click', () => resendVerificationCode(email));
-}
-
-// 🆕 أضف دوال التحقق
-async function handleVerification(e) {
-    e.preventDefault();
-    const code = document.getElementById('verification-code').value;
-    const email = document.querySelector('#verification-form strong').textContent;
-    const errorElement = document.getElementById('verification-error');
-    
-    errorElement.textContent = '';
-    
-    try {
-        const response = await fetch('/api/auth/verify-email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, code })
-        });
+    async function registerHandler(e) {
+        e.preventDefault();
+        const username = document.getElementById('register-username').value;
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
         
-        const data = await response.json();
+        registerPopupError.textContent = '';
         
-        if (!response.ok) {
-            throw new Error(data.message || 'فشل التحقق');
+        try {
+            const response = await fetch('/api/auth/register', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ username, email, password }) 
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || 'فشل إنشاء الحساب');
+            }
+            
+            if (data.requiresVerification) {
+                showVerificationPopup(data.email);
+            } else {
+                localStorage.setItem('userInfo', JSON.stringify(data));
+                hideAuthPopup();
+                updateUIForAuth();
+            }
+            
+        } catch (error) { 
+            registerPopupError.textContent = error.message; 
         }
+    }
+
+    function showVerificationPopup(email) {
+        registerFormContainer.classList.add('hidden');
         
-        // نجاح التحقق - إظهار رسالة نجاح
-        registerFormContainer.innerHTML = `
+        const verificationHTML = `
             <div class="popup-header">
-                <i class="ph-bold ph-check-circle success-icon"></i>
-                <h2>تم التحقق بنجاح!</h2>
+                <i class="ph-bold ph-envelope-simple"></i>
+                <h2>التحقق من البريد الإلكتروني</h2>
             </div>
             <p style="text-align: center; margin-bottom: 1.5rem;">
-                ${data.message}
+                تم إرسال كود تحقق إلى: <strong>${email}</strong>
             </p>
-            <button onclick="hideAuthPopup(); showAuthPopup('login')" 
-                    class="pill-button primary-button">
-                تسجيل الدخول
-            </button>
+            <form id="verification-form">
+                <div class="form-group">
+                    <label for="verification-code">كود التحقق (6 أرقام)</label>
+                    <input type="text" id="verification-code" maxlength="6" required 
+                           pattern="[0-9]{6}" placeholder="123456">
+                </div>
+                <button type="submit" class="pill-button primary-button">تحقق</button>
+                <button type="button" id="resend-code-btn" class="pill-button secondary-button" style="margin-top: 0.5rem;">
+                    إعادة إرسال الكود
+                </button>
+            </form>
+            <p id="verification-error" class="error-message" style="text-align: center;"></p>
         `;
         
-    } catch (error) {
-        errorElement.textContent = error.message;
+        registerFormContainer.innerHTML = verificationHTML;
+        registerFormContainer.classList.remove('hidden');
+        
+        document.getElementById('verification-form').addEventListener('submit', handleVerification);
+        document.getElementById('resend-code-btn').addEventListener('click', () => resendVerificationCode(email));
     }
-}
 
-async function resendVerificationCode(email) {
-    const errorElement = document.getElementById('verification-error');
-    errorElement.textContent = '';
-    
-    try {
-        const response = await fetch('/api/auth/send-verification', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
+    async function handleVerification(e) {
+        e.preventDefault();
+        const code = document.getElementById('verification-code').value;
+        const email = document.querySelector('#verification-form strong').textContent;
+        const errorElement = document.getElementById('verification-error');
         
-        const data = await response.json();
+        errorElement.textContent = '';
         
-        if (!response.ok) {
-            throw new Error(data.message || 'فشل إعادة الإرسال');
+        try {
+            const response = await fetch('/api/auth/verify-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, code })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || 'فشل التحقق');
+            }
+            
+            registerFormContainer.innerHTML = `
+                <div class="popup-header">
+                    <i class="ph-bold ph-check-circle success-icon"></i>
+                    <h2>تم التحقق بنجاح!</h2>
+                </div>
+                <p style="text-align: center; margin-bottom: 1.5rem;">
+                    ${data.message}
+                </p>
+                <button onclick="hideAuthPopup(); showAuthPopup('login')" 
+                        class="pill-button primary-button">
+                    تسجيل الدخول
+                </button>
+            `;
+            
+        } catch (error) {
+            errorElement.textContent = error.message;
+        }
+    }
+
+    async function resendVerificationCode(email) {
+        const errorElement = document.getElementById('verification-error');
+        errorElement.textContent = '';
+        
+        try {
+            const response = await fetch('/api/auth/send-verification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || 'فشل إعادة الإرسال');
+            }
+            
+            errorElement.textContent = '✅ ' + data.message;
+            errorElement.style.color = 'green';
+            
+        } catch (error) {
+            errorElement.textContent = error.message;
+            errorElement.style.color = 'red';
+        }
+    }
+
+    // 🆕 دالة نسيت كلمة المرور
+    function showForgotPasswordPopup() {
+        loginFormContainer.classList.add('hidden');
+        
+        const forgotPasswordHTML = `
+            <div class="popup-header">
+                <i class="ph-bold ph-key"></i>
+                <h2>استعادة كلمة المرور</h2>
+            </div>
+            <p style="text-align: center; margin-bottom: 1.5rem;">
+                أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين
+            </p>
+            <form id="forgot-password-form">
+                <div class="form-group">
+                    <label for="forgot-email">البريد الإلكتروني</label>
+                    <input type="email" id="forgot-email" required>
+                </div>
+                <button type="submit" class="pill-button primary-button">إرسال رابط التعيين</button>
+                <button type="button" id="back-to-login-btn" class="pill-button secondary-button" style="margin-top: 0.5rem;">
+                    العودة لتسجيل الدخول
+                </button>
+            </form>
+            <p id="forgot-password-error" class="error-message" style="text-align: center;"></p>
+        `;
+        
+        let forgotPasswordContainer = document.getElementById('forgot-password-container');
+        if (!forgotPasswordContainer) {
+            forgotPasswordContainer = document.createElement('div');
+            forgotPasswordContainer.id = 'forgot-password-container';
+            forgotPasswordContainer.className = 'popup-content';
+            authPopupOverlay.appendChild(forgotPasswordContainer);
         }
         
-        errorElement.textContent = '✅ ' + data.message;
-        errorElement.style.color = 'green';
+        forgotPasswordContainer.innerHTML = forgotPasswordHTML;
+        forgotPasswordContainer.classList.remove('hidden');
         
-    } catch (error) {
-        errorElement.textContent = error.message;
-        errorElement.style.color = 'red';
+        document.getElementById('forgot-password-form').addEventListener('submit', handleForgotPassword);
+        document.getElementById('back-to-login-btn').addEventListener('click', () => {
+            forgotPasswordContainer.classList.add('hidden');
+            loginFormContainer.classList.remove('hidden');
+        });
     }
-}
+
+    async function handleForgotPassword(e) {
+        e.preventDefault();
+        const email = document.getElementById('forgot-email').value;
+        const errorElement = document.getElementById('forgot-password-error');
+        
+        errorElement.textContent = '';
+        
+        try {
+            const response = await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || 'فشل إرسال رابط التعيين');
+            }
+            
+            const forgotPasswordContainer = document.getElementById('forgot-password-container');
+            forgotPasswordContainer.innerHTML = `
+                <div class="popup-header">
+                    <i class="ph-bold ph-check-circle success-icon"></i>
+                    <h2>تم الإرسال!</h2>
+                </div>
+                <p style="text-align: center; margin-bottom: 1.5rem;">
+                    تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني
+                </p>
+                <button onclick="hideAuthPopup()" class="pill-button primary-button">
+                    حسناً
+                </button>
+            `;
+            
+        } catch (error) {
+            errorElement.textContent = error.message;
+        }
+    }
 
     function logoutHandler() {
         localStorage.removeItem('userInfo');
+        localStorage.removeItem('token');
         updateUIForAuth();
     }
 
@@ -352,12 +417,17 @@ async function resendVerificationCode(email) {
         if (!userInfo || !userInfo._id) return;
         try {
             const response = await fetch(`/api/auth/me?userId=${userInfo._id}`);
-            if (!response.ok) { logoutHandler(); return; }
+            if (!response.ok) { 
+                logoutHandler(); 
+                return; 
+            }
             const updatedUser = await response.json();
             localStorage.setItem('userInfo', JSON.stringify(updatedUser));
             userInfo = updatedUser;
             updateUIForAuth();
-        } catch (error) { console.error('Failed to refresh user data:', error); }
+        } catch (error) { 
+            console.error('Failed to refresh user data:', error); 
+        }
     }
 
     // --- 3. نظام شحن الرصيد ---
@@ -370,7 +440,9 @@ async function resendVerificationCode(email) {
         depositPopupOverlay.classList.remove('hidden');
     }
 
-    function hideDepositPopup() { depositPopupOverlay.classList.add('hidden'); }
+    function hideDepositPopup() { 
+        depositPopupOverlay.classList.add('hidden'); 
+    }
 
     function handlePaymentMethodSelect(event) {
         const selectedMethod = event.currentTarget.dataset.method;
@@ -378,9 +450,15 @@ async function resendVerificationCode(email) {
         event.currentTarget.classList.add('active');
         let detailsHTML = '';
         switch (selectedMethod) {
-            case 'bank': detailsHTML = `<p>يرجى تحويل المبلغ إلى الحساب التالي:</p><p>الاسم: <span>BESSAR</span></p><p>رقم الحساب (IBAN): <span>TR9785431312751367319</span></p>`; break;
-            case 'sham': detailsHTML = `<p>يرجى مسح الباركود التالي والدفع عبر شام كاش:</p><img src="https://i.ibb.co/GvXw59R/bfa34fae23d4f3b4089e6d615bbd07d7.png" alt="Sham Cash QR Code">`; break;
-            case 'whatsapp': detailsHTML = `<p>للحوالة عبر مكتب، يرجى التواصل معنا عبر واتساب للحصول على التفاصيل. بعد إتمام الحوالة، قم برفع صورة الإيصال هنا.</p>`; break;
+            case 'bank': 
+                detailsHTML = `<p>يرجى تحويل المبلغ إلى الحساب التالي:</p><p>الاسم: <span>BESSAR</span></p><p>رقم الحساب (IBAN): <span>TR9785431312751367319</span></p>`; 
+                break;
+            case 'sham': 
+                detailsHTML = `<p>يرجى مسح الباركود التالي والدفع عبر شام كاش:</p><img src="https://i.ibb.co/GvXw59R/bfa34fae23d4f3b4089e6d615bbd07d7.png" alt="Sham Cash QR Code">`; 
+                break;
+            case 'whatsapp': 
+                detailsHTML = `<p>للحوالة عبر مكتب، يرجى التواصل معنا عبر واتساب للحصول على التفاصيل. بعد إتمام الحوالة، قم برفع صورة الإيصال هنا.</p>`; 
+                break;
         }
         paymentDetailsContainer.innerHTML = detailsHTML;
         paymentDetailsContainer.classList.remove('hidden');
@@ -392,23 +470,49 @@ async function resendVerificationCode(email) {
         depositFormResponse.className = 'form-message';
         const receiptFile = document.getElementById('deposit-receipt').files[0];
         const selectedMethod = document.querySelector('.payment-method-btn.active');
-        if (!selectedMethod) { depositFormResponse.textContent = 'الرجاء اختيار طريقة الدفع.'; depositFormResponse.className = 'form-message error'; return; }
-        if (!receiptFile) { depositFormResponse.textContent = 'الرجاء رفع صورة الإيصال.'; depositFormResponse.className = 'form-message error'; return; }
+        
+        if (!selectedMethod) { 
+            depositFormResponse.textContent = 'الرجاء اختيار طريقة الدفع.'; 
+            depositFormResponse.className = 'form-message error'; 
+            return; 
+        }
+        
+        if (!receiptFile) { 
+            depositFormResponse.textContent = 'الرجاء رفع صورة الإيصال.'; 
+            depositFormResponse.className = 'form-message error'; 
+            return; 
+        }
+        
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = () => resolve(reader.result);
             reader.onerror = error => reject(error);
         });
+        
         try {
             const imageBase64 = await toBase64(receiptFile);
-            const depositData = { userId: userInfo._id, amount: document.getElementById('deposit-amount').value, depositorName: document.getElementById('depositor-name').value, method: selectedMethod.dataset.method, receiptImage: imageBase64 };
-            const response = await fetch('/api/deposits', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(depositData) });
+            const depositData = { 
+                userId: userInfo._id, 
+                amount: document.getElementById('deposit-amount').value, 
+                depositorName: document.getElementById('depositor-name').value, 
+                method: selectedMethod.dataset.method, 
+                receiptImage: imageBase64 
+            };
+            
+            const response = await fetch('/api/deposits', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(depositData) 
+            });
+            
             const result = await response.json();
             if (!response.ok) throw new Error(result.message || 'فشل إرسال الطلب.');
+            
             depositFormResponse.textContent = result.message;
             depositFormResponse.className = 'form-message success';
             setTimeout(hideDepositPopup, 3000);
+            
         } catch (error) {
             depositFormResponse.textContent = error.message;
             depositFormResponse.className = 'form-message error';
@@ -421,13 +525,23 @@ async function resendVerificationCode(email) {
             const response = await fetch('/api/services');
             if (!response.ok) throw new Error('Network response was not ok');
             const servicesFromDB = await response.json();
+            
             servicesData = servicesFromDB.reduce((acc, service) => {
                 const platform = service.platform;
-                if (!acc[platform]) { acc[platform] = { icon: getPlatformIcon(platform), description: `خدمات متنوعة لمنصة ${platform}`, validation: getPlatformValidation(platform), services: [] }; }
+                if (!acc[platform]) { 
+                    acc[platform] = { 
+                        icon: getPlatformIcon(platform), 
+                        description: `خدمات متنوعة لمنصة ${platform}`, 
+                        validation: getPlatformValidation(platform), 
+                        services: [] 
+                    }; 
+                }
                 acc[platform].services.push(service);
                 return acc;
             }, {});
+            
             renderServiceCards();
+            
         } catch (error) {
             console.error("Failed to load services from API:", error);
             servicesContainer.innerHTML = '<p style="color:white; text-align:center;">فشل تحميل الخدمات. يرجى المحاولة مرة أخرى.</p>';
@@ -444,10 +558,13 @@ async function resendVerificationCode(email) {
         if (p.includes('telegram') || p.includes('تلغرام')) return 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg';
         if (p.includes('snapchat') || p.includes('سناب شات')) return 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg';
         if (p.includes('threads') || p.includes('ثريدز')) return 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Threads_app_icon.svg';
+        
         try {
             const initial = encodeURIComponent(platform.charAt(0).toUpperCase());
             return `https://ui-avatars.com/api/?name=${initial}&background=random&size=50&color=fff`;
-        } catch (e) { return ''; }
+        } catch (e) { 
+            return ''; 
+        }
     }
 
     function getPlatformValidation(platform) {
@@ -465,12 +582,26 @@ async function resendVerificationCode(email) {
 
     function renderServiceCards() {
         servicesContainer.innerHTML = '';
-        if (Object.keys(servicesData).length === 0) { servicesContainer.innerHTML = '<p style="color:white; text-align:center;">لا توجد خدمات متاحة حالياً.</p>'; return; }
+        if (Object.keys(servicesData).length === 0) { 
+            servicesContainer.innerHTML = '<p style="color:white; text-align:center;">لا توجد خدمات متاحة حالياً.</p>'; 
+            return; 
+        }
+        
         for (const platform in servicesData) {
             const data = servicesData[platform];
             const card = document.createElement('div');
             card.className = 'service-card';
-            card.innerHTML = `<div class="icon-wrapper"><img src="${data.icon}" alt="${platform} icon" onerror="this.style.display='none'"></div><h3>${platform}</h3><p>${data.description}</p><button class="pill-button get-button"><i class="ph-bold ph-arrow-circle-right"></i><span>اطلب الآن</span></button>`;
+            card.innerHTML = `
+                <div class="icon-wrapper">
+                    <img src="${data.icon}" alt="${platform} icon" onerror="this.style.display='none'">
+                </div>
+                <h3>${platform}</h3>
+                <p>${data.description}</p>
+                <button class="pill-button get-button">
+                    <i class="ph-bold ph-arrow-circle-right"></i>
+                    <span>اطلب الآن</span>
+                </button>
+            `;
             card.addEventListener('click', () => showOrderForm(platform));
             servicesContainer.appendChild(card);
         }
@@ -487,6 +618,7 @@ async function resendVerificationCode(email) {
         const iconName = platform.toLowerCase().replace(/\s/g, '');
         popupIcon.className = `ph-bold ph-${iconName}-logo`;
         serviceSelect.innerHTML = '';
+        
         servicesData[platform].services.forEach(service => {
             const option = document.createElement('option');
             option.value = service.name;
@@ -497,6 +629,7 @@ async function resendVerificationCode(email) {
             option.textContent = `${service.name}`;
             serviceSelect.appendChild(option);
         });
+        
         orderForm.reset();
         linkError.textContent = '';
         quantityError.textContent = '';
@@ -507,9 +640,11 @@ async function resendVerificationCode(email) {
     function updateFormBasedOnService() {
         const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
         if (!selectedOption) return;
+        
         const min = selectedOption.dataset.min;
         const max = selectedOption.dataset.max;
         const step = selectedOption.dataset.step;
+        
         quantityInput.min = min;
         quantityInput.max = max;
         quantityInput.step = step;
@@ -518,28 +653,27 @@ async function resendVerificationCode(email) {
         updatePrice();
     }
 
-    // 🔽 ابحث عن دالة updatePrice في app.js واستبدلها:
-function updatePrice() {
-    const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
-    if (!selectedOption) return;
-    
-    const pricePer1000 = parseFloat(selectedOption.dataset.price);
-    const quantity = parseInt(quantityInput.value, 10);
-    
-    if (isNaN(quantity) || quantity <= 0) { 
-        priceDisplay.textContent = '0.00 $'; 
-        return; 
+    function updatePrice() {
+        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+        if (!selectedOption) return;
+        
+        const pricePer1000 = parseFloat(selectedOption.dataset.price);
+        const quantity = parseInt(quantityInput.value, 10);
+        
+        if (isNaN(quantity) || quantity <= 0) { 
+            priceDisplay.textContent = '0.00 $'; 
+            return; 
+        }
+        
+        const totalPrice = (quantity / 1000) * pricePer1000;
+        priceDisplay.textContent = `${totalPrice.toFixed(2)} $`;
+        
+        priceDisplay.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+            priceDisplay.style.transform = 'scale(1)';
+        }, 200);
     }
-    
-    const totalPrice = (quantity / 1000) * pricePer1000;
-    priceDisplay.textContent = `${totalPrice.toFixed(2)} $`;
-    
-    // إضافة تأثير عند تغيير السعر
-    priceDisplay.style.transform = 'scale(1.1)';
-    setTimeout(() => {
-        priceDisplay.style.transform = 'scale(1)';
-    }, 200);
-}
+
     function validateLink() {
         const link = linkInput.value;
         const platformData = servicesData[currentPlatform];
@@ -554,14 +688,29 @@ function updatePrice() {
     function validateQuantity() {
         const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
         if (!selectedOption) return false;
+        
         const quantity = parseInt(quantityInput.value, 10);
         const min = parseInt(selectedOption.dataset.min, 10);
         const max = parseInt(selectedOption.dataset.max, 10);
         const step = parseInt(selectedOption.dataset.step, 10);
-        if (isNaN(quantity)) { quantityError.textContent = 'الرجاء إدخال كمية صحيحة.'; return false; }
-        if (quantity < min) { quantityError.textContent = `الكمية يجب أن تكون ${min} على الأقل.`; return false; }
-        if (quantity > max) { quantityError.textContent = `الكمية يجب أن تكون ${max} على الأكثر.`; return false; }
-        if (quantity % step !== 0) { quantityError.textContent = `الكمية يجب أن تكون من مضاعفات ${step}.`; return false; }
+        
+        if (isNaN(quantity)) { 
+            quantityError.textContent = 'الرجاء إدخال كمية صحيحة.'; 
+            return false; 
+        }
+        if (quantity < min) { 
+            quantityError.textContent = `الكمية يجب أن تكون ${min} على الأقل.`; 
+            return false; 
+        }
+        if (quantity > max) { 
+            quantityError.textContent = `الكمية يجب أن تكون ${max} على الأكثر.`; 
+            return false; 
+        }
+        if (quantity % step !== 0) { 
+            quantityError.textContent = `الكمية يجب أن تكون من مضاعفات ${step}.`; 
+            return false; 
+        }
+        
         quantityError.textContent = '';
         return true;
     }
@@ -573,11 +722,21 @@ function updatePrice() {
             alert('الرجاء تصحيح الأخطاء في النموذج.');
             return;
         }
-        currentOrderData = { platform: currentPlatform, service: serviceSelect.value, link: linkInput.value, quantity: parseInt(quantityInput.value, 10), price: parseFloat(priceDisplay.textContent.replace(' $', '')), userId: userInfo ? userInfo._id : null };
+        
+        currentOrderData = { 
+            platform: currentPlatform, 
+            service: serviceSelect.value, 
+            link: linkInput.value, 
+            quantity: parseInt(quantityInput.value, 10), 
+            price: parseFloat(priceDisplay.textContent.replace(' $', '')), 
+            userId: userInfo ? userInfo._id : null 
+        };
+        
         orderFormContainer.classList.add('hidden');
         paymentOptionsContainer.classList.remove('hidden');
         finalPriceDisplay.textContent = `${currentOrderData.price.toFixed(2)} $`;
         balanceError.textContent = '';
+        
         if (userInfo && userInfo.balance >= currentOrderData.price) {
             payWithBalanceBtn.disabled = false;
         } else {
@@ -588,15 +747,22 @@ function updatePrice() {
 
     async function executePayWithBalance() {
         try {
-            const response = await fetch('/api/orders/pay-with-balance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(currentOrderData) });
+            const response = await fetch('/api/orders/pay-with-balance', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(currentOrderData) 
+            });
+            
             const result = await response.json();
             if (!response.ok) throw new Error(result.message || 'فشل الدفع بالرصيد.');
+            
             userInfo.balance = result.newBalance;
             localStorage.setItem('userInfo', JSON.stringify(userInfo));
             updateUIForAuth();
             paymentOptionsContainer.classList.add('hidden');
             formResponse.textContent = 'تم الدفع بنجاح! طلبك الآن قيد التنفيذ.';
             successMessageContainer.classList.remove('hidden');
+            
         } catch (error) {
             balanceError.textContent = error.message;
         }
@@ -604,168 +770,172 @@ function updatePrice() {
 
     async function executePayWithWhatsapp() {
         const orderDataForWhatsapp = { ...currentOrderData, user: userInfo ? userInfo._id : null };
+        
         try {
-            await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(orderDataForWhatsapp) });
-        } catch (error) { console.error("Failed to save order to DB, but proceeding.", error); }
+            await fetch('/api/orders', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(orderDataForWhatsapp) 
+            });
+        } catch (error) { 
+            console.error("Failed to save order to DB, but proceeding.", error); 
+        }
+        
         const message = `*طلب جديد* 🎉\n---------------------\n*المنصة:* ${orderDataForWhatsapp.platform}\n*الخدمة:* ${orderDataForWhatsapp.service}\n*الكمية:* ${orderDataForWhatsapp.quantity}\n*السعر:* ${orderDataForWhatsapp.price.toFixed(2)}$\n*الرابط:* ${orderDataForWhatsapp.link}\n---------------------\n(رسالة منشأة تلقائياً)`;
         const adminPhoneNumber = "905367893256";
         const encodedMessage = encodeURIComponent(message.trim());
         const whatsappUrl = `https://wa.me/${adminPhoneNumber}?text=${encodedMessage}`;
+        
         paymentOptionsContainer.classList.add('hidden');
         formResponse.textContent = 'ممتاز! سيتم الآن تحويلك إلى واتساب.';
         successMessageContainer.classList.remove('hidden');
-        setTimeout(() => { window.open(whatsappUrl, '_blank'); hidePopup(); }, 2500);
+        
+        setTimeout(() => { 
+            window.open(whatsappUrl, '_blank'); 
+            hidePopup(); 
+        }, 2500);
     }
 
-    function hidePopup() { orderPopupOverlay.classList.add('hidden'); }
-
-    // --- 6.5. نظام الإشعارات ---
-    // --- 6.5. نظام الإشعارات ---
-async function fetchNotifications() {
-    // التحقق من وجود المستخدم والتوكن
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-    const token = localStorage.getItem('token');
-    
-    if (!userInfo || !token) {
-        console.log("المستخدم غير مسجل دخول أو التوكن مفقود");
-        return;
+    function hidePopup() { 
+        orderPopupOverlay.classList.add('hidden'); 
     }
 
-    try {
-        const response = await fetch('/api/notifications', {
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        // إذا كان الخطأ 401 (غير مصرح)، قم بتسجيل الخروج
-        if (response.status === 401) {
-            console.error("التوكن منتهي الصلاحية - جاري تسجيل الخروج");
-            logoutHandler();
+    // --- 6.5. نظام الإشعارات ---
+    async function fetchNotifications() {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        const token = localStorage.getItem('token');
+        
+        if (!userInfo || !token) {
+            console.log("المستخدم غير مسجل دخول أو التوكن مفقود");
             return;
         }
 
-        if (!response.ok) {
-            throw new Error(`فشل جلب الإشعارات. الحالة: ${response.status}`);
-        }
+        try {
+            const response = await fetch('/api/notifications', {
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
 
-        const notifications = await response.json();
-        console.log('📨 الإشعارات المستلمة:', notifications);
-        renderNotifications(notifications);
+            if (response.status === 401) {
+                console.error("التوكن منتهي الصلاحية - جاري تسجيل الخروج");
+                logoutHandler();
+                return;
+            }
 
-    } catch (error) {
-        console.error("خطأ في جلب الإشعارات:", error);
-        // لا تقم بتسجيل الخروج تلقائياً، فقط أظهر رسالة خطأ
-        const notificationList = document.getElementById('notifications-list');
-        if (notificationList) {
-            notificationList.innerHTML = '<li class="no-notifications">فشل تحميل الإشعارات</li>';
+            if (!response.ok) {
+                throw new Error(`فشل جلب الإشعارات. الحالة: ${response.status}`);
+            }
+
+            const notifications = await response.json();
+            console.log('📨 الإشعارات المستلمة:', notifications);
+            renderNotifications(notifications);
+
+        } catch (error) {
+            console.error("خطأ في جلب الإشعارات:", error);
+            const notificationList = document.getElementById('notifications-list');
+            if (notificationList) {
+                notificationList.innerHTML = '<li class="no-notifications">فشل تحميل الإشعارات</li>';
+            }
         }
     }
-}
-
 
     function renderNotifications(notifications) {
-    const list = document.getElementById('notifications-list');
-    const countBadge = document.getElementById('notification-count');
-    
-    if (!list || !countBadge) {
-        console.log('عناصر الإشعارات غير موجودة في الصفحة');
-        return;
+        const list = document.getElementById('notifications-list');
+        const countBadge = document.getElementById('notification-count');
+        
+        if (!list || !countBadge) {
+            console.log('عناصر الإشعارات غير موجودة في الصفحة');
+            return;
+        }
+
+        const unreadCount = notifications.filter(n => !n.read).length;
+        countBadge.textContent = unreadCount;
+        countBadge.classList.toggle('visible', unreadCount > 0);
+
+        if (!notifications || notifications.length === 0) {
+            list.innerHTML = '<li class="no-notifications">لا توجد إشعارات حالياً</li>';
+            return;
+        }
+
+        list.innerHTML = notifications.map(notification => `
+            <li>
+                <a href="${notification.link || '#'}" class="notification-item ${notification.read ? '' : 'unread'}" data-notification-id="${notification._id}">
+                    <p>${notification.message}</p>
+                    <span class="timestamp">${formatNotificationDate(notification.createdAt)}</span>
+                </a>
+            </li>
+        `).join('');
+
+        console.log('✅ تم عرض الإشعارات بنجاح');
     }
-
-    // حساب عدد الإشعارات غير المقروءة
-    const unreadCount = notifications.filter(n => !n.read).length;
-    countBadge.textContent = unreadCount;
-    countBadge.classList.toggle('visible', unreadCount > 0);
-
-    // إذا لم توجد إشعارات
-    if (!notifications || notifications.length === 0) {
-        list.innerHTML = '<li class="no-notifications">لا توجد إشعارات حالياً</li>';
-        return;
-    }
-
-    // عرض الإشعارات
-    list.innerHTML = notifications.map(notification => `
-        <li>
-            <a href="${notification.link || '#'}" class="notification-item ${notification.read ? '' : 'unread'}" data-notification-id="${notification._id}">
-                <p>${notification.message}</p>
-                <span class="timestamp">${formatNotificationDate(notification.createdAt)}</span>
-            </a>
-        </li>
-    `).join('');
-
-    console.log('✅ تم عرض الإشعارات بنجاح');
-}
 
     async function markNotificationsAsRead() {
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-    const token = localStorage.getItem('token');
-    
-    if (!userInfo || !token) {
-        console.log("لا يمكن تحديد الإشعارات كمقروءة - المستخدم غير مسجل");
-        return;
-    }
-
-    try {
-        const response = await fetch('/api/notifications/mark-read', {
-            method: 'POST',
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (response.ok) {
-            // تحديث الواجهة محلياً
-            const countBadge = document.getElementById('notification-count');
-            if (countBadge) {
-                countBadge.textContent = '0';
-                countBadge.classList.remove('visible');
-            }
-            
-            // إزالة حالة "غير مقروء" من جميع الإشعارات
-            document.querySelectorAll('.notification-item.unread').forEach(item => {
-                item.classList.remove('unread');
-            });
-            
-            console.log('✅ تم تحديد جميع الإشعارات كمقروءة');
-        } else {
-            console.error('فشل تحديد الإشعارات كمقروءة');
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        const token = localStorage.getItem('token');
+        
+        if (!userInfo || !token) {
+            console.log("لا يمكن تحديد الإشعارات كمقروءة - المستخدم غير مسجل");
+            return;
         }
-    } catch (error) {
-        console.error('خطأ في تحديد الإشعارات كمقروءة:', error);
+
+        try {
+            const response = await fetch('/api/notifications/mark-read', {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const countBadge = document.getElementById('notification-count');
+                if (countBadge) {
+                    countBadge.textContent = '0';
+                    countBadge.classList.remove('visible');
+                }
+                
+                document.querySelectorAll('.notification-item.unread').forEach(item => {
+                    item.classList.remove('unread');
+                });
+                
+                console.log('✅ تم تحديد جميع الإشعارات كمقروءة');
+            } else {
+                console.error('فشل تحديد الإشعارات كمقروءة');
+            }
+        } catch (error) {
+            console.error('خطأ في تحديد الإشعارات كمقروءة:', error);
+        }
     }
-}
 
-    // 🆕 دالة تنسيق التاريخ للإشعارات
-function formatNotificationDate(dateString) {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    function formatNotificationDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / (1000 * 60));
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffMins < 1) return 'الآن';
-    if (diffMins < 60) return `قبل ${diffMins} دقيقة`;
-    if (diffHours < 24) return `قبل ${diffHours} ساعة`;
-    if (diffDays < 7) return `قبل ${diffDays} يوم`;
-    
-    return date.toLocaleDateString('ar-EG', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
-}
-    
-    // --- 7. ربط الأحداث ---
+        if (diffMins < 1) return 'الآن';
+        if (diffMins < 60) return `قبل ${diffMins} دقيقة`;
+        if (diffHours < 24) return `قبل ${diffHours} ساعة`;
+        if (diffDays < 7) return `قبل ${diffDays} يوم`;
+        
+        return date.toLocaleDateString('ar-EG', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+
     // --- 7. ربط الأحداث ---
     closePopupButton.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         hidePopup();
     });
+    
     successOkButton.addEventListener('click', () => {
         hidePopup();
         setTimeout(() => {
@@ -774,35 +944,58 @@ function formatNotificationDate(dateString) {
             paymentOptionsContainer.classList.add('hidden');
         }, 500);
     });
+    
     orderPopupOverlay.addEventListener('click', (e) => {
         if (e.target === orderPopupOverlay) {
             hidePopup();
         }
     });
+    
     serviceSelect.addEventListener('change', updateFormBasedOnService);
-    quantityInput.addEventListener('input', () => { updatePrice(); validateQuantity(); });
+    quantityInput.addEventListener('input', () => { 
+        updatePrice(); 
+        validateQuantity(); 
+    });
     linkInput.addEventListener('input', validateLink);
     orderForm.addEventListener('submit', handleFormSubmit);
-    showRegisterLink.addEventListener('click', (e) => { e.preventDefault(); showAuthPopup('register'); });
-    showLoginLink.addEventListener('click', (e) => { e.preventDefault(); showAuthPopup('login'); });
+    showRegisterLink.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        showAuthPopup('register'); 
+    });
+    showLoginLink.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        showAuthPopup('login'); 
+    });
     loginFormPopup.addEventListener('submit', loginHandler);
     registerFormPopup.addEventListener('submit', registerHandler);
-    authPopupOverlay.addEventListener('click', (e) => { if (e.target === authPopupOverlay || e.target.closest('.close-btn')) hideAuthPopup(); });
+    
+    authPopupOverlay.addEventListener('click', (e) => { 
+        if (e.target === authPopupOverlay || e.target.closest('.close-btn')) {
+            hideAuthPopup(); 
+        }
+    });
+    
     closeDepositPopupBtn.addEventListener('click', (e) => {
         e.preventDefault();
         hideDepositPopup();
     });
+    
     depositPopupOverlay.addEventListener('click', (e) => {
         if (e.target === depositPopupOverlay) {
             hideDepositPopup();
         }
     });
-    paymentMethodBtns.forEach(btn => btn.addEventListener('click', handlePaymentMethodSelect));
+    
+    paymentMethodBtns.forEach(btn => {
+        btn.addEventListener('click', handlePaymentMethodSelect);
+    });
+    
     depositForm.addEventListener('submit', handleDepositSubmit);
     
     document.addEventListener('click', (e) => {
         const userDropdown = document.querySelector('.user-dropdown');
         const notificationBell = document.querySelector('.notification-bell');
+        
         if (userDropdown && !userDropdown.contains(e.target)) {
             userDropdown.classList.remove('active');
         }
@@ -813,40 +1006,37 @@ function formatNotificationDate(dateString) {
 
     payWithBalanceBtn.addEventListener('click', executePayWithBalance);
     payWithWhatsappBtn.addEventListener('click', executePayWithWhatsapp);
+
     // --- 8. الاستماع للتحديثات الفورية (Socket.IO) ---
-        // --- 8. الاستماع للتحديثات الفورية (Socket.IO) ---
     socket.on('new-service', loadServices);
     socket.on('service-updated', loadServices);
     socket.on('service-deleted', loadServices);
+    
     socket.on('deposit-approved', (data) => {
         if (userInfo && userInfo._id === data.userId) {
             refreshUserData();
         }
     });
-    // 🔽 في قسم Socket.IO، أضف:
-socket.on('broadcast-notification', (data) => {
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     
-    if (userInfo) {
-        console.log('🔔 إشعار جماعي مستلم:', data);
+    socket.on('broadcast-notification', (data) => {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
         
-        // إعادة جلب الإشعارات
-        fetchNotifications();
-        
-        // إظهار تنبيه
-        showNotificationAlert({
-            message: data.message,
-            link: data.link
-        });
-    }
-});
+        if (userInfo) {
+            console.log('🔔 إشعار جماعي مستلم:', data);
+            fetchNotifications();
+            showNotificationAlert({
+                message: data.message,
+                link: data.link
+            });
+        }
+    });
+    
     socket.on('new-notification', (data) => {
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
         
         if (userInfo && data.userId === userInfo._id) {
             console.log('🔔 إشعار جديد مستلم!', data);
             
-            // تشغيل صوت الإشعار (اختياري)
             try {
                 new Audio('/sounds/notification.mp3').play().catch(e => {
                     console.log("يتطلب تفاعل المستخدم لتشغيل الصوت");
@@ -855,17 +1045,12 @@ socket.on('broadcast-notification', (data) => {
                 console.log("تعذر تشغيل صوت الإشعار");
             }
             
-            // إعادة جلب الإشعارات فوراً
             fetchNotifications();
-            
-            // إظهار تنبيه صغير (اختياري)
             showNotificationAlert(data.notification);
         }
     });
 
-    // 🆕 دالة لعرض تنبيه صغير للإشعارات الجديدة
     function showNotificationAlert(notification) {
-        // إنشاء عنصر تنبيه صغير
         const alert = document.createElement('div');
         alert.className = 'notification-alert';
         alert.innerHTML = `
@@ -875,7 +1060,6 @@ socket.on('broadcast-notification', (data) => {
             </div>
         `;
         
-        // إضافة الأنيميشن والتنسيق
         alert.style.cssText = `
             position: fixed;
             top: 20px;
@@ -894,7 +1078,6 @@ socket.on('broadcast-notification', (data) => {
         
         document.body.appendChild(alert);
         
-        // إزالة التنبيه بعد 5 ثواني
         setTimeout(() => {
             alert.style.animation = 'slideUp 0.5s ease forwards';
             setTimeout(() => {
@@ -905,7 +1088,6 @@ socket.on('broadcast-notification', (data) => {
         }, 5000);
     }
 
-    // 🆕 أضف أنيميشن للتنبيهات (مرة واحدة فقط)
     if (!document.querySelector('#notification-styles')) {
         const style = document.createElement('style');
         style.id = 'notification-styles';
