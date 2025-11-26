@@ -17,6 +17,11 @@ const notificationSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    type: {
+        type: String,
+        enum: ['user', 'broadcast', 'price_update'],
+        default: 'user'
+    },
     // رابط يمكن الضغط عليه (اختياري، مثلاً رابط لصفحة "طلباتي")
     link: {
         type: String,
