@@ -63,6 +63,7 @@ function loadDashboardData() {
     fetchOrders();
     fetchServices();
     fetchDeposits();
+    fetchUsers();
 }
 
 // دالة التحقق من صلاحيات الأدمن والتوكن
@@ -399,6 +400,42 @@ document.querySelectorAll('.copy-link-btn').forEach(btn => {
         }
     }
 
+
+    // 🆕 أضف مع الدوال الأخرى
+async function fetchUsers() {
+    try {
+        const response = await fetch('/api/admin/users', { 
+            headers: getAuthHeaders() 
+        });
+        if (!response.ok) throw new Error('فشل جلب المستخدمين');
+        const users = await response.json();
+        renderUsers(users);
+    } catch (error) {
+        console.error('Failed to fetch users:', error);
+    }
+}
+
+function renderUsers(users) {
+    const tbody = document.getElementById('users-tbody');
+    if (!tbody) return;
+    
+    tbody.innerHTML = users.map(user => `
+        <tr>
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td>${new Date(user.createdAt).toLocaleDateString('ar-EG')}</td>
+            <td><span class="status ${user.emailVerified ? 'status-approved' : 'status-pending'}">${user.emailVerified ? 'مفعل' : 'غير مفعل'}</span></td>
+            <td>${user.balance.toFixed(2)} $</td>
+            <td class="action-buttons">
+                <button class="edit-user-btn pill-button" data-user-id="${user._id}">
+                    <i class="ph-bold ph-pencil-simple"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+    
     function renderDeposits(deposits) {
     if (!depositsTbody) return;
     depositsTbody.innerHTML = '';
