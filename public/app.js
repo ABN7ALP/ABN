@@ -562,15 +562,25 @@ function updatePrice() {
     }
         
     // --- 7. ربط الأحداث ---
-    closePopupButton.addEventListener('click', hidePopup);
     successOkButton.addEventListener('click', () => {
+    // إضافة تأثير قبل الإغلاق
+    successOkButton.style.transform = 'scale(0.95)';
+    
+    setTimeout(() => {
         hidePopup();
+        // إعادة تعيين النموذج
+        orderForm.reset();
+        // إعادة عرض النموذج الأساسي
+        orderFormContainer.classList.remove('hidden');
+        successMessageContainer.classList.add('hidden');
+        paymentOptionsContainer.classList.add('hidden');
+        
+        // إعادة تعيين الزر
         setTimeout(() => {
-            orderFormContainer.classList.remove('hidden');
-            successMessageContainer.classList.add('hidden');
-            paymentOptionsContainer.classList.add('hidden');
-        }, 500);
-    });
+            successOkButton.style.transform = 'scale(1)';
+        }, 200);
+    }, 150);
+});
     orderPopupOverlay.addEventListener('click', (e) => { if (e.target === orderPopupOverlay) hidePopup(); });
     serviceSelect.addEventListener('change', updateFormBasedOnService);
     quantityInput.addEventListener('input', () => { updatePrice(); validateQuantity(); });
