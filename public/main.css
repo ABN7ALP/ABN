@@ -675,3 +675,59 @@
 .notifications-list {
     max-height: 400px;
 }
+/* 🔽 أضف هذا الكود في نهاية main.css */
+
+/* --- نافذة النجاح محسنة --- */
+#success-message-container {
+    text-align: center;
+    padding: 1rem;
+}
+
+.success-icon {
+    font-size: 4rem;
+    color: var(--success-green);
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.success-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    color: var(--text-dark);
+}
+
+/* زر حسناً محسن */
+#success-ok-btn {
+    background: var(--success-green);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: var(--radius-button);
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+    margin: 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 120px;
+    justify-content: center;
+}
+
+#success-ok-btn:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(5, 150, 105, 0.3);
+}
+
+/* تحسين النافذة بالكامل */
+#success-message-container .popup-header {
+    margin-bottom: 1.5rem;
+}
+
+#success-message-container .popup-header h2 {
+    color: var(--success-green);
+    font-size: 1.8rem;
+}
