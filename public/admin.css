@@ -528,3 +528,44 @@ tr:hover td {
         gap: 1rem;
     }
 }
+/* 🔽 أضف في نهاية admin.css */
+.link-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.link-preview {
+    flex: 1;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 150px;
+}
+
+.copy-link-btn {
+    background: var(--info-blue);
+    color: white;
+    border: none;
+    border-radius: var(--radius-input);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.copy-link-btn:hover {
+    background: #2563eb;
+    transform: scale(1.1);
+}
+
+.copy-link-btn.copied {
+    background: var(--success-green);
+}
+
+.copy-link-btn.copied i::before {
+    content: "✓";
+}
