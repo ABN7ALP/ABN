@@ -369,44 +369,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function handleForgotPassword(e) {
-        e.preventDefault();
-        const email = document.getElementById('forgot-email').value;
-        const errorElement = document.getElementById('forgot-password-error');
+    e.preventDefault();
+    const email = document.getElementById('forgot-email').value;
+    const errorElement = document.getElementById('forgot-password-error');
+    
+    errorElement.textContent = '';
+    
+    try {
+        const response = await fetch('/api/auth/forgot-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
         
-        errorElement.textContent = '';
+        const data = await response.json();
         
-        try {
-            const response = await fetch('/api/auth/forgot-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.message || 'فشل إرسال رابط التعيين');
-            }
-            
-            const forgotPasswordContainer = document.getElementById('forgot-password-container');
-            forgotPasswordContainer.innerHTML = `
-                <div class="popup-header">
-                    <i class="ph-bold ph-check-circle success-icon"></i>
-                    <h2>تم الإرسال!</h2>
-                </div>
-                <p style="text-align: center; margin-bottom: 1.5rem;">
-                    تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني
-                </p>
-                <button onclick="hideAuthPopup()" class="pill-button primary-button">
-                    حسناً
-                </button>
-            `;
-            
-        } catch (error) {
-            errorElement.textContent = error.message;
+        if (!response.ok) {
+            throw new Error(data.message || 'فشل إرسال رابط التعيين');
         }
+        
+        // 🆕 بدلاً من إظهار رسالة النجاح، انتقل مباشرة لواجهة إدخال الكود
+        showResetPasswordPopup(email);
+        
+    } catch (error) {
+        errorElement.textContent = error.message;
     }
-
+}
     function logoutHandler() {
         localStorage.removeItem('userInfo');
         localStorage.removeItem('token');
@@ -516,9 +504,14 @@ async function handleResetPassword(e) {
             <p style="text-align: center; margin-bottom: 1.5rem;">
                 تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول.
             </p>
-            <button onclick="hideAuthPopup(); showAuthPopup('login')" class="pill-button primary-button">
-                تسجيل الدخول
-            </button>
+            // بدل من innerHTML، استخدم:
+const button = document.createElement('button');
+button.textContent = 'تسجيل الدخول';
+button.className = 'pill-button primary-button';
+button.addEventListener('click', () => {
+    hideAuthPopup();
+    showAuthPopup('login');
+});
         `;
         
     } catch (error) {
