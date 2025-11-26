@@ -18,10 +18,34 @@ router.get('/', async (req, res) => {
 });
 
 // POST إضافة خدمة جديدة (الآن محمي)
-  router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
+  
+// POST إضافة خدمة جديدة (الآن محمي)
+router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const newService = new Service({ id: uuidv4(), ...req.body });
         await newService.save();
+
+        // 🆕 إرسال إشعار لجميع المستخدمين
+        try {
+            const users = await User.find({});
+            const notifications = users.map(user => ({
+                user: user._id,
+                message: `🆕 خدمة جديدة: ${newService.platform} - ${newService.name}`,
+                link: '/',
+                type: 'broadcast'
+            }));
+            
+            await Notification.insertMany(notifications);
+            
+            // إرسال عبر Socket.io
+            req.io.emit('broadcast-notification', { 
+                message: `🆕 خدمة جديدة: ${newService.platform} - ${newService.name}`,
+                link: '/'
+            });
+        } catch (notifyError) {
+            console.error('Error sending notifications:', notifyError);
+            // لا نوقف العملية إذا فشل الإشعار
+        }
 
         // *** إرسال إشارة التحديث الفوري ***
         req.io.emit('new-service');
@@ -49,7 +73,42 @@ router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
 // PUT تعديل خدمة
 router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        await Service.findOneAndUpdate({ id: req.params.id }, req.body, { new: true });
+        // جلب الخدمة القديمة لمقارنة السعر
+        const oldService = await Service.findOne({ id: req.params.id });
+        
+        const updatedService = await Service.findOneAndUpdate(
+            { id: req.params.id }, 
+            req.body, 
+            { new: true }
+        );
+
+        if (!updatedService) {
+            return res.status(404).json({ message: 'الخدمة غير موجودة' });
+        }
+
+        // 🆕 إذا تغير السعر، أرسل إشعار
+        if (oldService && oldService.pricePer1000 !== updatedService.pricePer1000) {
+            try {
+                const priceChange = updatedService.pricePer1000 > oldService.pricePer1000 ? '📈 ارتفع' : '📉 انخفض';
+                
+                const users = await User.find({});
+                const notifications = users.map(user => ({
+                    user: user._id,
+                    message: `${priceChange} سعر خدمة ${updatedService.platform} - ${updatedService.name} من ${oldService.pricePer1000}$ إلى ${updatedService.pricePer1000}$`,
+                    link: '/',
+                    type: 'price_update'
+                }));
+                
+                await Notification.insertMany(notifications);
+                
+                req.io.emit('broadcast-notification', { 
+                    message: `${priceChange} سعر خدمة ${updatedService.platform} - ${updatedService.name} من ${oldService.pricePer1000}$ إلى ${updatedService.pricePer1000}$`,
+                    link: '/'
+                });
+            } catch (notifyError) {
+                console.error('Error sending price update notifications:', notifyError);
+            }
+        }
 
         // *** إرسال إشارة التحديث الفوري ***
         req.io.emit('service-updated');
