@@ -1,12 +1,11 @@
-/* 🔽 استبدل الكود الحالي في my-orders.css كاملاً بهذا الكود: */
-
 /* ===================================================================
-   3. ENHANCED MY ORDERS STYLES (my-orders.css) - FIXED
+   3. FIXED MY ORDERS STYLES (my-orders.css) - COMPLETE REDESIGN
    =================================================================== */
 
 /* إصلاح الأساسيات */
 body {
     overflow-x: hidden;
+    background: var(--gray-bg);
 }
 
 /* --- Header --- */
@@ -14,7 +13,7 @@ body {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     box-shadow: var(--shadow-sm);
-    margin-bottom: 1rem;
+    margin-bottom: 0;
     position: relative;
     z-index: 100;
     padding: 1rem 0;
@@ -24,6 +23,9 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
 }
 
 .logo {
@@ -36,11 +38,19 @@ body {
     -webkit-text-fill-color: transparent;
 }
 
+/* --- Main Container --- */
+main.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem 2rem;
+    min-height: calc(100vh - 200px);
+}
+
 /* --- Hero Section --- */
 .hero {
     background: var(--purple-gradient);
     border-radius: var(--radius-card);
-    padding: 3rem 2rem;
+    padding: 2.5rem 2rem;
     text-align: center;
     color: white;
     margin: 1rem 0 2rem 0;
@@ -61,7 +71,7 @@ body {
 }
 
 .hero h1 {
-    font-size: 2.2rem;
+    font-size: 2rem;
     margin-bottom: 1rem;
     font-weight: 800;
     position: relative;
@@ -81,8 +91,8 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin: 2rem 0 1.5rem 0;
-    padding: 1.2rem 1.5rem;
+    margin: 2.5rem 0 1.5rem 0;
+    padding: 1.5rem;
     background: var(--white-pure);
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-sm);
@@ -90,7 +100,7 @@ body {
 }
 
 .section-header h2 {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-weight: 800;
     margin: 0;
     color: var(--text-dark);
@@ -103,43 +113,81 @@ body {
     background: var(--purple-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    font-size: 1.6rem;
+    font-size: 1.8rem;
 }
 
-/* --- Tables --- */
+/* --- Tables Container --- */
 .table-container {
     background: var(--white-pure);
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-sm);
     overflow: hidden;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
     border: 1px solid var(--gray-border);
 }
 
+/* --- Tables Design - محسن --- */
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px;
+    min-width: 800px;
 }
 
 thead {
     background: var(--purple-gradient);
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 th {
-    padding: 1.2rem 1rem;
+    padding: 1.2rem 0.8rem;
     text-align: right;
     font-weight: 700;
     color: white;
     font-size: 0.9rem;
     border: none;
+    white-space: nowrap;
+    min-width: 120px;
 }
 
+/* تحسين عرض الأعمدة */
+th:nth-child(1) { width: 15%; } /* المبلغ */
+th:nth-child(2) { width: 20%; } /* الطريقة */
+th:nth-child(3) { width: 20%; } /* تاريخ الطلب */
+th:nth-child(4) { width: 15%; } /* الحالة */
+
 td {
-    padding: 1rem;
+    padding: 1rem 0.8rem;
     border-bottom: 1px solid var(--gray-border);
     font-size: 0.9rem;
     text-align: right;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+/* تحسين عرض الخلايا */
+td:nth-child(1) { /* المبلغ */
+    font-weight: 700;
+    color: var(--purple-main);
+    min-width: 100px;
+}
+
+td:nth-child(2) { /* الطريقة */
+    color: var(--text-dark);
+    min-width: 120px;
+}
+
+td:nth-child(3) { /* تاريخ الطلب */
+    color: var(--text-light);
+    min-width: 120px;
+}
+
+td:nth-child(4) { /* الحالة */
+    min-width: 130px;
 }
 
 tr:last-child td {
@@ -150,17 +198,18 @@ tr:hover td {
     background: var(--purple-light);
 }
 
-/* --- Status Badges --- */
+/* --- Status Badges - محسن --- */
 .status {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.8rem;
     border-radius: 50px;
     font-size: 0.8rem;
     font-weight: 700;
     min-width: 110px;
     justify-content: center;
+    white-space: nowrap;
 }
 
 .status::before {
@@ -177,15 +226,13 @@ tr:hover td {
     border: 1px solid #fbbf24;
 }
 
-.status-approved,
-.status-مكتمل {
+.status-approved {
     background: #f0fdf4;
     color: #16a34a;
     border: 1px solid #22c55e;
 }
 
-.status-rejected,
-.status-ملغي {
+.status-rejected {
     background: #fef2f2;
     color: #dc2626;
     border: 1px solid #fca5a5;
@@ -195,7 +242,7 @@ tr:hover td {
 .divider {
     height: 2px;
     background: linear-gradient(90deg, transparent, var(--purple-main), transparent);
-    margin: 2rem 0;
+    margin: 3rem 0;
     border: none;
     border-radius: 2px;
 }
@@ -216,6 +263,7 @@ tr:hover td {
     border: 1px solid var(--gray-border);
     cursor: pointer;
     transition: all var(--transition-fast);
+    white-space: nowrap;
 }
 
 .user-dropdown-toggle:hover {
@@ -302,7 +350,7 @@ tr:hover td {
     color: var(--danger-red) !important;
 }
 
-/* --- Mobile Responsive --- */
+/* --- Mobile Responsive - محسن --- */
 @media (max-width: 768px) {
     .container {
         padding: 0 1rem;
@@ -315,63 +363,65 @@ tr:hover td {
     }
     
     .hero {
-        margin: 0 -1rem 2rem -1rem;
-        border-radius: 0;
-        padding: 2.5rem 1.5rem;
+        margin: 0 0 2rem 0;
+        border-radius: var(--radius-card);
+        padding: 2rem 1.5rem;
     }
     
     .hero h1 {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
+    }
+    
+    .hero p {
+        font-size: 1rem;
     }
     
     .section-header {
-        margin: 1rem -1rem 1.5rem -1rem;
-        border-radius: 0;
-        border-right: none;
-        border-bottom: 4px solid var(--purple-main);
+        margin: 2rem 0 1.5rem 0;
+        border-radius: var(--radius-card);
+        border-right: 4px solid var(--purple-main);
     }
     
     .table-container {
-        margin: 0 -1rem 2rem -1rem;
-        border-radius: 0;
-        box-shadow: none;
-    }
-    
-    table, thead, tbody, th, td, tr {
-        display: block;
-    }
-    
-    thead {
-        display: none;
-    }
-    
-    tr {
-        background: var(--white-pure);
-        margin-bottom: 1rem;
+        margin: 0 0 2rem 0;
         border-radius: var(--radius-card);
-        box-shadow: var(--shadow-sm);
-        padding: 1rem;
-        border: 1px solid var(--gray-border);
+        overflow-x: auto;
     }
     
-    td {
-        padding: 0.8rem 0;
-        border-bottom: 1px solid var(--gray-bg);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    /* تحسين التمرير الأفقي */
+    .table-container::-webkit-scrollbar {
+        height: 8px;
     }
     
-    td:last-child {
-        border-bottom: none;
+    .table-container::-webkit-scrollbar-track {
+        background: var(--gray-bg);
+        border-radius: 4px;
     }
     
-    td::before {
-        content: attr(data-label);
-        font-weight: 700;
-        color: var(--text-light);
+    .table-container::-webkit-scrollbar-thumb {
+        background: var(--purple-main);
+        border-radius: 4px;
+    }
+    
+    table {
+        min-width: 700px;
+    }
+    
+    /* تحسين عرض الجدول على الجوال */
+    th, td {
+        padding: 0.8rem 0.6rem;
         font-size: 0.85rem;
-        min-width: 80px;
+    }
+    
+    th:nth-child(1) { width: 80px; }
+    th:nth-child(2) { width: 100px; }
+    th:nth-child(3) { width: 120px; }
+    th:nth-child(4) { width: 100px; }
+    
+    .status {
+        min-width: 90px;
+        font-size: 0.75rem;
+        padding: 0.4rem 0.6rem;
     }
     
     .user-dropdown-menu {
@@ -385,16 +435,39 @@ tr:hover td {
     }
 }
 
+@media (max-width: 480px) {
+    .hero {
+        padding: 1.5rem 1rem;
+    }
+    
+    .hero h1 {
+        font-size: 1.4rem;
+    }
+    
+    .section-header {
+        padding: 1.2rem;
+    }
+    
+    .section-header h2 {
+        font-size: 1.3rem;
+    }
+    
+    th, td {
+        padding: 0.7rem 0.5rem;
+        font-size: 0.8rem;
+    }
+}
+
 /* --- Loading States --- */
 .loading-spinner {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 2rem;
+    padding: 3rem;
 }
 
 .loading-spinner i {
-    font-size: 1.8rem;
+    font-size: 2rem;
     color: var(--purple-main);
 }
 
@@ -405,4 +478,29 @@ tr:hover td {
 @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+}
+
+/* --- Empty State --- */
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-light);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-dark);
+}
+
+.empty-state p {
+    font-size: 1rem;
+    max-width: 300px;
+    margin: 0 auto;
 }
