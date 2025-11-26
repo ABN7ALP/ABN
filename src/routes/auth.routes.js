@@ -101,5 +101,55 @@ router.get('/me', async (req, res) => {
     }
 });
 
+// 🆕 إرسال كود التحقق
+router.post('/send-verification', async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+        
+        if (!user) {
+            return res.status(404).json({ message: 'المستخدم غير موجود' });
+        }
+
+        // إنشاء كود تحقق
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        user.emailVerificationToken = verificationCode;
+        user.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 ساعة
+        
+        await user.save();
+
+        // هنا يمكنك إرسال الإيميل (ستحتخدم خدمة مثل SendGrid)
+        console.log(`كود التحقق لـ ${email}: ${verificationCode}`);
+        
+        res.json({ message: 'تم إرسال كود التحقق إلى بريدك الإلكتروني' });
+    } catch (error) {
+        res.status(500).json({ message: 'فشل إرسال كود التحقق' });
+    }
+});
+
+// 🆕 التحقق من الكود
+router.post('/verify-email', async (req, res) => {
+    try {
+        const { email, code } = req.body;
+        const user = await User.findOne({ 
+            email,
+            emailVerificationToken: code,
+            emailVerificationExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'كود التحقق غير صالح أو منتهي' });
+        }
+
+        user.emailVerified = true;
+        user.emailVerificationToken = undefined;
+        user.emailVerificationExpires = undefined;
+        await user.save();
+
+        res.json({ message: 'تم التحقق من البريد الإلكتروني بنجاح' });
+    } catch (error) {
+        res.status(500).json({ message: 'فشل التحقق من البريد' });
+    }
+});
 
 module.exports = router;
