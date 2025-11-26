@@ -12,6 +12,7 @@ const generateToken = (id) => {
 
 // --- POST /api/auth/register ---
 // لإنشاء حساب مستخدم جديد
+// لإنشاء حساب مستخدم جديد مع التحقق من البريد
 router.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
 
@@ -19,33 +20,40 @@ router.post('/register', async (req, res) => {
         // التحقق مما إذا كان المستخدم موجوداً بالفعل
         const userExists = await User.findOne({ $or: [{ email }, { username }] });
         if (userExists) {
-            return res.status(400).json({ message: 'البريد الإلكتروني أو اسم المستخدم مسجل بالفعل.' });
+            return res.status(400).json({ 
+                message: userExists.email === email ? 
+                    'البريد الإلكتروني مسجل مسبقاً' : 
+                    'اسم المستخدم مسجل مسبقاً'
+            });
         }
 
-        // إنشاء مستخدم جديد (سيتم تشفير كلمة المرور تلقائياً بفضل الكود في الموديل)
+        // إنشاء كود تحقق
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // إنشاء مستخدم جديد
         const user = await User.create({
             username,
             email,
             password,
+            emailVerificationToken: verificationCode,
+            emailVerificationExpires: Date.now() + 24 * 60 * 60 * 1000, // 24 ساعة
         });
 
-        // إذا تم إنشاء المستخدم بنجاح، قم بتسجيل دخوله مباشرة
-        if (user) {
-            res.status(201).json({
-                _id: user._id,
-                username: user.username,
-                email: user.email,
-                balance: user.balance,
-                token: generateToken(user._id),
-            });
-        } else {
-            res.status(400).json({ message: 'بيانات المستخدم غير صالحة.' });
-        }
+        // هنا يمكنك إرسال الإيميل فعلياً
+        console.log(`🔐 كود التحقق للمستخدم ${email}: ${verificationCode}`);
+        
+        // إرجاع رسالة للمستخدم لتفعيل الحساب
+        res.status(201).json({ 
+            message: 'تم إنشاء الحساب بنجاح. يرجى التحقق من بريدك الإلكتروني.',
+            requiresVerification: true,
+            email: email // إرجاع الإيميل لإظهاره في واجهة التحقق
+        });
+
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Registration error:', error);
+        res.status(500).json({ message: 'فشل إنشاء الحساب' });
     }
 });
-
 // --- POST /api/auth/login ---
 // لتسجيل دخول المستخدم
 router.post('/login', async (req, res) => {
