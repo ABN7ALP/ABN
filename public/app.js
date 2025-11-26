@@ -195,20 +195,146 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
 
-    async function registerHandler(e) {
-        e.preventDefault();
-        const username = document.getElementById('register-username').value;
-        const email = document.getElementById('register-email').value;
-        const password = document.getElementById('register-password').value;
-        try {
-            const response = await fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email, password }) });
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.message || 'فشل إنشاء الحساب');
+    // 🔽 استبدل دالة registerHandler:
+async function registerHandler(e) {
+    e.preventDefault();
+    const username = document.getElementById('register-username').value;
+    const email = document.getElementById('register-email').value;
+    const password = document.getElementById('register-password').value;
+    
+    registerPopupError.textContent = '';
+    
+    try {
+        const response = await fetch('/api/auth/register', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ username, email, password }) 
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.message || 'فشل إنشاء الحساب');
+        }
+        
+        if (data.requiresVerification) {
+            // إظهار نافذة التحقق بدلاً من تسجيل الدخول المباشر
+            showVerificationPopup(data.email);
+        } else {
+            // الطريقة القديمة (للتوافق مع السيرفرات القديمة)
             localStorage.setItem('userInfo', JSON.stringify(data));
             hideAuthPopup();
             updateUIForAuth();
-        } catch (error) { registerPopupError.textContent = error.message; }
+        }
+        
+    } catch (error) { 
+        registerPopupError.textContent = error.message; 
     }
+}
+
+// 🆕 أضف دالة إظهار نافذة التحقق
+function showVerificationPopup(email) {
+    // إخفاء نموذج التسجيل
+    registerFormContainer.classList.add('hidden');
+    
+    // إنشاء نافذة التحقق
+    const verificationHTML = `
+        <div class="popup-header">
+            <i class="ph-bold ph-envelope-simple"></i>
+            <h2>التحقق من البريد الإلكتروني</h2>
+        </div>
+        <p style="text-align: center; margin-bottom: 1.5rem;">
+            تم إرسال كود تحقق إلى: <strong>${email}</strong>
+        </p>
+        <form id="verification-form">
+            <div class="form-group">
+                <label for="verification-code">كود التحقق (6 أرقام)</label>
+                <input type="text" id="verification-code" maxlength="6" required 
+                       pattern="[0-9]{6}" placeholder="123456">
+            </div>
+            <button type="submit" class="pill-button primary-button">تحقق</button>
+            <button type="button" id="resend-code-btn" class="pill-button secondary-button" style="margin-top: 0.5rem;">
+                إعادة إرسال الكود
+            </button>
+        </form>
+        <p id="verification-error" class="error-message" style="text-align: center;"></p>
+    `;
+    
+    registerFormContainer.innerHTML = verificationHTML;
+    registerFormContainer.classList.remove('hidden');
+    
+    // إضافة event listeners
+    document.getElementById('verification-form').addEventListener('submit', handleVerification);
+    document.getElementById('resend-code-btn').addEventListener('click', () => resendVerificationCode(email));
+}
+
+// 🆕 أضف دوال التحقق
+async function handleVerification(e) {
+    e.preventDefault();
+    const code = document.getElementById('verification-code').value;
+    const email = document.querySelector('#verification-form strong').textContent;
+    const errorElement = document.getElementById('verification-error');
+    
+    errorElement.textContent = '';
+    
+    try {
+        const response = await fetch('/api/auth/verify-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, code })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.message || 'فشل التحقق');
+        }
+        
+        // نجاح التحقق - إظهار رسالة نجاح
+        registerFormContainer.innerHTML = `
+            <div class="popup-header">
+                <i class="ph-bold ph-check-circle success-icon"></i>
+                <h2>تم التحقق بنجاح!</h2>
+            </div>
+            <p style="text-align: center; margin-bottom: 1.5rem;">
+                ${data.message}
+            </p>
+            <button onclick="hideAuthPopup(); showAuthPopup('login')" 
+                    class="pill-button primary-button">
+                تسجيل الدخول
+            </button>
+        `;
+        
+    } catch (error) {
+        errorElement.textContent = error.message;
+    }
+}
+
+async function resendVerificationCode(email) {
+    const errorElement = document.getElementById('verification-error');
+    errorElement.textContent = '';
+    
+    try {
+        const response = await fetch('/api/auth/send-verification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.message || 'فشل إعادة الإرسال');
+        }
+        
+        errorElement.textContent = '✅ ' + data.message;
+        errorElement.style.color = 'green';
+        
+    } catch (error) {
+        errorElement.textContent = error.message;
+        errorElement.style.color = 'red';
+    }
+}
 
     function logoutHandler() {
         localStorage.removeItem('userInfo');
