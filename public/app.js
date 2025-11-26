@@ -430,6 +430,105 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+
+// 🆕 دالة لعرض واجهة إدخال الكود وكلمة المرور الجديدة
+function showResetPasswordPopup(email) {
+    const forgotPasswordContainer = document.getElementById('forgot-password-container');
+    forgotPasswordContainer.classList.add('hidden');
+    
+    const resetPasswordHTML = `
+        <div class="popup-header">
+            <i class="ph-bold ph-key"></i>
+            <h2>إعادة تعيين كلمة المرور</h2>
+        </div>
+        <p style="text-align: center; margin-bottom: 1.5rem;">
+            أدخل الكود الذي استلمته وكلمة المرور الجديدة
+        </p>
+        <form id="reset-password-form">
+            <div class="form-group">
+                <label for="reset-email">البريد الإلكتروني</label>
+                <input type="email" id="reset-email" value="${email}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="reset-code">كود التحقق (6 أرقام)</label>
+                <input type="text" id="reset-code" maxlength="6" required 
+                       pattern="[0-9]{6}" placeholder="123456">
+            </div>
+            <div class="form-group">
+                <label for="new-password">كلمة المرور الجديدة</label>
+                <input type="password" id="new-password" required minlength="6">
+            </div>
+            <button type="submit" class="pill-button primary-button">تعيين كلمة المرور</button>
+            <button type="button" id="back-to-forgot-btn" class="pill-button secondary-button" style="margin-top: 0.5rem;">
+                العودة للخلف
+            </button>
+        </form>
+        <p id="reset-password-error" class="error-message" style="text-align: center;"></p>
+    `;
+    
+    let resetPasswordContainer = document.getElementById('reset-password-container');
+    if (!resetPasswordContainer) {
+        resetPasswordContainer = document.createElement('div');
+        resetPasswordContainer.id = 'reset-password-container';
+        resetPasswordContainer.className = 'popup-content';
+        authPopupOverlay.appendChild(resetPasswordContainer);
+    }
+    
+    resetPasswordContainer.innerHTML = resetPasswordHTML;
+    resetPasswordContainer.classList.remove('hidden');
+    
+    document.getElementById('reset-password-form').addEventListener('submit', handleResetPassword);
+    document.getElementById('back-to-forgot-btn').addEventListener('click', () => {
+        resetPasswordContainer.classList.add('hidden');
+        showForgotPasswordPopup();
+    });
+}
+
+// 🆕 دالة معالجة إعادة تعيين كلمة المرور
+async function handleResetPassword(e) {
+    e.preventDefault();
+    const email = document.getElementById('reset-email').value;
+    const token = document.getElementById('reset-code').value;
+    const newPassword = document.getElementById('new-password').value;
+    const errorElement = document.getElementById('reset-password-error');
+    
+    errorElement.textContent = '';
+    
+    try {
+        const response = await fetch('/api/auth/reset-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, token, newPassword })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.message || 'فشل إعادة تعيين كلمة المرور');
+        }
+        
+        const resetPasswordContainer = document.getElementById('reset-password-container');
+        resetPasswordContainer.innerHTML = `
+            <div class="popup-header">
+                <i class="ph-bold ph-check-circle success-icon"></i>
+                <h2>تم التعيين بنجاح!</h2>
+            </div>
+            <p style="text-align: center; margin-bottom: 1.5rem;">
+                تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول.
+            </p>
+            <button onclick="hideAuthPopup(); showAuthPopup('login')" class="pill-button primary-button">
+                تسجيل الدخول
+            </button>
+        `;
+        
+    } catch (error) {
+        errorElement.textContent = error.message;
+    }
+}
+
+    
+    
+
     // --- 3. نظام شحن الرصيد ---
     function showDepositPopup() {
         depositForm.reset();
