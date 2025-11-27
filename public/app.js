@@ -228,58 +228,85 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showVerificationPopup(email) {
-        registerFormContainer.classList.add('hidden');
-        
-        const verificationHTML = `
-            <div class="popup-header">
-                <i class="ph-bold ph-envelope-simple"></i>
-                <h2>التحقق من البريد الإلكتروني</h2>
-            </div>
-            <p style="text-align: center; margin-bottom: 1.5rem;">
-                تم إرسال كود تحقق إلى: <strong>${email}</strong>
-            </p>
-            <form id="verification-form">
-                <div class="form-group">
-                    <label for="verification-code">كود التحقق (6 أرقام)</label>
-                    <input type="text" id="verification-code" maxlength="6" required 
-                           pattern="[0-9]{6}" placeholder="123456">
-                </div>
-                <button type="submit" class="pill-button primary-button">تحقق</button>
-                <button type="button" id="resend-code-btn" class="pill-button secondary-button" style="margin-top: 0.5rem;">
-                    إعادة إرسال الكود
-                </button>
-            </form>
-            <p id="verification-error" class="error-message" style="text-align: center;"></p>
-        `;
-        
-        registerFormContainer.innerHTML = verificationHTML;
-        registerFormContainer.classList.remove('hidden');
-        
-        document.getElementById('verification-form').addEventListener('submit', handleVerification);
-        document.getElementById('resend-code-btn').addEventListener('click', () => resendVerificationCode(email));
+    const registerFormContainer = document.getElementById('register-form-container');
+    if (!registerFormContainer) {
+        console.error('❌ عنصر register-form-container غير موجود');
+        return;
     }
-
+    
+    registerFormContainer.classList.add('hidden');
+    
+    const verificationHTML = `
+        <div class="popup-header">
+            <i class="ph-bold ph-envelope-simple"></i>
+            <h2>التحقق من البريد الإلكتروني</h2>
+        </div>
+        <p style="text-align: center; margin-bottom: 1.5rem;">
+            تم إرسال كود تحقق إلى: <strong>${email}</strong>
+        </p>
+        <form id="verification-form">
+            <div class="form-group">
+                <label for="verification-code">كود التحقق (6 أرقام)</label>
+                <input type="text" id="verification-code" maxlength="6" required 
+                       pattern="[0-9]{6}" placeholder="123456">
+            </div>
+            <button type="submit" class="pill-button primary-button">تحقق</button>
+            <button type="button" id="resend-code-btn" class="pill-button secondary-button" style="margin-top: 0.5rem;">
+                إعادة إرسال الكود
+            </button>
+        </form>
+        <p id="verification-error" class="error-message" style="text-align: center;"></p>
+    `;
+    
+    registerFormContainer.innerHTML = verificationHTML;
+    registerFormContainer.classList.remove('hidden');
+    
+    // 🆕 إضافة event listeners بشكل آمن
+    const verificationForm = document.getElementById('verification-form');
+    const resendBtn = document.getElementById('resend-code-btn');
+    
+    if (verificationForm) {
+        verificationForm.addEventListener('submit', handleVerification);
+    }
+    
+    if (resendBtn) {
+        resendBtn.addEventListener('click', () => resendVerificationCode(email));
+    }
+}
     async function handleVerification(e) {
-        e.preventDefault();
-        const code = document.getElementById('verification-code').value;
-        const email = document.querySelector('#verification-form strong').textContent;
-        const errorElement = document.getElementById('verification-error');
+    e.preventDefault();
+    const code = document.getElementById('verification-code').value;
+    
+    // 🆕 البحث عن العناصر بشكل آمن
+    const emailElement = document.querySelector('#verification-form strong');
+    const errorElement = document.getElementById('verification-error');
+    
+    // التحقق من وجود العناصر
+    if (!emailElement || !errorElement) {
+        console.error('❌ عناصر الواجهة غير موجودة');
+        return;
+    }
+    
+    const email = emailElement.textContent;
+    
+    errorElement.textContent = '';
+    
+    try {
+        const response = await fetch('/api/auth/verify-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, code })
+        });
         
-        errorElement.textContent = '';
+        const data = await response.json();
         
-        try {
-            const response = await fetch('/api/auth/verify-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, code })
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.message || 'فشل التحقق');
-            }
-            
+        if (!response.ok) {
+            throw new Error(data.message || 'فشل التحقق');
+        }
+        
+        // 🆕 تحديث الواجهة بشكل آمن
+        const registerFormContainer = document.getElementById('register-form-container');
+        if (registerFormContainer) {
             registerFormContainer.innerHTML = `
                 <div class="popup-header">
                     <i class="ph-bold ph-check-circle success-icon"></i>
@@ -288,16 +315,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p style="text-align: center; margin-bottom: 1.5rem;">
                     ${data.message}
                 </p>
-                <button onclick="hideAuthPopup(); showAuthPopup('login')" 
-                        class="pill-button primary-button">
+                <button id="go-to-login-btn" class="pill-button primary-button">
                     تسجيل الدخول
                 </button>
             `;
             
-        } catch (error) {
+            // 🆕 إضافة event listener للزر الجديد
+            document.getElementById('go-to-login-btn').addEventListener('click', () => {
+                hideAuthPopup();
+                setTimeout(() => showAuthPopup('login'), 500);
+            });
+        }
+        
+    } catch (error) {
+        // 🆕 التحقق من وجود عنصر الخطأ قبل التعديل
+        if (errorElement) {
             errorElement.textContent = error.message;
+        } else {
+            console.error('❌ خطأ في التحقق:', error.message);
         }
     }
+}
 
     async function resendVerificationCode(email) {
         const errorElement = document.getElementById('verification-error');
