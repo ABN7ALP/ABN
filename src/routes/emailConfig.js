@@ -74,7 +74,7 @@ const sendPasswordResetEmail = async (email, verificationCode) => {
     const emailParams = new EmailParams()
       .setFrom(sentFrom)
       .setTo(recipients)
-      .setSubject("🔐 إعادة تعيين كلمة المرور - MX GROUP متجر ")
+      .setSubject("🔐 إعادة تعيين كلمة المرور - MX GROUP")
       .setHtml(`
         <div dir="rtl" style="font-family: 'Cairo', Arial, sans-serif; text-align: center; background: #f8fafc; padding: 30px;">
           <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
@@ -90,11 +90,11 @@ const sendPasswordResetEmail = async (email, verificationCode) => {
               طلبت إعادة تعيين كلمة المرور الخاصة بحسابك. استخدم الكود التالي:
             </p>
             
-            <div style="background: linear-gradient(135deg, #7C1EFF 0%, #5a16ba 100%); color: white; padding: 20px; border-radius: 15px; font-size: 32px; font-weight: bold; letter-spacing: 8px; margin: 20px 0;">
+            <div style="background: linear-gradient(135deg, #7C1EFF 0%, #5a16ba 100%); color: white; padding: 20px; border-radius: 15px; font-size: 30px; font-weight: bold; letter-spacing: 8px; margin: 20px 0;">
               ${verificationCode}
             </div>
             
-            <p style="font-size: 14px; color: #94a3b8;">
+            <p style="font-size: 12px; color: #94a3b8;">
               هذا الكود صالح لمدة ساعة واحدة فقط.<br>
               إذا لم تطلب هذا الكود، يرجى تجاهل هذا الإيميل.
             </p>
@@ -105,6 +105,7 @@ const sendPasswordResetEmail = async (email, verificationCode) => {
             
             <div class="footer" style="text-align: center; color: #94a3b8; font-size: 12px; margin-top: 30px;">
               <p>متجر  - نحرص على أمان حسابك MX GROUP </p>
+              <p>MX GROUP</p>
             </div>
           </div>
         </div>
