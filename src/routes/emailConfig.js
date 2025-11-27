@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 
 // إعداد transporter (استخدم إيميلك الحقيقي)
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   service: 'gmail', // أو 'outlook' أو 'yahoo' إلخ
   auth: {
     user: process.env.EMAIL_USER, // إيميلك
@@ -9,9 +9,27 @@ const transporter = nodemailer.createTransporter({
   }
 });
 
+// دالة التحقق من اتصال الإيميل
+const verifyEmailConnection = async () => {
+  try {
+    await transporter.verify();
+    console.log('✅ تم الاتصال بخادم البريد الإلكتروني بنجاح');
+    return true;
+  } catch (error) {
+    console.error('❌ فشل الاتصال بخادم البريد:', error);
+    return false;
+  }
+};
+
 // دالة إرسال الإيميل
 const sendVerificationEmail = async (email, verificationCode) => {
   try {
+    // التحقق من الاتصال أولاً
+    const isConnected = await verifyEmailConnection();
+    if (!isConnected) {
+      return false;
+    }
+
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -48,4 +66,4 @@ const sendVerificationEmail = async (email, verificationCode) => {
   }
 };
 
-module.exports = { sendVerificationEmail };
+module.exports = { sendVerificationEmail, verifyEmailConnection };
