@@ -90,7 +90,7 @@ const sendPasswordResetEmail = async (email, verificationCode) => {
               طلبت إعادة تعيين كلمة المرور الخاصة بحسابك. استخدم الكود التالي:
             </p>
             
-            <div style="background: linear-gradient(135deg, #7C1EFF 0%, #5a16ba 100%); color: white; padding: 20px; border-radius: 15px; font-size: 30px; font-weight: bold; letter-spacing: 8px; margin: 20px 0;">
+            <div style="background: linear-gradient(135deg, #7C1EFF 0%, #5a16ba 100%); color: white; padding: 20px; border-radius: 15px; font-size: 24px; font-weight: bold; letter-spacing: 8px; margin: 20px 0;">
               ${verificationCode}
             </div>
             
@@ -104,7 +104,7 @@ const sendPasswordResetEmail = async (email, verificationCode) => {
             </div>
             
             <div class="footer" style="text-align: center; color: #94a3b8; font-size: 12px; margin-top: 30px;">
-              <p>متجر  - نحرص على أمان حسابك MX GROUP </p>
+              <p>نحرص على أمان حسابك </p>
               <p>MX GROUP</p>
             </div>
           </div>
