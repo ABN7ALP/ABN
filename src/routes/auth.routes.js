@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/user.model.js');
 const jwt = require('jsonwebtoken');
-const { sendVerificationEmail } = require('./emailConfig.js'); // 🆕 استيراد دالة الإيميل
+const { sendActivationEmail, sendPasswordResetEmail } = require('./emailConfig.js'); // 🆕 استيراد دالة الإيميل
 
 // --- دالة لإنشاء توكن JWT ---
 const generateToken = (id) => {
