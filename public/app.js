@@ -358,31 +358,7 @@ function showVerificationSuccess(message) {
             hideAuthPopup();
             setTimeout(() => showAuthPopup('login'), 500);
         });
-    }
-}
-        
-        // 🆕 تحديث الواجهة بشكل آمن
-        const registerFormContainer = document.getElementById('register-form-container');
-        if (registerFormContainer) {
-            registerFormContainer.innerHTML = `
-                <div class="popup-header">
-                    <i class="ph-bold ph-check-circle success-icon"></i>
-                    <h2>تم التحقق بنجاح!</h2>
-                </div>
-                <p style="text-align: center; margin-bottom: 1.5rem;">
-                    ${data.message}
-                </p>
-                <button id="go-to-login-btn" class="pill-button primary-button">
-                    تسجيل الدخول
-                </button>
-            `;
-            
-            // 🆕 إضافة event listener للزر الجديد
-            document.getElementById('go-to-login-btn').addEventListener('click', () => {
-                hideAuthPopup();
-                setTimeout(() => showAuthPopup('login'), 500);
-            });
-        }
+    } 
         
     } catch (error) {
         // 🆕 التحقق من وجود عنصر الخطأ قبل التعديل
