@@ -359,15 +359,6 @@ function showVerificationSuccess(message) {
             setTimeout(() => showAuthPopup('login'), 500);
         });
     } 
-        
-    } catch (error) {
-        // 🆕 التحقق من وجود عنصر الخطأ قبل التعديل
-        if (errorElement) {
-            errorElement.textContent = error.message;
-        } else {
-            console.error('❌ خطأ في التحقق:', error.message);
-        }
-    }
 }
 
     async function resendVerificationCode(email) {
