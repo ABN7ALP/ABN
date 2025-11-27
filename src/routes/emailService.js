@@ -1,45 +1,51 @@
 const nodemailer = require('nodemailer');
 
-const createTransporter = () => {
-    return nodemailer.createTransport({
-        host: "smtp-relay.brevo.com",
-        port: 465,
-        secure: true,
-        auth: {
-            user: process.env.BREVO_SMTP_USER,
-            pass: process.env.BREVO_SMTP_PASS
-        }
-    });
+// إعداد transporter (استخدم إيميلك الحقيقي)
+const transporter = nodemailer.createTransporter({
+  service: 'gmail', // أو 'outlook' أو 'yahoo' إلخ
+  auth: {
+    user: process.env.EMAIL_USER, // إيميلك
+    pass: process.env.EMAIL_PASS  // كلمة المرور الخاصة بالتطبيق
+  }
+});
+
+// دالة إرسال الإيميل
+const sendVerificationEmail = async (email, verificationCode) => {
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'كود التحقق - متجر الخدمات',
+      html: `
+        <div dir="rtl" style="font-family: 'Cairo', Arial, sans-serif; text-align: center; background: #f8fafc; padding: 30px;">
+          <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <h1 style="color: #7C1EFF; margin-bottom: 20px;">🔐 كود التحقق</h1>
+            <p style="font-size: 16px; color: #64748B; margin-bottom: 30px;">
+              استخدم الكود التالي لإعادة تعيين كلمة المرور الخاصة بك:
+            </p>
+            <div style="background: linear-gradient(135deg, #7C1EFF 0%, #5a16ba 100%); color: white; padding: 20px; border-radius: 15px; font-size: 32px; font-weight: bold; letter-spacing: 8px; margin: 20px 0;">
+              ${verificationCode}
+            </div>
+            <p style="font-size: 14px; color: #94a3b8;">
+              هذا الكود صالح لمدة ساعة واحدة فقط.<br>
+              إذا لم تطلب هذا الكود، يرجى تجاهل هذا الإيميل.
+            </p>
+            <hr style="border: none; border-top: 2px dashed #e2e8f0; margin: 30px 0;">
+            <p style="font-size: 12px; color: #94a3b8;">
+              متجر الخدمات الرقمية
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`✅ تم إرسال كود التحقق إلى: ${email}`);
+    return true;
+  } catch (error) {
+    console.error('❌ فشل إرسال الإيميل:', error);
+    return false;
+  }
 };
 
-const sendEmail = async (email, code, isReset = false) => {
-    try {
-        console.log("🔄 محاولة إرسال الإيميل إلى:", email);
-
-        const transporter = createTransporter();
-
-        const mailOptions = {
-            from: `"متجر الخدمات" <${process.env.BREVO_SMTP_USER}>`,
-            to: email,
-            subject: isReset ? "إعادة تعيين كلمة المرور" : "كود التحقق",
-            html: `
-                <h2>${isReset ? "إعادة تعيين كلمة المرور" : "كود التحقق"}</h2>
-                <p>الكود الخاص بك هو:</p>
-                <h1>${code}</h1>
-            `
-        };
-
-        await transporter.sendMail(mailOptions);
-        console.log("✅ تم إرسال الإيميل بنجاح");
-        return true;
-
-    } catch (err) {
-        console.log("❌ خطأ في إرسال الإيميل:", err.message);
-        return false;
-    }
-};
-
-module.exports = {
-    sendVerificationEmail: (email, code) => sendEmail(email, code, false),
-    sendPasswordResetEmail: (email, code) => sendEmail(email, code, true)
-};
+module.exports = { sendVerificationEmail };
