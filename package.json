@@ -19,6 +19,7 @@
     "nodemailer": "^6.9.7",
      "resend": "^2.0.0",
     "emailjs-com": "^3.2.0",
+    "@emailjs/nodejs": "^1.0.2",
     "bcryptjs": "^2.4.3"
   }
 }
