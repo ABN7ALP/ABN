@@ -23,26 +23,56 @@ router.get('/users', async (req, res) => {
 });
 
 // GET /api/admin/users/emails - تصدير الإيميلات
+// GET /api/admin/users/emails - تصدير الإيميلات
 router.get('/users/emails', async (req, res) => {
     try {
         const users = await User.find({ emailVerified: true })
-            .select('email username createdAt')
+            .select('email username createdAt balance')
             .sort({ createdAt: -1 });
         
-        // تحويل إلى CSV
+        // تحسين تنسيق CSV
         const csvData = users.map(user => 
-            `"${user.email}","${user.username}","${new Date(user.createdAt).toLocaleDateString('ar-EG')}"`
+            `"${user.email}","${user.username}","${user.balance || 0}","${new Date(user.createdAt).toLocaleDateString('ar-EG')}"`
         ).join('\n');
         
-        const csv = 'البريد الإلكتروني,اسم المستخدم,تاريخ التسجيل\n' + csvData;
+        const csv = 'البريد الإلكتروني,اسم المستخدم,الرصيد,تاريخ التسجيل\n' + csvData;
         
         res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-        res.setHeader('Content-Disposition', 'attachment; filename=users_emails.csv');
-        res.send(csv);
+        res.setHeader('Content-Disposition', `attachment; filename=users_emails_${new Date().toISOString().split('T')[0]}.csv`);
+        res.send('\uFEFF' + csv); // إضافة BOM للدعم الكامل للعربية
         
     } catch (error) {
         console.error('Error exporting emails:', error);
         res.status(500).json({ message: 'فشل تصدير الإيميلات' });
+    }
+});
+
+// 🆕 إضافة route لتحديث بيانات المستخدم
+router.put('/users/:id', async (req, res) => {
+    try {
+        const { username, email, balance, emailVerified, isAdmin } = req.body;
+        
+        const updatedUser = await User.findByIdAndUpdate(
+            req.params.id,
+            {
+                username,
+                email,
+                balance,
+                emailVerified,
+                isAdmin
+            },
+            { new: true, runValidators: true }
+        ).select('-password');
+        
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'المستخدم غير موجود' });
+        }
+        
+        res.json({ message: 'تم تحديث بيانات المستخدم بنجاح', user: updatedUser });
+        
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ message: 'فشل تحديث بيانات المستخدم' });
     }
 });
 
