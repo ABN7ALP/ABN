@@ -5,6 +5,66 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- المتغيرات العامة ---
     let servicesData = {}, currentPlatform = null, userInfo = null, currentOrderData = {};
 
+// 🆕 🔽 أضف هنا - دوال قوة كلمة المرور 🔽
+// دالة التحقق من قوة كلمة المرور
+function checkPasswordStrength(password) {
+    let strength = 0;
+    const feedback = [];
+    
+    // التحقق من الطول
+    if (password.length >= 8) strength++;
+    else feedback.push('8 أحرف على الأقل');
+    
+    // التحقق من الأحرف الصغيرة
+    if (/[a-z]/.test(password)) strength++;
+    else feedback.push('حرف صغير (a-z)');
+    
+    // التحقق من الأحرف الكبيرة  
+    if (/[A-Z]/.test(password)) strength++;
+    else feedback.push('حرف كبير (A-Z)');
+    
+    // التحقق من الأرقام
+    if (/[0-9]/.test(password)) strength++;
+    else feedback.push('رقم (0-9)');
+    
+    // التحقق من الرموز الخاصة
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+    else feedback.push('رمز خاص (!@#$...)');
+    
+    return { strength, feedback };
+}
+
+// دالة تحديث عرض قوة كلمة المرور
+function updatePasswordStrength(password) {
+    const strengthBars = document.querySelectorAll('.strength-bar');
+    const strengthText = document.getElementById('password-strength-text');
+    
+    if (!password) {
+        strengthBars.forEach(bar => bar.style.background = '#e2e8f0');
+        strengthText.textContent = '';
+        return;
+    }
+    
+    const { strength, feedback } = checkPasswordStrength(password);
+    
+    // تحديث الألوان
+    strengthBars.forEach((bar, index) => {
+        if (index < strength) {
+            if (strength <= 2) bar.style.background = '#ef4444';
+            else if (strength <= 4) bar.style.background = '#f59e0b';
+            else bar.style.background = '#10b981';
+        } else {
+            bar.style.background = '#e2e8f0';
+        }
+    });
+    
+    // تحديث النص
+    const strengthLabels = ['ضعيفة جداً', 'ضعيفة', 'متوسطة', 'جيدة', 'قوية جداً'];
+    strengthText.textContent = `${strengthLabels[strength - 1] || 'ضعيفة'}${feedback.length ? ` - يحتاج: ${feedback.join(', ')}` : ''}`;
+    strengthText.style.color = strength <= 2 ? '#ef4444' : strength <= 4 ? '#f59e0b' : '#10b981';
+}
+// 🆕 🔼 نهاية إضافة دوال قوة كلمة المرور 🔼
+
     // --- عناصر الصفحة ---
     const servicesContainer = document.getElementById('services-container');
     const orderPopupOverlay = document.getElementById('order-popup-overlay');
@@ -192,40 +252,51 @@ document.addEventListener('DOMContentLoaded', () => {
             loginPopupError.textContent = error.message; 
         }
     }
+    
+    
 
-    async function registerHandler(e) {
-        e.preventDefault();
-        const username = document.getElementById('register-username').value;
-        const email = document.getElementById('register-email').value;
-        const password = document.getElementById('register-password').value;
-        
-        registerPopupError.textContent = '';
-        
-        try {
-            const response = await fetch('/api/auth/register', { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ username, email, password }) 
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.message || 'فشل إنشاء الحساب');
-            }
-            
-            if (data.requiresVerification) {
-                showVerificationPopup(data.email);
-            } else {
-                localStorage.setItem('userInfo', JSON.stringify(data));
-                hideAuthPopup();
-                updateUIForAuth();
-            }
-            
-        } catch (error) { 
-            registerPopupError.textContent = error.message; 
-        }
+    // 🔽 استبدل الدالة الحالية بهذه الدالة المحدثة 🔽
+async function registerHandler(e) {
+    e.preventDefault();
+    const username = document.getElementById('register-username').value;
+    const email = document.getElementById('register-email').value;
+    const password = document.getElementById('register-password').value;
+    
+    registerPopupError.textContent = '';
+
+    // 🆕 التحقق من قوة كلمة المرور
+    const { strength } = checkPasswordStrength(password);
+    if (strength < 3) {
+        registerPopupError.textContent = 'كلمة المرور ضعيفة. يرجى اختيار كلمة مرور أقوى.';
+        return;
     }
+    
+    try {
+        const response = await fetch('/api/auth/register', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ username, email, password }) 
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.message || 'فشل إنشاء الحساب');
+        }
+        
+        if (data.requiresVerification) {
+            showVerificationPopup(data.email);
+        } else {
+            localStorage.setItem('userInfo', JSON.stringify(data));
+            hideAuthPopup();
+            updateUIForAuth();
+        }
+        
+    } catch (error) { 
+        registerPopupError.textContent = error.message; 
+    }
+}
+// 🔼 نهاية الاستبدال 🔼
 
     function showVerificationPopup(email) {
     const registerFormContainer = document.getElementById('register-form-container');
@@ -534,7 +605,7 @@ function showResetPasswordPopup(email) {
 }
 
 // 🆕 دالة معالجة إعادة تعيين كلمة المرور
-// 🆕 دالة معالجة إعادة تعيين كلمة المرور
+// 🔽 استبدل الدالة الحالية بهذه الدالة المحدثة 🔽
 async function handleResetPassword(e) {
     e.preventDefault();
     const email = document.getElementById('reset-email').value;
@@ -545,6 +616,13 @@ async function handleResetPassword(e) {
     errorElement.textContent = '';
     
     try {
+        // 🆕 التحقق من قوة كلمة المرور الجديدة
+        const { strength } = checkPasswordStrength(newPassword);
+        if (strength < 3) {
+            errorElement.textContent = 'كلمة المرور الجديدة ضعيفة. يرجى اختيار كلمة مرور أقوى.';
+            return;
+        }
+        
         const response = await fetch('/api/auth/reset-password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -594,6 +672,7 @@ async function handleResetPassword(e) {
         errorElement.textContent = error.message;
     }
 }
+// 🔼 نهاية الاستبدال 🔼
     
     
 
@@ -1277,7 +1356,27 @@ async function handleResetPassword(e) {
         document.head.appendChild(style);
     }
 
-    // --- 9. البدء بتشغيل كل شيء ---
+        // --- 9. البدء بتشغيل كل شيء ---
     updateUIForAuth();
     loadServices();
+
+    // 🆕 🔽 أضف هذا الكود هنا 🔽
+    // إضافة event listener لكلمة المرور في نموذج التسجيل
+    const passwordInput = document.getElementById('register-password');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', (e) => {
+            updatePasswordStrength(e.target.value);
+        });
+    }
+    
+    // إضافة event listener لكلمة المرور في نموذج إعادة التعيين
+    const resetPasswordInput = document.getElementById('new-password');
+    if (resetPasswordInput) {
+        resetPasswordInput.addEventListener('input', (e) => {
+            // يمكنك إضافة قوة كلمة المرور هنا أيضاً إذا أردت
+            updatePasswordStrength(e.target.value);
+        });
+    }
+// 🆕 🔼 نهاية الإضافة 🔼
 });
+// 🔼 هذا هو نهاية DOMContentLoaded 🔼
