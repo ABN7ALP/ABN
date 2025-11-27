@@ -332,7 +332,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 }
-
 // 🆕 دالة جديدة لعرض رسالة النجاح
 function showVerificationSuccess(message) {
     const registerFormContainer = document.getElementById('register-form-container');
