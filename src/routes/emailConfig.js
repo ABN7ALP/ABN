@@ -13,7 +13,7 @@ const sendActivationEmail = async (email, verificationCode) => {
     const emailParams = new EmailParams()
       .setFrom(sentFrom)
       .setTo(recipients)
-      .setSubject("🎉 تفعيل حسابك - متجر الخدمات الرقمية")
+      .setSubject("🎉 MX GROUP - تفعيل حسابك ")
       .setHtml(`
         <div dir="rtl" style="font-family: 'Cairo', Arial, sans-serif; text-align: center; background: #f8fafc; padding: 30px;">
           <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
@@ -29,7 +29,7 @@ const sendActivationEmail = async (email, verificationCode) => {
               شكراً لانضمامك إلينا! استخدم الكود التالي لتفعيل حسابك والبدء في استخدام خدماتنا:
             </p>
             
-            <div style="background: linear-gradient(135deg, #7C1EFF 0%, #5a16ba 100%); color: white; padding: 20px; border-radius: 15px; font-size: 32px; font-weight: bold; letter-spacing: 8px; margin: 20px 0;">
+            <div style="background: linear-gradient(135deg, #7C1EFF 0%, #5a16ba 100%); color: white; padding: 20px; border-radius: 15px; font-size: 24px; font-weight: bold; letter-spacing: 8px; margin: 20px 0;">
               ${verificationCode}
             </div>
             
@@ -49,7 +49,8 @@ const sendActivationEmail = async (email, verificationCode) => {
             </div>
             
             <div class="footer" style="text-align: center; color: #94a3b8; font-size: 12px; margin-top: 30px;">
-              <p>متجر  - نقدم أفضل الخدمات لأفضل العملاء MX GROUP </p>
+              <p>نقدم أفضل الخدمات لأفضل العملاء</p>
+              <p>MX GROUP 🛍️</p>
               <p>📞 للاستفسار: <a href="https://wa.me/905367893256" style="color: #7C1EFF;">واتساب</a></p>
             </div>
           </div>
@@ -105,7 +106,7 @@ const sendPasswordResetEmail = async (email, verificationCode) => {
             
             <div class="footer" style="text-align: center; color: #94a3b8; font-size: 12px; margin-top: 30px;">
               <p>نحرص على أمان حسابك </p>
-              <p>MX GROUP</p>
+              <p>MX GROUP 🛍️</p>
             </div>
           </div>
         </div>
