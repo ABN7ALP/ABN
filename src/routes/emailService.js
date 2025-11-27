@@ -2,15 +2,15 @@ const nodemailer = require('nodemailer');
 
 const createTransporter = () => {
     return nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 465, 
-        secure: true,
+        host: "smtp-relay.brevo.com",
+        port: 587,
+        secure: false,
         auth: {
-            user: process.env.GMAIL_USER,
-            pass: process.env.GMAIL_APP_PASSWORD
+            user: process.env.BREVO_SMTP_USER,
+            pass: process.env.BREVO_SMTP_PASS
         },
         tls: {
-            rejectUnauthorized: false
+            ciphers: 'SSLv3'
         }
     });
 };
@@ -22,15 +22,18 @@ const sendEmail = async (email, code, isReset = false) => {
         const transporter = createTransporter();
 
         const mailOptions = {
-            from: `"متجر الخدمات" <${process.env.GMAIL_USER}>`,
+            from: `"متجر الخدمات" <${process.env.BREVO_SMTP_USER}>`,
             to: email,
             subject: isReset ? "إعادة تعيين كلمة المرور" : "كود التحقق",
-            html: `<h2>${code}</h2>`
+            html: `
+                <h2>${isReset ? "إعادة تعيين كلمة المرور" : "كود التحقق"}</h2>
+                <p>الكود الخاص بك هو:</p>
+                <h1>${code}</h1>
+            `
         };
 
         await transporter.sendMail(mailOptions);
-
-        console.log("✅ تم الإرسال بنجاح");
+        console.log("✅ تم إرسال الإيميل بنجاح");
         return true;
 
     } catch (err) {
