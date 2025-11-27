@@ -34,13 +34,11 @@ router.post('/register', async (req, res) => {
             password,
             emailVerificationToken: verificationCode,
             emailVerificationExpires: Date.now() + 24 * 60 * 60 * 1000,
-            emailVerified: false // 🆕 تأكد من أن القيمة false
+            emailVerified: false
         });
 
-        // 🆕 إرسال إيميل تفعيل الحساب
-        //const emailSent = await sendVerificationEmail(email, verificationCode);
-        // 🆕 إرسال إيميل تفعيل الحساب
-          const emailSent = await sendActivationEmail(email, verificationCode);
+        // 🆕 إرسال إيميل تفعيل الحساب (الجديد)
+        const emailSent = await sendActivationEmail(email, verificationCode);
         
         if (!emailSent) {
             console.log(`🔐 كود تفعيل الحساب للمستخدم ${email}: ${verificationCode}`);
@@ -118,6 +116,7 @@ router.get('/me', async (req, res) => {
 });
 
 // 🆕 إرسال كود التحقق - محدث
+// 🆕 إرسال كود التحقق - محدث
 router.post('/send-verification', async (req, res) => {
     try {
         const { email } = req.body;
@@ -130,12 +129,10 @@ router.post('/send-verification', async (req, res) => {
         // إنشاء كود تحقق
         const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
         user.emailVerificationToken = verificationCode;
-        user.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 ساعة
+        user.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000;
         
         await user.save();
 
-        // 🆕 إرسال إيميل حقيقي بدل console.log
-        //const emailSent = await sendVerificationEmail(email, verificationCode);
         // 🆕 إرسال إيميل إعادة تعيين كلمة المرور
         const emailSent = await sendPasswordResetEmail(email, verificationCode);
         
@@ -188,7 +185,7 @@ router.post('/forgot-password', async (req, res) => {
         
         if (!user) {
             return res.json({ 
-                message: 'إذا كان البريد الإلكتروني مسجلاً، سيصلك رابط إعادة التعيين قريباً.' 
+                message: 'إذا كان البريد الإلكتروني مسجلاً، سيصلك كود إعادة التعيين قريباً.' 
             });
         }
 
@@ -199,8 +196,8 @@ router.post('/forgot-password', async (req, res) => {
         
         await user.save();
 
-        // 🆕 إرسال الإيميل الفعلي
-        const emailSent = await sendVerificationEmail(email, resetToken);
+        // 🆕 إرسال إيميل إعادة تعيين كلمة المرور (الجديد)
+        const emailSent = await sendPasswordResetEmail(email, resetToken);
         
         if (!emailSent) {
             console.log(`🔑 كود إعادة تعيين كلمة المرور لـ ${email}: ${resetToken}`);
@@ -210,7 +207,6 @@ router.post('/forgot-password', async (req, res) => {
             message: emailSent ?
                 'إذا كان البريد الإلكتروني مسجلاً، سيصلك كود إعادة التعيين قريباً.' :
                 'تم إنشاء كود التعيين. يرجى مراجعة الكونسول.',
-            // في التطوير يمكنك إرجاع التوكن للاختبار
             resetToken: process.env.NODE_ENV === 'development' ? resetToken : undefined
         });
 
@@ -219,7 +215,6 @@ router.post('/forgot-password', async (req, res) => {
         res.status(500).json({ message: 'فشل إرسال رابط التعيين' });
     }
 });
-
 // 🆕 POST /api/auth/reset-password - إعادة تعيين كلمة المرور
 router.post('/reset-password', async (req, res) => {
     try {
