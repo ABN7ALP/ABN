@@ -12,6 +12,7 @@ const generateToken = (id) => {
 };
 
 // --- POST /api/auth/register ---
+// --- POST /api/auth/register ---
 router.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
 
@@ -33,19 +34,19 @@ router.post('/register', async (req, res) => {
             password,
             emailVerificationToken: verificationCode,
             emailVerificationExpires: Date.now() + 24 * 60 * 60 * 1000,
+            emailVerified: false // 🆕 تأكد من أن القيمة false
         });
 
-        // 🆕 إرسال الإيميل الفعلي
+        // 🆕 إرسال إيميل تفعيل الحساب
         const emailSent = await sendVerificationEmail(email, verificationCode);
         
         if (!emailSent) {
-            // إذا فشل الإيميل، لا نوقف العملية ولكن نخبر المستخدم
-            console.log(`🔐 كود التحقق للمستخدم ${email}: ${verificationCode}`);
+            console.log(`🔐 كود تفعيل الحساب للمستخدم ${email}: ${verificationCode}`);
         }
 
         res.status(201).json({ 
             message: emailSent ? 
-                'تم إنشاء الحساب بنجاح. يرجى التحقق من بريدك الإلكتروني.' :
+                'تم إنشاء الحساب بنجاح. يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب.' :
                 'تم إنشاء الحساب بنجاح. يرجى مراجعة الكونسول للتحقق.',
             requiresVerification: true,
             email: email
@@ -57,6 +58,7 @@ router.post('/register', async (req, res) => {
     }
 });
 // --- POST /api/auth/login ---
+// --- POST /api/auth/login ---
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -66,6 +68,13 @@ router.post('/login', async (req, res) => {
 
         // التحقق من وجود المستخدم ومطابقة كلمة المرور
         if (user && (await user.matchPassword(password))) {
+            // 🆕 التحقق من أن البريد مفعل
+            if (!user.emailVerified) {
+                return res.status(401).json({ 
+                    message: 'يرجى تفعيل بريدك الإلكتروني أولاً. تحقق من بريدك الوارد.' 
+                });
+            }
+
             res.json({
                 _id: user._id,
                 username: user.username,
@@ -81,7 +90,6 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
-
 // GET /api/auth/me - جلب بيانات المستخدم المسجل دخوله حالياً
 router.get('/me', async (req, res) => {
     const { userId } = req.query;
