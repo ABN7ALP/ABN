@@ -35,9 +35,6 @@ const depositRoutes = require('./src/routes/deposit.routes');
 const statsRoutes = require('./src/routes/stats.routes.js');
 const authRoutes = require('./src/routes/auth.routes.js');
 const notificationRoutes = require('./src/routes/notification.routes');
-// بعد الاتصال بقاعدة البيانات
-const { verifyEmailConnection } = require('./src/routes/emailConfig');
-verifyEmailConnection();
 
 
 const PORT = process.env.PORT || 3000;
