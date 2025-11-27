@@ -97,6 +97,106 @@ function checkAdminAccess() {
     }
 }
 
+
+   // 🔽 أضف هذا الكود في الجزء الخاص بربط الأحداث
+    
+    // 🆕 أضف event listener لزر تصدير الإيميلات
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('#export-emails-btn')) {
+            handleExportEmails();
+        }
+    });
+});
+
+// 🆕 دالة تصدير الإيميلات
+async function handleExportEmails() {
+    const button = document.getElementById('export-emails-btn');
+    const originalText = button.innerHTML;
+    
+    try {
+        button.innerHTML = '<i class="ph-bold ph-circle-notch animate-spin"></i> جاري التصدير...';
+        button.disabled = true;
+        
+        const response = await fetch('/api/admin/users/emails', {
+            headers: getAuthHeaders()
+        });
+        
+        if (!response.ok) {
+            throw new Error('فشل تصدير الإيميلات');
+        }
+        
+        // تحميل الملف
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `users_emails_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        // إظهار رسالة نجاح
+        showExportSuccess();
+        
+    } catch (error) {
+        console.error('Export error:', error);
+        alert('فشل تصدير الإيميلات: ' + error.message);
+    } finally {
+        button.innerHTML = originalText;
+        button.disabled = false;
+    }
+}
+
+// 🆕 دالة إظهار رسالة نجاح التصدير
+function showExportSuccess() {
+    const successHTML = `
+        <div class="export-success-message" style="
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success-green);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-lg);
+            z-index: 10000;
+            animation: slideInRight 0.3s ease;
+        ">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="ph-bold ph-check-circle"></i>
+                <span>تم تصدير الإيميلات بنجاح!</span>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', successHTML);
+    
+    setTimeout(() => {
+        const message = document.querySelector('.export-success-message');
+        if (message) {
+            message.style.animation = 'slideOutRight 0.3s ease forwards';
+            setTimeout(() => message.remove(), 300);
+        }
+    }, 3000);
+}
+
+// 🆕 أضف الـ CSS animations
+if (!document.querySelector('#admin-animations')) {
+    const style = document.createElement('style');
+    style.id = 'admin-animations';
+    style.textContent = `
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+} 
     
     // تم حذف const ADMIN_PASSWORD = "password123";
 
@@ -456,6 +556,7 @@ async function fetchUsers() {
     }
 }
 
+// 🔽 أضف هذا الكود في دالة renderUsers()
 function renderUsers(users) {
     const tbody = document.getElementById('users-tbody');
     if (!tbody) return;
@@ -468,12 +569,140 @@ function renderUsers(users) {
             <td><span class="status ${user.emailVerified ? 'status-approved' : 'status-pending'}">${user.emailVerified ? 'مفعل' : 'غير مفعل'}</span></td>
             <td>${user.balance ? user.balance.toFixed(2) : '0.00'} $</td>
             <td class="action-buttons">
-                <button class="edit-user-btn pill-button" data-user-id="${user._id}">
+                <button class="edit-user-btn pill-button" data-user-id="${user._id}" data-user-data='${JSON.stringify(user)}'>
                     <i class="ph-bold ph-pencil-simple"></i>
                 </button>
             </td>
         </tr>
     `).join('');
+
+    // 🆕 أضف event listeners لأزرار التعديل
+    document.querySelectorAll('.edit-user-btn').forEach(btn => {
+        btn.addEventListener('click', handleEditUser);
+    });
+}
+
+// 🆕 دالة معالجة تعديل المستخدم
+function handleEditUser(event) {
+    const button = event.currentTarget;
+    const userData = JSON.parse(button.getAttribute('data-user-data'));
+    
+    // إنشاء نافذة تعديل المستخدم
+    showEditUserModal(userData);
+}
+
+// 🆕 دالة لعرض نافذة تعديل المستخدم
+function showEditUserModal(user) {
+    const modalHTML = `
+        <div id="edit-user-modal" class="popup-overlay" style="display: flex;">
+            <div class="popup-content" style="max-width: 500px;">
+                <button class="close-btn" id="close-edit-user-modal">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+                <div class="popup-header">
+                    <i class="ph-bold ph-user"></i>
+                    <h2>تعديل بيانات المستخدم</h2>
+                </div>
+                <form id="edit-user-form">
+                    <input type="hidden" id="edit-user-id" value="${user._id}">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>اسم المستخدم</label>
+                            <input type="text" id="edit-username" value="${user.username || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" id="edit-email" value="${user.email || ''}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>الرصيد ($)</label>
+                            <input type="number" id="edit-balance" value="${user.balance || 0}" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الحالة</label>
+                            <select id="edit-status">
+                                <option value="active" ${user.emailVerified ? 'selected' : ''}>نشط</option>
+                                <option value="inactive" ${!user.emailVerified ? 'selected' : ''}>غير نشط</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="edit-isAdmin" ${user.isAdmin ? 'checked' : ''}>
+                            <span class="checkmark"></span>
+                            صلاحيات الأدمن
+                        </label>
+                    </div>
+                    
+                    <div class="form-actions" style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="submit" class="pill-button primary-button">حفظ التغييرات</button>
+                        <button type="button" id="cancel-edit-user" class="pill-button secondary-button">إلغاء</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    
+    // إضافة النافذة للصفحة
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // إضافة event listeners
+    document.getElementById('edit-user-form').addEventListener('submit', handleUpdateUser);
+    document.getElementById('close-edit-user-modal').addEventListener('click', closeEditUserModal);
+    document.getElementById('cancel-edit-user').addEventListener('click', closeEditUserModal);
+    
+    // إغلاق النافذة عند النقر خارجها
+    document.getElementById('edit-user-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeEditUserModal();
+    });
+}
+
+// 🆕 دالة تحديث بيانات المستخدم
+async function handleUpdateUser(event) {
+    event.preventDefault();
+    
+    const userId = document.getElementById('edit-user-id').value;
+    const formData = {
+        username: document.getElementById('edit-username').value,
+        email: document.getElementById('edit-email').value,
+        balance: parseFloat(document.getElementById('edit-balance').value),
+        emailVerified: document.getElementById('edit-status').value === 'active',
+        isAdmin: document.getElementById('edit-isAdmin').checked
+    };
+    
+    try {
+        const response = await fetch(`/api/admin/users/${userId}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(formData)
+        });
+        
+        if (!response.ok) {
+            throw new Error('فشل تحديث بيانات المستخدم');
+        }
+        
+        const result = await response.json();
+        alert('تم تحديث بيانات المستخدم بنجاح!');
+        closeEditUserModal();
+        fetchUsers(); // إعادة تحميل البيانات
+        
+    } catch (error) {
+        console.error('Error updating user:', error);
+        alert('فشل تحديث بيانات المستخدم: ' + error.message);
+    }
+}
+
+// 🆕 دالة إغلاق نافذة التعديل
+function closeEditUserModal() {
+    const modal = document.getElementById('edit-user-modal');
+    if (modal) {
+        modal.remove();
+    }
 }
 
 function renderDeposits(deposits) {
