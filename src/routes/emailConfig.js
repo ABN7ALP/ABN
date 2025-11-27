@@ -1,35 +1,50 @@
-const fetch = require('node-fetch');
+const { MailerSend, EmailParams, Sender, Recipient } = require("mailersend");
+
+const mailersend = new MailerSend({
+  apiKey: process.env.MAILERSEND_API_KEY,
+});
 
 const sendVerificationEmail = async (email, verificationCode) => {
   try {
-    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        service_id: process.env.EMAILJS_SERVICE_ID,
-        template_id: process.env.EMAILJS_TEMPLATE_ID,
-        user_id: process.env.EMAILJS_PUBLIC_KEY,
-        template_params: {
-          to_email: email,
-          verification_code: verificationCode,
-          to_name: 'عميلنا العزيز',
-          app_name: 'متجر الخدمات'
-        }
-      })
-    });
+    // استخدام الدومين الذي حصلت عليه
+    const sentFrom = new Sender("noreply@test-3m5jgrom13zgdpyo.mlsender.net", "متجر الخدمات");
+    const recipients = [new Recipient(email, "عميلنا العزيز")];
 
-    if (response.ok) {
-      console.log(`✅ تم إرسال كود التحقق إلى: ${email}`);
-      return true;
-    } else {
-      const error = await response.text();
-      console.error('❌ فشل إرسال الإيميل:', error);
-      return false;
-    }
+    const emailParams = new EmailParams()
+      .setFrom(sentFrom)
+      .setTo(recipients)
+      .setSubject("🔐 كود التحقق - متجر الخدمات")
+      .setHtml(`
+        <div dir="rtl" style="font-family: 'Cairo', Arial, sans-serif; text-align: center; background: #f8fafc; padding: 30px;">
+          <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <h1 style="color: #7C1EFF; margin-bottom: 20px;">🔐 كود التحقق</h1>
+            <p style="font-size: 16px; color: #64748B; margin-bottom: 30px;">
+              استخدم الكود التالي لإعادة تعيين كلمة المرور الخاصة بك:
+            </p>
+            <div style="background: linear-gradient(135deg, #7C1EFF 0%, #5a16ba 100%); color: white; padding: 20px; border-radius: 15px; font-size: 32px; font-weight: bold; letter-spacing: 8px; margin: 20px 0;">
+              ${verificationCode}
+            </div>
+            <p style="font-size: 14px; color: #94a3b8;">
+              هذا الكود صالح لمدة ساعة واحدة فقط.<br>
+              إذا لم تطلب هذا الكود، يرجى تجاهل هذا الإيميل.
+            </p>
+            <hr style="border: none; border-top: 2px dashed #e2e8f0; margin: 30px 0;">
+            <p style="font-size: 12px; color: #94a3b8;">
+              متجر الخدمات الرقمية
+            </p>
+          </div>
+        </div>
+      `);
+
+    const response = await mailersend.email.send(emailParams);
+    console.log(`✅ تم إرسال كود التحقق إلى: ${email}`);
+    return true;
   } catch (error) {
-    console.error('❌ خطأ في إرسال الإيميل:', error);
+    console.error('❌ فشل إرسال الإيميل:', error.message);
+    
+    // في حالة الفشل، نظهر الكود في الكونسول للاختبار
+    console.log(`🔑 كود التحقق (للاختبار): ${verificationCode}`);
+    
     return false;
   }
 };
