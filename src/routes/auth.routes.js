@@ -38,7 +38,9 @@ router.post('/register', async (req, res) => {
         });
 
         // 🆕 إرسال إيميل تفعيل الحساب
-        const emailSent = await sendVerificationEmail(email, verificationCode);
+        //const emailSent = await sendVerificationEmail(email, verificationCode);
+        // 🆕 إرسال إيميل تفعيل الحساب
+          const emailSent = await sendActivationEmail(email, verificationCode);
         
         if (!emailSent) {
             console.log(`🔐 كود تفعيل الحساب للمستخدم ${email}: ${verificationCode}`);
@@ -133,7 +135,9 @@ router.post('/send-verification', async (req, res) => {
         await user.save();
 
         // 🆕 إرسال إيميل حقيقي بدل console.log
-        const emailSent = await sendVerificationEmail(email, verificationCode);
+        //const emailSent = await sendVerificationEmail(email, verificationCode);
+        // 🆕 إرسال إيميل إعادة تعيين كلمة المرور
+        const emailSent = await sendPasswordResetEmail(email, verificationCode);
         
         if (!emailSent) {
             return res.status(500).json({ message: 'فشل إرسال كود التحقق' });
