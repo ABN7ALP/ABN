@@ -242,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <h2>التحقق من البريد الإلكتروني</h2>
         </div>
         <p style="text-align: center; margin-bottom: 1.5rem;">
-            تم إرسال كود تحقق إلى: <strong>${email}</strong>
+            تم إرسال كود تحقق إلى: <strong id="user-email">${email}</strong>
         </p>
         <form id="verification-form">
             <div class="form-group">
@@ -261,37 +261,52 @@ document.addEventListener('DOMContentLoaded', () => {
     registerFormContainer.innerHTML = verificationHTML;
     registerFormContainer.classList.remove('hidden');
     
-    // 🆕 إضافة event listeners بشكل آمن
-    const verificationForm = document.getElementById('verification-form');
-    const resendBtn = document.getElementById('resend-code-btn');
-    
-    if (verificationForm) {
-        verificationForm.addEventListener('submit', handleVerification);
-    }
-    
-    if (resendBtn) {
-        resendBtn.addEventListener('click', () => resendVerificationCode(email));
-    }
+    // 🆕 استخدام setTimeout لضمان تحميل DOM
+    setTimeout(() => {
+        const verificationForm = document.getElementById('verification-form');
+        const resendBtn = document.getElementById('resend-code-btn');
+        
+        if (verificationForm) {
+            // 🆕 إزالة أي event listeners سابقة أولاً
+            verificationForm.replaceWith(verificationForm.cloneNode(true));
+            document.getElementById('verification-form').addEventListener('submit', handleVerification);
+        }
+        
+        if (resendBtn) {
+            resendBtn.replaceWith(resendBtn.cloneNode(true));
+            document.getElementById('resend-code-btn').addEventListener('click', () => resendVerificationCode(email));
+        }
+    }, 100);
 }
     async function handleVerification(e) {
     e.preventDefault();
-    const code = document.getElementById('verification-code').value;
-    
-    // 🆕 البحث عن العناصر بشكل آمن
-    const emailElement = document.querySelector('#verification-form strong');
-    const errorElement = document.getElementById('verification-error');
-    
-    // التحقق من وجود العناصر
-    if (!emailElement || !errorElement) {
-        console.error('❌ عناصر الواجهة غير موجودة');
-        return;
-    }
-    
-    const email = emailElement.textContent;
-    
-    errorElement.textContent = '';
     
     try {
+        // 🆕 البحث الآمن مع التحقق من الوجود
+        const codeInput = document.getElementById('verification-code');
+        const emailElement = document.getElementById('user-email');
+        const errorElement = document.getElementById('verification-error');
+        
+        if (!codeInput || !emailElement || !errorElement) {
+            console.error('❌ عناصر الواجهة غير موجودة:', {
+                codeInput: !!codeInput,
+                emailElement: !!emailElement,
+                errorElement: !!errorElement
+            });
+            return;
+        }
+        
+        const code = codeInput.value;
+        const email = emailElement.textContent;
+        
+        // التحقق من صحة الكود
+        if (!code || code.length !== 6) {
+            errorElement.textContent = 'الرجاء إدخال كود مكون من 6 أرقام';
+            return;
+        }
+        
+        errorElement.textContent = 'جاري التحقق...';
+        
         const response = await fetch('/api/auth/verify-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -303,6 +318,48 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!response.ok) {
             throw new Error(data.message || 'فشل التحقق');
         }
+        
+        // 🆕 رسالة النجاح
+        showVerificationSuccess(data.message);
+        
+    } catch (error) {
+        const errorElement = document.getElementById('verification-error');
+        if (errorElement) {
+            errorElement.textContent = error.message;
+        } else {
+            console.error('❌ خطأ في التحقق:', error.message);
+            alert('خطأ: ' + error.message);
+        }
+    }
+}
+
+// 🆕 دالة جديدة لعرض رسالة النجاح
+function showVerificationSuccess(message) {
+    const registerFormContainer = document.getElementById('register-form-container');
+    if (!registerFormContainer) return;
+    
+    registerFormContainer.innerHTML = `
+        <div class="popup-header">
+            <i class="ph-bold ph-check-circle success-icon"></i>
+            <h2>تم التحقق بنجاح!</h2>
+        </div>
+        <p style="text-align: center; margin-bottom: 1.5rem;">
+            ${message}
+        </p>
+        <button id="success-login-btn" class="pill-button primary-button">
+            تسجيل الدخول
+        </button>
+    `;
+    
+    // إضافة event listener للزر الجديد
+    const successBtn = document.getElementById('success-login-btn');
+    if (successBtn) {
+        successBtn.addEventListener('click', () => {
+            hideAuthPopup();
+            setTimeout(() => showAuthPopup('login'), 500);
+        });
+    }
+}
         
         // 🆕 تحديث الواجهة بشكل آمن
         const registerFormContainer = document.getElementById('register-form-container');
