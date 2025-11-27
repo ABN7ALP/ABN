@@ -18,7 +18,6 @@ function viewReceipt(base64Image) {
 // دالة لجلب الـ Headers اللازمة لإرسال التوكن مع كل طلب
 function getAuthHeaders(extraHeaders = {}) {
     const token = localStorage.getItem('token');
-    // إذا لم يكن هناك توكن، فإن السيرفر سيقوم برفض الطلب، لكن نرسل Content-Type لعمليات POST/PUT
     const headers = {
         'Content-Type': 'application/json',
         ...extraHeaders
@@ -29,88 +28,11 @@ function getAuthHeaders(extraHeaders = {}) {
     return headers;
 }
 
-
-
-// ===============================================
-// ******** بدء تشغيل السكربت (DOMContentLoaded) ********
-// ===============================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    // --- 1. إعداد الاتصال الفوري (Socket.IO) ---
-    const socket = io();
-
-    // --- عناصر الصفحة العامة ---
-    const loginOverlay = document.getElementById('login-overlay');
-    // تم حذف loginForm, passwordInput, loginError لأنها لم تعد تستخدم
-    const adminDashboard = document.getElementById('admin-dashboard');
-    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
-    const sections = document.querySelectorAll('.admin-section');
-    const statsContainer = document.getElementById('stats-cards-container');
-    const ordersTbody = document.getElementById('orders-tbody');
-    const loadingSpinner = document.getElementById('loading-spinner');
-    const depositsTbody = document.getElementById('deposits-tbody');
-    const addServiceForm = document.getElementById('add-service-form');
-    const serviceFormResponse = document.getElementById('service-form-response');
-    const servicesTbody = document.getElementById('services-tbody');
-    const editServicePopup = document.getElementById('edit-service-popup');
-    const editServiceForm = document.getElementById('edit-service-form');
-    const closeEditPopupBtn = document.getElementById('close-edit-popup-btn');
-
-
-    // دالة مجمعة لجلب جميع البيانات
-function loadDashboardData() {
-    fetchStats();
-    fetchOrders();
-    fetchServices();
-    fetchDeposits();
-    fetchUsers();
-}
-
-// دالة التحقق من صلاحيات الأدمن والتوكن
-function checkAdminAccess() {
-    // 1. جلب بيانات المستخدم من التخزين المحلي
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-    const token = localStorage.getItem('token');
-    const loginOverlay = document.getElementById('login-overlay');
-    const adminDashboard = document.getElementById('admin-dashboard');
-
-    // ******** إضافة مؤقتة للتحقق (هذه هي النقطة الحاسمة) ********
-    console.log('--- Admin Access Check Values ---');
-    console.log('userInfo exists:', !!userInfo); // يجب أن تكون: true
-    console.log('token exists:', !!token); // يجب أن تكون: true
-    console.log('isAdmin value:', userInfo ? userInfo.isAdmin : 'N/A'); // يجب أن تكون: true
-    console.log('Condition result:', userInfo && token && (userInfo.isAdmin === true || userInfo.isAdmin === 'true'));
-    // *********************************************************
-
-    // 2. التحقق من وجود بيانات المستخدم والتوكن وصلاحية الأدمن
-    if (userInfo && token && (userInfo.isAdmin === true || userInfo.isAdmin === 'true')) {
-        // ... (كود السماح بالدخول)
-        loginOverlay.classList.add('hidden');
-        adminDashboard.classList.remove('hidden');
-        loadDashboardData();
-    } else {
-        // ... (كود الرفض)
-        alert('غير مصرح لك بالدخول إلى لوحة التحكم. يرجى تسجيل الدخول بحساب مدير.');
-        localStorage.removeItem('token');
-        localStorage.removeItem('userInfo');
-        window.location.href = '/index.html#login';
-    }
-}
-
-
-   // 🔽 أضف هذا الكود في الجزء الخاص بربط الأحداث
-    
-    // 🆕 أضف event listener لزر تصدير الإيميلات
-    document.addEventListener('click', function(e) {
-        if (e.target.closest('#export-emails-btn')) {
-            handleExportEmails();
-        }
-    });
-});
-
 // 🆕 دالة تصدير الإيميلات
 async function handleExportEmails() {
     const button = document.getElementById('export-emails-btn');
+    if (!button) return;
+    
     const originalText = button.innerHTML;
     
     try {
@@ -196,13 +118,74 @@ if (!document.querySelector('#admin-animations')) {
         }
     `;
     document.head.appendChild(style);
-} 
-    
-    // تم حذف const ADMIN_PASSWORD = "password123";
+}
 
-    // --- 2. نظام الدخول والتنقل (تم تعديله) ---
-    // تم حذف eventListener القديم لتسجيل الدخول
+// ===============================================
+// ******** بدء تشغيل السكربت (DOMContentLoaded) ********
+// ===============================================
 
+document.addEventListener('DOMContentLoaded', () => {
+    // --- 1. إعداد الاتصال الفوري (Socket.IO) ---
+    const socket = io();
+
+    // --- عناصر الصفحة العامة ---
+    const loginOverlay = document.getElementById('login-overlay');
+    const adminDashboard = document.getElementById('admin-dashboard');
+    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+    const sections = document.querySelectorAll('.admin-section');
+    const statsContainer = document.getElementById('stats-cards-container');
+    const ordersTbody = document.getElementById('orders-tbody');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const depositsTbody = document.getElementById('deposits-tbody');
+    const addServiceForm = document.getElementById('add-service-form');
+    const serviceFormResponse = document.getElementById('service-form-response');
+    const servicesTbody = document.getElementById('services-tbody');
+    const editServicePopup = document.getElementById('edit-service-popup');
+    const editServiceForm = document.getElementById('edit-service-form');
+    const closeEditPopupBtn = document.getElementById('close-edit-popup-btn');
+
+    // دالة مجمعة لجلب جميع البيانات
+    function loadDashboardData() {
+        fetchStats();
+        fetchOrders();
+        fetchServices();
+        fetchDeposits();
+        fetchUsers();
+    }
+
+    // دالة التحقق من صلاحيات الأدمن والتوكن
+    function checkAdminAccess() {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        const token = localStorage.getItem('token');
+        const loginOverlay = document.getElementById('login-overlay');
+        const adminDashboard = document.getElementById('admin-dashboard');
+
+        console.log('--- Admin Access Check Values ---');
+        console.log('userInfo exists:', !!userInfo);
+        console.log('token exists:', !!token);
+        console.log('isAdmin value:', userInfo ? userInfo.isAdmin : 'N/A');
+        console.log('Condition result:', userInfo && token && (userInfo.isAdmin === true || userInfo.isAdmin === 'true'));
+
+        if (userInfo && token && (userInfo.isAdmin === true || userInfo.isAdmin === 'true')) {
+            loginOverlay.classList.add('hidden');
+            adminDashboard.classList.remove('hidden');
+            loadDashboardData();
+        } else {
+            alert('غير مصرح لك بالدخول إلى لوحة التحكم. يرجى تسجيل الدخول بحساب مدير.');
+            localStorage.removeItem('token');
+            localStorage.removeItem('userInfo');
+            window.location.href = '/index.html#login';
+        }
+    }
+
+    // 🆕 أضف event listener لزر تصدير الإيميلات
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('#export-emails-btn')) {
+            handleExportEmails();
+        }
+    });
+
+    // --- 2. نظام الدخول والتنقل ---
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             if (!link.classList.contains('logout-link')) {
@@ -217,11 +200,10 @@ if (!document.querySelector('#admin-animations')) {
         });
     });
 
-    // --- 3. قسم الإحصائيات (تم تحديثها لطلب التوكن) ---
+    // --- 3. قسم الإحصائيات ---
     async function fetchStats() {
         statsContainer.innerHTML = '<div class="stat-card loading"></div><div class="stat-card loading"></div><div class="stat-card loading"></div><div class="stat-card loading"></div>';
         try {
-            // التعديل هنا: إضافة الـ Headers
             const response = await fetch('/api/stats', { headers: getAuthHeaders() });
             if (!response.ok) throw new Error('فشل جلب الإحصائيات. (قد تكون الصلاحيات غير كافية).');
             const stats = await response.json();
@@ -240,12 +222,11 @@ if (!document.querySelector('#admin-animations')) {
         `;
     }
 
-    // --- 4. قسم إدارة الطلبات (تم تحديثها لطلب التوكن) ---
+    // --- 4. قسم إدارة الطلبات ---
     async function fetchOrders() {
         loadingSpinner.classList.remove('hidden');
         ordersTbody.innerHTML = '';
         try {
-            // التعديل هنا: إضافة الـ Headers
             const response = await fetch('/api/orders', { headers: getAuthHeaders() });
             if (!response.ok) throw new Error('فشل جلب الطلبات. (قد تكون الصلاحيات غير كافية).');
             const orders = await response.json();
@@ -257,90 +238,83 @@ if (!document.querySelector('#admin-animations')) {
         }
     }
 
-    // 🔽 في دالة renderOrders، استبدل الكود كاملاً:
-function renderOrders(orders) {
-    ordersTbody.innerHTML = '';
-    if (orders.length === 0) { 
-        ordersTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات حالياً.</td></tr>'; 
-        return; 
+    function renderOrders(orders) {
+        ordersTbody.innerHTML = '';
+        if (orders.length === 0) { 
+            ordersTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات حالياً.</td></tr>'; 
+            return; 
+        }
+        
+        orders.forEach(order => {
+            const row = document.createElement('tr');
+            const platformName = order.platform || 'غير محدد';
+            const platformIcon = order.platform ? `ph-${order.platform.toLowerCase().replace(/\s/g, '')}-logo` : 'ph-question';
+            row.innerHTML = `
+                <td data-label="المنصة"><i class="ph-bold ${platformIcon}"></i> ${platformName}</td>
+                <td data-label="الخدمة">${order.service || 'N/A'}</td>
+                <td data-label="الرابط">
+                    <div class="link-container">
+                        <a href="${order.link || '#'}" target="_blank" class="link-preview">عرض الرابط</a>
+                        <button class="copy-link-btn" data-link="${order.link}" title="نسخ الرابط">
+                            <i class="ph-bold ph-copy"></i>
+                        </button>
+                    </div>
+                </td>
+                <td data-label="الكمية">${order.quantity ? order.quantity.toLocaleString() : 'N/A'}</td>
+                <td data-label="السعر">${order.price ? order.price.toFixed(2) : '0.00'} $</td>
+                <td data-label="تاريخ الطلب">${order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG') : 'N/A'}</td>
+                <td data-label="الحالة"><div class="select-wrapper status-select-wrapper"><select class="status-select" data-order-id="${order._id}"><option value="قيد المراجعة" ${order.status === 'قيد المراجعة' ? 'selected' : ''}>قيد المراجعة</option><option value="قيد التنفيذ" ${order.status === 'قيد التنفيذ' ? 'selected' : ''}>قيد التنفيذ</option><option value="مكتمل" ${order.status === 'مكتمل' ? 'selected' : ''}>مكتمل</option><option value="ملغي" ${order.status === 'ملغي' ? 'selected' : ''}>ملغي</option></select></div></td>
+            `;
+            ordersTbody.appendChild(row);
+        });
+        
+        document.querySelectorAll('.status-select').forEach(select => {
+            select.addEventListener('change', handleStatusChange);
+        });
+        
+        document.querySelectorAll('.copy-link-btn').forEach(btn => {
+            btn.addEventListener('click', handleCopyLink);
+        });
     }
-    
-    orders.forEach(order => {
-        const row = document.createElement('tr');
-        const platformName = order.platform || 'غير محدد';
-        const platformIcon = order.platform ? `ph-${order.platform.toLowerCase().replace(/\s/g, '')}-logo` : 'ph-question';
-        row.innerHTML = `
-            <td data-label="المنصة"><i class="ph-bold ${platformIcon}"></i> ${platformName}</td>
-            <td data-label="الخدمة">${order.service || 'N/A'}</td>
-            <td data-label="الرابط">
-                <div class="link-container">
-                    <a href="${order.link || '#'}" target="_blank" class="link-preview">عرض الرابط</a>
-                    <button class="copy-link-btn" data-link="${order.link}" title="نسخ الرابط">
-                        <i class="ph-bold ph-copy"></i>
-                    </button>
-                </div>
-            </td>
-            <td data-label="الكمية">${order.quantity ? order.quantity.toLocaleString() : 'N/A'}</td>
-            <td data-label="السعر">${order.price ? order.price.toFixed(2) : '0.00'} $</td>
-            <td data-label="تاريخ الطلب">${order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG') : 'N/A'}</td>
-            <td data-label="الحالة"><div class="select-wrapper status-select-wrapper"><select class="status-select" data-order-id="${order._id}"><option value="قيد المراجعة" ${order.status === 'قيد المراجعة' ? 'selected' : ''}>قيد المراجعة</option><option value="قيد التنفيذ" ${order.status === 'قيد التنفيذ' ? 'selected' : ''}>قيد التنفيذ</option><option value="مكتمل" ${order.status === 'مكتمل' ? 'selected' : ''}>مكتمل</option><option value="ملغي" ${order.status === 'ملغي' ? 'selected' : ''}>ملغي</option></select></div></td>
-        `;
-        ordersTbody.appendChild(row);
-    });
-    
-    // 🆕 أضف event listeners هنا
-    document.querySelectorAll('.status-select').forEach(select => {
-        select.addEventListener('change', handleStatusChange);
-    });
-    
-    // 🆕 أضف event listeners لأزرار النسخ
-    document.querySelectorAll('.copy-link-btn').forEach(btn => {
-        btn.addEventListener('click', handleCopyLink);
-    });
-}
 
-// 🆕 أضف دالة handleCopyLink بعد renderOrders مباشرة
-async function handleCopyLink(event) {
-    const button = event.currentTarget;
-    const link = button.getAttribute('data-link');
-    
-    if (!link) {
-        console.error('No link found');
-        return;
+    async function handleCopyLink(event) {
+        const button = event.currentTarget;
+        const link = button.getAttribute('data-link');
+        
+        if (!link) {
+            console.error('No link found');
+            return;
+        }
+        
+        try {
+            await navigator.clipboard.writeText(link);
+            
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="ph-bold ph-check"></i>';
+            button.style.background = 'var(--success-green)';
+            
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.style.background = '';
+            }, 2000);
+            
+        } catch (err) {
+            console.error('Failed to copy: ', err);
+            const textArea = document.createElement('textarea');
+            textArea.value = link;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            button.innerHTML = '<i class="ph-bold ph-check"></i>';
+            button.style.background = 'var(--success-green)';
+            setTimeout(() => {
+                button.innerHTML = '<i class="ph-bold ph-copy"></i>';
+                button.style.background = '';
+            }, 2000);
+        }
     }
-    
-    try {
-        await navigator.clipboard.writeText(link);
-        
-        // تغيير الأيقونة مؤقتاً
-        const originalHTML = button.innerHTML;
-        button.innerHTML = '<i class="ph-bold ph-check"></i>';
-        button.style.background = 'var(--success-green)';
-        
-        setTimeout(() => {
-            button.innerHTML = originalHTML;
-            button.style.background = '';
-        }, 2000);
-        
-    } catch (err) {
-        console.error('Failed to copy: ', err);
-        // طريقة بديلة للنسخ
-        const textArea = document.createElement('textarea');
-        textArea.value = link;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        
-        button.innerHTML = '<i class="ph-bold ph-check"></i>';
-        button.style.background = 'var(--success-green)';
-        setTimeout(() => {
-            button.innerHTML = '<i class="ph-bold ph-copy"></i>';
-            button.style.background = '';
-        }, 2000);
-    }
-}
-
     
     async function handleStatusChange(event) {
         const selectElement = event.target;
@@ -350,10 +324,9 @@ async function handleCopyLink(event) {
         selectElement.disabled = true;
         row.style.opacity = '0.5';
         try {
-            // التعديل هنا: إضافة الـ Headers
             const response = await fetch(`/api/orders/${orderId}`, { 
                 method: 'PUT', 
-                headers: getAuthHeaders(), // استخدام الدالة المساعدة
+                headers: getAuthHeaders(),
                 body: JSON.stringify({ status: newStatus }) 
             });
             if (!response.ok) throw new Error('فشل تحديث حالة الطلب');
@@ -368,10 +341,9 @@ async function handleCopyLink(event) {
         }
     }
 
-    // --- 5. قسم إدارة الخدمات (تم تحديثها لطلب التوكن) ---
+    // --- 5. قسم إدارة الخدمات ---
     async function fetchServices() {
         try {
-            // التعديل هنا: إضافة الـ Headers
             const response = await fetch('/api/services', { headers: getAuthHeaders() });
             if (!response.ok) throw new Error('فشل جلب الخدمات. (قد تكون الصلاحيات غير كافية).');
             const services = await response.json();
@@ -380,51 +352,46 @@ async function handleCopyLink(event) {
     }
 
     function renderServices(services) {
-    servicesTbody.innerHTML = '';
-    if (!Array.isArray(services) || services.length === 0) {
-        servicesTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد خدمات مضافة.</td></tr>';
-        return;
+        servicesTbody.innerHTML = '';
+        if (!Array.isArray(services) || services.length === 0) {
+            servicesTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد خدمات مضافة.</td></tr>';
+            return;
+        }
+
+        services.forEach(service => {
+            const row = document.createElement('tr');
+            row.dataset.service = JSON.stringify(service);
+
+            const platform = service.platform || 'غير محدد';
+            const name = service.name || 'اسم غير معروف';
+            const price = (typeof service.pricePer1000 === 'number') ? service.pricePer1000.toFixed(2) : (service.pricePer1000 || '0.00');
+            const min = service.min ? service.min.toLocaleString() : '-';
+            const max = service.max ? service.max.toLocaleString() : '-';
+            const step = service.step || service.step === 0 ? service.step : (service.multiple || 1);
+
+            row.innerHTML = `
+                <td data-label="المنصة">${platform}</td>
+                <td data-label="الخدمة">${name}</td>
+                <td data-label="السعر/1000">${price} $</td>
+                <td data-label="أدنى/أقصى حد">${min} / ${max}</td>
+                <td data-label="الخطوة">${step}</td>
+                <td data-label="إجراءات" class="action-buttons">
+                    <button class="edit-btn pill-button" title="تعديل"><i class="ph-bold ph-pencil-simple"></i><span class="sr-only">تعديل</span></button>
+                    <button class="delete-btn pill-button" title="حذف"><i class="ph-bold ph-trash"></i><span class="sr-only">حذف</span></button>
+                </td>
+            `;
+            servicesTbody.appendChild(row);
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.removeEventListener('click', handleDeleteService);
+            btn.addEventListener('click', handleDeleteService);
+        });
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.removeEventListener('click', handleOpenEditPopup);
+            btn.addEventListener('click', handleOpenEditPopup);
+        });
     }
-
-    services.forEach(service => {
-        const row = document.createElement('tr');
-        // store the full service object for later actions
-        row.dataset.service = JSON.stringify(service);
-
-        // ensure fields exist and have safe defaults
-        const platform = service.platform || 'غير محدد';
-        const name = service.name || 'اسم غير معروف';
-        const price = (typeof service.pricePer1000 === 'number') ? service.pricePer1000.toFixed(2) : (service.pricePer1000 || '0.00');
-        const min = service.min ? service.min.toLocaleString() : '-';
-        const max = service.max ? service.max.toLocaleString() : '-';
-        const step = service.step || service.step === 0 ? service.step : (service.multiple || 1);
-
-        row.innerHTML = `
-            <td data-label="المنصة">${platform}</td>
-            <td data-label="الخدمة">${name}</td>
-            <td data-label="السعر/1000">${price} $</td>
-            <td data-label="أدنى/أقصى حد">${min} / ${max}</td>
-            <td data-label="الخطوة">${step}</td>
-            <td data-label="إجراءات" class="action-buttons">
-                <button class="edit-btn pill-button" title="تعديل"><i class="ph-bold ph-pencil-simple"></i><span class="sr-only">تعديل</span></button>
-                <button class="delete-btn pill-button" title="حذف"><i class="ph-bold ph-trash"></i><span class="sr-only">حذف</span></button>
-            </td>
-        `;
-        servicesTbody.appendChild(row);
-    });
-
-    // Attach handlers (re-bind safely: remove previous listeners if any)
-    // Simple approach: query and add listeners (listeners are lightweight here)
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.removeEventListener('click', handleDeleteService);
-        btn.addEventListener('click', handleDeleteService);
-    });
-    document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.removeEventListener('click', handleOpenEditPopup);
-        btn.addEventListener('click', handleOpenEditPopup);
-    });
-}
-
 
     addServiceForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -437,10 +404,9 @@ async function handleCopyLink(event) {
             step: parseInt(document.getElementById('service-step').value) || 1
         };
         try {
-            // التعديل هنا: إضافة الـ Headers
             const response = await fetch('/api/services', { 
                 method: 'POST', 
-                headers: getAuthHeaders(), // استخدام الدالة المساعدة
+                headers: getAuthHeaders(),
                 body: JSON.stringify(serviceData) 
             });
             const result = await response.json();
@@ -462,10 +428,9 @@ async function handleCopyLink(event) {
         const service = JSON.parse(row.dataset.service);
         if (!confirm(`هل أنت متأكد من حذف خدمة "${service.name}"؟`)) return;
         try {
-            // التعديل هنا: إضافة الـ Headers
             const response = await fetch(`/api/services/${service.id}`, { 
                 method: 'DELETE',
-                headers: getAuthHeaders() // استخدام الدالة المساعدة
+                headers: getAuthHeaders()
             });
             if (!response.ok) alert('فشل حذف الخدمة.');
         } catch (error) { alert('فشل الاتصال بالخادم.'); }
@@ -499,16 +464,14 @@ async function handleCopyLink(event) {
             step: parseInt(document.getElementById('edit-step').value) || 1
         };
         try {
-            // التعديل هنا: إضافة الـ Headers
             const response = await fetch(`/api/services/${id}`, { 
                 method: 'PUT', 
-                headers: getAuthHeaders(), // استخدام الدالة المساعدة
+                headers: getAuthHeaders(),
                 body: JSON.stringify(updatedData) 
             });
             if (response.ok) {
                 editServicePopup.classList.add('hidden');
-                // تحديث الخدمات بعد التعديل
-                fetchServices(); 
+                fetchServices();
             } else {
                 alert('فشل تعديل الخدمة.');
             }
@@ -517,260 +480,247 @@ async function handleCopyLink(event) {
 
     closeEditPopupBtn.addEventListener('click', () => editServicePopup.classList.add('hidden'));
 
-    // --- 6. قسم إدارة طلبات الشحن (تم تحديثها لطلب التوكن) ---
- // --- 6. قسم إدارة طلبات الشحن ---
-async function fetchDeposits() {
-    if (!depositsTbody) return;
-    depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">جاري تحميل...</td></tr>';
-    try {
-        const response = await fetch('/api/deposits', { headers: getAuthHeaders() });
-        if (!response.ok) throw new Error('فشل جلب طلبات الشحن.');
-        const deposits = await response.json();
-        renderDeposits(deposits);
-    } catch (error) {
-        depositsTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">${error.message}</td></tr>`;
-    }
-}
-
-// --- قسم إدارة المستخدمين ---
-async function fetchUsers() {
-    const tbody = document.getElementById('users-tbody');
-    if (!tbody) return;
-    
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">جاري التحميل...</td></tr>';
-    
-    try {
-        const response = await fetch('/api/admin/users', { 
-            headers: getAuthHeaders() 
-        });
-        
-        if (!response.ok) {
-            throw new Error(`فشل جلب المستخدمين: ${response.status}`);
+    // --- 6. قسم إدارة طلبات الشحن ---
+    async function fetchDeposits() {
+        if (!depositsTbody) return;
+        depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">جاري تحميل...</td></tr>';
+        try {
+            const response = await fetch('/api/deposits', { headers: getAuthHeaders() });
+            if (!response.ok) throw new Error('فشل جلب طلبات الشحن.');
+            const deposits = await response.json();
+            renderDeposits(deposits);
+        } catch (error) {
+            depositsTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">${error.message}</td></tr>`;
         }
-        
-        const users = await response.json();
-        renderUsers(users);
-    } catch (error) {
-        console.error('Failed to fetch users:', error);
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">${error.message}</td></tr>`;
     }
-}
 
-// 🔽 أضف هذا الكود في دالة renderUsers()
-function renderUsers(users) {
-    const tbody = document.getElementById('users-tbody');
-    if (!tbody) return;
-    
-    tbody.innerHTML = users.map(user => `
-        <tr>
-            <td>${user.username || 'غير محدد'}</td>
-            <td>${user.email || 'غير محدد'}</td>
-            <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString('ar-EG') : 'غير محدد'}</td>
-            <td><span class="status ${user.emailVerified ? 'status-approved' : 'status-pending'}">${user.emailVerified ? 'مفعل' : 'غير مفعل'}</span></td>
-            <td>${user.balance ? user.balance.toFixed(2) : '0.00'} $</td>
-            <td class="action-buttons">
-                <button class="edit-user-btn pill-button" data-user-id="${user._id}" data-user-data='${JSON.stringify(user)}'>
-                    <i class="ph-bold ph-pencil-simple"></i>
-                </button>
-            </td>
-        </tr>
-    `).join('');
+    // --- قسم إدارة المستخدمين ---
+    async function fetchUsers() {
+        const tbody = document.getElementById('users-tbody');
+        if (!tbody) return;
+        
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">جاري التحميل...</td></tr>';
+        
+        try {
+            const response = await fetch('/api/admin/users', { 
+                headers: getAuthHeaders() 
+            });
+            
+            if (!response.ok) {
+                throw new Error(`فشل جلب المستخدمين: ${response.status}`);
+            }
+            
+            const users = await response.json();
+            renderUsers(users);
+        } catch (error) {
+            console.error('Failed to fetch users:', error);
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">${error.message}</td></tr>`;
+        }
+    }
 
-    // 🆕 أضف event listeners لأزرار التعديل
-    document.querySelectorAll('.edit-user-btn').forEach(btn => {
-        btn.addEventListener('click', handleEditUser);
-    });
-}
+    function renderUsers(users) {
+        const tbody = document.getElementById('users-tbody');
+        if (!tbody) return;
+        
+        tbody.innerHTML = users.map(user => `
+            <tr>
+                <td>${user.username || 'غير محدد'}</td>
+                <td>${user.email || 'غير محدد'}</td>
+                <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString('ar-EG') : 'غير محدد'}</td>
+                <td><span class="status ${user.emailVerified ? 'status-approved' : 'status-pending'}">${user.emailVerified ? 'مفعل' : 'غير مفعل'}</span></td>
+                <td>${user.balance ? user.balance.toFixed(2) : '0.00'} $</td>
+                <td class="action-buttons">
+                    <button class="edit-user-btn pill-button" data-user-id="${user._id}" data-user-data='${JSON.stringify(user)}'>
+                        <i class="ph-bold ph-pencil-simple"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
 
-// 🆕 دالة معالجة تعديل المستخدم
-function handleEditUser(event) {
-    const button = event.currentTarget;
-    const userData = JSON.parse(button.getAttribute('data-user-data'));
-    
-    // إنشاء نافذة تعديل المستخدم
-    showEditUserModal(userData);
-}
+        document.querySelectorAll('.edit-user-btn').forEach(btn => {
+            btn.addEventListener('click', handleEditUser);
+        });
+    }
 
-// 🆕 دالة لعرض نافذة تعديل المستخدم
-function showEditUserModal(user) {
-    const modalHTML = `
-        <div id="edit-user-modal" class="popup-overlay" style="display: flex;">
-            <div class="popup-content" style="max-width: 500px;">
-                <button class="close-btn" id="close-edit-user-modal">
-                    <i class="ph-bold ph-x"></i>
-                </button>
-                <div class="popup-header">
-                    <i class="ph-bold ph-user"></i>
-                    <h2>تعديل بيانات المستخدم</h2>
+    function handleEditUser(event) {
+        const button = event.currentTarget;
+        const userData = JSON.parse(button.getAttribute('data-user-data'));
+        showEditUserModal(userData);
+    }
+
+    function showEditUserModal(user) {
+        const modalHTML = `
+            <div id="edit-user-modal" class="popup-overlay" style="display: flex;">
+                <div class="popup-content" style="max-width: 500px;">
+                    <button class="close-btn" id="close-edit-user-modal">
+                        <i class="ph-bold ph-x"></i>
+                    </button>
+                    <div class="popup-header">
+                        <i class="ph-bold ph-user"></i>
+                        <h2>تعديل بيانات المستخدم</h2>
+                    </div>
+                    <form id="edit-user-form">
+                        <input type="hidden" id="edit-user-id" value="${user._id}">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>اسم المستخدم</label>
+                                <input type="text" id="edit-username" value="${user.username || ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>البريد الإلكتروني</label>
+                                <input type="email" id="edit-email" value="${user.email || ''}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>الرصيد ($)</label>
+                                <input type="number" id="edit-balance" value="${user.balance || 0}" step="0.01" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label>الحالة</label>
+                                <select id="edit-status">
+                                    <option value="active" ${user.emailVerified ? 'selected' : ''}>نشط</option>
+                                    <option value="inactive" ${!user.emailVerified ? 'selected' : ''}>غير نشط</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="edit-isAdmin" ${user.isAdmin ? 'checked' : ''}>
+                                <span class="checkmark"></span>
+                                صلاحيات الأدمن
+                            </label>
+                        </div>
+                        
+                        <div class="form-actions" style="display: flex; gap: 1rem; margin-top: 2rem;">
+                            <button type="submit" class="pill-button primary-button">حفظ التغييرات</button>
+                            <button type="button" id="cancel-edit-user" class="pill-button secondary-button">إلغاء</button>
+                        </div>
+                    </form>
                 </div>
-                <form id="edit-user-form">
-                    <input type="hidden" id="edit-user-id" value="${user._id}">
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>اسم المستخدم</label>
-                            <input type="text" id="edit-username" value="${user.username || ''}" required>
-                        </div>
-                        <div class="form-group">
-                            <label>البريد الإلكتروني</label>
-                            <input type="email" id="edit-email" value="${user.email || ''}" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>الرصيد ($)</label>
-                            <input type="number" id="edit-balance" value="${user.balance || 0}" step="0.01" min="0" required>
-                        </div>
-                        <div class="form-group">
-                            <label>الحالة</label>
-                            <select id="edit-status">
-                                <option value="active" ${user.emailVerified ? 'selected' : ''}>نشط</option>
-                                <option value="inactive" ${!user.emailVerified ? 'selected' : ''}>غير نشط</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="edit-isAdmin" ${user.isAdmin ? 'checked' : ''}>
-                            <span class="checkmark"></span>
-                            صلاحيات الأدمن
-                        </label>
-                    </div>
-                    
-                    <div class="form-actions" style="display: flex; gap: 1rem; margin-top: 2rem;">
-                        <button type="submit" class="pill-button primary-button">حفظ التغييرات</button>
-                        <button type="button" id="cancel-edit-user" class="pill-button secondary-button">إلغاء</button>
-                    </div>
-                </form>
             </div>
-        </div>
-    `;
-    
-    // إضافة النافذة للصفحة
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-    
-    // إضافة event listeners
-    document.getElementById('edit-user-form').addEventListener('submit', handleUpdateUser);
-    document.getElementById('close-edit-user-modal').addEventListener('click', closeEditUserModal);
-    document.getElementById('cancel-edit-user').addEventListener('click', closeEditUserModal);
-    
-    // إغلاق النافذة عند النقر خارجها
-    document.getElementById('edit-user-modal').addEventListener('click', function(e) {
-        if (e.target === this) closeEditUserModal();
-    });
-}
-
-// 🆕 دالة تحديث بيانات المستخدم
-async function handleUpdateUser(event) {
-    event.preventDefault();
-    
-    const userId = document.getElementById('edit-user-id').value;
-    const formData = {
-        username: document.getElementById('edit-username').value,
-        email: document.getElementById('edit-email').value,
-        balance: parseFloat(document.getElementById('edit-balance').value),
-        emailVerified: document.getElementById('edit-status').value === 'active',
-        isAdmin: document.getElementById('edit-isAdmin').checked
-    };
-    
-    try {
-        const response = await fetch(`/api/admin/users/${userId}`, {
-            method: 'PUT',
-            headers: getAuthHeaders(),
-            body: JSON.stringify(formData)
-        });
-        
-        if (!response.ok) {
-            throw new Error('فشل تحديث بيانات المستخدم');
-        }
-        
-        const result = await response.json();
-        alert('تم تحديث بيانات المستخدم بنجاح!');
-        closeEditUserModal();
-        fetchUsers(); // إعادة تحميل البيانات
-        
-    } catch (error) {
-        console.error('Error updating user:', error);
-        alert('فشل تحديث بيانات المستخدم: ' + error.message);
-    }
-}
-
-// 🆕 دالة إغلاق نافذة التعديل
-function closeEditUserModal() {
-    const modal = document.getElementById('edit-user-modal');
-    if (modal) {
-        modal.remove();
-    }
-}
-
-function renderDeposits(deposits) {
-    if (!depositsTbody) return;
-    depositsTbody.innerHTML = '';
-    if (deposits.length === 0) { 
-        depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات شحن حالياً.</td></tr>'; 
-        return; 
-    }
-    
-    deposits.forEach(deposit => {
-        const row = document.createElement('tr');
-        row.dataset.depositId = deposit._id;
-        const statusClass = `status-${deposit.status}`;
-        const statusText = { pending: 'قيد المراجعة', approved: 'مقبول', rejected: 'مرفوض' }[deposit.status];
-        row.innerHTML = `
-            <td data-label="المستخدم">${deposit.user ? deposit.user.username : 'مستخدم محذوف'}</td>
-            <td data-label="المبلغ">${deposit.amount.toFixed(2)} $</td>
-            <td data-label="الطريقة">${deposit.method}</td>
-            <td data-label="اسم المودع">${deposit.depositorName}</td>
-            <td data-label="الإيصال"><button onclick="viewReceipt('${deposit.receiptImage}')" class="pill-button-link">عرض الإيصال</button></td>
-            <td data-label="الحالة"><span class="status ${statusClass}">${statusText}</span></td>
-            <td data-label="إجراءات" class="action-buttons">
-                ${deposit.status === 'pending' ? `
-                <button class="approve-btn pill-button"><i class="ph-bold ph-check"></i> قبول</button>
-                <button class="reject-btn pill-button"><i class="ph-bold ph-x"></i> رفض</button>
-                ` : 'تمت المعالجة'}
-            </td>
         `;
-        depositsTbody.appendChild(row);
-    });
-    
-    document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
-        btn.addEventListener('click', handleDepositAction);
-    });
-}
-
-async function handleDepositAction(event) {
-    const btn = event.currentTarget;
-    const action = btn.classList.contains('approve-btn') ? 'approve' : 'reject';
-    const row = btn.closest('tr');
-    const depositId = row.dataset.depositId;
-    
-    if (!confirm(`هل أنت متأكد من ${action === 'approve' ? 'الموافقة على' : 'رفض'} هذا الطلب؟`)) return;
-    
-    btn.disabled = true;
-    btn.textContent = 'جاري...';
-    
-    try {
-        const response = await fetch(`/api/deposits/${depositId}/${action}`, { 
-            method: 'PUT',
-            headers: getAuthHeaders()
-        });
         
-        if (!response.ok) {
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        document.getElementById('edit-user-form').addEventListener('submit', handleUpdateUser);
+        document.getElementById('close-edit-user-modal').addEventListener('click', closeEditUserModal);
+        document.getElementById('cancel-edit-user').addEventListener('click', closeEditUserModal);
+        
+        document.getElementById('edit-user-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeEditUserModal();
+        });
+    }
+
+    async function handleUpdateUser(event) {
+        event.preventDefault();
+        
+        const userId = document.getElementById('edit-user-id').value;
+        const formData = {
+            username: document.getElementById('edit-username').value,
+            email: document.getElementById('edit-email').value,
+            balance: parseFloat(document.getElementById('edit-balance').value),
+            emailVerified: document.getElementById('edit-status').value === 'active',
+            isAdmin: document.getElementById('edit-isAdmin').checked
+        };
+        
+        try {
+            const response = await fetch(`/api/admin/users/${userId}`, {
+                method: 'PUT',
+                headers: getAuthHeaders(),
+                body: JSON.stringify(formData)
+            });
+            
+            if (!response.ok) {
+                throw new Error('فشل تحديث بيانات المستخدم');
+            }
+            
             const result = await response.json();
-            throw new Error(result.message || 'فشل الإجراء.');
+            alert('تم تحديث بيانات المستخدم بنجاح!');
+            closeEditUserModal();
+            fetchUsers();
+            
+        } catch (error) {
+            console.error('Error updating user:', error);
+            alert('فشل تحديث بيانات المستخدم: ' + error.message);
+        }
+    }
+
+    function closeEditUserModal() {
+        const modal = document.getElementById('edit-user-modal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+
+    function renderDeposits(deposits) {
+        if (!depositsTbody) return;
+        depositsTbody.innerHTML = '';
+        if (deposits.length === 0) { 
+            depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات شحن حالياً.</td></tr>'; 
+            return; 
         }
         
-        // تحديث القائمة بعد النجاح
-        fetchDeposits();
+        deposits.forEach(deposit => {
+            const row = document.createElement('tr');
+            row.dataset.depositId = deposit._id;
+            const statusClass = `status-${deposit.status}`;
+            const statusText = { pending: 'قيد المراجعة', approved: 'مقبول', rejected: 'مرفوض' }[deposit.status];
+            row.innerHTML = `
+                <td data-label="المستخدم">${deposit.user ? deposit.user.username : 'مستخدم محذوف'}</td>
+                <td data-label="المبلغ">${deposit.amount.toFixed(2)} $</td>
+                <td data-label="الطريقة">${deposit.method}</td>
+                <td data-label="اسم المودع">${deposit.depositorName}</td>
+                <td data-label="الإيصال"><button onclick="viewReceipt('${deposit.receiptImage}')" class="pill-button-link">عرض الإيصال</button></td>
+                <td data-label="الحالة"><span class="status ${statusClass}">${statusText}</span></td>
+                <td data-label="إجراءات" class="action-buttons">
+                    ${deposit.status === 'pending' ? `
+                    <button class="approve-btn pill-button"><i class="ph-bold ph-check"></i> قبول</button>
+                    <button class="reject-btn pill-button"><i class="ph-bold ph-x"></i> رفض</button>
+                    ` : 'تمت المعالجة'}
+                </td>
+            `;
+            depositsTbody.appendChild(row);
+        });
         
-    } catch (error) {
-        alert(error.message);
-        btn.disabled = false;
-        btn.textContent = action === 'approve' ? 'قبول' : 'رفض';
+        document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
+            btn.addEventListener('click', handleDepositAction);
+        });
     }
-}
+
+    async function handleDepositAction(event) {
+        const btn = event.currentTarget;
+        const action = btn.classList.contains('approve-btn') ? 'approve' : 'reject';
+        const row = btn.closest('tr');
+        const depositId = row.dataset.depositId;
+        
+        if (!confirm(`هل أنت متأكد من ${action === 'approve' ? 'الموافقة على' : 'رفض'} هذا الطلب؟`)) return;
+        
+        btn.disabled = true;
+        btn.textContent = 'جاري...';
+        
+        try {
+            const response = await fetch(`/api/deposits/${depositId}/${action}`, { 
+                method: 'PUT',
+                headers: getAuthHeaders()
+            });
+            
+            if (!response.ok) {
+                const result = await response.json();
+                throw new Error(result.message || 'فشل الإجراء.');
+            }
+            
+            fetchDeposits();
+            
+        } catch (error) {
+            alert(error.message);
+            btn.disabled = false;
+            btn.textContent = action === 'approve' ? 'قبول' : 'رفض';
+        }
+    }
 
     // --- 7. الاستماع للتحديثات الفورية (Socket.IO) ---
     socket.on('new-order', () => {
@@ -786,6 +736,6 @@ async function handleDepositAction(event) {
     socket.on('service-updated', fetchServices);
     socket.on('service-deleted', fetchServices);
     
-    // ******** إضافة جديدة: تشغيل التحقق من الصلاحيات عند تحميل الصفحة ********
+    // تشغيل التحقق من الصلاحيات عند تحميل الصفحة
     checkAdminAccess();
 });
