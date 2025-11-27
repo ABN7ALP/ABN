@@ -7,7 +7,7 @@ const mailersend = new MailerSend({
 // 🆕 دالة لإرسال إيميل تفعيل الحساب
 const sendActivationEmail = async (email, verificationCode) => {
   try {
-    const sentFrom = new Sender("noreply@test-3m5jgrom13zgdpyo.mlsender.net", "MX GROUP");
+    const sentFrom = new Sender("noreply@test-3m5jgrom13zgdpyo.mlsender.net", " MX GROUP متجر");
     const recipients = [new Recipient(email, "عميلنا العزيز")];
 
     const emailParams = new EmailParams()
@@ -19,8 +19,10 @@ const sendActivationEmail = async (email, verificationCode) => {
           <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
             <!-- 🆕 إضافة صورة المتجر -->
             <div style="text-align: center; margin-bottom: 20px;">
-           <img src="https://i.imgur.com/CKQnYpz.jpeg" alt="متجر الخدمات الرقمية" style="max-width: 200px; height: auto; border-radius: 10px;">
-           </div>
+           <div style="background: linear-gradient(135deg, #7C1EFF 0%, #5a16ba 100%); color: white; padding: 15px; border-radius: 15px; display: inline-block;">
+          <h1 style="margin: 0; font-size: 24px;">🛍️ MX GROUP </h1>
+         </div>
+        </div>
             
             <h1 style="color: #7C1EFF; margin-bottom: 20px;">🎉 مرحباً بك!</h1>
             <p style="font-size: 16px; color: #64748B; margin-bottom: 30px;">
@@ -66,7 +68,7 @@ const sendActivationEmail = async (email, verificationCode) => {
 // 🆕 دالة لإرسال إيميل إعادة تعيين كلمة المرور
 const sendPasswordResetEmail = async (email, verificationCode) => {
   try {
-    const sentFrom = new Sender("noreply@test-3m5jgrom13zgdpyo.mlsender.net", "متجر الخدمات الرقمية");
+    const sentFrom = new Sender("noreply@test-3m5jgrom13zgdpyo.mlsender.net", "MX GROUP متجر");
     const recipients = [new Recipient(email, "عميلنا العزيز")];
 
     const emailParams = new EmailParams()
@@ -78,8 +80,10 @@ const sendPasswordResetEmail = async (email, verificationCode) => {
           <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
             <!-- 🆕 إضافة صورة المتجر -->
             <div style="text-align: center; margin-bottom: 20px;">
-           <img src="https://i.imgur.com/CKQnYpz.jpeg" alt="متجر الخدمات الرقمية" style="max-width: 200px; height: auto; border-radius: 10px;">
-           </div>
+           <div style="background: linear-gradient(135deg, #7C1EFF 0%, #5a16ba 100%); color: white; padding: 15px; border-radius: 15px; display: inline-block;">
+          <h1 style="margin: 0; font-size: 24px;">🛍️ MX GROUP </h1>
+         </div>
+        </div>
             
             <h1 style="color: #7C1EFF; margin-bottom: 20px;">🔐 إعادة التعيين</h1>
             <p style="font-size: 16px; color: #64748B; margin-bottom: 30px;">
@@ -96,7 +100,7 @@ const sendPasswordResetEmail = async (email, verificationCode) => {
             </p>
             
             <div style="background: #fef2f2; padding: 15px; border-radius: 10px; margin: 20px 0; border-right: 4px solid #ef4444;">
-              <p style="color: #dc2626; margin: 0; font-weight: bold;">⚠️ لأمان حسابك، لا تشارك هذا الكود مع任何人</p>
+              <p style="color: #dc2626; margin: 0; font-weight: bold;">⚠️ لأمان حسابك، لا تشارك هذا الكود مع احد</p>
             </div>
             
             <div class="footer" style="text-align: center; color: #94a3b8; font-size: 12px; margin-top: 30px;">
