@@ -1,27 +1,35 @@
-const EmailJS = require('@emailjs/nodejs');
+const fetch = require('node-fetch');
 
 const sendVerificationEmail = async (email, verificationCode) => {
   try {
-    // إرسال الإيميل باستخدام الحزمة الصحيحة
-    const result = await EmailJS.send(
-      process.env.EMAILJS_SERVICE_ID,
-      process.env.EMAILJS_TEMPLATE_ID,
-      {
-        to_email: email,
-        verification_code: verificationCode,
-        to_name: 'عميلنا العزيز',
-        app_name: 'متجر الخدمات'
+    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      {
-        publicKey: process.env.EMAILJS_PUBLIC_KEY,
-        // privateKey: process.env.EMAILJS_PRIVATE_KEY // اختياري
-      }
-    );
+      body: JSON.stringify({
+        service_id: process.env.EMAILJS_SERVICE_ID,
+        template_id: process.env.EMAILJS_TEMPLATE_ID,
+        user_id: process.env.EMAILJS_PUBLIC_KEY,
+        template_params: {
+          to_email: email,
+          verification_code: verificationCode,
+          to_name: 'عميلنا العزيز',
+          app_name: 'متجر الخدمات'
+        }
+      })
+    });
 
-    console.log(`✅ تم إرسال كود التحقق إلى: ${email}`);
-    return true;
+    if (response.ok) {
+      console.log(`✅ تم إرسال كود التحقق إلى: ${email}`);
+      return true;
+    } else {
+      const error = await response.text();
+      console.error('❌ فشل إرسال الإيميل:', error);
+      return false;
+    }
   } catch (error) {
-    console.error('❌ فشل إرسال الإيميل:', error);
+    console.error('❌ خطأ في إرسال الإيميل:', error);
     return false;
   }
 };
