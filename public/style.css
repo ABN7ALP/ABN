@@ -435,3 +435,36 @@ textarea:focus {
     font-size: 12px;
     font-weight: bold;
 }
+
+/* تنسيقات قوة كلمة المرور */
+.strength-bar {
+    transition: all 0.3s ease;
+}
+
+.strength-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 0.3rem;
+}
+
+/* تنسيقات معاينة الصورة */
+.image-preview {
+    border: 2px dashed var(--gray-border);
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--gray-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-preview i {
+    color: var(--text-light);
+    font-size: 2rem;
+}
