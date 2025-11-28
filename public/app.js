@@ -278,6 +278,7 @@ async function registerHandler(e) {
     const username = document.getElementById('register-username').value;
     const email = document.getElementById('register-email').value;
     const password = document.getElementById('register-password').value;
+    const profileImageInput = document.getElementById('register-profile-image');
     
     registerPopupError.textContent = '';
 
@@ -289,10 +290,22 @@ async function registerHandler(e) {
     }
     
     try {
+        let profileImageBase64 = null;
+        
+        // 🆕 معالجة الصورة إذا تم اختيارها
+        if (profileImageInput && profileImageInput.files[0]) {
+            profileImageBase64 = await fileToBase64(profileImageInput.files[0]);
+        }
+        
         const response = await fetch('/api/auth/register', { 
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ username, email, password }) 
+            body: JSON.stringify({ 
+                username, 
+                email, 
+                password,
+                profileImage: profileImageBase64 // 🆕 إرسال الصورة
+            }) 
         });
         
         const data = await response.json();
