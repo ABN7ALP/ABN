@@ -14,7 +14,7 @@ const generateToken = (id) => {
 // --- POST /api/auth/register ---
 // --- POST /api/auth/register ---
 router.post('/register', async (req, res) => {
-    const { username, email, password } = req.body;
+    const { username, email, password, profileImage } = req.body; // 🆕 أضف profileImage هنا
 
     try {
         const userExists = await User.findOne({ $or: [{ email }, { username }] });
@@ -32,13 +32,13 @@ router.post('/register', async (req, res) => {
             username,
             email,
             password,
-            profileImage: profileImage || null,
+            profileImage: profileImage || null, // 🆕 الآن profileImage معرف
             emailVerificationToken: verificationCode,
             emailVerificationExpires: Date.now() + 24 * 60 * 60 * 1000,
             emailVerified: false
         });
 
-        // 🆕 إرسال إيميل تفعيل الحساب (الجديد)
+        // 🆕 إرسال إيميل تفعيل الحساب
         const emailSent = await sendActivationEmail(email, verificationCode);
         
         if (!emailSent) {
