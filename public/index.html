@@ -74,41 +74,80 @@
     </div>
 
     <!-- Auth Popups -->
-    <div id="auth-popup-overlay" class="popup-overlay hidden">
-        <div id="login-form-container" class="popup-content hidden">
-            <button class="close-btn"><i class="ph-bold ph-x"></i></button>
-            <div class="popup-header"><i class="ph-bold ph-sign-in"></i><h2>تسجيل الدخول</h2></div>
-            <form id="login-form-popup">
-                <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="login-email" required></div>
-                <div class="form-group"><label>كلمة المرور</label><input type="password" id="login-password" required></div>
-                <!-- في login-form-container، أضف بعد حقل كلمة المرور -->
-<div class="form-options">
-    <label class="checkbox-label">
-        <input type="checkbox" id="remember-me">
-        <span class="checkmark"></span>
-        تذكرني
-    </label>
-    <a href="#" id="forgot-password-link">نسيت كلمة المرور؟</a>
-</div>
-                <button type="submit" class="pill-button primary-button">دخول</button>
-                <p id="login-popup-error" class="error-message"></p>
-                <p class="switch-form-text">ليس لديك حساب؟ <a href="#" id="show-register">أنشئ حساباً جديداً</a></p>
-            </form>
-        </div>
-        <div id="register-form-container" class="popup-content hidden">
-            <button class="close-btn"><i class="ph-bold ph-x"></i></button>
-            <div class="popup-header"><i class="ph-bold ph-user-plus"></i><h2>إنشاء حساب جديد</h2></div>
-            <form id="register-form-popup">
-                <div class="form-group"><label>اسم المستخدم</label><input type="text" id="register-username" required></div>
-                <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="register-email" required></div>
-                <div class="form-group"><label>كلمة المرور</label><input type="password" id="register-password" required></div>
-                <button type="submit" class="pill-button primary-button">إنشاء الحساب</button>
-                <p id="register-popup-error" class="error-message"></p>
-                <p class="switch-form-text">لديك حساب بالفعل؟ <a href="#" id="show-login">سجل الدخول</a></p>
-            </form>
-        </div>
+<div id="auth-popup-overlay" class="popup-overlay hidden">
+    <div id="login-form-container" class="popup-content hidden">
+        <button class="close-btn"><i class="ph-bold ph-x"></i></button>
+        <div class="popup-header"><i class="ph-bold ph-sign-in"></i><h2>تسجيل الدخول</h2></div>
+        <form id="login-form-popup">
+            <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="login-email" required></div>
+            <div class="form-group"><label>كلمة المرور</label><input type="password" id="login-password" required></div>
+            <!-- في login-form-container، أضف بعد حقل كلمة المرور -->
+            <div class="form-options">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="remember-me">
+                    <span class="checkmark"></span>
+                    تذكرني
+                </label>
+                <a href="#" id="forgot-password-link">نسيت كلمة المرور؟</a>
+            </div>
+            <button type="submit" class="pill-button primary-button">دخول</button>
+            <p id="login-popup-error" class="error-message"></p>
+            <p class="switch-form-text">ليس لديك حساب؟ <a href="#" id="show-register">أنشئ حساباً جديداً</a></p>
+        </form>
     </div>
 
+    <div id="register-form-container" class="popup-content hidden">
+        <button class="close-btn"><i class="ph-bold ph-x"></i></button>
+        <div class="popup-header"><i class="ph-bold ph-user-plus"></i><h2>إنشاء حساب جديد</h2></div>
+        <form id="register-form-popup">
+            <div class="form-group">
+                <label>اسم المستخدم</label>
+                <input type="text" id="register-username" required>
+            </div>
+            
+            <div class="form-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" id="register-email" required>
+            </div>
+
+            <!-- 🔽 حقل كلمة المرور مع قوة التحقق -->
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <input type="password" id="register-password" required minlength="6">
+                <div id="password-strength" style="margin-top: 0.5rem;">
+                    <div style="display: flex; gap: 0.3rem; margin-bottom: 0.3rem;">
+                        <div class="strength-bar" style="flex: 1; height: 4px; background: #e2e8f0; border-radius: 2px;"></div>
+                        <div class="strength-bar" style="flex: 1; height: 4px; background: #e2e8f0; border-radius: 2px;"></div>
+                        <div class="strength-bar" style="flex: 1; height: 4px; background: #e2e8f0; border-radius: 2px;"></div>
+                        <div class="strength-bar" style="flex: 1; height: 4px; background: #e2e8f0; border-radius: 2px;"></div>
+                    </div>
+                    <small id="password-strength-text" style="font-size: 0.8rem; color: #64748b;"></small>
+                </div>
+            </div>
+
+            <!-- 🔽 حقل الصورة الشخصية -->
+            <div class="form-group">
+                <label>صورة الملف الشخصي (اختياري)</label>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div id="profile-image-preview" style="width: 80px; height: 80px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; overflow: hidden;">
+                        <i class="ph-bold ph-user" style="font-size: 2rem; color: #94a3b8;"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <input type="file" id="register-profile-image" accept="image/*" style="display: none;">
+                        <button type="button" id="choose-image-btn" class="pill-button secondary-button" style="padding: 0.5rem 1rem;">
+                            <i class="ph-bold ph-image"></i> اختر صورة
+                        </button>
+                        <small style="display: block; margin-top: 0.5rem; color: #64748b;">الحجم الأقصى: 2MB</small>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="pill-button primary-button">إنشاء الحساب</button>
+            <p id="register-popup-error" class="error-message"></p>
+            <p class="switch-form-text">لديك حساب بالفعل؟ <a href="#" id="show-login">سجل الدخول</a></p>
+        </form>
+    </div>
+</div>
     <!-- Deposit Popup -->
     <div id="deposit-popup-overlay" class="popup-overlay hidden">
         <div class="popup-content scrollable">
