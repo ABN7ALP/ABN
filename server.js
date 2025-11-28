@@ -7,7 +7,7 @@ const fs = require('fs');
 const http = require('http');
 const { Server } = require("socket.io");
 const adminRoutes = require('./src/routes/admin.routes');
-
+const offerRoutes = require('./src/routes/offer.routes');
 // إعداد التطبيق والخادم
 const app = express();
 const server = http.createServer(app);
@@ -59,6 +59,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/deposits', depositRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/offers', offerRoutes);
 
 // منطق Socket.IO
 io.on('connection', (socket) => {
