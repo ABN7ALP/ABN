@@ -65,6 +65,20 @@ function updatePasswordStrength(password) {
 }
 // 🆕 🔼 نهاية إضافة دوال قوة كلمة المرور 🔼
 
+    // 🆕 🔽 أضف هذه الدالة بعد دوال قوة كلمة المرور 🔽
+
+// دالة تحويل الملف إلى Base64
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
+
+// 🔼 نهاية إضافة الدالة 🔼
+
     // --- عناصر الصفحة ---
     const servicesContainer = document.getElementById('services-container');
     const orderPopupOverlay = document.getElementById('order-popup-overlay');
