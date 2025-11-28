@@ -143,6 +143,10 @@ function fileToBase64(file) {
             `;
 
             // 2. إنشاء قائمة المستخدم
+            const profileImageHTML = userInfo.profileImage 
+               ? `<img src="${userInfo.profileImage}" alt="${userInfo.username}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">`
+               : `<i class="ph-bold ph-user-circle" style="font-size: 1.5rem;"></i>`;
+            
             mainNav.innerHTML = `
                 <div class="user-dropdown">
                     <div class="user-dropdown-toggle">
