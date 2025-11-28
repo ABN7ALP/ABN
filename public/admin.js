@@ -494,6 +494,172 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // 🆕 دوال إدارة العروض
+async function fetchOffers() {
+    try {
+        const response = await fetch('/api/offers', { 
+            headers: getAuthHeaders() 
+        });
+        if (!response.ok) throw new Error('فشل جلب العروض');
+        const offers = await response.json();
+        renderOffers(offers);
+    } catch (error) {
+        console.error('Error fetching offers:', error);
+    }
+}
+
+function renderOffers(offers) {
+    const tbody = document.getElementById('offers-tbody');
+    if (!tbody) return;
+    
+    tbody.innerHTML = offers.map(offer => {
+        const now = new Date();
+        const startDate = new Date(offer.startDate);
+        const endDate = new Date(offer.endDate);
+        const isActive = offer.isActive && now >= startDate && now <= endDate;
+        const isUpcoming = now < startDate;
+        
+        const statusClass = isActive ? 'status status-مكتمل' : 
+                            isUpcoming ? 'status status-قيد-المراجعة' : 
+                            'status status-ملغي';
+        
+        const statusText = isActive ? 'نشط' : 
+                          isUpcoming ? 'قادم' : 
+                          'منتهي';
+        
+        const discountText = offer.discountPercentage ? 
+            `خصم ${offer.discountPercentage}%` : 
+            offer.discountAmount ? 
+            `وفر ${offer.discountAmount}$` : 
+            'عرض خاص';
+        
+        const periodText = `${new Date(offer.startDate).toLocaleDateString('ar-EG')} - ${new Date(offer.endDate).toLocaleDateString('ar-EG')}`;
+        
+        const targetText = {
+            'all': 'الجميع',
+            'new': 'جدد فقط',
+            'existing': 'حاليون فقط'
+        }[offer.targetUsers] || offer.targetUsers;
+
+        return `
+            <tr>
+                <td>${offer.title}</td>
+                <td>${offer.description}</td>
+                <td>${discountText}</td>
+                <td>${periodText}</td>
+                <td>${targetText}</td>
+                <td><span class="${statusClass}">${statusText}</span></td>
+                <td class="action-buttons">
+                    <button class="edit-offer-btn pill-button" data-offer-id="${offer._id}">
+                        <i class="ph-bold ph-pencil-simple"></i>
+                    </button>
+                    <button class="delete-offer-btn pill-button" data-offer-id="${offer._id}">
+                        <i class="ph-bold ph-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    // ربط أحداث الأزرار
+    document.querySelectorAll('.delete-offer-btn').forEach(btn => {
+        btn.addEventListener('click', handleDeleteOffer);
+    });
+    
+    document.querySelectorAll('.edit-offer-btn').forEach(btn => {
+        btn.addEventListener('click', handleEditOffer);
+    });
+}
+
+// 🆕 دالة إضافة عرض جديد
+async function handleAddOffer(e) {
+    e.preventDefault();
+    
+    const formData = {
+        title: document.getElementById('offer-title').value,
+        description: document.getElementById('offer-description').value,
+        discountPercentage: document.getElementById('offer-discount-percentage').value ? 
+            parseInt(document.getElementById('offer-discount-percentage').value) : undefined,
+        discountAmount: document.getElementById('offer-discount-amount').value ? 
+            parseFloat(document.getElementById('offer-discount-amount').value) : undefined,
+        startDate: new Date(document.getElementById('offer-start-date').value),
+        endDate: new Date(document.getElementById('offer-end-date').value),
+        targetUsers: document.getElementById('offer-target-users').value,
+        services: Array.from(document.getElementById('offer-services').selectedOptions).map(opt => opt.value)
+    };
+    
+    try {
+        const response = await fetch('/api/offers', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(formData)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            document.getElementById('offer-form-response').textContent = result.message;
+            document.getElementById('offer-form-response').style.color = 'green';
+            document.getElementById('add-offer-form').reset();
+            fetchOffers(); // تحديث القائمة
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        document.getElementById('offer-form-response').textContent = error.message;
+        document.getElementById('offer-form-response').style.color = 'red';
+    }
+}
+
+// 🆕 دالة حذف عرض
+async function handleDeleteOffer(event) {
+    const offerId = event.currentTarget.dataset.offerId;
+    
+    if (!confirm('هل أنت متأكد من حذف هذا العرض؟ سيتم إلغاء الإشعارات المرتبطة به.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/offers/${offerId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        });
+        
+        if (!response.ok) throw new Error('فشل حذف العرض');
+        
+        fetchOffers(); // تحديث القائمة
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+// 🆕 دالة تعديل عرض (يمكن تطويرها لاحقاً)
+async function handleEditOffer(event) {
+    const offerId = event.currentTarget.dataset.offerId;
+    alert(`سيتم تطوير خاصية تعديل العرض ${offerId} في المستقبل`);
+}
+
+// 🆕 دالة تعبئة قائمة الخدمات
+async function loadServicesForOffers() {
+    try {
+        const response = await fetch('/api/services', { 
+            headers: getAuthHeaders() 
+        });
+        if (!response.ok) return;
+        
+        const services = await response.json();
+        const servicesSelect = document.getElementById('offer-services');
+        
+        if (servicesSelect) {
+            servicesSelect.innerHTML = services.map(service => 
+                `<option value="${service.id}">${service.platform} - ${service.name} (${service.pricePer1000}$)</option>`
+            ).join('');
+        }
+    } catch (error) {
+        console.error('Error loading services for offers:', error);
+    }
+}
+
     // --- قسم إدارة المستخدمين ---
     async function fetchUsers() {
         const tbody = document.getElementById('users-tbody');
@@ -721,6 +887,24 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.textContent = action === 'approve' ? 'قبول' : 'رفض';
         }
     }
+
+    // 🆕 ربط أحداث إدارة العروض
+const addOfferForm = document.getElementById('add-offer-form');
+if (addOfferForm) {
+    addOfferForm.addEventListener('submit', handleAddOffer);
+}
+
+// 🆕 تعبئة حقول التاريخ بالقيم الافتراضية
+const now = new Date();
+const startDate = new Date(now.getTime() + (60 * 60 * 1000)); // بعد ساعة من الآن
+const endDate = new Date(now.getTime() + (48 * 60 * 60 * 1000)); // بعد 48 ساعة
+
+document.getElementById('offer-start-date').value = startDate.toISOString().slice(0, 16);
+document.getElementById('offer-end-date').value = endDate.toISOString().slice(0, 16);
+
+// 🆕 تحميل الخدمات والعروض
+loadServicesForOffers();
+fetchOffers();
 
     // --- 7. الاستماع للتحديثات الفورية (Socket.IO) ---
     socket.on('new-order', () => {
