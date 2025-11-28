@@ -32,7 +32,7 @@ router.post('/register', async (req, res) => {
             username,
             email,
             password,
-            profileImage,
+            profileImage: profileImage || null,
             emailVerificationToken: verificationCode,
             emailVerificationExpires: Date.now() + 24 * 60 * 60 * 1000,
             emailVerified: false
