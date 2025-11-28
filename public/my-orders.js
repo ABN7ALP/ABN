@@ -78,117 +78,123 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 4. دوال جلب وعرض البيانات ---
 
-    // دالة لعرض رسالة التحميل في أي جدول
-    function showLoading(tbody, colspan) {
-        tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align:center; padding: 2rem;"><div class="loading-spinner" style="display:block;"><i class="ph-bold ph-circle-notch animate-spin"></i></div></td></tr>`;
-    }
-
     // دالة لجلب وعرض طلبات الخدمات
-    async function fetchMyOrders() {
-        showLoading(myOrdersTbody, 6);
-        try {
-            const response = await fetch(`/api/orders/my-orders?userId=${userInfo._id}`);
-            if (!response.ok) throw new Error('فشل جلب طلبات الخدمات');
-            const orders = await response.json();
-            renderMyOrders(orders);
-        } catch (error) {
-            myOrdersTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">${error.message}</td></tr>`;
-        }
-    }
-
-    function renderMyOrders(orders) {
-    myOrdersTbody.innerHTML = '';
-    
-    if (orders.length === 0) {
+    // دالة لجلب وعرض طلبات الخدمات
+async function fetchMyOrders() {
+    showLoading(myOrdersTbody, 5);
+    try {
+        const response = await fetch(`/api/orders/my-orders?userId=${userInfo._id}`);
+        if (!response.ok) throw new Error('فشل جلب طلبات الخدمات');
+        const orders = await response.json();
+        renderMyOrders(orders);
+    } catch (error) {
         myOrdersTbody.innerHTML = `
             <tr>
-                <td colspan="5" style="text-align:center; padding: 3rem; color: var(--text-light);">
-                    <i class="ph-bold ph-shopping-cart" style="font-size: 3rem; opacity: 0.5; display: block; margin-bottom: 1rem;"></i>
-                    لم تقم بأي طلبات خدمات بعد.
+                <td colspan="5" style="text-align:center; color:var(--danger-red); padding: 2rem;">
+                    <i class="ph-bold ph-warning-circle"></i>
+                    ${error.message}
+                </td>
+            </tr>
+        `;
+    } finally {
+        // 🆕 إخفاء دائرة التحميل بغض النظر عن النتيجة
+        const loadingElement = document.getElementById('my-orders-loading');
+        if (loadingElement) {
+            loadingElement.style.display = 'none';
+        }
+    }
+}
+
+// دالة لجلب وعرض معاملات الشحن
+async function fetchMyDeposits() {
+    showLoading(depositsTbody, 4);
+    try {
+        const response = await fetch(`/api/deposits/my-deposits?userId=${userInfo._id}`);
+        if (!response.ok) throw new Error('فشل جلب معاملات الشحن');
+        const deposits = await response.json();
+        renderMyDeposits(deposits);
+    } catch (error) {
+        depositsTbody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align:center; color:var(--danger-red); padding: 2rem;">
+                    <i class="ph-bold ph-warning-circle"></i>
+                    ${error.message}
+                </td>
+            </tr>
+        `;
+    }
+}
+
+// 🆕 تحديث دالة renderMyDeposits لاستخدام التنسيقات الجديدة
+function renderMyDeposits(deposits) {
+    depositsTbody.innerHTML = '';
+    if (deposits.length === 0) {
+        depositsTbody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align:center; padding: 3rem; color: var(--text-light);">
+                    <i class="ph-bold ph-wallet" style="font-size: 3rem; opacity: 0.5; display: block; margin-bottom: 1rem;"></i>
+                    لا توجد معاملات شحن سابقة.
                 </td>
             </tr>
         `;
         return;
     }
     
-    orders.forEach(order => {
+    deposits.forEach(deposit => {
         const row = document.createElement('tr');
+        const statusText = { 
+            pending: 'قيد المراجعة', 
+            approved: 'مقبول', 
+            rejected: 'مرفوض' 
+        }[deposit.status] || deposit.status;
         
-        // تنسيق التواريخ بشكل أفضل
-        const orderDate = order.createdAt ? 
-            new Date(order.createdAt).toLocaleDateString('ar-EG', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            }) : 'N/A';
-        
-        // تنسيق الأرقام
-        const formattedQuantity = order.quantity ? 
-            order.quantity.toLocaleString('ar-EG') : 'N/A';
-        
-        const formattedPrice = order.price ? 
-            order.price.toFixed(2) : '0.00';
-        
-        // تنسيق الحالة
-        const statusClass = `status status-${order.status.replace(/\s/g, '-')}`;
+        const statusClass = `status status-${deposit.status}`;
         
         row.innerHTML = `
-            <td data-label="الخدمة">
+            <td data-label="المبلغ" style="font-weight: 700; color: var(--purple-main);">
+                ${deposit.amount.toFixed(2)} $
+            </td>
+            <td data-label="الطريقة">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="ph-bold ph-${order.platform?.toLowerCase().replace(/\s/g, '')}-logo" style="color: var(--purple-main);"></i>
-                    <span>${order.service || 'N/A'}</span>
+                    <i class="ph-bold ph-${getMethodIcon(deposit.method)}" style="color: var(--purple-main);"></i>
+                    <span>${getMethodText(deposit.method)}</span>
                 </div>
             </td>
-            <td data-label="الكمية" style="font-weight: 600; color: var(--text-dark);">
-                ${formattedQuantity}
-            </td>
-            <td data-label="السعر" style="font-weight: 700; color: var(--purple-main);">
-                ${formattedPrice} $
-            </td>
             <td data-label="تاريخ الطلب" style="color: var(--text-light); font-size: 0.85rem;">
-                ${orderDate}
+                ${new Date(deposit.createdAt).toLocaleDateString('ar-EG', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })}
             </td>
             <td data-label="الحالة">
-                <span class="${statusClass}">${order.status}</span>
+                <span class="${statusClass}">${statusText}</span>
             </td>
         `;
-        myOrdersTbody.appendChild(row);
+        depositsTbody.appendChild(row);
     });
 }
 
-    // دالة لجلب وعرض معاملات الشحن
-    async function fetchMyDeposits() {
-        showLoading(depositsTbody, 4);
-        try {
-            const response = await fetch(`/api/deposits/my-deposits?userId=${userInfo._id}`);
-            if (!response.ok) throw new Error('فشل جلب معاملات الشحن');
-            const deposits = await response.json();
-            renderMyDeposits(deposits);
-        } catch (error) {
-            depositsTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">${error.message}</td></tr>`;
-        }
-    }
+// 🆕 دوال مساعدة لطرق الدفع
+function getMethodIcon(method) {
+    const icons = {
+        bank: 'bank',
+        sham: 'qr-code',
+        whatsapp: 'storefront'
+    };
+    return icons[method] || 'credit-card';
+}
 
-    function renderMyDeposits(deposits) {
-        depositsTbody.innerHTML = '';
-        if (deposits.length === 0) {
-            depositsTbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد معاملات شحن سابقة.</td></tr>';
-            return;
-        }
-        deposits.forEach(deposit => {
-            const row = document.createElement('tr');
-            const statusText = { pending: 'قيد المراجعة', approved: 'مقبول', rejected: 'مرفوض' }[deposit.status] || deposit.status;
-            row.innerHTML = `
-                <td data-label="المبلغ">${deposit.amount.toFixed(2)} $</td>
-                <td data-label="الطريقة">${deposit.method}</td>
-                <td data-label="تاريخ الطلب">${new Date(deposit.createdAt).toLocaleDateString('ar-EG')}</td>
-                <td data-label="الحالة"><span class="status status-${deposit.status}">${statusText}</span></td>
-            `;
-            depositsTbody.appendChild(row);
-        });
-    }
+function getMethodText(method) {
+    const texts = {
+        bank: 'تحويل بنكي',
+        sham: 'شام كاش',
+        whatsapp: 'حوالة مكتب'
+    };
+    return texts[method] || method;
+}
 
     // --- 5. الاستماع للتحديثات الفورية (Socket.IO) ---
     const socket = io();
