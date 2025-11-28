@@ -51,4 +51,38 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
     }
 });
 
+// GET /api/offers - جلب جميع العروض (للمدير)
+router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const offers = await Offer.find({}).sort({ createdAt: -1 });
+        res.json(offers);
+    } catch (error) {
+        res.status(500).json({ message: 'فشل جلب العروض' });
+    }
+});
+
+// DELETE /api/offers/:id - حذف عرض
+router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        await Offer.findByIdAndDelete(req.params.id);
+        res.json({ message: 'تم حذف العرض بنجاح' });
+    } catch (error) {
+        res.status(500).json({ message: 'فشل حذف العرض' });
+    }
+});
+
+// PUT /api/offers/:id - تحديث عرض
+router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const updatedOffer = await Offer.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
+        res.json({ message: 'تم تحديث العرض بنجاح', offer: updatedOffer });
+    } catch (error) {
+        res.status(500).json({ message: 'فشل تحديث العرض' });
+    }
+});
+
 module.exports = router;
