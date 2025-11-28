@@ -1562,6 +1562,7 @@ function closeOffersPopup() {
         // --- 9. البدء بتشغيل كل شيء ---
     updateUIForAuth();
     loadServices();
+    showWelcomeOffers();
 
     // 🆕 🔽 أضف هذا الكود هنا 🔽
     // إضافة event listener لكلمة المرور في نموذج التسجيل
