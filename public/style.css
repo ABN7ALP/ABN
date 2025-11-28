@@ -490,3 +490,26 @@ textarea:focus {
     cursor: pointer;
     transition: all var(--transition-fast);
 }
+/* تنسيقات العروض والخصومات */
+.offer-item {
+    transition: all var(--transition-smooth);
+    border: 2px solid transparent;
+}
+
+.offer-item:hover {
+    transform: translateY(-5px);
+    border-color: var(--yellow-accent);
+    box-shadow: var(--shadow-lg);
+}
+
+/* أنيميشن للعروض الجديدة */
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+}
+
+.hot-offer {
+    animation: pulse-glow 2s infinite;
+    border: 2px solid var(--yellow-accent);
+}
