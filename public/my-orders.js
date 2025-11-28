@@ -30,44 +30,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 3. تحديث واجهة المستخدم للمستخدم المسجل دخوله ---
     function updateHeaderUI() {
-        mainNav.innerHTML = `
-            <div class="user-dropdown">
-                <div class="user-dropdown-toggle">
-                    <i class="ph-bold ph-user-circle"></i>
-                    <span>${userInfo.username}</span>
-                    <i class="ph-bold ph-caret-down"></i>
-                </div>
-                <div class="user-dropdown-menu">
-                    <div class="user-dropdown-header">
-                        <h4>رصيدك الحالي</h4>
-                        <div class="balance-display">
-                            <i class="ph-bold ph-wallet"></i>
-                            <span>${(userInfo.balance || 0).toFixed(2)} $</span>
-                        </div>
-                    </div>
-                    <a href="index.html#deposit"><i class="ph-bold ph-plus-circle"></i> شحن الرصيد</a>
-                    <a href="my-orders.html"><i class="ph-bold ph-list-checks"></i> طلباتي</a>
-                    <button id="logout-btn" class="logout-link"><i class="ph-bold ph-sign-out"></i> تسجيل الخروج</button>
-                </div>
+    const profileImageHTML = userInfo.profileImage 
+        ? `<img src="${userInfo.profileImage}" alt="${userInfo.username}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--purple-main);">`
+        : `<i class="ph-bold ph-user-circle" style="font-size: 1.5rem; color: var(--purple-main);"></i>`;
+
+    mainNav.innerHTML = `
+        <div class="user-dropdown">
+            <div class="user-dropdown-toggle">
+                ${profileImageHTML}
+                <span>${userInfo.username}</span>
+                <i class="ph-bold ph-caret-down"></i>
             </div>
-        `;
-        // ربط أحداث القائمة المنسدلة
-        const dropdown = mainNav.querySelector('.user-dropdown');
-        dropdown.addEventListener('click', (e) => {
-            if (e.target.closest('.user-dropdown-toggle')) {
-                dropdown.classList.toggle('active');
-            }
-        });
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            localStorage.removeItem('userInfo');
-            window.location.href = '/';
-        });
-        document.addEventListener('click', (e) => {
-            if (dropdown && !dropdown.contains(e.target)) {
-                dropdown.classList.remove('active');
-            }
-        });
-    }
+            <div class="user-dropdown-menu">
+                <div class="user-dropdown-header">
+                    <h4>رصيدك الحالي</h4>
+                    <div class="balance-display">
+                        <i class="ph-bold ph-wallet"></i>
+                        <span>${(userInfo.balance || 0).toFixed(2)} $</span>
+                    </div>
+                </div>
+                <a href="index.html#deposit"><i class="ph-bold ph-plus-circle"></i> شحن الرصيد</a>
+                <a href="my-orders.html"><i class="ph-bold ph-list-checks"></i> طلباتي</a>
+                <button id="logout-btn" class="logout-link"><i class="ph-bold ph-sign-out"></i> تسجيل الخروج</button>
+            </div>
+        </div>
+    `;
+    
+    // ربط أحداث القائمة المنسدلة
+    const dropdown = mainNav.querySelector('.user-dropdown');
+    dropdown.addEventListener('click', (e) => {
+        if (e.target.closest('.user-dropdown-toggle')) {
+            dropdown.classList.toggle('active');
+        }
+    });
+    
+    document.getElementById('logout-btn').addEventListener('click', () => {
+        localStorage.removeItem('userInfo');
+        window.location.href = '/';
+    });
+    
+    document.addEventListener('click', (e) => {
+        if (dropdown && !dropdown.contains(e.target)) {
+            dropdown.classList.remove('active');
+        }
+    });
+}
 
     // --- 4. دوال جلب وعرض البيانات ---
 
@@ -90,24 +97,66 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderMyOrders(orders) {
-        myOrdersTbody.innerHTML = '';
-        if (orders.length === 0) {
-            myOrdersTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لم تقم بأي طلبات خدمات بعد.</td></tr>';
-            return;
-        }
-        orders.forEach(order => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td data-label="المنصة">${order.platform || 'N/A'}</td>
-                <td data-label="الخدمة">${order.service || 'N/A'}</td>
-                <td data-label="الكمية">${order.quantity ? order.quantity.toLocaleString() : 'N/A'}</td>
-                <td data-label="السعر">${order.price ? order.price.toFixed(2) : '0.00'} $</td>
-                <td data-label="تاريخ الطلب">${new Date(order.createdAt).toLocaleDateString('ar-EG')}</td>
-                <td data-label="الحالة"><span class="status status-${order.status.replace(/\s/g, '-')}">${order.status}</span></td>
-            `;
-            myOrdersTbody.appendChild(row);
-        });
+    myOrdersTbody.innerHTML = '';
+    
+    if (orders.length === 0) {
+        myOrdersTbody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align:center; padding: 3rem; color: var(--text-light);">
+                    <i class="ph-bold ph-shopping-cart" style="font-size: 3rem; opacity: 0.5; display: block; margin-bottom: 1rem;"></i>
+                    لم تقم بأي طلبات خدمات بعد.
+                </td>
+            </tr>
+        `;
+        return;
     }
+    
+    orders.forEach(order => {
+        const row = document.createElement('tr');
+        
+        // تنسيق التواريخ بشكل أفضل
+        const orderDate = order.createdAt ? 
+            new Date(order.createdAt).toLocaleDateString('ar-EG', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }) : 'N/A';
+        
+        // تنسيق الأرقام
+        const formattedQuantity = order.quantity ? 
+            order.quantity.toLocaleString('ar-EG') : 'N/A';
+        
+        const formattedPrice = order.price ? 
+            order.price.toFixed(2) : '0.00';
+        
+        // تنسيق الحالة
+        const statusClass = `status status-${order.status.replace(/\s/g, '-')}`;
+        
+        row.innerHTML = `
+            <td data-label="الخدمة">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="ph-bold ph-${order.platform?.toLowerCase().replace(/\s/g, '')}-logo" style="color: var(--purple-main);"></i>
+                    <span>${order.service || 'N/A'}</span>
+                </div>
+            </td>
+            <td data-label="الكمية" style="font-weight: 600; color: var(--text-dark);">
+                ${formattedQuantity}
+            </td>
+            <td data-label="السعر" style="font-weight: 700; color: var(--purple-main);">
+                ${formattedPrice} $
+            </td>
+            <td data-label="تاريخ الطلب" style="color: var(--text-light); font-size: 0.85rem;">
+                ${orderDate}
+            </td>
+            <td data-label="الحالة">
+                <span class="${statusClass}">${order.status}</span>
+            </td>
+        `;
+        myOrdersTbody.appendChild(row);
+    });
+}
 
     // دالة لجلب وعرض معاملات الشحن
     async function fetchMyDeposits() {
