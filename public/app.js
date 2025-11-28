@@ -235,7 +235,13 @@ function fileToBase64(file) {
         }, 100);
     }
 }
-
+    
+// 🆕 🔽 أضف هذه الدالة هنا 🔽
+function hideAuthPopup() { 
+    authPopupOverlay.classList.add('hidden'); 
+}
+// 🔼 نهاية الإضافة 🔼
+    
 // 🆕 دالة إعداد قوة كلمة المرور
 function setupPasswordStrength() {
     const passwordInput = document.getElementById('register-password');
