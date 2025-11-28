@@ -32,6 +32,7 @@ router.post('/register', async (req, res) => {
             username,
             email,
             password,
+            profileImage,
             emailVerificationToken: verificationCode,
             emailVerificationExpires: Date.now() + 24 * 60 * 60 * 1000,
             emailVerified: false
@@ -79,6 +80,7 @@ router.post('/login', async (req, res) => {
                 _id: user._id,
                 username: user.username,
                 email: user.email,
+                profileImage: user.profileImage,
                 balance: user.balance,
                 isAdmin: user.isAdmin,
                 token: generateToken(user._id),
