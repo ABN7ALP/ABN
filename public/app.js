@@ -121,54 +121,53 @@ function fileToBase64(file) {
 
     // --- 2. نظام المصادقة والقائمة المنسدلة ---
     function updateUIForAuth() {
-        const storedUser = localStorage.getItem('userInfo');
-        if (storedUser) {
-            userInfo = JSON.parse(storedUser);
+    const storedUser = localStorage.getItem('userInfo');
+    if (storedUser) {
+        userInfo = JSON.parse(storedUser);
 
-            // 1. إنشاء جرس الإشعارات
-            notificationBellContainer.innerHTML = `
-                <div class="notification-bell">
-                    <i class="ph-bold ph-bell"></i>
-                    <span id="notification-count" class="notification-count">0</span>
-                    <div id="notifications-dropdown" class="notifications-dropdown">
-                        <div class="notifications-header">
-                            <h4>الإشعارات</h4>
-                            <button id="mark-all-read-btn" class="mark-all-read-btn">تحديد الكل كمقروء</button>
-                        </div>
-                        <ul id="notifications-list" class="notifications-list">
-                            <li class="no-notifications">لا توجد إشعارات جديدة.</li>
-                        </ul>
+        // 1. إنشاء جرس الإشعارات
+        notificationBellContainer.innerHTML = `
+            <div class="notification-bell">
+                <i class="ph-bold ph-bell"></i>
+                <span id="notification-count" class="notification-count">0</span>
+                <div id="notifications-dropdown" class="notifications-dropdown">
+                    <div class="notifications-header">
+                        <h4>الإشعارات</h4>
+                        <button id="mark-all-read-btn" class="mark-all-read-btn">تحديد الكل كمقروء</button>
                     </div>
+                    <ul id="notifications-list" class="notifications-list">
+                        <li class="no-notifications">لا توجد إشعارات جديدة.</li>
+                    </ul>
                 </div>
-            `;
+            </div>
+        `;
 
-            // 2. إنشاء قائمة المستخدم
-            const profileImageHTML = userInfo.profileImage 
-               ? `<img src="${userInfo.profileImage}" alt="${userInfo.username}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">`
-               : `<i class="ph-bold ph-user-circle" style="font-size: 1.5rem;"></i>`;
-            
-            mainNav.innerHTML = `
-                <div class="user-dropdown">
-                    <div class="user-dropdown-toggle">
-                        <i class="ph-bold ph-user-circle"></i>
-                        <span>${userInfo.username}</span>
-                        <i class="ph-bold ph-caret-down"></i>
-                    </div>
-                    <div class="user-dropdown-menu">
-                        <div class="user-dropdown-header">
-                            <h4>رصيدك الحالي</h4>
-                            <div class="balance-display">
-                                <i class="ph-bold ph-wallet"></i>
-                                <span>${(userInfo.balance || 0).toFixed(2)} $</span>
-                            </div>
-                        </div>
-                        <a href="#" id="add-balance-link"><i class="ph-bold ph-plus-circle"></i> شحن الرصيد</a>
-                        <a href="my-orders.html"><i class="ph-bold ph-list-checks"></i> طلباتي</a>
-                        <button id="logout-btn" class="logout-link"><i class="ph-bold ph-sign-out"></i> تسجيل الخروج</button>
-                    </div>
+        // 2. إنشاء قائمة المستخدم
+        const profileImageHTML = userInfo.profileImage 
+           ? `<img src="${userInfo.profileImage}" alt="${userInfo.username}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--purple-main);">`
+           : `<i class="ph-bold ph-user-circle" style="font-size: 1.5rem; color: var(--purple-main);"></i>`;
+        
+        mainNav.innerHTML = `
+            <div class="user-dropdown">
+                <div class="user-dropdown-toggle">
+                    ${profileImageHTML} <!-- 🆕 هنا التصحيح -->
+                    <span>${userInfo.username}</span>
+                    <i class="ph-bold ph-caret-down"></i>
                 </div>
-            `;
-
+                <div class="user-dropdown-menu">
+                    <div class="user-dropdown-header">
+                        <h4>رصيدك الحالي</h4>
+                        <div class="balance-display">
+                            <i class="ph-bold ph-wallet"></i>
+                            <span>${(userInfo.balance || 0).toFixed(2)} $</span>
+                        </div>
+                    </div>
+                    <a href="#" id="add-balance-link"><i class="ph-bold ph-plus-circle"></i> شحن الرصيد</a>
+                    <a href="my-orders.html"><i class="ph-bold ph-list-checks"></i> طلباتي</a>
+                    <button id="logout-btn" class="logout-link"><i class="ph-bold ph-sign-out"></i> تسجيل الخروج</button>
+                </div>
+            </div>
+        `;
             // 3. ربط الأحداث الخاصة بالقوائم المنسدلة
             document.querySelector('.user-dropdown-toggle').addEventListener('click', (e) => {
                 e.stopPropagation();
