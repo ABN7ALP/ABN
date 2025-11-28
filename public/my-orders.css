@@ -504,3 +504,129 @@ tr:hover td {
     max-width: 300px;
     margin: 0 auto;
 }
+
+
+
+
+
+
+/* تحسينات جدول طلبات الخدمات */
+.admin-table-container {
+    margin-top: 1rem;
+}
+
+#my-orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+#my-orders-table th {
+    background: var(--purple-gradient);
+    color: white;
+    padding: 1.2rem 0.8rem;
+    text-align: right;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border: none;
+    white-space: nowrap;
+}
+
+#my-orders-table td {
+    padding: 1rem 0.8rem;
+    border-bottom: 1px solid var(--gray-border);
+    font-size: 0.9rem;
+    text-align: right;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+#my-orders-table th:nth-child(1) { width: 25%; } /* الخدمة */
+#my-orders-table th:nth-child(2) { width: 15%; } /* الكمية */
+#my-orders-table th:nth-child(3) { width: 15%; } /* السعر */
+#my-orders-table th:nth-child(4) { width: 20%; } /* تاريخ الطلب */
+#my-orders-table th:nth-child(5) { width: 25%; } /* الحالة */
+
+#my-orders-table tr:hover td {
+    background: var(--purple-light);
+}
+
+/* تحسينات للجوال */
+@media (max-width: 768px) {
+    #my-orders-table {
+        min-width: 500px;
+        font-size: 0.8rem;
+    }
+    
+    #my-orders-table th,
+    #my-orders-table td {
+        padding: 0.8rem 0.5rem;
+    }
+    
+    #my-orders-table th:nth-child(1) { width: 30%; }
+    #my-orders-table th:nth-child(2) { width: 15%; }
+    #my-orders-table th:nth-child(3) { width: 15%; }
+    #my-orders-table th:nth-child(4) { width: 20%; }
+    #my-orders-table th:nth-child(5) { width: 20%; }
+}
+
+/* تحسينات حالة التحميل */
+#my-orders-loading {
+    padding: 3rem;
+    text-align: center;
+}
+
+#my-orders-loading i {
+    font-size: 2rem;
+    color: var(--purple-main);
+}
+
+
+/* تحسينات عامة للصفحة */
+.hero {
+    background: var(--purple-gradient);
+    border-radius: var(--radius-card);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    color: white;
+    margin: 1rem 0 2rem 0;
+    box-shadow: var(--shadow-lg);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 2.5rem 0 1.5rem 0;
+    padding: 1.5rem;
+    background: var(--white-pure);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-sm);
+    border-right: 4px solid var(--purple-main);
+}
+
+.section-header h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.section-header h2 i {
+    background: var(--purple-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.8rem;
+}
+
+/* تحسين الفاصل بين الجدولين */
+.divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--purple-main), transparent);
+    margin: 3rem 0;
+    border: none;
+    border-radius: 2px;
+}
