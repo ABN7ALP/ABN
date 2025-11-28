@@ -468,3 +468,25 @@ textarea:focus {
     color: var(--text-light);
     font-size: 2rem;
 }
+
+/* تنسيقات صورة الملف الشخصي */
+.user-dropdown-toggle img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--purple-main);
+}
+
+.user-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.2rem;
+    background: var(--white-pure);
+    border-radius: var(--radius-button);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-border);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
