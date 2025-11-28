@@ -216,6 +216,7 @@ router.post('/forgot-password', async (req, res) => {
     }
 });
 // 🆕 POST /api/auth/reset-password - إعادة تعيين كلمة المرور
+// 🆕 تحديث route إعادة تعيين كلمة المرور
 router.post('/reset-password', async (req, res) => {
     try {
         const { email, token, newPassword } = req.body;
@@ -224,7 +225,7 @@ router.post('/reset-password', async (req, res) => {
             return res.status(400).json({ message: 'جميع الحقول مطلوبة' });
         }
 
-        // البحث عن المستخدم مع التحقق من التوكن ومدى صلاحيته
+        // البحث عن المستخدم
         const user = await User.findOne({
             email,
             resetPasswordToken: token,
@@ -233,6 +234,12 @@ router.post('/reset-password', async (req, res) => {
 
         if (!user) {
             return res.status(400).json({ message: 'رابط إعادة التعيين غير صالح أو منتهي الصلاحية' });
+        }
+
+        // 🆕 التحقق مما إذا كلمة المرور الجديدة مطابقة للقديمة
+        const isSamePassword = await user.matchPassword(newPassword);
+        if (isSamePassword) {
+            return res.status(400).json({ message: 'كلمة المرور الجديدة يجب أن تكون مختلفة عن القديمة' });
         }
 
         // تحديث كلمة المرور
