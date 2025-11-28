@@ -11,15 +11,18 @@
     <script src="/socket.io/socket.io.js"></script>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="admin.css">
-
 </head>
 <body class="admin-body"> 
+
     <!-- Login Overlay -->
     <div id="login-overlay" class="popup-overlay">
         <div class="popup-content">
             <div class="popup-header"><i class="ph-bold ph-lock"></i><h2>تسجيل الدخول</h2></div>
             <form id="login-form">
-                <div class="form-group"><label for="password-input">كلمة المرور</label><input type="password" id="password-input" required></div>
+                <div class="form-group">
+                    <label for="password-input">كلمة المرور</label>
+                    <input type="password" id="password-input" required>
+                </div>
                 <button type="submit" class="pill-button primary-button">دخول</button>
                 <p id="login-error" class="error-message" style="text-align: center; margin-top: 1rem;"></p>
             </form>
@@ -28,21 +31,24 @@
 
     <!-- Admin Dashboard Layout -->
     <div id="admin-dashboard" class="admin-dashboard hidden">
+
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header"><h3>لوحة التحكم</h3></div>
             <nav class="sidebar-nav">
-                <a href="#stats" class="nav-link active"><i class="ph-bold ph-chart-pie-slice"></i><span>الإحصائيات</span></a>
-                <a href="#orders" class="nav-link"><i class="ph-bold ph-shopping-cart"></i><span>الطلبات</span></a>
-                <a href="#deposits" class="nav-link"><i class="ph-bold ph-bank"></i><span>الشحن</span></a>
-                <a href="#services" class="nav-link"><i class="ph-bold ph-list-bullets"></i><span>الخدمات</span></a>
-                <a href="#users" class="nav-link"><i class="ph-bold ph-users"></i><span>المستخدمين</span></a>
+                <a href="#stats-section" class="nav-link active"><i class="ph-bold ph-chart-pie-slice"></i><span>الإحصائيات</span></a>
+                <a href="#orders-section" class="nav-link"><i class="ph-bold ph-shopping-cart"></i><span>الطلبات</span></a>
+                <a href="#deposits-section" class="nav-link"><i class="ph-bold ph-bank"></i><span>الشحن</span></a>
+                <a href="#services-section" class="nav-link"><i class="ph-bold ph-list-bullets"></i><span>الخدمات</span></a>
+                <a href="#users-section" class="nav-link"><i class="ph-bold ph-users"></i><span>المستخدمين</span></a>
+                <a href="#offers-section" class="nav-link"><i class="ph-bold ph-gift"></i><span>العروض</span></a>
                 <a href="/" class="nav-link logout-link"><i class="ph-bold ph-sign-out"></i><span>الموقع</span></a>
             </nav>
         </aside>
 
         <!-- Main Content -->
         <main class="main-content">
+
             <!-- Stats Section -->
             <section id="stats-section" class="admin-section active">
                 <div class="section-header"><h2><i class="ph-bold ph-chart-pie-slice"></i> نظرة عامة</h2></div>
@@ -54,136 +60,147 @@
                 <div class="section-header"><h2><i class="ph-bold ph-shopping-cart"></i> الطلبات الأخيرة</h2></div>
                 <div class="table-container">
                     <table id="orders-table">
-                        <thead><tr><th>المنصة</th><th>الخدمة</th><th>الرابط</th><th>الكمية</th><th>السعر</th><th>تاريخ الطلب</th><th>الحالة</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>المنصة</th>
+                                <th>الخدمة</th>
+                                <th>الرابط</th>
+                                <th>الكمية</th>
+                                <th>السعر</th>
+                                <th>تاريخ الطلب</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
                         <tbody id="orders-tbody"></tbody>
                     </table>
                     <div id="loading-spinner" class="loading-spinner"><i class="ph-bold ph-spinner-gap animate-spin"></i></div>
                 </div>
             </section>
 
-            <!-- 🔽 أضف قبل </main> -->
+            <!-- Users Section -->
             <section id="users-section" class="admin-section">
-                <div class="section-header">
-               <h2><i class="ph-bold ph-users"></i> إدارة المستخدمين</h2></div>
-               <div class="table-container">
-              <div class="table-actions">
-            <button id="export-emails-btn" class="pill-button primary-button">
-                <i class="ph-bold ph-download"></i> تصدير الإيميلات
-            </button>
-        </div>
-        <table id="users-table">
-            <thead>
-                <tr>
-                    <th>اسم المستخدم</th>
-                    <th>البريد الإلكتروني</th>
-                    <th>تاريخ التسجيل</th>
-                    <th>الحالة</th>
-                    <th>الرصيد</th>
-                    <th>إجراءات</th>
-                </tr>
-            </thead>
-            <tbody id="users-tbody">
-                <!-- سيتم ملؤها بالبيانات -->
-            </tbody>
-        </table>
-    </div>
-</section>
+                <div class="section-header"><h2><i class="ph-bold ph-users"></i> إدارة المستخدمين</h2></div>
+                <div class="table-container">
+                    <div class="table-actions">
+                        <button id="export-emails-btn" class="pill-button primary-button">
+                            <i class="ph-bold ph-download"></i> تصدير الإيميلات
+                        </button>
+                    </div>
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>اسم المستخدم</th>
+                                <th>البريد الإلكتروني</th>
+                                <th>تاريخ التسجيل</th>
+                                <th>الحالة</th>
+                                <th>الرصيد</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody"></tbody>
+                    </table>
+                </div>
+            </section>
 
-            <!-- قسم إدارة العروض -->
-<section id="offers-section" class="admin-section">
-    <div class="section-header">
-        <h2><i class="ph-bold ph-gift"></i> إدارة العروض المؤقتة</h2>
-    </div>
-    
-    <!-- نموذج إضافة عرض جديد -->
-    <form id="add-offer-form" class="admin-form">
-        <div class="form-row">
-            <div class="form-group">
-                <label>عنوان العرض</label>
-                <input type="text" id="offer-title" placeholder="عرض الصيف الكبير" required>
-            </div>
-            <div class="form-group">
-                <label>وصف العرض</label>
-                <input type="text" id="offer-description" placeholder="خصم خاص على جميع خدمات الإنستغرام" required>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <label>نسبة الخصم (%)</label>
-                <input type="number" id="offer-discount-percentage" min="0" max="100" placeholder="20">
-            </div>
-            <div class="form-group">
-                <label>مبلغ الخصم ($)</label>
-                <input type="number" id="offer-discount-amount" min="0" step="0.01" placeholder="5.00">
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <label>تاريخ البدء</label>
-                <input type="datetime-local" id="offer-start-date" required>
-            </div>
-            <div class="form-group">
-                <label>تاريخ الانتهاء</label>
-                <input type="datetime-local" id="offer-end-date" required>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <label>الفئة المستهدفة</label>
-                <select id="offer-target-users" required>
-                    <option value="all">جميع المستخدمين</option>
-                    <option value="new">المستخدمين الجدد فقط</option>
-                    <option value="existing">المستخدمين الحاليين فقط</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>الخدمات المشمولة (اختياري)</label>
-                <select id="offer-services" multiple style="height: 120px;">
-                    <!-- سيتم ملؤها بالخدمات عبر JavaScript -->
-                </select>
-                <small>اضغط Ctrl لاختيار أكثر من خدمة</small>
-            </div>
-        </div>
-        
-        <button type="submit" class="pill-button primary-button">
-            <i class="ph-bold ph-plus-circle"></i> إضافة عرض جديد
-        </button>
-    </form>
-    
-    <div id="offer-form-response"></div>
-    
-    <hr class="divider">
-    
-    <!-- قائمة العروض الحالية -->
-    <h2><i class="ph-bold ph-list-bullets"></i> العروض الحالية</h2>
-    <div class="table-container">
-        <table id="offers-table">
-            <thead>
-                <tr>
-                    <th>العنوان</th>
-                    <th>الوصف</th>
-                    <th>الخصم</th>
-                    <th>الفترة</th>
-                    <th>المستهدف</th>
-                    <th>الحالة</th>
-                    <th>إجراءات</th>
-                </tr>
-            </thead>
-            <tbody id="offers-tbody">
-                <!-- سيتم ملؤها بالعروض عبر JavaScript -->
-            </tbody>
-        </table>
-    </div>
-</section>
+            <!-- Offers Section -->
+            <section id="offers-section" class="admin-section">
+                <div class="section-header"><h2><i class="ph-bold ph-gift"></i> إدارة العروض المؤقتة</h2></div>
+
+                <!-- Add Offer Form -->
+                <form id="add-offer-form" class="admin-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>عنوان العرض</label>
+                            <input type="text" id="offer-title" placeholder="عرض الصيف الكبير" required>
+                        </div>
+                        <div class="form-group">
+                            <label>وصف العرض</label>
+                            <input type="text" id="offer-description" placeholder="خصم خاص على جميع خدمات الإنستغرام" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>نسبة الخصم (%)</label>
+                            <input type="number" id="offer-discount-percentage" min="0" max="100" placeholder="20">
+                        </div>
+                        <div class="form-group">
+                            <label>مبلغ الخصم ($)</label>
+                            <input type="number" id="offer-discount-amount" min="0" step="0.01" placeholder="5.00">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>تاريخ البدء</label>
+                            <input type="datetime-local" id="offer-start-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ الانتهاء</label>
+                            <input type="datetime-local" id="offer-end-date" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>الفئة المستهدفة</label>
+                            <select id="offer-target-users" required>
+                                <option value="all">جميع المستخدمين</option>
+                                <option value="new">المستخدمين الجدد فقط</option>
+                                <option value="existing">المستخدمين الحاليين فقط</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>الخدمات المشمولة (اختياري)</label>
+                            <select id="offer-services" multiple style="height: 120px;"></select>
+                            <small>اضغط Ctrl لاختيار أكثر من خدمة</small>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="pill-button primary-button">
+                        <i class="ph-bold ph-plus-circle"></i> إضافة عرض جديد
+                    </button>
+                </form>
+
+                <div id="offer-form-response"></div>
+                <hr class="divider">
+
+                <!-- Current Offers Table -->
+                <h2><i class="ph-bold ph-list-bullets"></i> العروض الحالية</h2>
+                <div class="table-container">
+                    <table id="offers-table">
+                        <thead>
+                            <tr>
+                                <th>العنوان</th>
+                                <th>الوصف</th>
+                                <th>الخصم</th>
+                                <th>الفترة</th>
+                                <th>المستهدف</th>
+                                <th>الحالة</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="offers-tbody"></tbody>
+                    </table>
+                </div>
+            </section>
+
             <!-- Deposits Section -->
             <section id="deposits-section" class="admin-section">
                 <div class="section-header"><h2><i class="ph-bold ph-bank"></i> طلبات شحن الرصيد</h2></div>
                 <div class="table-container">
                     <table id="deposits-table">
-                        <thead><tr><th>المستخدم</th><th>المبلغ</th><th>الطريقة</th><th>اسم المودع</th><th>الإيصال</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>المستخدم</th>
+                                <th>المبلغ</th>
+                                <th>الطريقة</th>
+                                <th>اسم المودع</th>
+                                <th>الإيصال</th>
+                                <th>الحالة</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
                         <tbody id="deposits-tbody"></tbody>
                     </table>
                 </div>
@@ -201,9 +218,7 @@
                         <div class="form-group"><label>السعر لكل 1000</label><input type="number" id="service-price" placeholder="10.5" step="0.01" required></div>
                         <div class="form-group"><label>الحد الأدنى</label><input type="number" id="service-min" placeholder="100" required></div>
                         <div class="form-group"><label>الحد الأقصى</label><input type="number" id="service-max" placeholder="100000" required></div>
-                        <!-- ******** هذا هو الحقل الجديد ******** -->
                         <div class="form-group"><label>الخطوة (المضاعف)</label><input type="number" id="service-step" placeholder="100" value="1" required></div>
-                        <!-- ******** نهاية الإضافة ******** -->
                     </div>
                     <button type="submit" class="pill-button primary-button">إضافة الخدمة</button>
                 </form>
@@ -212,11 +227,21 @@
                 <h2><i class="ph-bold ph-list-bullets"></i> الخدمات الحالية</h2>
                 <div class="table-container">
                     <table id="services-table">
-                        <thead><tr><th>المنصة</th><th>الخدمة</th><th>السعر/1000</th><th>أدنى/أقصى حد</th><th>الخطوة</th><th>إجراءات</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>المنصة</th>
+                                <th>الخدمة</th>
+                                <th>السعر/1000</th>
+                                <th>أدنى/أقصى حد</th>
+                                <th>الخطوة</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
                         <tbody id="services-tbody"></tbody>
                     </table>
                 </div>
             </section>
+
         </main>
     </div>
 
