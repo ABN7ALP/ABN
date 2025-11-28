@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema({
         required: [true, 'كلمة المرور مطلوبة'],
         minlength: [6, 'يجب أن تكون كلمة المرور 6 أحرف على الأقل']
     },
+    profileImage: {
+        type: String, // سيتم تخزين الصورة كـ Base64
+        default: null
+    },
 
     // --- الحقل الجديد هنا ---
     balance: {
