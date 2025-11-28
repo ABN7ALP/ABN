@@ -207,16 +207,33 @@ function updatePasswordStrength(password) {
     }
 
     function showAuthPopup(formType) {
-        loginPopupError.textContent = '';
-        registerPopupError.textContent = '';
-        loginFormContainer.classList.toggle('hidden', formType !== 'login');
-        registerFormContainer.classList.toggle('hidden', formType !== 'register');
-        authPopupOverlay.classList.remove('hidden');
+    loginPopupError.textContent = '';
+    registerPopupError.textContent = '';
+    loginFormContainer.classList.toggle('hidden', formType !== 'login');
+    registerFormContainer.classList.toggle('hidden', formType !== 'register');
+    authPopupOverlay.classList.remove('hidden');
+    
+    // 🆕 إعادة إعداد event listeners عند فتح نافذة التسجيل
+    if (formType === 'register') {
+        setTimeout(() => {
+            handleImageSelection();
+            setupPasswordStrength();
+        }, 100);
     }
+}
 
-    function hideAuthPopup() { 
-        authPopupOverlay.classList.add('hidden'); 
+// 🆕 دالة إعداد قوة كلمة المرور
+function setupPasswordStrength() {
+    const passwordInput = document.getElementById('register-password');
+    if (passwordInput) {
+        // إزالة الـ listener القديم أولاً
+        passwordInput.removeEventListener('input', updatePasswordStrength);
+        passwordInput.addEventListener('input', (e) => {
+            updatePasswordStrength(e.target.value);
+        });
+        console.log('✅ تم إعداد قوة كلمة المرور');
     }
+}
 
     async function loginHandler(e) {
         e.preventDefault();
@@ -674,7 +691,70 @@ async function handleResetPassword(e) {
 }
 // 🔼 نهاية الاستبدال 🔼
     
+    // 🔽 استبدل دالة handleImageSelection بالكود التالي:
+
+// دالة معالجة اختيار الصورة - محدثة
+function handleImageSelection() {
+    const chooseImageBtn = document.getElementById('choose-image-btn');
+    const imageInput = document.getElementById('register-profile-image');
+    const imagePreview = document.getElementById('profile-image-preview');
     
+    console.log('🔍 عناصر الصورة:', { chooseImageBtn, imageInput, imagePreview });
+    
+    if (chooseImageBtn && imageInput) {
+        // إزالة أي event listeners سابقة
+        chooseImageBtn.replaceWith(chooseImageBtn.cloneNode(true));
+        imageInput.replaceWith(imageInput.cloneNode(true));
+        
+        // الحصول على العناصر الجديدة
+        const newChooseImageBtn = document.getElementById('choose-image-btn');
+        const newImageInput = document.getElementById('register-profile-image');
+        const newImagePreview = document.getElementById('profile-image-preview');
+        
+        // إضافة event listener للزر
+        newChooseImageBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('🎯 تم النقر على زر اختيار الصورة');
+            newImageInput.click();
+        });
+        
+        // إضافة event listener لحقل الملف
+        newImageInput.addEventListener('change', function(e) {
+            console.log('📁 تم اختيار ملف:', e.target.files[0]);
+            const file = e.target.files[0];
+            if (file) {
+                // التحقق من نوع الملف
+                if (!file.type.startsWith('image/')) {
+                    alert('⚠️ يرجى اختيار ملف صورة فقط');
+                    return;
+                }
+                
+                // التحقق من حجم الملف (2MB كحد أقصى)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('📏 حجم الصورة كبير جداً. الحد الأقصى 2MB');
+                    return;
+                }
+                
+                // عرض المعاينة
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    console.log('🖼️ تم تحميل الصورة للعرض');
+                    newImagePreview.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                    newImagePreview.style.border = '2px solid var(--purple-main)';
+                };
+                reader.onerror = function(error) {
+                    console.error('❌ خطأ في قراءة الملف:', error);
+                    alert('❌ حدث خطأ في تحميل الصورة');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        console.log('✅ تم إعداد event listeners لاختيار الصورة');
+    } else {
+        console.error('❌ لم يتم العثور على عناصر اختيار الصورة');
+    }
+}
 
     // --- 3. نظام شحن الرصيد ---
     function showDepositPopup() {
