@@ -78,6 +78,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 4. دوال جلب وعرض البيانات ---
 
+    // دالة لعرض رسالة التحميل في أي جدول
+function showLoading(tbody, colspan) {
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="${colspan}" style="text-align:center; padding: 3rem;">
+                <div class="loading-spinner" style="display: flex; justify-content: center; align-items: center;">
+                    <i class="ph-bold ph-circle-notch animate-spin" style="font-size: 2rem; color: var(--purple-main);"></i>
+                </div>
+            </td>
+        </tr>
+    `;
+}
+
     // دالة لجلب وعرض طلبات الخدمات
     // دالة لجلب وعرض طلبات الخدمات
 async function fetchMyOrders() {
