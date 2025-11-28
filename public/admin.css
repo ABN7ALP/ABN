@@ -569,3 +569,46 @@ tr:hover td {
 .copy-link-btn.copied i::before {
     content: "✓";
 }
+/* تنسيقات قسم العروض */
+#offer-services {
+    border: 2px solid var(--gray-border);
+    border-radius: var(--radius-input);
+    padding: 0.5rem;
+    background: var(--white-pure);
+}
+
+#offer-services option {
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--gray-border);
+}
+
+#offer-services option:last-child {
+    border-bottom: none;
+}
+
+/* تنسيقات جدول العروض */
+#offers-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+#offers-table th {
+    background: var(--purple-gradient);
+    color: white;
+    padding: 1.2rem 0.8rem;
+    text-align: right;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+#offers-table td {
+    padding: 1rem 0.8rem;
+    border-bottom: 1px solid var(--gray-border);
+    font-size: 0.9rem;
+    text-align: right;
+}
+
+#offers-table tr:hover td {
+    background: var(--purple-light);
+}
