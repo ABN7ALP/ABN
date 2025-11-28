@@ -792,6 +792,93 @@ function handleImageSelection() {
     }
 }
 
+// 🆕 دالة عرض عروض الترحيب للزوار الجدد
+function showWelcomeOffers() {
+    // التحقق إذا كان المستخدم زائراً جديداً (أول زيارة)
+    const hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
+    
+    if (!hasVisitedBefore) {
+        // جلب العروض النشطة
+        fetch('/api/offers/active')
+            .then(response => response.json())
+            .then(offers => {
+                if (offers.length > 0) {
+                    setTimeout(() => {
+                        showOffersPopup(offers);
+                    }, 2000); // عرض بعد ثانيتين
+                }
+            })
+            .catch(error => console.error('Error fetching offers:', error));
+        
+        // وضع علامة أن المستخدم زار الموقع
+        localStorage.setItem('hasVisitedBefore', 'true');
+    }
+}
+
+// 🆕 دالة عرض نافذة العروض
+function showOffersPopup(offers) {
+    const offersHTML = offers.map(offer => `
+        <div class="offer-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: var(--radius-card); margin-bottom: 1rem; text-align: center;">
+            <h3 style="margin: 0 0 0.5rem 0; font-size: 1.3rem;">${offer.title}</h3>
+            <p style="margin: 0 0 1rem 0; opacity: 0.9;">${offer.description}</p>
+            ${offer.discountPercentage ? `
+                <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: var(--radius-button); display: inline-block;">
+                    <strong>خصم ${offer.discountPercentage}%</strong>
+                </div>
+            ` : ''}
+            ${offer.discountAmount ? `
+                <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: var(--radius-button); display: inline-block;">
+                    <strong>وفر ${offer.discountAmount}$</strong>
+                </div>
+            ` : ''}
+            <div style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">
+                ⏳ ينتهي في ${new Date(offer.endDate).toLocaleDateString('ar-EG')}
+            </div>
+        </div>
+    `).join('');
+
+    const popupHTML = `
+        <div id="welcome-offers-popup" class="popup-overlay" style="display: flex; background: rgba(0,0,0,0.8);">
+            <div class="popup-content" style="max-width: 500px; background: var(--white-pure);">
+                <button class="close-btn" id="close-offers-popup">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+                <div class="popup-header">
+                    <i class="ph-bold ph-gift" style="color: var(--purple-main);"></i>
+                    <h2>🎁 عروض ترحيبية خاصة!</h2>
+                </div>
+                <div style="padding: 1rem;">
+                    <p style="text-align: center; color: var(--text-light); margin-bottom: 1.5rem;">
+                        نرحب بك في متجرنا! هذه العروض الحصرية متاحة لك خلال 48 ساعة:
+                    </p>
+                    ${offersHTML}
+                    <button id="explore-offers-btn" class="pill-button primary-button" style="width: 100%; margin-top: 1.5rem;">
+                        <i class="ph-bold ph-shopping-cart"></i> استكشاف الخدمات
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', popupHTML);
+
+    // ربط الأحداث
+    document.getElementById('close-offers-popup').addEventListener('click', closeOffersPopup);
+    document.getElementById('explore-offers-btn').addEventListener('click', closeOffersPopup);
+    
+    document.getElementById('welcome-offers-popup').addEventListener('click', function(e) {
+        if (e.target === this) closeOffersPopup();
+    });
+}
+
+// 🆕 دالة إغلاق نافذة العروض
+function closeOffersPopup() {
+    const popup = document.getElementById('welcome-offers-popup');
+    if (popup) {
+        popup.remove();
+    }
+}
+    
     // --- 3. نظام شحن الرصيد ---
     function showDepositPopup() {
         depositForm.reset();
