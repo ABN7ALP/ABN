@@ -71,6 +71,7 @@ router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
 });
 
 // PUT تعديل خدمة
+// PUT تعديل خدمة
 router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         // جلب الخدمة القديمة لمقارنة السعر
@@ -86,25 +87,34 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
             return res.status(404).json({ message: 'الخدمة غير موجودة' });
         }
 
-        // 🆕 إذا تغير السعر، أرسل إشعار
+        // 🆕 تحسين إشعارات تغيير السعر
         if (oldService && oldService.pricePer1000 !== updatedService.pricePer1000) {
             try {
-                const priceChange = updatedService.pricePer1000 > oldService.pricePer1000 ? '📈 ارتفع' : '📉 انخفض';
+                const priceChange = updatedService.pricePer1000 > oldService.pricePer1000 ? '📈 ارتفع' : '🎉 انخفض';
+                const changePercentage = ((Math.abs(updatedService.pricePer1000 - oldService.pricePer1000) / oldService.pricePer1000) * 100).toFixed(1);
                 
                 const users = await User.find({});
                 const notifications = users.map(user => ({
                     user: user._id,
-                    message: `${priceChange} سعر خدمة ${updatedService.platform} - ${updatedService.name} من ${oldService.pricePer1000}$ إلى ${updatedService.pricePer1000}$`,
+                    message: `${priceChange} سعر خدمة ${updatedService.platform} - ${updatedService.name} من ${oldService.pricePer1000}$ إلى ${updatedService.pricePer1000}$ (${changePercentage}%)`,
                     link: '/',
                     type: 'price_update'
                 }));
                 
                 await Notification.insertMany(notifications);
                 
-                req.io.emit('broadcast-notification', { 
-                    message: `${priceChange} سعر خدمة ${updatedService.platform} - ${updatedService.name} من ${oldService.pricePer1000}$ إلى ${updatedService.pricePer1000}$`,
-                    link: '/'
-                });
+                // 🆕 إرسال إشعار خاص إذا كان هناك تخفيض
+                if (updatedService.pricePer1000 < oldService.pricePer1000) {
+                    req.io.emit('broadcast-notification', { 
+                        message: `🎉 تخفيض جديد! ${updatedService.platform} - ${updatedService.name} أصبح بسعر ${updatedService.pricePer1000}$ (تخفيض ${changePercentage}%)`,
+                        link: '/'
+                    });
+                } else {
+                    req.io.emit('broadcast-notification', { 
+                        message: `${priceChange} سعر خدمة ${updatedService.platform} - ${updatedService.name} إلى ${updatedService.pricePer1000}$`,
+                        link: '/'
+                    });
+                }
             } catch (notifyError) {
                 console.error('Error sending price update notifications:', notifyError);
             }
