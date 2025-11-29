@@ -926,23 +926,35 @@ function renderOffers(offers) {
         
         const isHotOffer = offer.discountPercentage > 20 || offer.discountAmount > 10;
         
-        return `
-            <div class="offer-card ${isHotOffer ? 'hot-offer' : ''}">
-                <div class="offer-header">
-                    <h3 class="offer-title">${offer.title}</h3>
-                    <span class="offer-badge">${discountText}</span>
-                </div>
-                <p class="offer-description">${offer.description}</p>
-                <div class="offer-details">
-                    <span class="discount-amount">${discountText}</span>
-                    <div class="offer-period">
-                        <i class="ph-bold ph-clock"></i>
-                        <span>${periodText}</span>
-                    </div>
-                </div>
-                <span class="offer-target">${targetText}</span>
+        // في دالة renderOffers - عدل return statement
+return `
+    <div class="offer-card ${isHotOffer ? 'hot-offer' : ''}">
+        <div class="offer-header">
+            <h3 class="offer-title">${offer.title}</h3>
+            <span class="offer-badge">${discountText}</span>
+        </div>
+        <p class="offer-description">${offer.description}</p>
+        <div class="offer-details">
+            <span class="discount-amount">${discountText}</span>
+            <div class="offer-period">
+                <i class="ph-bold ph-clock"></i>
+                <span>${periodText}</span>
             </div>
-        `;
+        </div>
+        <span class="offer-target">${targetText}</span>
+        
+        ${!userInfo && offer.targetUsers !== 'all' ? `
+            <div class="offer-login-required" style="margin-top: 1rem; padding: 1rem; background: var(--purple-light); border-radius: var(--radius-input); text-align: center;">
+                <p style="margin: 0 0 0.5rem 0; color: var(--purple-main); font-weight: 600;">
+                    <i class="ph-bold ph-lock"></i> لتستفيد من هذا العرض
+                </p>
+                <button class="pill-button primary-button" onclick="showAuthPopup('register')" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                    <i class="ph-bold ph-user-plus"></i> سجل دخول الآن
+                </button>
+            </div>
+        ` : ''}
+    </div>
+`;
     }).join('');
 }
 
@@ -1170,26 +1182,78 @@ function renderOffers(offers) {
         updatePrice();
     }
 
-    function updatePrice() {
-        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
-        if (!selectedOption) return;
-        
-        const pricePer1000 = parseFloat(selectedOption.dataset.price);
-        const quantity = parseInt(quantityInput.value, 10);
-        
-        if (isNaN(quantity) || quantity <= 0) { 
-            priceDisplay.textContent = '0.00 $'; 
-            return; 
-        }
-        
-        const totalPrice = (quantity / 1000) * pricePer1000;
-        priceDisplay.textContent = `${totalPrice.toFixed(2)} $`;
-        
-        priceDisplay.style.transform = 'scale(1.1)';
-        setTimeout(() => {
-            priceDisplay.style.transform = 'scale(1)';
-        }, 200);
+    // في app.js - استبدل دالة updatePrice
+async function updatePrice() {
+    const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+    if (!selectedOption) return;
+    
+    const pricePer1000 = parseFloat(selectedOption.dataset.price);
+    const quantity = parseInt(quantityInput.value, 10);
+    
+    if (isNaN(quantity) || quantity <= 0) { 
+        priceDisplay.textContent = '0.00 $'; 
+        return; 
     }
+    
+    // حساب السعر مع الخصم
+    const priceData = await calculatePriceWithDiscount(
+        serviceSelect.value,
+        currentPlatform,
+        quantity,
+        userInfo ? userInfo._id : null
+    );
+    
+    if (priceData.hasDiscount) {
+        priceDisplay.innerHTML = `
+            <span style="text-decoration: line-through; color: var(--text-light); margin-left: 0.5rem;">
+                ${priceData.originalPrice.toFixed(2)} $
+            </span>
+            <span style="color: var(--success-green); font-weight: bold;">
+                ${priceData.finalPrice.toFixed(2)} $
+            </span>
+            <div style="font-size: 0.8rem; color: var(--success-green);">
+                وفرت ${priceData.discount.toFixed(2)} $ ✅
+            </div>
+        `;
+    } else {
+        priceDisplay.textContent = `${priceData.finalPrice.toFixed(2)} $`;
+    }
+    
+    priceDisplay.style.transform = 'scale(1.1)';
+    setTimeout(() => {
+        priceDisplay.style.transform = 'scale(1)';
+    }, 200);
+}
+
+// دالة مساعدة لحساب السعر مع الخصم
+async function calculatePriceWithDiscount(serviceName, platform, quantity, userId = null) {
+    try {
+        const response = await fetch('/api/orders/calculate-price', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ serviceName, platform, quantity, userId })
+        });
+        
+        if (response.ok) {
+            return await response.json();
+        }
+    } catch (error) {
+        console.error('Error calculating discount:', error);
+    }
+    
+    // Fallback إذا فشل الحساب
+    const service = servicesData[platform]?.services.find(s => s.name === serviceName);
+    if (!service) return { originalPrice: 0, finalPrice: 0, discount: 0, hasDiscount: false };
+    
+    const pricePerUnit = service.pricePer1000 / 1000;
+    const originalPrice = pricePerUnit * quantity;
+    return {
+        originalPrice: parseFloat(originalPrice.toFixed(4)),
+        finalPrice: parseFloat(originalPrice.toFixed(4)),
+        discount: 0,
+        hasDiscount: false
+    };
+}
 
     function validateLink() {
         const link = linkInput.value;
