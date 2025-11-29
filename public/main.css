@@ -848,3 +848,59 @@
     margin-bottom: 1rem;
     display: block;
 }
+/* نظام طي العروض */
+.offers-section.collapsed .offers-grid {
+    display: none;
+}
+
+.offers-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--purple-gradient);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-card);
+    cursor: pointer;
+    margin-bottom: 1rem;
+    transition: all var(--transition-smooth);
+    border: none;
+    width: 100%;
+    text-align: right;
+}
+
+.offers-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.offers-toggle h2 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.3rem;
+}
+
+.toggle-icon {
+    transition: transform var(--transition-smooth);
+    font-size: 1.2rem;
+}
+
+.offers-section.collapsed .toggle-icon {
+    transform: rotate(-180deg);
+}
+
+.offers-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.3rem 0.8rem;
+    border-radius: var(--radius-button);
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+/* إخفاء قسم العروض إذا لم يكن هناك عروض */
+.offers-section[style*="display: none"] {
+    display: none !important;
+}
