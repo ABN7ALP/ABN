@@ -612,3 +612,33 @@ tr:hover td {
 #offers-table tr:hover td {
     background: var(--purple-light);
 }
+/* 🔍 بحث الإدمن */
+.admin-search-box {
+    position: relative;
+    width: 300px;
+}
+
+.admin-search-box input {
+    width: 100%;
+    padding: 0.7rem 2.5rem 0.7rem 1rem;
+    border: 2px solid var(--gray-border);
+    border-radius: var(--radius-input);
+    font-size: 0.9rem;
+}
+
+.admin-search-box i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--gray-border);
+}
