@@ -1052,6 +1052,99 @@ function renderOffers(offers) {
         });
     }, 100);
 }
+
+// 🔍 نظام البحث والفلترة
+function setupSearchSystem() {
+    const searchInput = document.getElementById('services-search');
+    const clearSearchBtn = document.getElementById('clear-search');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    let currentFilter = 'all';
+
+    if (!searchInput) return;
+
+    // بحث أثناء الكتابة
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.trim().toLowerCase();
+        clearSearchBtn.classList.toggle('hidden', !searchTerm);
+        filterServices(searchTerm, currentFilter);
+    });
+
+    // مسح البحث
+    clearSearchBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        clearSearchBtn.classList.add('hidden');
+        filterServices('', currentFilter);
+        searchInput.focus();
+    });
+
+    // الفلترة
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentFilter = this.dataset.filter;
+            filterServices(searchInput.value.trim().toLowerCase(), currentFilter);
+        });
+    });
+}
+
+function filterServices(searchTerm, filter) {
+    const servicesContainer = document.getElementById('services-container');
+    const serviceCards = servicesContainer.querySelectorAll('.service-card');
+    let visibleCount = 0;
+
+    serviceCards.forEach(card => {
+        const platform = card.querySelector('h3').textContent.toLowerCase();
+        const description = card.querySelector('p').textContent.toLowerCase();
+        const servicesList = servicesData[card.querySelector('h3').textContent]?.services || [];
+        
+        let matchesSearch = true;
+        let matchesFilter = true;
+
+        // تطبيق البحث
+        if (searchTerm) {
+            const serviceMatches = servicesList.some(service => 
+                service.name.toLowerCase().includes(searchTerm) ||
+                service.platform.toLowerCase().includes(searchTerm)
+            );
+            matchesSearch = platform.includes(searchTerm) || 
+                          description.includes(searchTerm) || 
+                          serviceMatches;
+        }
+
+        // تطبيق الفلتر
+        if (filter !== 'all') {
+            matchesFilter = platform.includes(filter);
+        }
+
+        // إظهار/إخفاء البطاقة
+        if (matchesSearch && matchesFilter) {
+            card.style.display = 'block';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // عرض عدد النتائج
+    showSearchResultsCount(visibleCount, serviceCards.length);
+}
+
+function showSearchResultsCount(visible, total) {
+    let resultsCount = document.getElementById('search-results-count');
+    if (!resultsCount) {
+        resultsCount = document.createElement('div');
+        resultsCount.id = 'search-results-count';
+        resultsCount.className = 'search-results-count';
+        document.querySelector('.search-section .container').appendChild(resultsCount);
+    }
+
+    if (visible === 0) {
+        resultsCount.innerHTML = '<div class="no-results"><i class="ph-bold ph-magnifying-glass"></i><p>لم يتم العثور على خدمات تطابق بحثك</p></div>';
+    } else {
+        resultsCount.textContent = `عرض ${visible} من ${total} خدمة`;
+    }
+}
     
     // --- 3. نظام شحن الرصيد ---
     function showDepositPopup() {
@@ -1848,6 +1941,7 @@ function setupOffersToggle() {
     showWelcomeOffers();
    fetchActiveOffers();
    setupOffersToggle();
+   setupSearchSystem();
 
 // وأيضاً استمع لتحديثات العروض
 socket.on('broadcast-notification', (data) => {
