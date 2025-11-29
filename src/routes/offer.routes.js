@@ -92,6 +92,20 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
             // لا نوقف العملية إذا فشل الإشعار
         }
 
+        // 🆕 🎯 الإصلاح: أضف أقواس متعرجة حول الكود الجديد
+        {
+            // 🆕 إرسال إشعار مخصص للعروض
+            if (req.io) {
+                req.io.emit('new-offer', {
+                    message: `🎊 ${newOffer.title} - ${newOffer.description}`,
+                    offer: newOffer,
+                    link: '/',
+                    type: 'offer_created'
+                });
+                console.log('📢 تم إرسال إشعار new-offer');
+            }
+        }
+
         res.status(201).json({ 
             message: 'تم إنشاء العرض بنجاح وإرسال الإشعارات!',
             offer: newOffer 
