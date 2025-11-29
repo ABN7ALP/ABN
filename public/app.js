@@ -7,6 +7,43 @@ document.addEventListener('DOMContentLoaded', () => {
     // في app.js - أضف في الأعلى مع المتغيرات
    let priceUpdateTimeout = null;
 
+
+// دالة مساعدة لحساب السعر مع الخصم - محسنة
+async function calculatePriceWithDiscount(serviceName, platform, quantity, userId = null) {
+    // 🆕 إذا كانت الكمية غير صالحة، إرجاع سعر صفر
+    if (isNaN(quantity) || quantity <= 0) {
+        return { originalPrice: 0, finalPrice: 0, discount: 0, hasDiscount: false };
+    }
+
+    try {
+        const response = await fetch('/api/orders/calculate-price', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ serviceName, platform, quantity, userId })
+        });
+        
+        if (response.ok) {
+            return await response.json();
+        } else {
+            throw new Error('فشل حساب السعر');
+        }
+    } catch (error) {
+        console.error('Error calculating discount:', error);
+        // 🆕 Fallback أسرع إذا فشل الحساب
+        const service = servicesData[platform]?.services.find(s => s.name === serviceName);
+        if (!service) return { originalPrice: 0, finalPrice: 0, discount: 0, hasDiscount: false };
+        
+        const pricePerUnit = service.pricePer1000 / 1000;
+        const originalPrice = pricePerUnit * quantity;
+        return {
+            originalPrice: parseFloat(originalPrice.toFixed(4)),
+            finalPrice: parseFloat(originalPrice.toFixed(4)),
+            discount: 0,
+            hasDiscount: false
+        };
+    }
+}
+    
 // 🆕 🔽 أضف هنا - دوال قوة كلمة المرور 🔽
 // دالة التحقق من قوة كلمة المرور
 function checkPasswordStrength(password) {
@@ -1257,23 +1294,6 @@ async function updatePrice() {
     }, 300); // 🆕 انتظر 300ms بعد آخر كتابة
 }
 
-// 🆕 أضف event listener لمسح الوقت عند مسح الحقل
-quantityInput.addEventListener('input', () => {
-    const quantity = parseInt(quantityInput.value, 10);
-    
-    // 🆕 إذا كان الحقل فارغاً، مسح السعر فوراً
-    if (isNaN(quantity) || quantity <= 0) {
-        if (priceUpdateTimeout) {
-            clearTimeout(priceUpdateTimeout);
-        }
-        priceDisplay.textContent = '0.00 $';
-        return;
-    }
-    
-    updatePrice();
-    validateQuantity();
-});
-
     function validateLink() {
         const link = linkInput.value;
         const platformData = servicesData[currentPlatform];
@@ -1317,18 +1337,26 @@ quantityInput.addEventListener('input', () => {
 
     // --- 6. معالجة إرسال الطلب وخيارات الدفع ---
     function handleFormSubmit(event) {
-        event.preventDefault();
-        if (!validateLink() || !validateQuantity()) {
-            alert('الرجاء تصحيح الأخطاء في النموذج.');
-            return;
-        }
-        
+    event.preventDefault();
+    if (!validateLink() || !validateQuantity()) {
+        alert('الرجاء تصحيح الأخطاء في النموذج.');
+        return;
+    }
+    
+    // 🆕 حساب السعر النهائي قبل المتابعة
+    const quantity = parseInt(quantityInput.value, 10);
+    calculatePriceWithDiscount(
+        serviceSelect.value,
+        currentPlatform,
+        quantity,
+        userInfo ? userInfo._id : null
+    ).then(priceData => {
         currentOrderData = { 
             platform: currentPlatform, 
             service: serviceSelect.value, 
             link: linkInput.value, 
-            quantity: parseInt(quantityInput.value, 10), 
-            price: parseFloat(priceDisplay.textContent.replace(' $', '')), 
+            quantity: quantity, 
+            price: priceData.finalPrice, // 🎯 استخدم السعر بعد الخصم
             userId: userInfo ? userInfo._id : null 
         };
         
@@ -1343,7 +1371,11 @@ quantityInput.addEventListener('input', () => {
             payWithBalanceBtn.disabled = true;
             balanceError.textContent = userInfo ? 'رصيدك الحالي غير كافٍ.' : 'سجل الدخول للدفع بالرصيد.';
         }
-    }
+    }).catch(error => {
+        console.error('Error calculating final price:', error);
+        alert('حدث خطأ في حساب السعر. يرجى المحاولة مرة أخرى.');
+    });
+}
 
     async function executePayWithBalance() {
         try {
@@ -1743,6 +1775,25 @@ socket.on('broadcast-notification', (data) => {
         fetchActiveOffers();
     }
 });   
+
+
+
+   // 🆕 أضف event listener لمسح الوقت عند مسح الحقل
+quantityInput.addEventListener('input', () => {
+    const quantity = parseInt(quantityInput.value, 10);
+    
+    // 🆕 إذا كان الحقل فارغاً، مسح السعر فوراً
+    if (isNaN(quantity) || quantity <= 0) {
+        if (priceUpdateTimeout) {
+            clearTimeout(priceUpdateTimeout);
+        }
+        priceDisplay.textContent = '0.00 $';
+        return;
+    }
+    
+    updatePrice();
+    validateQuantity();
+}); 
 
     // 🆕 🔽 أضف هذا الكود هنا 🔽
     // إضافة event listener لكلمة المرور في نموذج التسجيل
