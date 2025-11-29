@@ -245,31 +245,36 @@ router.get('/my-orders', async (req, res) => {
 
 
 // --- POST /api/orders/pay-with-balance (النسخة الآمنة والمكتملة) ---
+// في order.routes.js - عدل دالة pay-with-balance
 router.post('/pay-with-balance', async (req, res) => {
-    // 1. نستلم البيانات الأساسية (ونتجاهل السعر القادم من المستخدم للأمان)
-    const { userId, service: serviceName, link, quantity, platform } = req.body;
-
-    if (!userId) return res.status(401).json({ message: 'يجب تسجيل الدخول.' });
-
-    // التحقق من أن الكمية رقم صحيح وموجب
-    const requestedQuantity = parseInt(quantity);
-    if (isNaN(requestedQuantity) || requestedQuantity <= 0) {
-        return res.status(400).json({ message: 'الكمية غير صالحة.' });
-    }
-
     try {
-        // 2. نجلب المستخدم
+        const { userId, service: serviceName, link, quantity, platform } = req.body;
+
+        if (!userId) return res.status(401).json({ message: 'يجب تسجيل الدخول.' });
+
+        // 🆕 أولاً: حساب السعر مع الخصم
+        const priceData = await calculateFinalPrice(serviceName, platform, parseInt(quantity), userId);
+        const finalPrice = priceData.finalPrice;
+
+        console.log('💰 السعر النهائي للدفع:', { finalPrice, originalPrice: priceData.originalPrice, discount: priceData.discount });
+
+        // التحقق من أن الكمية رقم صحيح وموجب
+        const requestedQuantity = parseInt(quantity);
+        if (isNaN(requestedQuantity) || requestedQuantity <= 0) {
+            return res.status(400).json({ message: 'الكمية غير صالحة.' });
+        }
+
+        // جلب المستخدم
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ message: 'المستخدم غير موجود.' });
 
-        // 3. (هام جداً) نبحث عن الخدمة في قاعدة البيانات للحصول على سعرها الحقيقي
+        // 🆕 جلب الخدمة للتحقق من القيود فقط (لا نحتاج سعرها)
         const serviceDoc = await Service.findOne({ name: serviceName, platform: platform });
-        
         if (!serviceDoc) {
             return res.status(404).json({ message: 'الخدمة غير متوفرة حالياً.' });
         }
 
-        // 4. التحقق من قيود الخدمة (min, max, step)
+        // التحقق من قيود الخدمة (min, max, step)
         if (requestedQuantity < serviceDoc.min || requestedQuantity > serviceDoc.max) {
             return res.status(400).json({ message: `الكمية المطلوبة يجب أن تكون بين ${serviceDoc.min} و ${serviceDoc.max}.` });
         }
@@ -277,51 +282,55 @@ router.post('/pay-with-balance', async (req, res) => {
             return res.status(400).json({ message: `الكمية يجب أن تكون مضاعفاً للخطوة: ${serviceDoc.step}.` });
         }
 
-        // 5. حساب السعر الفعلي
-        // السعر لكل وحدة = سعر الألف / 1000
-        const pricePerUnit = serviceDoc.pricePer1000 / 1000;
-        const finalPrice = pricePerUnit * requestedQuantity;
-        const price = parseFloat(finalPrice.toFixed(4)); // لضمان دقة تصل إلى 4 منازل عشرية
-
-        // 6. التحقق من الرصيد
-        if (user.balance < price) {
-            return res.status(400).json({ message: 'رصيدك غير كافٍ لإتمام هذا الطلب.' });
+        // 🆕 التحقق من الرصيد مع السعر بعد الخصم
+        if (user.balance < finalPrice) {
+            return res.status(400).json({ 
+                message: `رصيدك غير كافٍ لإتمام هذا الطلب. تحتاج ${finalPrice.toFixed(2)}$ ورصيدك ${user.balance.toFixed(2)}$.` 
+            });
         }
 
-        // 7. خصم المبلغ وحفظ المستخدم
-        user.balance -= price;
+        // 🆕 خصم المبلغ بعد الخصم
+        user.balance -= finalPrice;
         await user.save();
 
-        // 8. إنشاء الطلب
+        // 🆕 إنشاء الطلب مع السعر النهائي (بعد الخصم)
         const newOrder = new Order({
             platform,
             service: serviceName,
             link,
             quantity: requestedQuantity,
-            price,
+            price: finalPrice, // 🎯 استخدم السعر بعد الخصم
             user: userId,
-            status: 'قيد التنفيذ' // نبدأه مباشرة كـ 'قيد التنفيذ' لطلبات الرصيد
+            status: 'قيد التنفيذ'
         });
         await newOrder.save();
 
-        // 9. إشعار للمدير والعميل
+        // إشعار للمدير والعميل
         req.io.emit('new-order');
         
-        const notificationMessage = `تم تنفيذ طلبك للخدمة "${serviceName}" بنجاح، بتكلفة ${price.toFixed(2)}$`;
+        const notificationMessage = priceData.hasDiscount ? 
+            `تم تنفيذ طلبك للخدمة "${serviceName}" بنجاح، بتكلفة ${finalPrice.toFixed(2)}$ (وفرت ${priceData.discount.toFixed(2)}$) 🎉` :
+            `تم تنفيذ طلبك للخدمة "${serviceName}" بنجاح، بتكلفة ${finalPrice.toFixed(2)}$`;
+        
         const newNotification = new Notification({
             user: user._id,
             message: notificationMessage,
-            link: '/my-orders.html' 
+            link: '/my-orders.html',
+            type: 'user'
         });
         await newNotification.save();
+        
         req.io.emit('new-notification', { userId: user._id.toString() });
 
-
-        // 10. إرسال الاستجابة
+        // إرسال الاستجابة
         res.status(201).json({
-            message: 'تم خصم المبلغ وإنشاء الطلب بنجاح!',
+            message: priceData.hasDiscount ? 
+                `تم خصم ${finalPrice.toFixed(2)}$ من رصيدك (وفرت ${priceData.discount.toFixed(2)}$)!` :
+                `تم خصم ${finalPrice.toFixed(2)}$ من رصيدك!`,
             newBalance: user.balance,
-            order: newOrder
+            order: newOrder,
+            discountApplied: priceData.hasDiscount,
+            discountAmount: priceData.discount
         });
 
     } catch (error) {
