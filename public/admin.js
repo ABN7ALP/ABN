@@ -147,31 +147,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let offersLockSystem;
 
-    
-    
-    // 🆕 ضع هذه الدوال بعد تعريف المتغيرات وقبل checkAdminAccess
-    function initOffersLock() {
-        if (document.getElementById('offers-section')) {
-            offersLockSystem = new OffersLockSystem();
-        }
+// 🆕 ضع هذه الدوال بعد تعريف المتغيرات وقبل checkAdminAccess
+function initOffersLock() {
+    if (document.getElementById('offers-section')) {
+        offersLockSystem = new OffersLockSystem();
     }
+}
 
-    // دالة مجمعة لجلب جميع البيانات
-    function loadDashboardData() {
-        // 🆕 تحقق من القفل قبل تحميل العروض
-        if (offersLockSystem && !offersLockSystem.checkAccess()) {
-            console.log('🔒 قسم العروض مقفل - لن يتم تحميل البيانات');
-            return;
-        }
-    // دالة مجمعة لجلب جميع البيانات
-    function loadDashboardData() {
-        fetchStats();
-        fetchOrders();
-        fetchServices();
-        fetchDeposits();
-        fetchUsers();
-        fetchOffers();
+// دالة مجمعة لجلب جميع البيانات
+function loadDashboardData() {
+    // 🆕 تحقق من القفل قبل تحميل العروض
+    if (offersLockSystem && !offersLockSystem.checkAccess()) {
+        console.log('🔒 قسم العروض مقفل - لن يتم تحميل البيانات');
+        return;
     }
+    
+    fetchStats();
+    fetchOrders();
+    fetchServices();
+    fetchDeposits();
+    fetchUsers();
+    fetchOffers();
+}
 
     // دالة التحقق من صلاحيات الأدمن والتوكن
     function checkAdminAccess() {
