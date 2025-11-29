@@ -904,3 +904,103 @@
 .offers-section[style*="display: none"] {
     display: none !important;
 }
+/* 🔍 أنماط البحث */
+.search-section {
+    padding: 2rem 0;
+    background: var(--white-pure);
+    border-bottom: 1px solid var(--gray-border);
+}
+
+.search-box {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto 1.5rem;
+}
+
+.search-box i {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+}
+
+#services-search {
+    width: 100%;
+    padding: 1rem 3rem 1rem 1rem;
+    border: 2px solid var(--gray-border);
+    border-radius: var(--radius-button);
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+}
+
+#services-search:focus {
+    border-color: var(--purple-main);
+    box-shadow: 0 0 0 3px rgba(124, 30, 255, 0.1);
+}
+
+.clear-search-btn {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--gray-border);
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.clear-search-btn:hover {
+    background: var(--danger-red);
+    color: white;
+}
+
+.search-filters {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--gray-border);
+    border-radius: var(--radius-button);
+    background: var(--white-pure);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-weight: 600;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    background: var(--purple-main);
+    color: white;
+    border-color: var(--purple-main);
+}
+
+/* نتائج البحث */
+.search-results-count {
+    text-align: center;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.no-results {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-light);
+}
+
+.no-results i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
