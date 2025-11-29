@@ -894,12 +894,22 @@ async function fetchActiveOffers() {
     }
 }
 
-// دالة لعرض العروض
+// دالة لعرض العروض - مصححة
 function renderOffers(offers) {
     const offersContainer = document.getElementById('offers-container');
+    const offersCount = document.getElementById('offers-count');
+    const offersSection = document.getElementById('offers-section');
+    
     if (!offersContainer) return;
     
+    // تحديث عدد العروض
+    if (offersCount) {
+        offersCount.textContent = `(${offers ? offers.length : 0} عرض)`;
+    }
+    
+    // إخفاء القسم إذا لم يكن هناك عروض
     if (!offers || offers.length === 0) {
+        if (offersSection) offersSection.style.display = 'none';
         offersContainer.innerHTML = `
             <div class="no-offers" style="text-align: center; padding: 3rem; color: var(--text-light);">
                 <i class="ph-bold ph-gift" style="font-size: 3rem; opacity: 0.5; margin-bottom: 1rem; display: block;"></i>
@@ -907,6 +917,8 @@ function renderOffers(offers) {
             </div>
         `;
         return;
+    } else {
+        if (offersSection) offersSection.style.display = 'block';
     }
     
     offersContainer.innerHTML = offers.map(offer => {
@@ -926,38 +938,36 @@ function renderOffers(offers) {
         
         const isHotOffer = offer.discountPercentage > 20 || offer.discountAmount > 10;
         
-        // في دالة renderOffers - عدل return statement
-return `
-    <div class="offer-card ${isHotOffer ? 'hot-offer' : ''}">
-        <div class="offer-header">
-            <h3 class="offer-title">${offer.title}</h3>
-            <span class="offer-badge">${discountText}</span>
-        </div>
-        <p class="offer-description">${offer.description}</p>
-        <div class="offer-details">
-            <span class="discount-amount">${discountText}</span>
-            <div class="offer-period">
-                <i class="ph-bold ph-clock"></i>
-                <span>${periodText}</span>
+        return `
+            <div class="offer-card ${isHotOffer ? 'hot-offer' : ''}">
+                <div class="offer-header">
+                    <h3 class="offer-title">${offer.title}</h3>
+                    <span class="offer-badge">${discountText}</span>
+                </div>
+                <p class="offer-description">${offer.description}</p>
+                <div class="offer-details">
+                    <span class="discount-amount">${discountText}</span>
+                    <div class="offer-period">
+                        <i class="ph-bold ph-clock"></i>
+                        <span>${periodText}</span>
+                    </div>
+                </div>
+                <span class="offer-target">${targetText}</span>
+                
+                ${!userInfo && offer.targetUsers !== 'all' ? `
+                    <div class="offer-login-required" style="margin-top: 1rem; padding: 1rem; background: var(--purple-light); border-radius: var(--radius-input); text-align: center;">
+                        <p style="margin: 0 0 0.5rem 0; color: var(--purple-main); font-weight: 600;">
+                            <i class="ph-bold ph-lock"></i> لتستفيد من هذا العرض
+                        </p>
+                        <button class="pill-button primary-button" onclick="showAuthPopup('register')" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                            <i class="ph-bold ph-user-plus"></i> سجل دخول الآن
+                        </button>
+                    </div>
+                ` : ''}
             </div>
-        </div>
-        <span class="offer-target">${targetText}</span>
-        
-        ${!userInfo && offer.targetUsers !== 'all' ? `
-            <div class="offer-login-required" style="margin-top: 1rem; padding: 1rem; background: var(--purple-light); border-radius: var(--radius-input); text-align: center;">
-                <p style="margin: 0 0 0.5rem 0; color: var(--purple-main); font-weight: 600;">
-                    <i class="ph-bold ph-lock"></i> لتستفيد من هذا العرض
-                </p>
-                <button class="pill-button primary-button" onclick="showAuthPopup('register')" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-                    <i class="ph-bold ph-user-plus"></i> سجل دخول الآن
-                </button>
-            </div>
-        ` : ''}
-    </div>
-`;
+        `;
     }).join('');
 }
-
     
     // --- 3. نظام شحن الرصيد ---
     function showDepositPopup() {
@@ -1691,11 +1701,31 @@ async function calculatePriceWithDiscount(serviceName, platform, quantity, userI
         document.head.appendChild(style);
     }
 
-        // --- 9. البدء بتشغيل كل شيء ---
+    // نظام طي وفتح العروض
+function setupOffersToggle() {
+    const toggle = document.getElementById('offers-toggle');
+    const offersSection = document.getElementById('offers-section');
+    
+    if (toggle && offersSection) {
+        toggle.addEventListener('click', () => {
+            offersSection.classList.toggle('collapsed');
+            
+            // تغيير الأيقونة
+            const icon = toggle.querySelector('.toggle-icon');
+            if (icon) {
+                icon.classList.toggle('ph-caret-down');
+                icon.classList.toggle('ph-caret-up');
+            }
+        });
+    }
+}
+
+    // --- 9. البدء بتشغيل كل شيء ---
     updateUIForAuth();
     loadServices();
     showWelcomeOffers();
    fetchActiveOffers();
+   setupOffersToggle();
 
 // وأيضاً استمع لتحديثات العروض
 socket.on('broadcast-notification', (data) => {
