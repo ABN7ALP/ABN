@@ -618,10 +618,15 @@ async function handleAddOffer(e) {
     }
 }
 
-// 🆕 دالة حذف عرض
-// 🆕 دالة حذف عرض - محدثة
+// 🆕 دالة حذف عرض - مصححة
 async function handleDeleteOffer(event) {
-    const offerId = event.currentTarget.dataset.offerId;
+    const button = event.currentTarget;
+    const offerId = button.dataset.offerId;
+    
+    if (!offerId) {
+        console.error('❌ offerId غير موجود');
+        return;
+    }
     
     if (!confirm('هل أنت متأكد من حذف هذا العرض؟ سيتم إلغاء الإشعارات المرتبطة به.')) {
         return;
@@ -635,24 +640,28 @@ async function handleDeleteOffer(event) {
         
         if (!response.ok) throw new Error('فشل حذف العرض');
         
-        // 🆕 إزالة الصف من الجدول فوراً بدون إعادة تحميل
-        const row = event.currentTarget.closest('tr');
+        // 🆕 إزالة الصف من الجدول فوراً
+        const row = button.closest('tr');
         if (row) {
             row.style.opacity = '0';
+            row.style.transition = 'opacity 0.3s ease';
+            
             setTimeout(() => {
                 row.remove();
+                
                 // إذا لم يتبقى عروض، أظهر رسالة
                 const tbody = document.getElementById('offers-tbody');
                 if (tbody && tbody.children.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد عروض حالياً.</td></tr>';
                 }
             }, 300);
+        } else {
+            // إذا لم نجد الصف، جدد القائمة
+            fetchOffers();
         }
         
-        // 🆕 إرسال إشعار لتحديث الصفحة الرئيسية
-        socket.emit('offer-deleted');
-        
     } catch (error) {
+        console.error('❌ خطأ في حذف العرض:', error);
         alert(error.message);
     }
 }
