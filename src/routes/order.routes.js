@@ -1,9 +1,19 @@
-// في order.routes.js - أضف هذه الدالة في الأعلى
+const express = require('express');
+const router = express.Router();
+const Order = require('../models/order.model.js');
+const User = require('../models/user.model.js');
+const mongoose = require('mongoose');
+const Service = require('../models/service.model.js');
+const Notification = require('../models/notification.model.js');
+const authMiddleware = require('../middleware/auth.middleware');
+const adminMiddleware = require('../middleware/admin.middleware');
+
+// 🆕 دالة حساب السعر النهائي مع الخصم
 async function calculateFinalPrice(serviceName, platform, quantity, userId = null) {
     try {
         // جلب الخدمة الأساسية
         const service = await Service.findOne({ name: serviceName, platform: platform });
-        if (!service) return { originalPrice: 0, finalPrice: 0, discount: 0 };
+        if (!service) return { originalPrice: 0, finalPrice: 0, discount: 0, hasDiscount: false };
         
         // حساب السعر الأصلي
         const pricePerUnit = service.pricePer1000 / 1000;
@@ -19,6 +29,7 @@ async function calculateFinalPrice(serviceName, platform, quantity, userId = nul
         
         let finalPrice = originalPrice;
         let discount = 0;
+        let appliedOffer = null;
         
         // تطبيق الخصم إذا وجد عرض مناسب
         for (const offer of activeOffers) {
@@ -30,27 +41,30 @@ async function calculateFinalPrice(serviceName, platform, quantity, userId = nul
             let isUserEligible = true;
             if (userId) {
                 const user = await User.findById(userId);
-                if (offer.targetUsers === 'new' && user.createdAt < new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) {
-                    isUserEligible = false; // مستخدم قديم والعرض للمستخدمين الجدد فقط
-                } else if (offer.targetUsers === 'existing' && user.createdAt > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) {
-                    isUserEligible = false; // مستخدم جديد والعرض للمستخدمين القدامى فقط
+                if (user) {
+                    if (offer.targetUsers === 'new' && user.createdAt < new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) {
+                        isUserEligible = false; // مستخدم قديم والعرض للمستخدمين الجدد فقط
+                    } else if (offer.targetUsers === 'existing' && user.createdAt > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) {
+                        isUserEligible = false; // مستخدم جديد والعرض للمستخدمين القدامى فقط
+                    }
                 }
             } else if (offer.targetUsers !== 'all') {
                 isUserEligible = false; // زائر والعرض ليس للجميع
             }
             
             if (isServiceIncluded && isUserEligible) {
+                let offerDiscount = 0;
+                
                 if (offer.discountPercentage) {
-                    const offerDiscount = (originalPrice * offer.discountPercentage) / 100;
-                    if (offerDiscount > discount) {
-                        discount = offerDiscount;
-                        finalPrice = originalPrice - discount;
-                    }
+                    offerDiscount = (originalPrice * offer.discountPercentage) / 100;
                 } else if (offer.discountAmount) {
-                    if (offer.discountAmount > discount) {
-                        discount = offer.discountAmount;
-                        finalPrice = originalPrice - discount;
-                    }
+                    offerDiscount = offer.discountAmount;
+                }
+                
+                if (offerDiscount > discount) {
+                    discount = offerDiscount;
+                    finalPrice = originalPrice - discount;
+                    appliedOffer = offer;
                 }
             }
         }
@@ -59,11 +73,16 @@ async function calculateFinalPrice(serviceName, platform, quantity, userId = nul
             originalPrice: parseFloat(originalPrice.toFixed(4)),
             finalPrice: parseFloat(finalPrice.toFixed(4)),
             discount: parseFloat(discount.toFixed(4)),
-            hasDiscount: discount > 0
+            hasDiscount: discount > 0,
+            appliedOffer: appliedOffer
         };
         
     } catch (error) {
         console.error('Error calculating price:', error);
+        // Fallback إذا فشل الحساب
+        const service = await Service.findOne({ name: serviceName, platform: platform });
+        if (!service) return { originalPrice: 0, finalPrice: 0, discount: 0, hasDiscount: false };
+        
         const pricePerUnit = service.pricePer1000 / 1000;
         const originalPrice = pricePerUnit * quantity;
         return {
@@ -75,18 +94,23 @@ async function calculateFinalPrice(serviceName, platform, quantity, userId = nul
     }
 }
 
-
-
-
-const express = require('express');
-const router = express.Router();
-const Order = require('../models/order.model.js');
-const User = require('../models/user.model.js');
-const mongoose = require('mongoose');
-const Service = require('../models/service.model.js');
-const Notification = require('../models/notification.model.js');
-const authMiddleware = require('../middleware/auth.middleware');
-const adminMiddleware = require('../middleware/admin.middleware');
+// 🆕 Route جديد لحساب السعر مع الخصم
+router.post('/calculate-price', async (req, res) => {
+    try {
+        const { serviceName, platform, quantity, userId } = req.body;
+        
+        if (!serviceName || !platform || !quantity) {
+            return res.status(400).json({ message: 'بيانات غير مكتملة' });
+        }
+        
+        const priceData = await calculateFinalPrice(serviceName, platform, parseInt(quantity), userId);
+        res.json(priceData);
+        
+    } catch (error) {
+        console.error('Error in calculate-price route:', error);
+        res.status(500).json({ message: 'فشل حساب السعر' });
+    }
+});
 
 
 // --- POST /api/orders (للطلبات العادية عبر واتساب) ---
