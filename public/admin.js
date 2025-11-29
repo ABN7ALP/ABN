@@ -144,6 +144,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const editServiceForm = document.getElementById('edit-service-form');
     const closeEditPopupBtn = document.getElementById('close-edit-popup-btn');
 
+
+    let offersLockSystem;
+
+    
+    
+    // 🆕 ضع هذه الدوال بعد تعريف المتغيرات وقبل checkAdminAccess
+    function initOffersLock() {
+        if (document.getElementById('offers-section')) {
+            offersLockSystem = new OffersLockSystem();
+        }
+    }
+
+    // دالة مجمعة لجلب جميع البيانات
+    function loadDashboardData() {
+        // 🆕 تحقق من القفل قبل تحميل العروض
+        if (offersLockSystem && !offersLockSystem.checkAccess()) {
+            console.log('🔒 قسم العروض مقفل - لن يتم تحميل البيانات');
+            return;
+        }
     // دالة مجمعة لجلب جميع البيانات
     function loadDashboardData() {
         fetchStats();
@@ -151,6 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchServices();
         fetchDeposits();
         fetchUsers();
+        fetchOffers();
     }
 
     // دالة التحقق من صلاحيات الأدمن والتوكن
@@ -495,7 +515,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 🆕 دوال إدارة العروض
+// 🆕 دوال إدارة العروض - معدلة لدعم القفل
 async function fetchOffers() {
+    // تحقق من القفل أولاً
+    if (offersLockSystem && !offersLockSystem.checkAccess()) {
+        console.log('🔒 لا يمكن جلب العروض - القسم مقفل');
+        return;
+    }
+
     try {
         const response = await fetch('/api/offers', { 
             headers: getAuthHeaders() 
