@@ -619,6 +619,7 @@ async function handleAddOffer(e) {
 }
 
 // 🆕 دالة حذف عرض
+// 🆕 دالة حذف عرض - محدثة
 async function handleDeleteOffer(event) {
     const offerId = event.currentTarget.dataset.offerId;
     
@@ -634,7 +635,23 @@ async function handleDeleteOffer(event) {
         
         if (!response.ok) throw new Error('فشل حذف العرض');
         
-        fetchOffers(); // تحديث القائمة
+        // 🆕 إزالة الصف من الجدول فوراً بدون إعادة تحميل
+        const row = event.currentTarget.closest('tr');
+        if (row) {
+            row.style.opacity = '0';
+            setTimeout(() => {
+                row.remove();
+                // إذا لم يتبقى عروض، أظهر رسالة
+                const tbody = document.getElementById('offers-tbody');
+                if (tbody && tbody.children.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد عروض حالياً.</td></tr>';
+                }
+            }, 300);
+        }
+        
+        // 🆕 إرسال إشعار لتحديث الصفحة الرئيسية
+        socket.emit('offer-deleted');
+        
     } catch (error) {
         alert(error.message);
     }
