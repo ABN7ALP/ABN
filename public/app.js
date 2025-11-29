@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- المتغيرات العامة ---
     let servicesData = {}, currentPlatform = null, userInfo = null, currentOrderData = {};
+    // في app.js - أضف في الأعلى مع المتغيرات
+   let priceUpdateTimeout = null;
 
 // 🆕 🔽 أضف هنا - دوال قوة كلمة المرور 🔽
 // دالة التحقق من قوة كلمة المرور
@@ -1193,77 +1195,84 @@ function renderOffers(offers) {
     }
 
     // في app.js - استبدل دالة updatePrice
-// في app.js - استبدل دالة updatePrice
+// استبدل دالة updatePrice
 async function updatePrice() {
     const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
     if (!selectedOption) return;
     
     const quantity = parseInt(quantityInput.value, 10);
     
+    // 🆕 إذا كانت الكمية فارغة أو غير صالحة
     if (isNaN(quantity) || quantity <= 0) { 
         priceDisplay.textContent = '0.00 $'; 
         return; 
     }
-    
-    // حساب السعر مع الخصم
-    const priceData = await calculatePriceWithDiscount(
-        serviceSelect.value,
-        currentPlatform,
-        quantity,
-        userInfo ? userInfo._id : null
-    );
-    
-    if (priceData.hasDiscount) {
-        priceDisplay.innerHTML = `
-            <span style="text-decoration: line-through; color: var(--text-light); margin-left: 0.5rem;">
-                ${priceData.originalPrice.toFixed(2)} $
-            </span>
-            <span style="color: var(--success-green); font-weight: bold;">
-                ${priceData.finalPrice.toFixed(2)} $
-            </span>
-            <div style="font-size: 0.8rem; color: var(--success-green);">
-                وفرت ${priceData.discount.toFixed(2)} $ 🩷
-            </div>
-        `;
-    } else {
-        priceDisplay.textContent = `${priceData.finalPrice.toFixed(2)} $`;
+
+    // 🆕 إلغاء الحساب السابق إذا كان موجوداً
+    if (priceUpdateTimeout) {
+        clearTimeout(priceUpdateTimeout);
     }
-    
-    priceDisplay.style.transform = 'scale(1.1)';
-    setTimeout(() => {
-        priceDisplay.style.transform = 'scale(1)';
-    }, 200);
+
+    // 🆕 استخدام debounce لتجنب طلبات متعددة
+    priceUpdateTimeout = setTimeout(async () => {
+        try {
+            // حساب السعر مع الخصم
+            const priceData = await calculatePriceWithDiscount(
+                serviceSelect.value,
+                currentPlatform,
+                quantity,
+                userInfo ? userInfo._id : null
+            );
+            
+            // 🆕 تحديث واجهة المستخدم
+            if (priceData.hasDiscount && priceData.discount > 0) {
+                priceDisplay.innerHTML = `
+                    <span style="text-decoration: line-through; color: var(--text-light); margin-left: 0.5rem;">
+                        ${priceData.originalPrice.toFixed(2)} $
+                    </span>
+                    <span style="color: var(--success-green); font-weight: bold;">
+                        ${priceData.finalPrice.toFixed(2)} $
+                    </span>
+                    <div style="font-size: 0.8rem; color: var(--success-green);">
+                        وفرت ${priceData.discount.toFixed(2)} $ 🎉
+                    </div>
+                `;
+            } else {
+                priceDisplay.textContent = `${priceData.finalPrice.toFixed(2)} $`;
+            }
+            
+            priceDisplay.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                priceDisplay.style.transform = 'scale(1)';
+            }, 200);
+
+        } catch (error) {
+            console.error('Error updating price:', error);
+            // 🆕 Fallback: حساب سريع بدون خصم
+            const pricePer1000 = parseFloat(selectedOption.dataset.price);
+            const pricePerUnit = pricePer1000 / 1000;
+            const finalPrice = pricePerUnit * quantity;
+            priceDisplay.textContent = `${finalPrice.toFixed(2)} $`;
+        }
+    }, 300); // 🆕 انتظر 300ms بعد آخر كتابة
 }
 
-// دالة مساعدة لحساب السعر مع الخصم
-async function calculatePriceWithDiscount(serviceName, platform, quantity, userId = null) {
-    try {
-        const response = await fetch('/api/orders/calculate-price', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ serviceName, platform, quantity, userId })
-        });
-        
-        if (response.ok) {
-            return await response.json();
+// 🆕 أضف event listener لمسح الوقت عند مسح الحقل
+quantityInput.addEventListener('input', () => {
+    const quantity = parseInt(quantityInput.value, 10);
+    
+    // 🆕 إذا كان الحقل فارغاً، مسح السعر فوراً
+    if (isNaN(quantity) || quantity <= 0) {
+        if (priceUpdateTimeout) {
+            clearTimeout(priceUpdateTimeout);
         }
-    } catch (error) {
-        console.error('Error calculating discount:', error);
+        priceDisplay.textContent = '0.00 $';
+        return;
     }
     
-    // Fallback إذا فشل الحساب
-    const service = servicesData[platform]?.services.find(s => s.name === serviceName);
-    if (!service) return { originalPrice: 0, finalPrice: 0, discount: 0, hasDiscount: false };
-    
-    const pricePerUnit = service.pricePer1000 / 1000;
-    const originalPrice = pricePerUnit * quantity;
-    return {
-        originalPrice: parseFloat(originalPrice.toFixed(4)),
-        finalPrice: parseFloat(originalPrice.toFixed(4)),
-        discount: 0,
-        hasDiscount: false
-    };
-}
+    updatePrice();
+    validateQuantity();
+});
 
     function validateLink() {
         const link = linkInput.value;
