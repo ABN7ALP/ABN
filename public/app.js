@@ -878,6 +878,74 @@ function closeOffersPopup() {
         popup.remove();
     }
 }
+
+// في app.js - أضف هذه الدوال
+
+// دالة لجلب العروض النشطة
+async function fetchActiveOffers() {
+    try {
+        const response = await fetch('/api/offers/active');
+        if (!response.ok) return;
+        
+        const offers = await response.json();
+        renderOffers(offers);
+    } catch (error) {
+        console.error('Error fetching offers:', error);
+    }
+}
+
+// دالة لعرض العروض
+function renderOffers(offers) {
+    const offersContainer = document.getElementById('offers-container');
+    if (!offersContainer) return;
+    
+    if (!offers || offers.length === 0) {
+        offersContainer.innerHTML = `
+            <div class="no-offers" style="text-align: center; padding: 3rem; color: var(--text-light);">
+                <i class="ph-bold ph-gift" style="font-size: 3rem; opacity: 0.5; margin-bottom: 1rem; display: block;"></i>
+                <p>لا توجد عروض حالياً. تابعنا للحصول على أحدث العروض!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    offersContainer.innerHTML = offers.map(offer => {
+        const discountText = offer.discountPercentage ? 
+            `خصم ${offer.discountPercentage}%` : 
+            offer.discountAmount ? 
+            `وفر ${offer.discountAmount}$` : 
+            'عرض خاص';
+        
+        const periodText = `ينتهي في ${new Date(offer.endDate).toLocaleDateString('ar-EG')}`;
+        
+        const targetText = {
+            'all': 'لجميع المستخدمين',
+            'new': 'للمستخدمين الجدد فقط',
+            'existing': 'للمستخدمين الحاليين فقط'
+        }[offer.targetUsers] || offer.targetUsers;
+        
+        const isHotOffer = offer.discountPercentage > 20 || offer.discountAmount > 10;
+        
+        return `
+            <div class="offer-card ${isHotOffer ? 'hot-offer' : ''}">
+                <div class="offer-header">
+                    <h3 class="offer-title">${offer.title}</h3>
+                    <span class="offer-badge">${discountText}</span>
+                </div>
+                <p class="offer-description">${offer.description}</p>
+                <div class="offer-details">
+                    <span class="discount-amount">${discountText}</span>
+                    <div class="offer-period">
+                        <i class="ph-bold ph-clock"></i>
+                        <span>${periodText}</span>
+                    </div>
+                </div>
+                <span class="offer-target">${targetText}</span>
+            </div>
+        `;
+    }).join('');
+}
+
     
     // --- 3. نظام شحن الرصيد ---
     function showDepositPopup() {
@@ -1563,6 +1631,15 @@ function closeOffersPopup() {
     updateUIForAuth();
     loadServices();
     showWelcomeOffers();
+   fetchActiveOffers();
+
+// وأيضاً استمع لتحديثات العروض
+socket.on('broadcast-notification', (data) => {
+    // إذا كان الإشعار عن عرض جديد، جدد العروض
+    if (data.message && data.message.includes('عرض')) {
+        fetchActiveOffers();
+    }
+});   
 
     // 🆕 🔽 أضف هذا الكود هنا 🔽
     // إضافة event listener لكلمة المرور في نموذج التسجيل
