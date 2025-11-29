@@ -51,23 +51,34 @@
             </section>
 
             <!-- Orders Section -->
-            <section id="orders-section" class="admin-section">
-                <div class="section-header"><h2><i class="ph-bold ph-shopping-cart"></i> الطلبات الأخيرة</h2></div>
-                <div class="table-container">
-                    <table id="orders-table">
-                        <thead><tr><th>المنصة</th><th>الخدمة</th><th>الرابط</th><th>الكمية</th><th>السعر</th><th>تاريخ الطلب</th><th>الحالة</th></tr></thead>
-                        <tbody id="orders-tbody"></tbody>
-                    </table>
-                    <div id="loading-spinner" class="loading-spinner"><i class="ph-bold ph-spinner-gap animate-spin"></i></div>
-                </div>
-            </section>
-
+<section id="orders-section" class="admin-section">
+    <div class="section-header">
+        <h2><i class="ph-bold ph-shopping-cart"></i> الطلبات الأخيرة</h2>
+        <div class="admin-search-box">
+            <input type="text" id="orders-search" placeholder="ابحث في الطلبات...">
+            <i class="ph-bold ph-magnifying-glass"></i>
+        </div>
+    </div>
+    <div class="table-container">
+        <table id="orders-table">
+            <thead><tr><th>المنصة</th><th>الخدمة</th><th>الرابط</th><th>الكمية</th><th>السعر</th><th>تاريخ الطلب</th><th>الحالة</th></tr></thead>
+            <tbody id="orders-tbody"></tbody>
+        </table>
+        <div id="loading-spinner" class="loading-spinner"><i class="ph-bold ph-spinner-gap animate-spin"></i></div>
+    </div>
+</section>
             <!-- 🔽 أضف قبل </main> -->
-            <section id="users-section" class="admin-section">
-                <div class="section-header">
-               <h2><i class="ph-bold ph-users"></i> إدارة المستخدمين</h2></div>
-               <div class="table-container">
-              <div class="table-actions">
+            <!-- Users Section -->
+<section id="users-section" class="admin-section">
+    <div class="section-header">
+        <h2><i class="ph-bold ph-users"></i> إدارة المستخدمين</h2>
+        <div class="admin-search-box">
+            <input type="text" id="users-search" placeholder="ابحث في المستخدمين...">
+            <i class="ph-bold ph-magnifying-glass"></i>
+        </div>
+    </div>
+    <div class="table-container">
+        <div class="table-actions">
             <button id="export-emails-btn" class="pill-button primary-button">
                 <i class="ph-bold ph-download"></i> تصدير الإيميلات
             </button>
@@ -90,11 +101,14 @@
     </div>
 </section>
 
-
 <!-- قسم إدارة العروض -->
 <section id="offers-section" class="admin-section">
     <div class="section-header">
         <h2><i class="ph-bold ph-gift"></i> إدارة العروض المؤقتة</h2>
+        <div class="admin-search-box">
+            <input type="text" id="offers-search" placeholder="ابحث في العروض...">
+            <i class="ph-bold ph-magnifying-glass"></i>
+        </div>
     </div>
     
     <!-- نموذج إضافة عرض جديد -->
@@ -182,19 +196,32 @@
 </section>
             
             <!-- Deposits Section -->
-            <section id="deposits-section" class="admin-section">
-                <div class="section-header"><h2><i class="ph-bold ph-bank"></i> طلبات شحن الرصيد</h2></div>
-                <div class="table-container">
-                    <table id="deposits-table">
-                        <thead><tr><th>المستخدم</th><th>المبلغ</th><th>الطريقة</th><th>اسم المودع</th><th>الإيصال</th><th>الحالة</th><th>إجراءات</th></tr></thead>
-                        <tbody id="deposits-tbody"></tbody>
-                    </table>
-                </div>
-            </section>
+<section id="deposits-section" class="admin-section">
+    <div class="section-header">
+        <h2><i class="ph-bold ph-bank"></i> طلبات شحن الرصيد</h2>
+        <div class="admin-search-box">
+            <input type="text" id="deposits-search" placeholder="ابحث في طلبات الشحن...">
+            <i class="ph-bold ph-magnifying-glass"></i>
+        </div>
+    </div>
+    <div class="table-container">
+        <table id="deposits-table">
+            <thead><tr><th>المستخدم</th><th>المبلغ</th><th>الطريقة</th><th>اسم المودع</th><th>الإيصال</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+            <tbody id="deposits-tbody"></tbody>
+        </table>
+    </div>
+</section>
 
             <!-- Services Section -->
-            <section id="services-section" class="admin-section">
-                <h2><i class="ph-bold ph-plus-circle"></i> إضافة خدمة جديدة</h2>
+            <!-- Services Section -->
+<section id="services-section" class="admin-section">
+    <div class="section-header">
+        <h2><i class="ph-bold ph-plus-circle"></i> إضافة خدمة جديدة</h2>
+        <div class="admin-search-box">
+            <input type="text" id="services-search-admin" placeholder="ابحث في الخدمات...">
+            <i class="ph-bold ph-magnifying-glass"></i>
+        </div>
+    </div>
                 <form id="add-service-form" class="admin-form">
                     <div class="form-row">
                         <div class="form-group"><label>المنصة</label><input type="text" id="service-platform" placeholder="مثال: Instagram" required></div>
