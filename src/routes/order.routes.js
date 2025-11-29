@@ -1,3 +1,83 @@
+// في order.routes.js - أضف هذه الدالة في الأعلى
+async function calculateFinalPrice(serviceName, platform, quantity, userId = null) {
+    try {
+        // جلب الخدمة الأساسية
+        const service = await Service.findOne({ name: serviceName, platform: platform });
+        if (!service) return { originalPrice: 0, finalPrice: 0, discount: 0 };
+        
+        // حساب السعر الأصلي
+        const pricePerUnit = service.pricePer1000 / 1000;
+        const originalPrice = pricePerUnit * quantity;
+        
+        // جلب العروض النشطة
+        const now = new Date();
+        const activeOffers = await Offer.find({
+            isActive: true,
+            startDate: { $lte: now },
+            endDate: { $gte: now }
+        });
+        
+        let finalPrice = originalPrice;
+        let discount = 0;
+        
+        // تطبيق الخصم إذا وجد عرض مناسب
+        for (const offer of activeOffers) {
+            // تحقق إذا الخدمة مشمولة في العرض
+            const isServiceIncluded = offer.services.length === 0 || 
+                                    offer.services.includes(service.id);
+            
+            // تحقق من الفئة المستهدفة
+            let isUserEligible = true;
+            if (userId) {
+                const user = await User.findById(userId);
+                if (offer.targetUsers === 'new' && user.createdAt < new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) {
+                    isUserEligible = false; // مستخدم قديم والعرض للمستخدمين الجدد فقط
+                } else if (offer.targetUsers === 'existing' && user.createdAt > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) {
+                    isUserEligible = false; // مستخدم جديد والعرض للمستخدمين القدامى فقط
+                }
+            } else if (offer.targetUsers !== 'all') {
+                isUserEligible = false; // زائر والعرض ليس للجميع
+            }
+            
+            if (isServiceIncluded && isUserEligible) {
+                if (offer.discountPercentage) {
+                    const offerDiscount = (originalPrice * offer.discountPercentage) / 100;
+                    if (offerDiscount > discount) {
+                        discount = offerDiscount;
+                        finalPrice = originalPrice - discount;
+                    }
+                } else if (offer.discountAmount) {
+                    if (offer.discountAmount > discount) {
+                        discount = offer.discountAmount;
+                        finalPrice = originalPrice - discount;
+                    }
+                }
+            }
+        }
+        
+        return {
+            originalPrice: parseFloat(originalPrice.toFixed(4)),
+            finalPrice: parseFloat(finalPrice.toFixed(4)),
+            discount: parseFloat(discount.toFixed(4)),
+            hasDiscount: discount > 0
+        };
+        
+    } catch (error) {
+        console.error('Error calculating price:', error);
+        const pricePerUnit = service.pricePer1000 / 1000;
+        const originalPrice = pricePerUnit * quantity;
+        return {
+            originalPrice: parseFloat(originalPrice.toFixed(4)),
+            finalPrice: parseFloat(originalPrice.toFixed(4)),
+            discount: 0,
+            hasDiscount: false
+        };
+    }
+}
+
+
+
+
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/order.model.js');
