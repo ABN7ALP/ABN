@@ -934,6 +934,7 @@ async function fetchActiveOffers() {
 }
 
 // دالة لعرض العروض - مصححة
+// دالة لعرض العروض - مصححة
 function renderOffers(offers) {
     const offersContainer = document.getElementById('offers-container');
     const offersCount = document.getElementById('offers-count');
@@ -978,7 +979,7 @@ function renderOffers(offers) {
         const isHotOffer = offer.discountPercentage > 20 || offer.discountAmount > 10;
         
         return `
-            <div class="offer-card ${isHotOffer ? 'hot-offer' : ''}">
+            <div class="offer-card ${isHotOffer ? 'hot-offer' : ''}" data-offer-id="${offer._id}">
                 <div class="offer-header">
                     <h3 class="offer-title">${offer.title}</h3>
                     <span class="offer-badge">${discountText}</span>
@@ -998,7 +999,7 @@ function renderOffers(offers) {
                         <p style="margin: 0 0 0.5rem 0; color: var(--purple-main); font-weight: 600;">
                             <i class="ph-bold ph-lock"></i> لتستفيد من هذا العرض
                         </p>
-                        <button class="pill-button primary-button" onclick="showAuthPopup('register')" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                        <button class="offer-login-btn pill-button primary-button" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
                             <i class="ph-bold ph-user-plus"></i> سجل دخول الآن
                         </button>
                     </div>
@@ -1006,6 +1007,23 @@ function renderOffers(offers) {
             </div>
         `;
     }).join('');
+
+    // 🆕 أضف event listeners للأزرار بعد إنشاء العروض
+    setTimeout(() => {
+        document.querySelectorAll('.offer-login-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // استخدم الدالة المحلية بدلاً من العالمية
+                if (typeof showAuthPopup === 'function') {
+                    showAuthPopup('register');
+                } else {
+                    // Fallback: افتح نافذة التسجيل يدوياً
+                    authPopupOverlay.classList.remove('hidden');
+                    loginFormContainer.classList.add('hidden');
+                    registerFormContainer.classList.remove('hidden');
+                }
+            });
+        });
+    }, 100);
 }
     
     // --- 3. نظام شحن الرصيد ---
@@ -1776,7 +1794,26 @@ socket.on('broadcast-notification', (data) => {
     }
 });   
 
-
+// 🆕 event delegation للأزرار الديناميكية
+document.addEventListener('click', function(e) {
+    // إذا تم النقر على زر تسجيل الدخول في العروض
+    if (e.target.classList.contains('offer-login-btn') || 
+        e.target.closest('.offer-login-btn')) {
+        
+        e.preventDefault();
+        
+        // افتح نافذة التسجيل
+        authPopupOverlay.classList.remove('hidden');
+        if (loginFormContainer) loginFormContainer.classList.add('hidden');
+        if (registerFormContainer) registerFormContainer.classList.remove('hidden');
+        
+        // تهيئة حقول التسجيل
+        setTimeout(() => {
+            handleImageSelection();
+            setupPasswordStrength();
+        }, 100);
+    }
+});
 
    // 🆕 أضف event listener لمسح الوقت عند مسح الحقل
 quantityInput.addEventListener('input', () => {
