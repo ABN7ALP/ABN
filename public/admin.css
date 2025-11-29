@@ -624,6 +624,12 @@ tr:hover td {
     border: 2px solid var(--gray-border);
     border-radius: var(--radius-input);
     font-size: 0.9rem;
+    transition: all var(--transition-fast);
+}
+
+.admin-search-box input:focus {
+    border-color: var(--purple-main);
+    box-shadow: 0 0 0 3px rgba(124, 30, 255, 0.1);
 }
 
 .admin-search-box i {
@@ -641,4 +647,15 @@ tr:hover td {
     margin-bottom: 2.5rem;
     padding-bottom: 1rem;
     border-bottom: 2px solid var(--gray-border);
+}
+
+/* نتائج البحث */
+.search-results-info {
+    text-align: center;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    padding: 0.5rem;
+    background: var(--gray-bg);
+    border-radius: var(--radius-input);
 }
