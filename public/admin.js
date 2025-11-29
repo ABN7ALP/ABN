@@ -572,6 +572,7 @@ function renderOffers(offers) {
 }
 
 // 🆕 دالة إضافة عرض جديد
+// 🆕 دالة إضافة عرض جديد - معدلة للتشخيص
 async function handleAddOffer(e) {
     e.preventDefault();
     
@@ -588,6 +589,8 @@ async function handleAddOffer(e) {
         services: Array.from(document.getElementById('offer-services').selectedOptions).map(opt => opt.value)
     };
     
+    console.log('📦 بيانات العرض المرسلة:', formData);
+    
     try {
         const response = await fetch('/api/offers', {
             method: 'POST',
@@ -595,7 +598,10 @@ async function handleAddOffer(e) {
             body: JSON.stringify(formData)
         });
         
+        console.log('📡 استجابة السيرفر:', response.status);
+        
         const result = await response.json();
+        console.log('📄 بيانات الاستجابة:', result);
         
         if (response.ok) {
             document.getElementById('offer-form-response').textContent = result.message;
@@ -603,9 +609,10 @@ async function handleAddOffer(e) {
             document.getElementById('add-offer-form').reset();
             fetchOffers(); // تحديث القائمة
         } else {
-            throw new Error(result.message);
+            throw new Error(result.message || 'فشل إنشاء العرض');
         }
     } catch (error) {
+        console.error('❌ خطأ في إنشاء العرض:', error);
         document.getElementById('offer-form-response').textContent = error.message;
         document.getElementById('offer-form-response').style.color = 'red';
     }
