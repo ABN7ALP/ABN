@@ -10,15 +10,25 @@ const authMiddleware = require('../middleware/auth.middleware');
 const adminMiddleware = require('../middleware/admin.middleware');
 
 // 🆕 دالة حساب السعر النهائي مع الخصم
+// 🆕 دالة حساب السعر النهائي مع الخصم - مصححة
 async function calculateFinalPrice(serviceName, platform, quantity, userId = null) {
     try {
+        console.log('🔍 البحث عن الخدمة:', { serviceName, platform });
+        
         // جلب الخدمة الأساسية
         const service = await Service.findOne({ name: serviceName, platform: platform });
-        if (!service) return { originalPrice: 0, finalPrice: 0, discount: 0, hasDiscount: false };
+        if (!service) {
+            console.log('❌ الخدمة غير موجودة');
+            return { originalPrice: 0, finalPrice: 0, discount: 0, hasDiscount: false };
+        }
+        
+        console.log('✅ الخدمة موجودة:', service);
         
         // حساب السعر الأصلي
         const pricePerUnit = service.pricePer1000 / 1000;
         const originalPrice = pricePerUnit * quantity;
+        
+        console.log('💰 السعر الأصلي:', originalPrice);
         
         // جلب العروض النشطة
         const now = new Date();
@@ -28,58 +38,79 @@ async function calculateFinalPrice(serviceName, platform, quantity, userId = nul
             endDate: { $gte: now }
         });
         
+        console.log('🎁 العروض النشطة:', activeOffers.length);
+        
         let finalPrice = originalPrice;
         let discount = 0;
         let appliedOffer = null;
         
         // تطبيق الخصم إذا وجد عرض مناسب
         for (const offer of activeOffers) {
+            console.log('🔍 فحص العرض:', offer.title);
+            
             // تحقق إذا الخدمة مشمولة في العرض
             const isServiceIncluded = offer.services.length === 0 || 
-                                    offer.services.includes(service.id);
+                                    offer.services.includes(service.id) ||
+                                    offer.services.includes(service._id.toString());
+            
+            console.log('✅ الخدمة مشمولة في العرض:', isServiceIncluded);
             
             // تحقق من الفئة المستهدفة
             let isUserEligible = true;
             if (userId) {
                 const user = await User.findById(userId);
                 if (user) {
-                    if (offer.targetUsers === 'new' && user.createdAt < new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) {
-                        isUserEligible = false; // مستخدم قديم والعرض للمستخدمين الجدد فقط
-                    } else if (offer.targetUsers === 'existing' && user.createdAt > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) {
-                        isUserEligible = false; // مستخدم جديد والعرض للمستخدمين القدامى فقط
+                    const userAge = Date.now() - new Date(user.createdAt).getTime();
+                    const isNewUser = userAge < (7 * 24 * 60 * 60 * 1000); // أقل من أسبوع
+                    
+                    if (offer.targetUsers === 'new' && !isNewUser) {
+                        isUserEligible = false;
+                        console.log('❌ المستخدم قديم والعرض للمستخدمين الجدد فقط');
+                    } else if (offer.targetUsers === 'existing' && isNewUser) {
+                        isUserEligible = false;
+                        console.log('❌ المستخدم جديد والعرض للمستخدمين القدامى فقط');
                     }
                 }
             } else if (offer.targetUsers !== 'all') {
-                isUserEligible = false; // زائر والعرض ليس للجميع
+                isUserEligible = false;
+                console.log('❌ زائر والعرض ليس للجميع');
             }
+            
+            console.log('✅ المستخدم مؤهل:', isUserEligible);
             
             if (isServiceIncluded && isUserEligible) {
                 let offerDiscount = 0;
                 
                 if (offer.discountPercentage) {
                     offerDiscount = (originalPrice * offer.discountPercentage) / 100;
+                    console.log(`📊 خصم نسبي: ${offer.discountPercentage}% = ${offerDiscount}$`);
                 } else if (offer.discountAmount) {
                     offerDiscount = offer.discountAmount;
+                    console.log(`📊 خصم مقطوع: ${offerDiscount}$`);
                 }
                 
                 if (offerDiscount > discount) {
                     discount = offerDiscount;
                     finalPrice = originalPrice - discount;
                     appliedOffer = offer;
+                    console.log('🎯 تم تطبيق الخصم:', discount);
                 }
             }
         }
         
-        return {
+        const result = {
             originalPrice: parseFloat(originalPrice.toFixed(4)),
             finalPrice: parseFloat(finalPrice.toFixed(4)),
             discount: parseFloat(discount.toFixed(4)),
             hasDiscount: discount > 0,
-            appliedOffer: appliedOffer
+            appliedOffer: appliedOffer ? appliedOffer.title : null
         };
         
+        console.log('🎉 النتيجة النهائية:', result);
+        return result;
+        
     } catch (error) {
-        console.error('Error calculating price:', error);
+        console.error('❌ خطأ في حساب السعر:', error);
         // Fallback إذا فشل الحساب
         const service = await Service.findOne({ name: serviceName, platform: platform });
         if (!service) return { originalPrice: 0, finalPrice: 0, discount: 0, hasDiscount: false };
@@ -96,8 +127,11 @@ async function calculateFinalPrice(serviceName, platform, quantity, userId = nul
 }
 
 // 🆕 Route جديد لحساب السعر مع الخصم
+// 🆕 Route جديد لحساب السعر مع الخصم
 router.post('/calculate-price', async (req, res) => {
     try {
+        console.log('📊 حساب السعر - البيانات المستلمة:', req.body);
+        
         const { serviceName, platform, quantity, userId } = req.body;
         
         if (!serviceName || !platform || !quantity) {
@@ -105,10 +139,12 @@ router.post('/calculate-price', async (req, res) => {
         }
         
         const priceData = await calculateFinalPrice(serviceName, platform, parseInt(quantity), userId);
+        console.log('💰 نتيجة حساب السعر:', priceData);
+        
         res.json(priceData);
         
     } catch (error) {
-        console.error('Error in calculate-price route:', error);
+        console.error('❌ خطأ في حساب السعر:', error);
         res.status(500).json({ message: 'فشل حساب السعر' });
     }
 });
