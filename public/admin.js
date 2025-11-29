@@ -693,6 +693,55 @@ async function loadServicesForOffers() {
     }
 }
 
+    // 🔍 نظام بحث الإدمن
+function setupAdminSearch() {
+    // بحث المستخدمين
+    const usersSearch = document.getElementById('users-search');
+    if (usersSearch) {
+        usersSearch.addEventListener('input', function() {
+            filterTable('users-table', this.value.toLowerCase());
+        });
+    }
+
+    // بحث الطلبات
+    const ordersSearch = document.getElementById('orders-search');
+    if (ordersSearch) {
+        ordersSearch.addEventListener('input', function() {
+            filterTable('orders-table', this.value.toLowerCase());
+        });
+    }
+
+    // بحث الخدمات
+    const servicesSearch = document.getElementById('services-search');
+    if (servicesSearch) {
+        servicesSearch.addEventListener('input', function() {
+            filterTable('services-table', this.value.toLowerCase());
+        });
+    }
+}
+
+function filterTable(tableId, searchTerm) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+
+    const rows = table.querySelectorAll('tbody tr');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const matches = text.includes(searchTerm);
+        
+        row.style.display = matches ? '' : 'none';
+        if (matches) visibleCount++;
+    });
+
+    // عرض عدد النتائج
+    updateSearchResults(tableId, visibleCount, rows.length);
+}
+
+function updateSearchResults(tableId, visible, total) {
+    // يمكنك إضافة عرض عدد النتائج إذا أردت
+}
     // --- قسم إدارة المستخدمين ---
     async function fetchUsers() {
         const tbody = document.getElementById('users-tbody');
@@ -938,6 +987,7 @@ document.getElementById('offer-end-date').value = endDate.toISOString().slice(0,
 // 🆕 تحميل الخدمات والعروض
 loadServicesForOffers();
 fetchOffers();
+setupAdminSearch();
 
     // --- 7. الاستماع للتحديثات الفورية (Socket.IO) ---
     socket.on('new-order', () => {
