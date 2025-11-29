@@ -921,15 +921,42 @@ function closeOffersPopup() {
 // في app.js - أضف هذه الدوال
 
 // دالة لجلب العروض النشطة
+// دالة لجلب العروض النشطة - محسنة
 async function fetchActiveOffers() {
+    const offersContainer = document.getElementById('offers-container');
+    
+    // 🆕 إظهار حالة التحميل
+    if (offersContainer) {
+        offersContainer.innerHTML = `
+            <div class="loading-spinner" style="text-align: center; padding: 2rem;">
+                <i class="ph-bold ph-circle-notch animate-spin" style="font-size: 2rem; color: var(--purple-main);"></i>
+                <p style="margin-top: 1rem; color: var(--text-light);">جاري تحميل العروض...</p>
+            </div>
+        `;
+    }
+    
     try {
         const response = await fetch('/api/offers/active');
-        if (!response.ok) return;
+        if (!response.ok) {
+            throw new Error('فشل جلب العروض');
+        }
         
         const offers = await response.json();
+        console.log('📦 العروض المستلمة:', offers.length);
         renderOffers(offers);
+        
     } catch (error) {
         console.error('Error fetching offers:', error);
+        
+        // 🆕 عرض رسالة خطأ
+        if (offersContainer) {
+            offersContainer.innerHTML = `
+                <div class="error-message" style="text-align: center; padding: 2rem; color: var(--danger-red);">
+                    <i class="ph-bold ph-warning-circle"></i>
+                    <p>فشل تحميل العروض. يرجى تحديث الصفحة.</p>
+                </div>
+            `;
+        }
     }
 }
 
@@ -1661,6 +1688,42 @@ async function updatePrice() {
     socket.on('new-service', loadServices);
     socket.on('service-updated', loadServices);
     socket.on('service-deleted', loadServices);
+
+    // 🆕 أضف هذا الاستماع للعروض الجديدة
+socket.on('broadcast-notification', (data) => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    
+    console.log('🔔 إشعار جماعي مستلم:', data);
+    
+    // 🆕 إذا كان الإشعار عن عرض جديد، جدد العروض
+    if (data.message && data.message.includes('🎊')) {
+        console.log('🔄 تجديد العروض بسبب إشعار عرض جديد');
+        fetchActiveOffers();
+    }
+    
+    // 🆕 أظهر الإشعار لجميع المستخدمين (حتى الزوار)
+    showNotificationAlert({
+        message: data.message,
+        link: data.link || '/'
+    });
+    
+    // جدد الإشعارات إذا كان المستخدم مسجل دخول
+    if (userInfo) {
+        fetchNotifications();
+    }
+});
+
+// 🆕 أضف استماع خاص للعروض (اختياري)
+socket.on('new-offer', (data) => {
+    console.log('🎁 عرض جديد مستلم:', data);
+    fetchActiveOffers();
+    
+    // أظهر إشعار خاص للعروض
+    showNotificationAlert({
+        message: data.message || '🎊 هناك عرض جديد متاح!',
+        link: data.link || '/'
+    });
+});
     
     socket.on('deposit-approved', (data) => {
         if (userInfo && userInfo._id === data.userId) {
