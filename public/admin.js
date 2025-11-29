@@ -694,37 +694,54 @@ async function loadServicesForOffers() {
 }
 
     // 🔍 نظام بحث الإدمن
+// 🔍 نظام بحث الإدمن المحسن
 function setupAdminSearch() {
-    // بحث المستخدمين
-    const usersSearch = document.getElementById('users-search');
-    if (usersSearch) {
-        usersSearch.addEventListener('input', function() {
-            filterTable('users-table', this.value.toLowerCase());
-        });
-    }
-
     // بحث الطلبات
     const ordersSearch = document.getElementById('orders-search');
     if (ordersSearch) {
         ordersSearch.addEventListener('input', function() {
-            filterTable('orders-table', this.value.toLowerCase());
+            filterAdminTable('orders-tbody', this.value.toLowerCase());
+        });
+    }
+
+    // بحث المستخدمين
+    const usersSearch = document.getElementById('users-search');
+    if (usersSearch) {
+        usersSearch.addEventListener('input', function() {
+            filterAdminTable('users-tbody', this.value.toLowerCase());
+        });
+    }
+
+    // بحث العروض
+    const offersSearch = document.getElementById('offers-search');
+    if (offersSearch) {
+        offersSearch.addEventListener('input', function() {
+            filterAdminTable('offers-tbody', this.value.toLowerCase());
+        });
+    }
+
+    // بحث طلبات الشحن
+    const depositsSearch = document.getElementById('deposits-search');
+    if (depositsSearch) {
+        depositsSearch.addEventListener('input', function() {
+            filterAdminTable('deposits-tbody', this.value.toLowerCase());
         });
     }
 
     // بحث الخدمات
-    const servicesSearch = document.getElementById('services-search');
+    const servicesSearch = document.getElementById('services-search-admin');
     if (servicesSearch) {
         servicesSearch.addEventListener('input', function() {
-            filterTable('services-table', this.value.toLowerCase());
+            filterAdminTable('services-tbody', this.value.toLowerCase());
         });
     }
 }
 
-function filterTable(tableId, searchTerm) {
-    const table = document.getElementById(tableId);
-    if (!table) return;
+function filterAdminTable(tbodyId, searchTerm) {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
 
-    const rows = table.querySelectorAll('tbody tr');
+    const rows = tbody.querySelectorAll('tr');
     let visibleCount = 0;
 
     rows.forEach(row => {
@@ -736,11 +753,26 @@ function filterTable(tableId, searchTerm) {
     });
 
     // عرض عدد النتائج
-    updateSearchResults(tableId, visibleCount, rows.length);
+    updateAdminSearchResults(tbodyId, visibleCount, rows.length);
 }
 
-function updateSearchResults(tableId, visible, total) {
-    // يمكنك إضافة عرض عدد النتائج إذا أردت
+function updateAdminSearchResults(tbodyId, visible, total) {
+    const table = document.getElementById(tbodyId)?.closest('table');
+    if (!table) return;
+
+    // إزالة معلومات البحث السابقة
+    const existingInfo = table.previousElementSibling;
+    if (existingInfo && existingInfo.classList.contains('search-results-info')) {
+        existingInfo.remove();
+    }
+
+    // إضافة معلومات البحث الجديدة
+    if (visible !== total) {
+        const resultsInfo = document.createElement('div');
+        resultsInfo.className = 'search-results-info';
+        resultsInfo.textContent = `عرض ${visible} من ${total} نتيجة`;
+        table.parentNode.insertBefore(resultsInfo, table);
+    }
 }
     // --- قسم إدارة المستخدمين ---
     async function fetchUsers() {
