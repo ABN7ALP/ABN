@@ -4,6 +4,7 @@ const Order = require('../models/order.model.js');
 const User = require('../models/user.model.js');
 const mongoose = require('mongoose');
 const Service = require('../models/service.model.js');
+const Offer = require('../models/offer.model.js');
 const Notification = require('../models/notification.model.js');
 const authMiddleware = require('../middleware/auth.middleware');
 const adminMiddleware = require('../middleware/admin.middleware');
