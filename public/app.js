@@ -1193,11 +1193,11 @@ function renderOffers(offers) {
     }
 
     // في app.js - استبدل دالة updatePrice
+// في app.js - استبدل دالة updatePrice
 async function updatePrice() {
     const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
     if (!selectedOption) return;
     
-    const pricePer1000 = parseFloat(selectedOption.dataset.price);
     const quantity = parseInt(quantityInput.value, 10);
     
     if (isNaN(quantity) || quantity <= 0) { 
@@ -1222,7 +1222,7 @@ async function updatePrice() {
                 ${priceData.finalPrice.toFixed(2)} $
             </span>
             <div style="font-size: 0.8rem; color: var(--success-green);">
-                وفرت ${priceData.discount.toFixed(2)} $ ✅
+                وفرت ${priceData.discount.toFixed(2)} $ 🩷
             </div>
         `;
     } else {
