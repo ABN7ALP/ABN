@@ -659,3 +659,127 @@ tr:hover td {
     background: var(--gray-bg);
     border-radius: var(--radius-input);
 }
+/* 🔒 أنماط شاشة القفل */
+.lock-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: var(--radius-card);
+    padding: 3rem;
+    margin: 2rem 0;
+    text-align: center;
+    border: 2px dashed var(--gray-border);
+}
+
+.lock-content {
+    max-width: 600px;
+    width: 100%;
+}
+
+.lock-icon {
+    font-size: 5rem;
+    color: var(--danger-red);
+    margin-bottom: 2rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.lock-content h2 {
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    font-size: 2rem;
+}
+
+.lock-content p {
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    font-size: 1.2rem;
+    line-height: 1.6;
+}
+
+.lock-content strong {
+    color: var(--purple-main);
+    font-size: 1.3rem;
+}
+
+.payment-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin: 2rem 0;
+    text-align: right;
+    align-items: start;
+}
+
+@media (max-width: 768px) {
+    .payment-info {
+        grid-template-columns: 1fr;
+    }
+}
+
+.qr-code {
+    text-align: center;
+}
+
+.qr-code img {
+    border: 2px solid var(--gray-border);
+    border-radius: var(--radius-card);
+    padding: 1rem;
+    background: white;
+    box-shadow: var(--shadow-md);
+}
+
+.payment-instructions {
+    text-align: right;
+}
+
+.payment-instructions h4 {
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.payment-instructions ol {
+    padding-right: 1rem;
+    color: var(--text-light);
+    line-height: 1.8;
+}
+
+.payment-instructions li {
+    margin-bottom: 0.8rem;
+    padding-right: 0.5rem;
+}
+
+.contact-info {
+    margin: 2rem 0;
+}
+
+.developer-panel {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px dashed var(--gray-border);
+}
+
+.developer-panel h4 {
+    color: var(--success-green);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.success-button {
+    background: var(--success-green);
+    color: white;
+    border: none;
+}
+
+.success-button:hover {
+    background: #059669;
+    transform: translateY(-2px);
+}
