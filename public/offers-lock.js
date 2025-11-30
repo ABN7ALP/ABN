@@ -85,7 +85,7 @@ class OffersLockSystem {
                         <div class="qr-code" style="text-align: center;">
                             <h4 style="color: var(--text-dark); margin-bottom: 1rem;">📱 مسح الباركود</h4>
                             <!-- 🔽 ضع رابط صورة الباركود هنا -->
-                            <img src="https://your-domain.com/path-to-qr-code.png" 
+                            <img src="https://i.imgur.com/6usAfhA.jpeg" 
                                  alt="QR Code للدفع"
                                  style="max-width: 200px; border-radius: var(--radius-input); border: 2px solid var(--gray-border);">
                         </div>
