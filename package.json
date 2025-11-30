@@ -24,6 +24,9 @@
     "multer-storage-cloudinary": "^4.0.0",
     "mailersend": "^2.0.5",
     "express-rate-limit": "^7.1.5",
+    "bull": "^4.11.3",
+    "ioredis": "^5.3.2",
+    "redis": "^4.6.7",
     "bcryptjs": "^2.4.3"
   }
 }
