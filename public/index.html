@@ -11,6 +11,26 @@
     <script src="/socket.io/socket.io.js"></script>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="main.css">
+    <!-- Desktop Mode للجوال -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // تحقق إذا كان جهاز محمول
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+        console.log('📱 تم اكتشاف جهاز محمول - تفعيل وضع الكمبيوتر');
+        
+        // تغيير الـ viewport لمحاكاة الكمبيوتر
+        const viewport = document.querySelector('meta[name="viewport"]');
+        if (viewport) {
+            viewport.setAttribute('content', 'width=1200, initial-scale=0.5, user-scalable=yes');
+        }
+        
+        // إضافة كلاس للتحكم بالتنسيقات
+        document.body.classList.add('desktop-view-on-mobile');
+    }
+});
+</script>
 </head>
 <body>
     <div class="background-gradient"></div>
