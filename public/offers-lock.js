@@ -2,37 +2,76 @@
 
 class OffersLockSystem {
     constructor() {
+        console.log('🔄 OffersLockSystem Constructor Called');
+        
         this.isUnlocked = localStorage.getItem('offersUnlocked') === 'true';
         this.isDeveloper = this.checkDeveloperRole();
         this.isAdmin = this.checkAdminRole();
+        
+        console.log('📊 Initial State:', {
+            isUnlocked: this.isUnlocked,
+            isDeveloper: this.isDeveloper,
+            isAdmin: this.isAdmin
+        });
+        
         this.init();
     }
 
     checkDeveloperRole() {
-        // 🔧 غير هذا الرقم إلى رقم المطور الحقيقي (رقمك)
         const developerUserId = '6921d6a914a8ff08372c731a'; 
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
         
-        return userInfo && userInfo._id === developerUserId;
+        const isDev = userInfo && userInfo._id === developerUserId;
+        console.log('👨‍💻 Developer Check Result:', isDev);
+        
+        return isDev;
     }
 
     checkAdminRole() {
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-        return userInfo && userInfo.isAdmin === true;
+        const isAdm = userInfo && userInfo.isAdmin === true;
+        console.log('👑 Admin Check Result:', isAdm);
+        
+        return isAdm;
     }
 
     init() {
+        console.log('🚀 OffersLockSystem Init Started');
+        
         setTimeout(() => {
             const offersSection = document.getElementById('offers-section');
+            console.log('🎯 Offers Section Element:', offersSection);
             
-            // 🔒 تطبيق القفل فقط إذا كان المستخدم أدمن وليس المطور
-            if (offersSection && this.isAdmin && !this.isDeveloper && !this.isUnlocked) {
+            if (!offersSection) {
+                console.log('❌ Offers section not found!');
+                return;
+            }
+            
+            console.log('🔍 Final Check Before Lock:', {
+                sectionExists: !!offersSection,
+                isAdmin: this.isAdmin,
+                isDeveloper: this.isDeveloper,
+                isUnlocked: this.isUnlocked,
+                shouldShowLock: this.isAdmin && !this.isDeveloper && !this.isUnlocked
+            });
+            
+            // 🔒 الشرط الأساسي: إذا كان أدمن وليس مطوراً ولم يفتح القفل
+            if (this.isAdmin && !this.isDeveloper && !this.isUnlocked) {
+                console.log('🎨 Showing Lock Screen');
                 this.showLockScreen(offersSection);
+            } else {
+                console.log('🔓 No Lock Screen - Reason:', {
+                    notAdmin: !this.isAdmin,
+                    isDeveloper: this.isDeveloper,
+                    isUnlocked: this.isUnlocked
+                });
             }
         }, 100);
     }
 
     showLockScreen(offersSection) {
+        console.log('🎨 Rendering Lock Screen Content');
+        
         const originalContent = offersSection.innerHTML;
         
         offersSection.innerHTML = `
@@ -52,8 +91,7 @@ class OffersLockSystem {
                     <div class="payment-info">
                         <div class="qr-code">
                             <h4>📱 مسح الباركود</h4>
-                            <!-- ضع رابط صورة الباركود هنا -->
-                            <img src="https://your-domain.com/path-to-qr-code.png" 
+                            <img src="https://via.placeholder.com/200x200?text=QR+Code+Here" 
                                  alt="QR Code للدفع">
                         </div>
                         
@@ -69,7 +107,7 @@ class OffersLockSystem {
                     </div>
 
                     <div class="contact-info">
-                        <a href="https://wa.me/رقم_واتسابك?text=مرحبا، أريد فتح قسم العروض في لوحة التحكم" 
+                        <a href="https://wa.me/905367893256?text=مرحبا، أريد فتح قسم العروض في لوحة التحكم" 
                            class="pill-button primary-button" 
                            target="_blank">
                             <i class="ph-bold ph-whatsapp-logo"></i>
@@ -81,6 +119,7 @@ class OffersLockSystem {
                     ${this.isDeveloper ? `
                         <div class="developer-panel">
                             <h4>👨‍💻 لوحة المطور</h4>
+                            <p>أنت مسجل كمطور - يمكنك التحكم في القفل</p>
                             <button id="unlock-offers-btn" class="pill-button success-button">
                                 <i class="ph-bold ph-key"></i>
                                 فتح قسم العروض للجميع
@@ -100,36 +139,54 @@ class OffersLockSystem {
             </div>
         `;
 
+        console.log('✅ Lock Screen Rendered');
         this.setupEventListeners();
     }
 
     setupEventListeners() {
-        // زر فتح القسم (للمطور فقط)
-        document.getElementById('unlock-offers-btn')?.addEventListener('click', () => {
-            this.unlockOffers();
+        console.log('🔧 Setting up event listeners for developer buttons');
+        
+        const unlockBtn = document.getElementById('unlock-offers-btn');
+        const resetBtn = document.getElementById('reset-lock-btn');
+        
+        console.log('🔍 Developer Buttons Found:', {
+            unlockBtn: unlockBtn,
+            resetBtn: resetBtn
         });
 
-        // زر إعادة التعيين (للمطور فقط)
-        document.getElementById('reset-lock-btn')?.addEventListener('click', () => {
-            this.resetLock();
-        });
+        if (unlockBtn) {
+            unlockBtn.addEventListener('click', () => {
+                console.log('🔑 Unlock button clicked');
+                this.unlockOffers();
+            });
+        }
+
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                console.log('🔄 Reset button clicked');
+                this.resetLock();
+            });
+        }
     }
 
     unlockOffers() {
         localStorage.setItem('offersUnlocked', 'true');
         alert('✅ تم فتح قسم العروض بنجاح!');
+        console.log('🔓 Section unlocked globally');
         location.reload();
     }
 
     resetLock() {
         localStorage.removeItem('offersUnlocked');
         alert('🔄 تم إعادة تعيين القفل!');
+        console.log('🔒 Section lock reset');
         location.reload();
     }
 
     checkAccess() {
-        // السماح بالوصول إذا كان المطور أو تم فتح القفل
-        return this.isDeveloper || this.isUnlocked;
+        const access = this.isDeveloper || this.isUnlocked;
+        console.log('🔐 Access Check Result:', access);
+        return access;
     }
 }
 
