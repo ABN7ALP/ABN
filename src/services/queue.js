@@ -1,37 +1,111 @@
-// services/queue.js
-const Queue = require('bull');
+// services/queue.js - نسخة تعمل بدون Redis
 const User = require('../models/user.model');
 const Notification = require('../models/notification.model');
 
-// إنشاء طابور الإشعارات
-const notificationsQueue = new Queue('notifications queue', {
-    redis: {
-        host: process.env.REDIS_HOST || '127.0.0.1',
-        port: process.env.REDIS_PORT || 6379,
-        password: process.env.REDIS_PASSWORD,
-        // 🆕 إعدادات لـ Render.com (إذا كنت تستخدمه)
-        ...(process.env.REDIS_URL && { 
-            url: process.env.REDIS_URL 
-        })
-    },
-    defaultJobOptions: {
-        removeOnComplete: 100, // الاحتفاظ بـ 100 وظيفة مكتملة
-        removeOnFail: 50, // الاحتفاظ بـ 50 وظيفة فاشلة
-        attempts: 3, // عدد المحاولات في حالة الفشل
-        backoff: {
-            type: 'exponential', // زيادة وقت الانتظار بين المحاولات
-            delay: 1000 // بدءاً من ثانية واحدة
+// 🆕 نظام طابور مبسط يعمل في الذاكرة (لـ Render.com)
+class MemoryQueue {
+    constructor() {
+        this.queue = [];
+        this.isProcessing = false;
+        this.concurrency = parseInt(process.env.QUEUE_CONCURRENCY) || 3;
+        this.activeWorkers = 0;
+    }
+
+    // إضافة وظيفة للطابور
+    async add(type, data, options = {}) {
+        const job = {
+            id: Math.random().toString(36).substr(2, 9),
+            type,
+            data,
+            options,
+            createdAt: new Date(),
+            attempts: 0,
+            maxAttempts: options.attempts || 3
+        };
+
+        this.queue.push(job);
+        console.log(`✅ تم إضافة وظيفة ${type} إلى الطابور (ID: ${job.id})`);
+
+        // بدء المعالجة إذا لم تكن جارية
+        if (!this.isProcessing) {
+            this.processQueue();
+        }
+
+        return job;
+    }
+
+    // معالجة الطابور
+    async processQueue() {
+        if (this.isProcessing || this.activeWorkers >= this.concurrency) {
+            return;
+        }
+
+        this.isProcessing = true;
+
+        while (this.queue.length > 0 && this.activeWorkers < this.concurrency) {
+            const job = this.queue.shift();
+            this.activeWorkers++;
+            
+            this.processJob(job).finally(() => {
+                this.activeWorkers--;
+                if (this.queue.length > 0) {
+                    this.processQueue();
+                } else {
+                    this.isProcessing = false;
+                }
+            });
+        }
+
+        this.isProcessing = false;
+    }
+
+    // معالجة وظيفة فردية
+    async processJob(job) {
+        try {
+            console.log(`🔧 معالجة وظيفة ${job.type} (ID: ${job.id})`);
+            
+            let result;
+            switch (job.type) {
+                case 'broadcast-notification':
+                    result = await this.processBroadcastNotification(job.data);
+                    break;
+                case 'price-update-notification':
+                    result = await this.processPriceUpdateNotification(job.data);
+                    break;
+                default:
+                    throw new Error(`نوع الوظيفة غير معروف: ${job.type}`);
+            }
+
+            console.log(`✅ اكتملت الوظيفة ${job.id} (${job.type}): ${result.usersNotified || 0} مستخدم`);
+            return result;
+
+        } catch (error) {
+            console.error(`❌ فشلت الوظيفة ${job.id} (${job.type}):`, error.message);
+            
+            // إعادة المحاولة إذا كانت المحاولات أقل من الحد الأقصى
+            job.attempts++;
+            if (job.attempts < job.maxAttempts) {
+                console.log(`🔄 إعادة محاولة الوظيفة ${job.id} (المحاولة ${job.attempts + 1})`);
+                // تأخير أسي قبل إعادة المحاولة
+                const delay = Math.min(1000 * Math.pow(2, job.attempts), 30000);
+                setTimeout(() => {
+                    this.queue.unshift(job);
+                    this.processQueue();
+                }, delay);
+            } else {
+                console.error(`💥 فشلت الوظيفة ${job.id} بعد ${job.attempts} محاولات`);
+            }
+            
+            throw error;
         }
     }
-});
 
-// 🎯 معالج الوظائف - إرسال الإشعارات الجماعية
-notificationsQueue.process('broadcast-notification', async (job) => {
-    const { message, link, type = 'broadcast' } = job.data;
-    
-    console.log(`📢 معالجة إشعار جماعي: ${message}`);
-    
-    try {
+    // معالج الإشعارات الجماعية
+    async processBroadcastNotification(data) {
+        const { message, link, type = 'broadcast' } = data;
+        
+        console.log(`📢 معالجة إشعار جماعي: ${message}`);
+        
         // جلب جميع المستخدمين (بدون كلمات المرور)
         const users = await User.find({})
             .select('_id')
@@ -63,26 +137,20 @@ notificationsQueue.process('broadcast-notification', async (job) => {
             usersNotified: result.length,
             message: `تم إرسال الإشعار إلى ${result.length} مستخدم`
         };
-        
-    } catch (error) {
-        console.error('❌ خطأ في معالجة الإشعارات الجماعية:', error);
-        throw error; // إعادة رمي الخطأ لإعادة المحاولة
     }
-});
 
-// 🎯 معالج الوظائف - إشعارات تحديث الأسعار
-notificationsQueue.process('price-update-notification', async (job) => {
-    const { 
-        platform, 
-        serviceName, 
-        oldPrice, 
-        newPrice, 
-        changePercentage 
-    } = job.data;
-    
-    console.log(`💰 معالجة إشعار تحديث سعر: ${platform} - ${serviceName}`);
-    
-    try {
+    // معالج إشعارات تحديث الأسعار
+    async processPriceUpdateNotification(data) {
+        const { 
+            platform, 
+            serviceName, 
+            oldPrice, 
+            newPrice, 
+            changePercentage 
+        } = data;
+        
+        console.log(`💰 معالجة إشعار تحديث سعر: ${platform} - ${serviceName}`);
+        
         const users = await User.find({})
             .select('_id')
             .lean();
@@ -110,82 +178,48 @@ notificationsQueue.process('price-update-notification', async (job) => {
             success: true, 
             usersNotified: result.length 
         };
-        
-    } catch (error) {
-        console.error('❌ خطأ في معالجة إشعارات الأسعار:', error);
-        throw error;
     }
-});
 
-// 🎯 إضافة وظيفة جديدة للطابور
-const addNotificationJob = async (type, data, options = {}) => {
-    try {
-        const job = await notificationsQueue.add(type, data, {
-            delay: options.delay || 0, // تأخير اختياري
-            priority: options.priority || 'normal',
-            ...options
-        });
-        
-        console.log(`✅ تم إضافة وظيفة ${type} إلى الطابور (ID: ${job.id})`);
-        return job;
-        
-    } catch (error) {
-        console.error(`❌ خطأ في إضافة وظيفة ${type} إلى الطابور:`, error);
-        throw error;
-    }
-};
-
-// 🎯 إحصائيات الطابور
-const getQueueStats = async () => {
-    try {
-        const [waiting, active, completed, failed, delayed] = await Promise.all([
-            notificationsQueue.getWaiting(),
-            notificationsQueue.getActive(),
-            notificationsQueue.getCompleted(),
-            notificationsQueue.getFailed(),
-            notificationsQueue.getDelayed()
-        ]);
-        
+    // إحصائيات الطابور
+    async getStats() {
         return {
-            waiting: waiting.length,
-            active: active.length,
-            completed: completed.length,
-            failed: failed.length,
-            delayed: delayed.length,
-            total: waiting.length + active.length + completed.length + failed.length + delayed.length
+            waiting: this.queue.length,
+            active: this.activeWorkers,
+            completed: 0, // لا نتتبع المكتملة في هذه النسخة المبسطة
+            failed: 0,    // لا نتتبع الفاشلة في هذه النسخة المبسطة
+            total: this.queue.length + this.activeWorkers
         };
-    } catch (error) {
-        console.error('❌ خطأ في جلب إحصائيات الطابور:', error);
-        return null;
     }
-};
 
-// 🎯 تنظيف الطابور (للاستخدام في الصيانة)
-const cleanQueue = async () => {
-    try {
-        await notificationsQueue.clean(0, 'completed'); // تنظيف المكتملة
-        await notificationsQueue.clean(0, 'failed'); // تنظيف الفاشلة
+    // تنظيف الطابور
+    async clean() {
+        this.queue = [];
+        this.activeWorkers = 0;
+        this.isProcessing = false;
         console.log('🧹 تم تنظيف الطابور بنجاح');
-    } catch (error) {
-        console.error('❌ خطأ في تنظيف الطابور:', error);
     }
+}
+
+// إنشاء نسخة واحدة من الطابور
+const memoryQueue = new MemoryQueue();
+
+// 🎯 دالة مساعدة لإضافة الوظائف
+const addNotificationJob = async (type, data, options = {}) => {
+    return await memoryQueue.add(type, data, options);
 };
 
-// 🎯 مراقبة أحداث الطابور
-notificationsQueue.on('completed', (job, result) => {
-    console.log(`✅ اكتملت الوظيفة ${job.id} (${job.name}): ${result.usersNotified || 0} مستخدم`);
-});
+// 🎯 دالة للحصول على إحصائيات
+const getQueueStats = async () => {
+    return await memoryQueue.getStats();
+};
 
-notificationsQueue.on('failed', (job, error) => {
-    console.error(`❌ فشلت الوظيفة ${job.id} (${job.name}):`, error.message);
-});
-
-notificationsQueue.on('stalled', (job) => {
-    console.warn(`⚠️ توقفت الوظيفة ${job.id} (${job.name})`);
-});
+// 🎯 دالة للتنظيف
+const cleanQueue = async () => {
+    return await memoryQueue.clean();
+};
 
 module.exports = {
-    notificationsQueue,
+    notificationsQueue: memoryQueue,
     addNotificationJob,
     getQueueStats,
     cleanQueue
