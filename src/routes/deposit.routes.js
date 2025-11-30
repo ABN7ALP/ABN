@@ -1,56 +1,28 @@
-// =================================================================
-// ملف: src/routes/deposit.routes.js (النسخة النهائية والمعدلة)
-// =================================================================
-
 const express = require('express');
 const router = express.Router();
-const multer = require('multer'); // <-- تم استيراد multer للتعامل مع الأخطاء
-
-// استيراد الموديلات
 const User = require('../models/user.model');
 const Deposit = require('../models/deposit.model');
 const Notification = require('../models/notification.model');
 
-// 1. استيراد middleware الرفع السحابي الذي أنشأناه
-const upload = require('../middleware/upload.middleware');
-
-// 2. تعديل مسار إنشاء طلب الشحن
-//    - upload.single('receiptImage') سيقوم برفع الصورة إلى Cloudinary أولاً
-//    - إذا نجح الرفع، سيكمل تنفيذ الكود، وإذا فشل، سيتوقف هنا
-router.post('/', upload.single('receiptImage'), async (req, res) => {
+// POST إنشاء طلب شحن جديد
+router.post('/', async (req, res) => {
     try {
-        // 3. استخراج البيانات النصية من الطلب
-        const { userId, amount, method, depositorName } = req.body;
+        // ******** هذا هو التصحيح ********
+        const { userId, amount, method, depositorName, receiptImage } = req.body;
 
-        // 4. التحقق من أن الملف تم رفعه بنجاح
-        //    (إذا لم يتم رفع ملف، فإن req.file لن يكون موجوداً)
-        if (!req.file) {
-            return res.status(400).json({ message: 'صورة الإيصال مطلوبة أو أن نوع الملف غير مدعوم.' });
-        }
-
-        // 5. الحصول على الرابط الآمن للصورة من Cloudinary
-        //    (multer-storage-cloudinary يضع الرابط في req.file.path)
-        const receiptImageUrl = req.file.path;
-
-        // التحقق من وجود البيانات الأساسية الأخرى
-        if (!userId || !amount || !method || !depositorName) {
-            // في حالة عدم اكتمال البيانات، يجب حذف الصورة التي تم رفعها للتو من Cloudinary
-            // هذه خطوة أمان لمنع تراكم الصور غير المرتبطة بطلبات
-            const cloudinary = require('cloudinary').v2;
-            const publicId = req.file.filename; // الحصول على معرّف الصورة
-            cloudinary.uploader.destroy(publicId);
-            
+        // التحقق من وجود البيانات الأساسية
+        if (!userId || !amount || !method || !depositorName || !receiptImage) {
             return res.status(400).json({ message: 'بيانات الطلب غير مكتملة.' });
         }
 
-        // 6. إنشاء طلب الشحن الجديد مع استخدام رابط الصورة من Cloudinary
         const newDeposit = new Deposit({
-            user: userId,
+            user: userId, // <-- هنا التصحيح: الموديل يتوقع 'user' وليس 'userId'
             amount: Number(amount),
             method,
             depositorName,
-            receiptImage: receiptImageUrl // <-- هنا نستخدم رابط Cloudinary
+            receiptImage
         });
+        // ******** نهاية التصحيح ********
 
         await newDeposit.save();
         req.io.emit('new-deposit');
@@ -58,21 +30,10 @@ router.post('/', upload.single('receiptImage'), async (req, res) => {
 
     } catch (error) {
         console.error("Deposit POST error:", error);
-
-        // 7. معالجة الأخطاء بشكل آمن ومحدد
-        //    هذا الكود يلتقط الأخطاء التي قد تحدث أثناء الرفع (مثل حجم الملف أو نوعه)
-        if (error instanceof multer.MulterError) {
-            if (error.code === 'LIMIT_FILE_SIZE') {
-                return res.status(400).json({ message: 'حجم الصورة كبير جداً، الحد الأقصى 5 ميغابايت.' });
-            }
-            if (error.code === 'LIMIT_UNEXPECTED_FILE') {
-                return res.status(400).json({ message: 'الملف المرفوع ليس صورة! الأنواع المسموح بها: jpg, png, gif.' });
-            }
-        }
-        // خطأ عام في الخادم
         res.status(500).json({ message: 'حدث خطأ أثناء إرسال الطلب.' });
     }
 });
+
 // GET جلب كل طلبات الشحن
 router.get('/', async (req, res) => {
     try {
@@ -94,19 +55,23 @@ router.put('/:id/approve', async (req, res) => {
         deposit.status = 'approved';
         await deposit.save();
         
+
+        // 1. إنشاء إشعار جديد
         const notificationMessage = `تمت الموافقة على طلب الشحن الخاص بك وإضافة ${deposit.amount.toFixed(2)}$ إلى رصيدك.`;
         const newNotification = new Notification({
             user: deposit.user,
             message: notificationMessage,
-            link: '/my-orders.html'
+            link: '/my-orders.html' // رابط يوجه المستخدم لصفحة طلباته
         });
         await newNotification.save();
 
+        // 2. إرسال الإشعار عبر Socket.IO إلى المستخدم المحدد
         const userIdString = deposit.user.toString();
         req.io.emit('new-notification', { 
             userId: userIdString,
             notification: newNotification 
         });
+
         
         req.io.emit('deposit-approved', { userId: deposit.user.toString() });
         req.io.emit('new-deposit');
@@ -139,6 +104,7 @@ router.get('/my-deposits', async (req, res) => {
     }
 
     try {
+        // ابحث عن كل طلبات الشحن التي تطابق هوية المستخدم وقم بترتيبها من الأحدث للأقدم
         const userDeposits = await Deposit.find({ user: userId }).sort({ createdAt: -1 });
         res.status(200).json(userDeposits);
     } catch (error) {
