@@ -7,7 +7,9 @@ const userSchema = new mongoose.Schema({
         required: [true, 'اسم المستخدم مطلوب'],
         unique: true,
         trim: true,
-        lowercase: true
+        lowercase: true,
+        minlength: [3, 'اسم المستخدم يجب أن يكون 3 أحرف على الأقل'],
+        maxlength: [30, 'اسم المستخدم يجب أن لا يتجاوز 30 حرف']
     },
     email: {
         type: String,
@@ -20,25 +22,30 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'كلمة المرور مطلوبة'],
-        minlength: [6, 'يجب أن تكون كلمة المرور 6 أحرف على الأقل']
+        minlength: [6, 'يجب أن تكون كلمة المرور 6 أحرف على الأقل'],
+        // 🆕 منع كلمات المرور الضعيفة
+        validate: {
+            validator: function(password) {
+                // تحقق من قوة كلمة المرور
+                return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(password);
+            },
+            message: 'كلمة المرور يجب أن تحتوي على حرف كبير، حرف صغير، رقم، ورمز خاص'
+        }
     },
     profileImage: {
-        type: String, // سيتم تخزين رابط Cloudinary فقط
+        type: String,
         default: null
     },
-
-    // --- الحقل الجديد هنا ---
     balance: {
         type: Number,
         required: true,
-        default: 0
+        default: 0,
+        min: [0, 'الرصيد لا يمكن أن يكون سالب']
     },
-    // ******** إضافة جديدة: صلاحيات الأدمن ********
     isAdmin: { 
         type: Boolean,
-        default: false // القيمة الافتراضية لأي مستخدم جديد هي 'ليس أدمن'
+        default: false
     },
-    
     emailVerified: {
         type: Boolean,
         default: false
@@ -46,27 +53,99 @@ const userSchema = new mongoose.Schema({
     emailVerificationToken: String,
     emailVerificationExpires: Date,
     resetPasswordToken: String,
-    resetPasswordExpires: Date
+    resetPasswordExpires: Date,
+    // 🆕 إضافة حقول جديدة للأمان
+    loginAttempts: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+    lockUntil: {
+        type: Date,
+        default: null
+    },
+    lastLogin: {
+        type: Date,
+        default: null
+    }
 }, {
     timestamps: true
 });
+
+// 🆕 دالة للتحقق إذا كان الحساب مقفول
+userSchema.virtual('isLocked').get(function() {
+    return !!(this.lockUntil && this.lockUntil > Date.now());
+});
+
+// 🆕 منطق قفل الحساب بعد محاولات فاشلة
+userSchema.methods.incrementLoginAttempts = async function() {
+    // إذا انتهت مدة القفل، إعادة التعيين
+    if (this.lockUntil && this.lockUntil < Date.now()) {
+        return await this.updateOne({
+            $set: { loginAttempts: 1 },
+            $unset: { lockUntil: 1 }
+        });
+    }
+    
+    // زيادة عدد المحاولات
+    const updates = { $inc: { loginAttempts: 1 } };
+    
+    // قفل الحساب إذا تجاوز 5 محاولات
+    if (this.loginAttempts + 1 >= 5 && !this.isLocked) {
+        updates.$set = { lockUntil: Date.now() + 30 * 60 * 1000 }; // قفل لمدة 30 دقيقة
+    }
+    
+    return await this.updateOne(updates);
+};
+
+// 🆕 إعادة تعيين المحاولات بعد تسجيل الدخول الناجح
+userSchema.methods.resetLoginAttempts = async function() {
+    return await this.updateOne({
+        $set: { 
+            loginAttempts: 0,
+            lastLogin: new Date()
+        },
+        $unset: { lockUntil: 1 }
+    });
+};
+
 // --- تشفير كلمة المرور قبل حفظ المستخدم ---
-// هذا الكود يعمل تلقائياً قبل أي عملية حفظ 'save'
 userSchema.pre('save', async function(next) {
-    // لا تقم بإعادة التشفير إذا لم يتم تعديل كلمة المرور
     if (!this.isModified('password')) {
         return next();
     }
-    // إنشاء "ملح" لزيادة قوة التشفير
-    const salt = await bcrypt.genSalt(10);
-    // تشفير كلمة المرور مع الملح
+    
+    // 🆕 التحقق من قوة كلمة المرور قبل التشفير
+    if (this.password.length < 6) {
+        return next(new Error('كلمة المرور يجب أن تكون 6 أحرف على الأقل'));
+    }
+    
+    const salt = await bcrypt.genSalt(12); // 🆕 زيادة قوة التشفير
     this.password = await bcrypt.hash(this.password, salt);
     next();
 });
 
 // --- دالة لمقارنة كلمة المرور المدخلة بالكلمة المشفرة ---
 userSchema.methods.matchPassword = async function(enteredPassword) {
-    return await bcrypt.compare(enteredPassword, this.password);
+    // 🆕 التحقق إذا كان الحساب مقفول
+    if (this.isLocked) {
+        throw new Error('الحساب مقفول مؤقتاً بسبب كثرة المحاولات الفاشلة. يرجى المحاولة بعد 30 دقيقة.');
+    }
+    
+    const isMatch = await bcrypt.compare(enteredPassword, this.password);
+    
+    if (!isMatch) {
+        // زيادة عدد المحاولات الفاشلة
+        await this.incrementLoginAttempts();
+        throw new Error('كلمة المرور غير صحيحة');
+    }
+    
+    // إعادة تعيين المحاولات بعد تسجيل الدخول الناجح
+    if (isMatch && this.loginAttempts > 0) {
+        await this.resetLoginAttempts();
+    }
+    
+    return isMatch;
 };
 
 const User = mongoose.model('User', userSchema);
