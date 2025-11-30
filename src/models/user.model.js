@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
         minlength: [6, 'يجب أن تكون كلمة المرور 6 أحرف على الأقل']
     },
     profileImage: {
-        type: String, // سيتم تخزين الصورة كـ Base64
+        type: String, // سيتم تخزين رابط Cloudinary فقط
         default: null
     },
 
