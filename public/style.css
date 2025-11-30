@@ -535,120 +535,149 @@ body.desktop-view-on-mobile .container {
         min-width: 250px;
     }
 }
-/* تنسيقات الإعلانات الذكية */
-/* تنسيقات الإعلانات الذكية المحسنة */
-.ad-container {
+/* ========================================== */
+/* تنسيقات صناديق الإعلانات الجميلة */
+/* ========================================== */
+
+.ad-box {
     margin: 0 auto;
-    padding: 0.8rem 0;
+    padding: 1rem;
     text-align: center;
-    background: transparent;
-    transition: all 0.3s ease;
-    border-radius: var(--radius-card);
-}
-
-/* إعلانات الكمبيوتر - أحجام مضغوطة */
-.desktop-ad {
-    max-width: 280px;
-    margin: 1.2rem auto;
     background: var(--white-pure);
-    border: 1px solid var(--gray-border);
-    padding: 0.8rem;
+    border-radius: 16px;
+    border: 2px solid #f1f5f9;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    max-width: 320px;
 }
 
-.desktop-ad:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+.ad-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #7C1EFF, #667eea, #764ba2);
+    border-radius: 8px 8px 0 0;
 }
 
-/* إعلان بعد الهيدر - أخف وأصغر */
-.desktop-ad:first-of-type {
-    margin-top: 0.5rem;
-    margin-bottom: 1.5rem;
+.ad-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(124, 30, 255, 0.15);
+    border-color: #e0e7ff;
+}
+
+.ad-label {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #7C1EFF, #667eea);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(124, 30, 255, 0.3);
+    z-index: 2;
+}
+
+/* ========================================== */
+/* تنسيقات محددة لكل إعلان */
+/* ========================================== */
+
+/* الإعلان الأعلى - تحت الهيدر */
+.top-ad {
+    margin: 1rem auto 2rem;
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    border: 1px dashed var(--gray-border);
-    max-width: 250px; /* أصغر */
-    padding: 0.6rem;
+    border: 2px dashed #cbd5e1;
 }
 
-/* إعلان المنتصف - مضغوط */
+.top-ad:hover {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    border-color: #7C1EFF;
+}
+
+/* الإعلان الأوسط - بعد البحث */
 .middle-ad {
-    background: var(--white-pure);
-    border: 1px solid var(--purple-light);
-    padding: 0.8rem;
-    margin: 1.2rem auto;
-    max-width: 260px; /* أصغر من 300px */
+    margin: 2rem auto;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 2px solid #e2e8f0;
 }
 
-/* إعلان الفوتر - خفيف */
-.footer-ad {
-    margin: 2rem auto 1rem;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    border: 1px solid var(--gray-border);
-    padding: 0.8rem;
-    max-width: 250px;
+.middle-ad:hover {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-color: #667eea;
 }
 
-/* إعلان الجوال - يظهر مع الكمبيوتر */
-.mobile-ad {
-    display: block; /* تغيير من none إلى block */
-    max-width: 280px;
-    margin: 1rem auto;
-    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-    border: 1px solid var(--purple-main);
-    border-radius: var(--radius-card);
-    padding: 0.8rem;
+/* الإعلان الأسفل - قبل الفوتر */
+.bottom-ad {
+    margin: 3rem auto 2rem;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    border: 2px solid #cbd5e1;
 }
 
-/* إعلان البوب أب - صغير وغير مزعج */
-.popup-ad {
-    margin: 0 auto 1rem;
-    background: var(--white-pure);
-    border: 1px solid var(--purple-light);
-    border-radius: var(--radius-input);
-    padding: 0.6rem;
-    max-width: 240px;
+.bottom-ad:hover {
+    background: linear-gradient(135deg, #e2e8f0 0%, #d1d5db 100%);
+    border-color: #764ba2;
 }
 
 /* ========================================== */
-/* التحكم الذكي بالعرض حسب الجهاز */
+<!-- تنسيقات متجاوبة -->
 /* ========================================== */
 
-/* على الجوال - نخفي بعض إعلانات الكمبيوتر */
 @media (max-width: 768px) {
-    .desktop-ad {
-        display: none; /* نخفي كل إعلانات الكمبيوتر على الجوال */
-    }
-    
-    .mobile-ad {
-        display: block;
-        background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
-        max-width: 300px;
-    }
-    
-    /* نظهر إعلان كمبيوتر واحد فقط على الجوال */
-    .desktop-ad:first-of-type {
-        display: block;
+    .ad-box {
+        margin: 1rem auto;
         max-width: 280px;
-        margin: 1rem auto;
-    }
-}
-
-/* على الكمبيوتر - نخفي إعلان الجوال إذا أردت */
-@media (min-width: 769px) {
-    .mobile-ad {
-        display: block; /* نخليها تظهر مع الكمبيوتر */
-        max-width: 260px;
-        margin: 1rem auto;
+        padding: 0.8rem;
     }
     
-    .desktop-ad {
-        display: block;
+    .top-ad {
+        margin: 0.5rem auto 1.5rem;
+    }
+    
+    .middle-ad {
+        margin: 1.5rem auto;
+    }
+    
+    .bottom-ad {
+        margin: 2rem auto 1.5rem;
     }
 }
 
-/* على الشاشات الكبيرة جداً - نخفي إعلان الجوال */
-@media (min-width: 1024px) {
-    .mobile-ad {
-        display: none; /* نخفي إعلان الجوال على الشاشات الكبيرة */
+@media (min-width: 1200px) {
+    .ad-box {
+        max-width: 340px;
     }
+}
+
+/* ========================================== */
+<!-- تأثيرات إضافية -->
+/* ========================================== */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ad-box {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.middle-ad {
+    animation-delay: 0.2s;
+}
+
+.bottom-ad {
+    animation-delay: 0.4s;
 }
