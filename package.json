@@ -19,6 +19,9 @@
     "nodemailer": "^6.9.7",
      "resend": "^2.0.0",
     "node-fetch": "^2.7.0",
+    "cloudinary": "^1.41.0", 
+    "multer": "^1.4.5-lts.1", 
+    "multer-storage-cloudinary": "^4.0.0",
     "mailersend": "^2.0.5",
     "bcryptjs": "^2.4.3"
   }
