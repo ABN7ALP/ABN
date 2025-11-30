@@ -308,5 +308,30 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 
     <script src="app.js"></script>
+
+    <script>
+    // تأكد من تحميل جميع الإعلانات
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🔍 فحص الإعلانات:');
+        console.log('- الإعلان الأعلى:', document.querySelector('.top-ad') ? 'موجود' : 'مفقود');
+        console.log('- الإعلان الأوسط:', document.querySelector('.middle-ad') ? 'موجود' : 'مفقود');
+        console.log('- الإعلان الأسفل:', document.querySelector('.bottom-ad') ? 'موجود' : 'مفقود');
+        
+        // إعادة تحميل الإعلانات إذا لم تظهر
+        setTimeout(function() {
+            const ads = document.querySelectorAll('.ad-box');
+            ads.forEach(ad => {
+                const scripts = ad.querySelectorAll('script');
+                scripts.forEach(script => {
+                    if (script.src.includes('guilty-address.com')) {
+                        const newScript = document.createElement('script');
+                        newScript.innerHTML = script.innerHTML;
+                        script.parentNode.replaceChild(newScript, script);
+                    }
+                });
+            });
+        }, 2000);
+    });
+    </script>
 </body>
 </html>
