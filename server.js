@@ -8,6 +8,13 @@ const http = require('http');
 const { Server } = require("socket.io");
 const adminRoutes = require('./src/routes/admin.routes');
 const offerRoutes = require('./src/routes/offer.routes');
+const { 
+    loginLimiter, 
+    registerLimiter, 
+    passwordResetLimiter, 
+    emailVerificationLimiter,
+    generalLimiter 
+} = require('./src/middleware/rateLimit');
 // إعداد التطبيق والخادم
 const app = express();
 const server = http.createServer(app);
@@ -60,6 +67,7 @@ app.use('/api/deposits', depositRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/offers', offerRoutes);
+app.use('/api/', generalLimiter);
 
 // منطق Socket.IO
 io.on('connection', (socket) => {
