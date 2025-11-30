@@ -7,6 +7,8 @@ const Notification = require('../models/notification.model');
 const UploadService = require('../services/uploadService'); // 🆕 استيراد خدمة الرفع
 
 // POST إنشاء طلب شحن جديد
+
+// POST إنشاء طلب شحن جديد
 router.post('/', async (req, res) => {
     try {
         const { userId, amount, method, depositorName, receiptImage } = req.body;
@@ -25,13 +27,13 @@ router.post('/', async (req, res) => {
             
             const uploadResult = await UploadService.uploadImage(
                 receiptImage, 
-                'smm-store/deposits' // فولدر منفصل للإيصالات
+                'smm-store/deposits' // 🔄 فولدر مخصص للإيصالات
             );
             
             if (uploadResult.success) {
                 receiptImageUrl = uploadResult.url;
                 receiptPublicId = uploadResult.publicId;
-                console.log('✅ تم رفع صورة الإيصال بنجاح:', receiptImageUrl);
+                console.log('✅ تم رفع صورة الإيصال بنجاح');
             } else {
                 console.error('❌ فشل رفع صورة الإيصال:', uploadResult.error);
                 return res.status(500).json({ message: 'فشل رفع صورة الإيصال. يرجى المحاولة مرة أخرى.' });
@@ -40,7 +42,7 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ message: 'صورة الإيصال غير صالحة.' });
         }
 
-        // 🆕 إنشاء طلب الشحن مع رابط الصورة
+        // إنشاء طلب الشحن مع رابط الصورة
         const newDeposit = new Deposit({
             user: userId,
             amount: Number(amount),
