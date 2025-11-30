@@ -18,7 +18,7 @@ class OffersLockSystem {
     }
 
     checkDeveloperRole() {
-        const developerUserId = '6921d6a914a8ff08372c731a'; 
+        const developerUserId = '1921d6a914a8ff08372c731a'; 
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
         
         const isDev = userInfo && userInfo._id === developerUserId;
@@ -87,6 +87,7 @@ class OffersLockSystem {
                     <div class="payment-info">
                         <div class="qr-code">
                             <h4>📱 مسح الباركود</h4>
+                            <!-- ضع رابط صورة الباركود هنا -->
                             <img src="https://i.imgur.com/6usAfhA.jpeg" 
                                  alt="QR Code للدفع">
                         </div>
