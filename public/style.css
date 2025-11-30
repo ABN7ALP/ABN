@@ -536,82 +536,119 @@ body.desktop-view-on-mobile .container {
     }
 }
 /* تنسيقات الإعلانات الذكية */
+/* تنسيقات الإعلانات الذكية المحسنة */
 .ad-container {
     margin: 0 auto;
-    padding: 1rem 0;
+    padding: 0.8rem 0;
     text-align: center;
     background: transparent;
     transition: all 0.3s ease;
+    border-radius: var(--radius-card);
 }
 
-/* إعلانات الكمبيوتر */
+/* إعلانات الكمبيوتر - أحجام مضغوطة */
 .desktop-ad {
-    max-width: 300px;
-    margin: 1.5rem auto;
+    max-width: 280px;
+    margin: 1.2rem auto;
+    background: var(--white-pure);
+    border: 1px solid var(--gray-border);
+    padding: 0.8rem;
 }
 
 .desktop-ad:hover {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* إعلان بعد الهيدر */
+/* إعلان بعد الهيدر - أخف وأصغر */
 .desktop-ad:first-of-type {
-    margin-top: 0;
-    margin-bottom: 2rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px dashed var(--gray-border);
+    max-width: 250px; /* أصغر */
+    padding: 0.6rem;
 }
 
-/* إعلان المنتصف */
+/* إعلان المنتصف - مضغوط */
 .middle-ad {
-    background: var(--gray-bg);
-    border-radius: var(--radius-card);
-    padding: 1.5rem;
-    border: 1px solid var(--gray-border);
-}
-
-/* إعلان الفوتر */
-.footer-ad {
-    margin: 3rem auto 1rem;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    border-radius: var(--radius-card);
-    padding: 1.5rem;
-}
-
-/* إعلان الجوال فقط */
-.mobile-ad {
-    display: none;
-    max-width: 300px;
-    margin: 1rem auto;
-    background: var(--purple-light);
-    border-radius: var(--radius-input);
-    padding: 1rem;
-}
-
-/* إعلان البوب أب */
-.popup-ad {
-    margin: 0 auto 1.5rem;
     background: var(--white-pure);
     border: 1px solid var(--purple-light);
-    border-radius: var(--radius-card);
-    padding: 1rem;
+    padding: 0.8rem;
+    margin: 1.2rem auto;
+    max-width: 260px; /* أصغر من 300px */
 }
 
-/* التحكم بالعرض حسب الجهاز */
+/* إعلان الفوتر - خفيف */
+.footer-ad {
+    margin: 2rem auto 1rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 1px solid var(--gray-border);
+    padding: 0.8rem;
+    max-width: 250px;
+}
+
+/* إعلان الجوال - يظهر مع الكمبيوتر */
+.mobile-ad {
+    display: block; /* تغيير من none إلى block */
+    max-width: 280px;
+    margin: 1rem auto;
+    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+    border: 1px solid var(--purple-main);
+    border-radius: var(--radius-card);
+    padding: 0.8rem;
+}
+
+/* إعلان البوب أب - صغير وغير مزعج */
+.popup-ad {
+    margin: 0 auto 1rem;
+    background: var(--white-pure);
+    border: 1px solid var(--purple-light);
+    border-radius: var(--radius-input);
+    padding: 0.6rem;
+    max-width: 240px;
+}
+
+/* ========================================== */
+/* التحكم الذكي بالعرض حسب الجهاز */
+/* ========================================== */
+
+/* على الجوال - نخفي بعض إعلانات الكمبيوتر */
 @media (max-width: 768px) {
     .desktop-ad {
-        display: none;
+        display: none; /* نخفي كل إعلانات الكمبيوتر على الجوال */
     }
     
     .mobile-ad {
         display: block;
+        background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+        max-width: 300px;
+    }
+    
+    /* نظهر إعلان كمبيوتر واحد فقط على الجوال */
+    .desktop-ad:first-of-type {
+        display: block;
+        max-width: 280px;
+        margin: 1rem auto;
     }
 }
 
+/* على الكمبيوتر - نخفي إعلان الجوال إذا أردت */
 @media (min-width: 769px) {
     .mobile-ad {
-        display: none;
+        display: block; /* نخليها تظهر مع الكمبيوتر */
+        max-width: 260px;
+        margin: 1rem auto;
     }
     
     .desktop-ad {
         display: block;
+    }
+}
+
+/* على الشاشات الكبيرة جداً - نخفي إعلان الجوال */
+@media (min-width: 1024px) {
+    .mobile-ad {
+        display: none; /* نخفي إعلان الجوال على الشاشات الكبيرة */
     }
 }
