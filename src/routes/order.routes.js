@@ -371,27 +371,32 @@ router.post('/pay-with-balance', async (req, res) => {
 
 // في نهاية order.routes.js - أضف هذه الـ Event Listeners
 
-// تحديث الكاش عند إضافة/تعديل/حذف عروض
-const socket = require('../server').io; // أو أي طريقة لاستدعاء socket
-
-// إذا كان Socket.IO متاحاً، استمع للتحديثات
-if (typeof socket !== 'undefined') {
-    socket.on('new-offer', () => {
+// ✅ استبدله بهذا الكود
+function setupSocketListeners(ioInstance) {
+    if (!ioInstance) {
+        console.log('⚠️ ioInstance غير متاح - تخطي إعداد مستمعي Socket');
+        return;
+    }
+    
+    console.log('✅ جاري إعداد مستمعي Socket events للعروض...');
+    
+    ioInstance.on('new-offer', () => {
         console.log('🔄 تحديث ذاكرة التخزين المؤقت بسبب عرض جديد');
         clearOffersCache();
     });
 
-    socket.on('offer-updated', () => {
+    ioInstance.on('offer-updated', () => {
         console.log('🔄 تحديث ذاكرة التخزين المؤقت بسبب تعديل عرض');
         clearOffersCache();
     });
 
-    socket.on('offer-deleted', () => {
+    ioInstance.on('offer-deleted', () => {
         console.log('🔄 تحديث ذاكرة التخزين المؤقت بسبب حذف عرض');
         clearOffersCache();
     });
-}
 
+    console.log('✅ تم إعداد مستمعي Socket events بنجاح');
+}
 // أيضًا تحديث الكاش عند الطلب مباشرة من الـ routes
 // أيضًا تحديث الكاش عند الطلب مباشرة من الـ routes
 router.post('/offers', authMiddleware, adminMiddleware, async (req, res, next) => {
