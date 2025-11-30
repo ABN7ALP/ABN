@@ -819,18 +819,18 @@ tr:hover td {
 }
 
 /* جعل المحتوى الأصلي شفافاً وغير قابل للنقر */
-/*#offers-section > div:last-child {*/
+/* #offers-section > div:last-child {
     opacity: 0.3;
     pointer-events: none;
-}
+} */
 
-/*.success-button {*/
+/*.success-button {
     background: var(--success-green);
     color: white;
     border: none;
 }
 
-/*.success-button:hover {*/
+/*.success-button:hover {
     background: #059669;
     transform: translateY(-2px);
-}
+}*/
