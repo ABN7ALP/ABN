@@ -87,7 +87,7 @@ class OffersLockSystem {
                     <div class="payment-info">
                         <div class="qr-code">
                             <h4>📱 مسح الباركود</h4>
-                            <img src="https://via.placeholder.com/200x200?text=QR+Code+Here" 
+                            <img src="https://i.imgur.com/6usAfhA.jpeg" 
                                  alt="QR Code للدفع">
                         </div>
                         
