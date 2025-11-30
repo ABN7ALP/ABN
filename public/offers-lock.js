@@ -95,6 +95,7 @@ class OffersLockSystem {
                     <div class="payment-info">
                         <div class="qr-code">
                             <h4>📱 مسح الباركود</h4>
+                            <!-- ضع رابط صورة الباركود هنا -->
                             <img src="https://i.imgur.com/6usAfhA.jpeg" 
                                  alt="QR Code للدفع">
                         </div>
@@ -111,14 +112,14 @@ class OffersLockSystem {
                     </div>
 
                     <div class="contact-info">
-                        <a href="https://wa.me/905367893256?text=مرحبا، أريد فتح قسم العروض في لوحة التحكم" 
+                        <a href="https://wa.me/رقم_واتسابك?text=مرحبا، أريد فتح قسم العروض في لوحة التحكم" 
                            class="pill-button primary-button" 
                            target="_blank">
                             <i class="ph-bold ph-whatsapp-logo"></i>
                             تواصل مع المطور على الواتساب
                         </a>
                     </div>
-
+                    
                     <!-- 🎯 هذه الأزرار تظهر للمطور فقط -->
                     ${this.isDeveloper ? `
                         <div class="developer-panel">
