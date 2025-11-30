@@ -4,6 +4,12 @@ const User = require('../models/user.model.js');
 const UploadService = require('../services/uploadService.js'); // 🆕 استيراد خدمة الرفع
 const jwt = require('jsonwebtoken');
 const { sendActivationEmail, sendPasswordResetEmail } = require('./emailConfig.js');
+const { 
+    loginLimiter, 
+    registerLimiter, 
+    passwordResetLimiter, 
+    emailVerificationLimiter 
+} = require('../middleware/rateLimit');
 
 // --- دالة لإنشاء توكن JWT ---
 const generateToken = (id) => {
@@ -12,8 +18,8 @@ const generateToken = (id) => {
     });
 };
 
-// --- POST /api/auth/register ---
-router.post('/register', async (req, res) => {
+// --- POST /api/auth/register مع Rate Limiting ---
+router.post('/register', registerLimiter, async (req, res) => {
     const { username, email, password, profileImage } = req.body;
 
     try {
@@ -78,8 +84,8 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// --- POST /api/auth/login ---
-router.post('/login', async (req, res) => {
+// --- POST /api/auth/login مع Rate Limiting ---
+router.post('/login', loginLimiter, async (req, res) => {
     const { email, password } = req.body;
 
     try {
@@ -134,9 +140,8 @@ router.get('/me', async (req, res) => {
     }
 });
 
-// 🆕 إرسال كود التحقق - محدث
-// 🆕 إرسال كود التحقق - محدث
-router.post('/send-verification', async (req, res) => {
+// --- POST /api/auth/send-verification مع Rate Limiting ---
+router.post('/send-verification', emailVerificationLimiter, async (req, res) => {
     try {
         const { email } = req.body;
         const user = await User.findOne({ email });
@@ -165,8 +170,8 @@ router.post('/send-verification', async (req, res) => {
     }
 });
 
-// 🆕 التحقق من الكود
-router.post('/verify-email', async (req, res) => {
+// --- POST /api/auth/verify-email مع Rate Limiting ---
+router.post('/verify-email', emailVerificationLimiter, async (req, res) => {
     try {
         const { email, code } = req.body;
         const user = await User.findOne({ 
@@ -190,9 +195,8 @@ router.post('/verify-email', async (req, res) => {
     }
 });
 
-// 🆕 POST /api/auth/forgot-password - محدث
-// --- POST /api/auth/forgot-password ---
-router.post('/forgot-password', async (req, res) => {
+// --- POST /api/auth/forgot-password مع Rate Limiting ---
+router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
     try {
         const { email } = req.body;
 
@@ -234,9 +238,9 @@ router.post('/forgot-password', async (req, res) => {
         res.status(500).json({ message: 'فشل إرسال رابط التعيين' });
     }
 });
-// 🆕 POST /api/auth/reset-password - إعادة تعيين كلمة المرور
-// 🆕 تحديث route إعادة تعيين كلمة المرور
-router.post('/reset-password', async (req, res) => {
+
+// --- POST /api/auth/reset-password مع Rate Limiting ---
+router.post('/reset-password', passwordResetLimiter, async (req, res) => {
     try {
         const { email, token, newPassword } = req.body;
 
