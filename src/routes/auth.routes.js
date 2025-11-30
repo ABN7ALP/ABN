@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user.model.js');
+const UploadService = require('../services/uploadService.js'); // 🆕 استيراد خدمة الرفع
 const jwt = require('jsonwebtoken');
-const { sendActivationEmail, sendPasswordResetEmail } = require('./emailConfig.js'); // 🆕 استيراد دالة الإيميل
+const { sendActivationEmail, sendPasswordResetEmail } = require('./emailConfig.js');
 
 // --- دالة لإنشاء توكن JWT ---
 const generateToken = (id) => {
@@ -12,9 +13,8 @@ const generateToken = (id) => {
 };
 
 // --- POST /api/auth/register ---
-// --- POST /api/auth/register ---
 router.post('/register', async (req, res) => {
-    const { username, email, password, profileImage } = req.body; // 🆕 أضف profileImage هنا
+    const { username, email, password, profileImage } = req.body;
 
     try {
         const userExists = await User.findOne({ $or: [{ email }, { username }] });
@@ -26,13 +26,32 @@ router.post('/register', async (req, res) => {
             });
         }
 
+        let profileImageUrl = null;
+
+        // 🆕 معالجة الصورة إذا وجدت
+        if (profileImage && profileImage.startsWith('data:image')) {
+            console.log('🖼️ جاري معالجة صورة المستخدم...');
+            const uploadResult = await UploadService.uploadImage(profileImage);
+            
+            if (uploadResult.success) {
+                profileImageUrl = uploadResult.url;
+                console.log('✅ تم رفع الصورة بنجاح:', profileImageUrl);
+            } else {
+                console.log('⚠️ فشل رفع الصورة، سيتم إنشاء الحساب بدون صورة');
+                // نستمر في إنشاء الحساب بدون صورة
+            }
+        } else if (profileImage) {
+            // إذا كانت صورة ليست base64 (رابط مباشر)
+            profileImageUrl = profileImage;
+        }
+
         const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
         const user = await User.create({
             username,
             email,
             password,
-            profileImage: profileImage || null, // 🆕 الآن profileImage معرف
+            profileImage: profileImageUrl, // 🆕 تخزين رابط Cloudinary فقط
             emailVerificationToken: verificationCode,
             emailVerificationExpires: Date.now() + 24 * 60 * 60 * 1000,
             emailVerified: false
@@ -58,18 +77,15 @@ router.post('/register', async (req, res) => {
         res.status(500).json({ message: 'فشل إنشاء الحساب' });
     }
 });
-// --- POST /api/auth/login ---
+
 // --- POST /api/auth/login ---
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // البحث عن المستخدم عن طريق البريد الإلكتروني
         const user = await User.findOne({ email });
 
-        // التحقق من وجود المستخدم ومطابقة كلمة المرور
         if (user && (await user.matchPassword(password))) {
-            // 🆕 التحقق من أن البريد مفعل
             if (!user.emailVerified) {
                 return res.status(401).json({ 
                     message: 'يرجى تفعيل بريدك الإلكتروني أولاً. تحقق من بريدك الوارد.' 
@@ -80,7 +96,7 @@ router.post('/login', async (req, res) => {
                 _id: user._id,
                 username: user.username,
                 email: user.email,
-                profileImage: user.profileImage,
+                profileImage: user.profileImage, // 🆕 الآن سيُرجع رابط Cloudinary
                 balance: user.balance,
                 isAdmin: user.isAdmin,
                 token: generateToken(user._id),
