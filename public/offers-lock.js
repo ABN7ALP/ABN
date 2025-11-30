@@ -1,4 +1,4 @@
-// offers-lock.js - نظام قفل قسم العروض (للمدير فقط)
+// offers-lock.js - نظام قفل قسم العروض (لجميع الأدمن)
 
 class OffersLockSystem {
     constructor() {
@@ -52,19 +52,15 @@ class OffersLockSystem {
                 isAdmin: this.isAdmin,
                 isDeveloper: this.isDeveloper,
                 isUnlocked: this.isUnlocked,
-                shouldShowLock: this.isAdmin && !this.isDeveloper && !this.isUnlocked
+                shouldShowLock: this.isAdmin && !this.isUnlocked // ⬅️ التغيير هنا
             });
             
-            // 🔒 الشرط الأساسي: إذا كان أدمن وليس مطوراً ولم يفتح القفل
-            if (this.isAdmin && !this.isDeveloper && !this.isUnlocked) {
-                console.log('🎨 Showing Lock Screen');
+            // 🔒 الشرط الجديد: إذا كان أدمن ولم يفتح القفل
+            if (this.isAdmin && !this.isUnlocked) {
+                console.log('🎨 Showing Lock Screen for Admin');
                 this.showLockScreen(offersSection);
             } else {
-                console.log('🔓 No Lock Screen - Reason:', {
-                    notAdmin: !this.isAdmin,
-                    isDeveloper: this.isDeveloper,
-                    isUnlocked: this.isUnlocked
-                });
+                console.log('🔓 No Lock Screen - Admin has access');
             }
         }, 100);
     }
@@ -184,7 +180,7 @@ class OffersLockSystem {
     }
 
     checkAccess() {
-        const access = this.isDeveloper || this.isUnlocked;
+        const access = this.isUnlocked;
         console.log('🔐 Access Check Result:', access);
         return access;
     }
