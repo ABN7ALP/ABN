@@ -393,33 +393,149 @@ if (typeof socket !== 'undefined') {
 }
 
 // أيضًا تحديث الكاش عند الطلب مباشرة من الـ routes
+// أيضًا تحديث الكاش عند الطلب مباشرة من الـ routes
 router.post('/offers', authMiddleware, adminMiddleware, async (req, res, next) => {
     try {
-        // الكود الأصلي لإضافة العرض...
-        // بعد نجاح الإضافة:
+        // 🔽 الكود الأصلي من offer.routes.js - إضافة عرض جديد
+        console.log('📥 استقبال طلب إنشاء عرض:', req.body);
+        
+        if (!req.body.title || !req.body.description) {
+            return res.status(400).json({ message: 'العنوان والوصف مطلوبان' });
+        }
+
+        if (!req.body.discountPercentage && !req.body.discountAmount) {
+            return res.status(400).json({ message: 'يجب إدخال نسبة خصم أو مبلغ خصم' });
+        }
+
+        if (!req.body.startDate || !req.body.endDate) {
+            return res.status(400).json({ message: 'يجب تحديد تاريخ البدء والانتهاء' });
+        }
+
+        const offerData = {
+            title: req.body.title,
+            description: req.body.description,
+            startDate: new Date(req.body.startDate),
+            endDate: new Date(req.body.endDate),
+            targetUsers: req.body.targetUsers || 'all',
+            services: req.body.services || []
+        };
+
+        if (req.body.discountPercentage) {
+            offerData.discountPercentage = parseInt(req.body.discountPercentage);
+        }
+        if (req.body.discountAmount) {
+            offerData.discountAmount = parseFloat(req.body.discountAmount);
+        }
+
+        console.log('📋 بيانات العرض المعدلة:', offerData);
+
+        const newOffer = new Offer(offerData);
+        await newOffer.save();
+
+        console.log('✅ تم إنشاء العرض بنجاح:', newOffer);
+
+        // 🆕 إرسال إشعار لجميع المستخدمين
+        try {
+            const users = await User.find({});
+            if (users && users.length > 0) {
+                const notifications = users.map(user => ({
+                    user: user._id,
+                    message: `🎊 ${newOffer.title} - ${newOffer.description}`,
+                    link: '/',
+                    type: 'offer'
+                }));
+                
+                await Notification.insertMany(notifications);
+                
+                req.io.emit('broadcast-notification', {
+                    message: `🎊 ${newOffer.title} - ${newOffer.description}`,
+                    link: '/'
+                });
+            }
+        } catch (notificationError) {
+            console.error('⚠️ خطأ في إرسال الإشعارات:', notificationError);
+        }
+
+        // 🔼 نهاية الكود الأصلي
+
+        // 🎯 تحديث الكاش بعد نجاح الإضافة
         clearOffersCache();
+
+        res.status(201).json({ 
+            message: 'تم إنشاء العرض بنجاح وإرسال الإشعارات!',
+            offer: newOffer 
+        });
+
     } catch (error) {
-        next(error);
+        console.error('❌ خطأ في إنشاء العرض:', error);
+        
+        let errorMessage = 'فشل إنشاء العرض';
+        if (error.name === 'ValidationError') {
+            errorMessage = 'بيانات غير صالحة: ' + Object.values(error.errors).map(e => e.message).join(', ');
+        } else if (error.code === 11000) {
+            errorMessage = 'هذا العرض موجود مسبقاً';
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+        
+        res.status(500).json({ 
+            message: errorMessage,
+            error: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 });
 
 router.put('/offers/:id', authMiddleware, adminMiddleware, async (req, res, next) => {
     try {
-        // الكود الأصلي لتعديل العرض...
-        // بعد نجاح التعديل:
+        // 🔽 الكود الأصلي من offer.routes.js - تعديل عرض
+        const updatedOffer = await Offer.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
+
+        if (!updatedOffer) {
+            return res.status(404).json({ message: 'العرض غير موجود' });
+        }
+
+        // 🔼 نهاية الكود الأصلي
+
+        // 🎯 تحديث الكاش بعد نجاح التعديل
         clearOffersCache();
+
+        res.json({ 
+            message: 'تم تحديث العرض بنجاح', 
+            offer: updatedOffer 
+        });
+
     } catch (error) {
-        next(error);
+        console.error('Error updating offer:', error);
+        res.status(500).json({ message: 'فشل تحديث العرض' });
     }
 });
 
 router.delete('/offers/:id', authMiddleware, adminMiddleware, async (req, res, next) => {
     try {
-        // الكود الأصلي لحذف العرض...
-        // بعد نجاح الحذف:
+        // 🔽 الكود الأصلي من offer.routes.js - حذف عرض
+        const deletedOffer = await Offer.findByIdAndDelete(req.params.id);
+        
+        if (!deletedOffer) {
+            return res.status(404).json({ message: 'العرض غير موجود' });
+        }
+
+        // 🔼 نهاية الكود الأصلي
+
+        // 🎯 تحديث الكاش بعد نجاح الحذف
         clearOffersCache();
+
+        res.json({ 
+            message: 'تم حذف العرض بنجاح',
+            deletedOffer: deletedOffer 
+        });
+
     } catch (error) {
-        next(error);
+        console.error('Error deleting offer:', error);
+        res.status(500).json({ message: 'فشل حذف العرض' });
     }
 });
 
