@@ -729,6 +729,9 @@ tr:hover td {
 }
 
 .qr-code img {
+    width: 200px;          /* حجم ثابت مناسب */
+    max-width: 100%;       /* لا يتجاوز عرض الشاشة */
+    height: auto;          /* يحافظ على النسبة */
     border: 2px solid var(--gray-border);
     border-radius: var(--radius-card);
     padding: 1rem;
