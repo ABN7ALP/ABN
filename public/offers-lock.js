@@ -10,7 +10,7 @@ class OffersLockSystem {
 
     checkDeveloperRole() {
         // 🔧 غير هذا الرقم إلى رقم المطور الحقيقي (رقمك)
-        const developerUserId = '65a1b2c3d4e5f67890123451'; 
+        const developerUserId = '6921d6a914a8ff08372c731a'; 
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
         
         return userInfo && userInfo._id === developerUserId;
