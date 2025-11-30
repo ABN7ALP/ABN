@@ -52,7 +52,7 @@ class OffersLockSystem {
                 isAdmin: this.isAdmin,
                 isDeveloper: this.isDeveloper,
                 isUnlocked: this.isUnlocked,
-                shouldShowLock: this.isAdmin && !this.isUnlocked // ⬅️ التغيير هنا
+                shouldShowLock: this.isAdmin && !this.isUnlocked
             });
             
             // 🔒 الشرط الجديد: إذا كان أدمن ولم يفتح القفل
@@ -61,8 +61,16 @@ class OffersLockSystem {
                 this.showLockScreen(offersSection);
             } else {
                 console.log('🔓 No Lock Screen - Admin has access');
+                // 🆕 إضافة مهمة: إذا كان القسم مفتوحاً، تأكد من تحميل العروض
+                this.loadOffersContent();
             }
         }, 100);
+    }
+
+    // 🆕 أضف هذه الدالة لتحميل المحتوى عندما يكون القسم مفتوحاً
+    loadOffersContent() {
+        console.log('🔓 Loading offers content for unlocked section');
+        // هنا يمكنك إضافة أي كود إضافي تحتاجه عندما يكون القسم مفتوحاً
     }
 
     showLockScreen(offersSection) {
@@ -87,7 +95,6 @@ class OffersLockSystem {
                     <div class="payment-info">
                         <div class="qr-code">
                             <h4>📱 مسح الباركود</h4>
-                            <!-- ضع رابط صورة الباركود هنا -->
                             <img src="https://i.imgur.com/6usAfhA.jpeg" 
                                  alt="QR Code للدفع">
                         </div>
@@ -187,4 +194,5 @@ class OffersLockSystem {
     }
 }
 
+// 🆕 التصحيح: سطر واحد فقط بدون تكرار
 window.OffersLockSystem = OffersLockSystem;
