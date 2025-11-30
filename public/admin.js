@@ -147,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
 let offersLockSystem;
 
 // 🆕 ضع هذه الدوال بعد تعريف المتغيرات وقبل checkAdminAccess
+// 🆕 ضع هذه الدوال بعد تعريف المتغيرات وقبل checkAdminAccess
 function initOffersLock() {
     if (document.getElementById('offers-section')) {
         offersLockSystem = new OffersLockSystem();
@@ -533,26 +534,6 @@ function loadDashboardData() {
     }
 
     // 🆕 دوال إدارة العروض
-// 🆕 دوال إدارة العروض - معدلة لدعم القفل
-async function fetchOffers() {
-    // تحقق من القفل أولاً
-    if (offersLockSystem && !offersLockSystem.checkAccess()) {
-        console.log('🔒 لا يمكن جلب العروض - القسم مقفل');
-        return;
-    }
-
-    try {
-        const response = await fetch('/api/offers', { 
-            headers: getAuthHeaders() 
-        });
-        if (!response.ok) throw new Error('فشل جلب العروض');
-        const offers = await response.json();
-        renderOffers(offers);
-    } catch (error) {
-        console.error('Error fetching offers:', error);
-    }
-}
-
 function renderOffers(offers) {
     const tbody = document.getElementById('offers-tbody');
     if (!tbody) return;
