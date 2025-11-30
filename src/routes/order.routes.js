@@ -37,7 +37,6 @@ function clearOffersCache() {
 }
 
 // 🆕 دالة حساب السعر النهائي مع الخصم
-// 🚀 النسخة النهائية المحسنة من calculateFinalPrice
 async function calculateFinalPrice(serviceName, platform, quantity, userId = null) {
     try {
         console.log('🔍 حساب السعر - البيانات المستلمة:', { serviceName, platform, quantity, userId });
@@ -157,7 +156,6 @@ async function calculateFinalPrice(serviceName, platform, quantity, userId = nul
 }
 
 // 🆕 Route جديد لحساب السعر مع الخصم
-// 🆕 Route جديد لحساب السعر مع الخصم
 router.post('/calculate-price', async (req, res) => {
     try {
         console.log('📊 حساب السعر - البيانات المستلمة:', req.body);
@@ -178,7 +176,6 @@ router.post('/calculate-price', async (req, res) => {
         res.status(500).json({ message: 'فشل حساب السعر' });
     }
 });
-
 
 // --- POST /api/orders (للطلبات العادية عبر واتساب) ---
 router.post('/', async (req, res) => {
@@ -251,12 +248,8 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     }
 });
 
-
 // --- GET /api/orders/my-orders - جلب طلبات المستخدم المسجل دخوله ---
-// لا نحتاج لـ authMiddleware هنا لأننا نستخدم الـ userId من الـ query
-// ولكن يجب أن يتأكد الـ Frontend من إرسال التوكن مع الطلب إلى الـ /api/auth/me
 router.get('/my-orders', async (req, res) => {
-    // سنحصل على هوية المستخدم من query parameter
     const { userId } = req.query;
 
     if (!userId) {
@@ -264,7 +257,6 @@ router.get('/my-orders', async (req, res) => {
     }
 
     try {
-        // ابحث عن كل طلبات المستخدم وقم بترتيبها من الأحدث للأقدم
         const userOrders = await Order.find({ user: userId }).sort({ createdAt: -1 });
         res.status(200).json(userOrders);
     } catch (error) {
@@ -273,9 +265,7 @@ router.get('/my-orders', async (req, res) => {
     }
 });
 
-
 // --- POST /api/orders/pay-with-balance (النسخة الآمنة والمكتملة) ---
-// في order.routes.js - عدل دالة pay-with-balance
 router.post('/pay-with-balance', async (req, res) => {
     try {
         const { userId, service: serviceName, link, quantity, platform } = req.body;
@@ -369,36 +359,7 @@ router.post('/pay-with-balance', async (req, res) => {
     }
 });
 
-// في نهاية order.routes.js - أضف هذه الـ Event Listeners
-
-// ✅ استبدله بهذا الكود
-function setupSocketListeners(ioInstance) {
-    if (!ioInstance) {
-        console.log('⚠️ ioInstance غير متاح - تخطي إعداد مستمعي Socket');
-        return;
-    }
-    
-    console.log('✅ جاري إعداد مستمعي Socket events للعروض...');
-    
-    ioInstance.on('new-offer', () => {
-        console.log('🔄 تحديث ذاكرة التخزين المؤقت بسبب عرض جديد');
-        clearOffersCache();
-    });
-
-    ioInstance.on('offer-updated', () => {
-        console.log('🔄 تحديث ذاكرة التخزين المؤقت بسبب تعديل عرض');
-        clearOffersCache();
-    });
-
-    ioInstance.on('offer-deleted', () => {
-        console.log('🔄 تحديث ذاكرة التخزين المؤقت بسبب حذف عرض');
-        clearOffersCache();
-    });
-
-    console.log('✅ تم إعداد مستمعي Socket events بنجاح');
-}
-// أيضًا تحديث الكاش عند الطلب مباشرة من الـ routes
-// أيضًا تحديث الكاش عند الطلب مباشرة من الـ routes
+// 🆕 تحديث الكاش عند الطلب مباشرة من الـ routes مع req.io.emit
 router.post('/offers', authMiddleware, adminMiddleware, async (req, res, next) => {
     try {
         // 🔽 الكود الأصلي من offer.routes.js - إضافة عرض جديد
@@ -461,10 +422,14 @@ router.post('/offers', authMiddleware, adminMiddleware, async (req, res, next) =
             console.error('⚠️ خطأ في إرسال الإشعارات:', notificationError);
         }
 
-        // 🔼 نهاية الكود الأصلي
-
         // 🎯 تحديث الكاش بعد نجاح الإضافة
         clearOffersCache();
+        
+        // 🔥 أرسل event جديد للمستمعين الآخرين
+        if (req.io) {
+            req.io.emit('new-offer');
+            console.log('📢 تم إرسال event new-offer عبر Socket.io');
+        }
 
         res.status(201).json({ 
             message: 'تم إنشاء العرض بنجاح وإرسال الإشعارات!',
@@ -503,10 +468,14 @@ router.put('/offers/:id', authMiddleware, adminMiddleware, async (req, res, next
             return res.status(404).json({ message: 'العرض غير موجود' });
         }
 
-        // 🔼 نهاية الكود الأصلي
-
         // 🎯 تحديث الكاش بعد نجاح التعديل
         clearOffersCache();
+        
+        // 🔥 أرسل event تحديث للمستمعين الآخرين
+        if (req.io) {
+            req.io.emit('offer-updated');
+            console.log('📢 تم إرسال event offer-updated عبر Socket.io');
+        }
 
         res.json({ 
             message: 'تم تحديث العرض بنجاح', 
@@ -528,10 +497,14 @@ router.delete('/offers/:id', authMiddleware, adminMiddleware, async (req, res, n
             return res.status(404).json({ message: 'العرض غير موجود' });
         }
 
-        // 🔼 نهاية الكود الأصلي
-
         // 🎯 تحديث الكاش بعد نجاح الحذف
         clearOffersCache();
+        
+        // 🔥 أرسل event حذف للمستمعين الآخرين
+        if (req.io) {
+            req.io.emit('offer-deleted');
+            console.log('📢 تم إرسال event offer-deleted عبر Socket.io');
+        }
 
         res.json({ 
             message: 'تم حذف العرض بنجاح',
@@ -543,6 +516,5 @@ router.delete('/offers/:id', authMiddleware, adminMiddleware, async (req, res, n
         res.status(500).json({ message: 'فشل حذف العرض' });
     }
 });
-
 
 module.exports = router;
