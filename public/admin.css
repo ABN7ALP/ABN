@@ -783,3 +783,54 @@ tr:hover td {
     background: #059669;
     transform: translateY(-2px);
 }
+/* في admin.css - أضف هذه الأنماط */
+
+.lock-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--radius-card);
+}
+
+.lock-content {
+    background: white;
+    padding: 3rem;
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+    max-width: 500px;
+    border: 2px solid var(--purple-main);
+    position: relative;
+    z-index: 101;
+}
+
+.lock-icon {
+    font-size: 4rem;
+    color: var(--purple-main);
+    margin-bottom: 1rem;
+}
+
+/* جعل المحتوى الأصلي شفافاً وغير قابل للنقر */
+#offers-section > div:last-child {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.success-button {
+    background: var(--success-green);
+    color: white;
+    border: none;
+}
+
+.success-button:hover {
+    background: #059669;
+    transform: translateY(-2px);
+}
