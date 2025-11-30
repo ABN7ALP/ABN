@@ -803,7 +803,7 @@ tr:hover td {
     border-radius: var(--radius-card);
 }
 
-.lock-content {
+/*.lock-content {
     background: white;
     padding: 3rem;
     border-radius: var(--radius-card);
@@ -813,7 +813,7 @@ tr:hover td {
     border: 2px solid var(--purple-main);
     position: relative;
     z-index: 101;
-}
+}*/
 
 .lock-icon {
     font-size: 4rem;
