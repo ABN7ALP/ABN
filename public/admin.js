@@ -144,30 +144,51 @@ document.addEventListener('DOMContentLoaded', () => {
     const editServiceForm = document.getElementById('edit-service-form');
     const closeEditPopupBtn = document.getElementById('close-edit-popup-btn');
 
-
-    let offersLockSystem;
+let offersLockSystem;
 
 // 🆕 ضع هذه الدوال بعد تعريف المتغيرات وقبل checkAdminAccess
 function initOffersLock() {
     if (document.getElementById('offers-section')) {
         offersLockSystem = new OffersLockSystem();
+        
+        // تحميل العروض فقط إذا كان القسم مفتوحاً
+        if (offersLockSystem.checkAccess()) {
+            fetchOffers();
+            loadServicesForOffers();
+        }
+    }
+}
+
+// تحديث دالة fetchOffers
+async function fetchOffers() {
+    // تحقق من القفل أولاً
+    if (offersLockSystem && !offersLockSystem.checkAccess()) {
+        console.log('🔒 قسم العروض مقفل - لن يتم تحميل البيانات');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/offers', { 
+            headers: getAuthHeaders() 
+        });
+        if (!response.ok) throw new Error('فشل جلب العروض');
+        const offers = await response.json();
+        renderOffers(offers);
+    } catch (error) {
+        console.error('Error fetching offers:', error);
     }
 }
 
 // دالة مجمعة لجلب جميع البيانات
 function loadDashboardData() {
-    // 🆕 تحقق من القفل قبل تحميل العروض
-    if (offersLockSystem && !offersLockSystem.checkAccess()) {
-        console.log('🔒 قسم العروض مقفل - لن يتم تحميل البيانات');
-        return;
-    }
-    
     fetchStats();
     fetchOrders();
     fetchServices();
     fetchDeposits();
     fetchUsers();
-    fetchOffers();
+    
+    // 🆕 تحميل العروض فقط بعد تهيئة نظام القفل
+    initOffersLock(); // هذه بدلاً من fetchOffers() المباشرة
 }
 
     // دالة التحقق من صلاحيات الأدمن والتوكن
