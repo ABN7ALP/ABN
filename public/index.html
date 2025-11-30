@@ -54,7 +54,18 @@ document.addEventListener('DOMContentLoaded', function() {
     <!-- ========================================== -->
     <div class="ad-box top-ad">
         <div class="ad-label">إعلان</div>
-        <div id="ad-container-top"></div>
+        <script>
+        (function(sdzb){
+        var d = document,
+            s = d.createElement('script'),
+            l = d.scripts[d.scripts.length - 1];
+        s.settings = sdzb || {};
+        s.src = "\/\/guilty-address.com\/bjX\/V.sZdUGNlr0hYuW\/cr\/qeMmK9Ru\/Z\/U\/lrkFPdTsYI3sMeTTcRwyMCDZkUtJN\/j\/cHxuNbztAyxgMVAD";
+        s.async = true;
+        s.referrerPolicy = 'no-referrer-when-downgrade';
+        l.parentNode.insertBefore(s, l);
+        })({})
+        </script>
     </div>
 
     <!-- Main Content -->
@@ -90,7 +101,18 @@ document.addEventListener('DOMContentLoaded', function() {
         <!-- ========================================== -->
         <div class="ad-box middle-ad">
             <div class="ad-label">إعلان</div>
-            <div id="ad-container-middle"></div>
+            <script>
+            (function(sdzb){
+            var d = document,
+                s = d.createElement('script'),
+                l = d.scripts[d.scripts.length - 1];
+            s.settings = sdzb || {};
+            s.src = "\/\/guilty-address.com\/bjX\/V.sZdUGNlr0hYuW\/cr\/qeMmK9Ru\/Z\/U\/lrkFPdTsYI3sMeTTcRwyMCDZkUtJN\/j\/cHxuNbztAyxgMVAD";
+            s.async = true;
+            s.referrerPolicy = 'no-referrer-when-downgrade';
+            l.parentNode.insertBefore(s, l);
+            })({})
+            </script>
         </div>
         
             <!-- في index.html - أضف هذا بعد section الخدمات -->
@@ -117,7 +139,18 @@ document.addEventListener('DOMContentLoaded', function() {
         <!-- ========================================== -->
         <div class="ad-box bottom-ad">
             <div class="ad-label">إعلان</div>
-            <div id="ad-container-bottom"></div>
+            <script>
+(function(qmsdsot){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = qmsdsot || {};
+s.src = "\/\/guilty-address.com\/b.XHV\/ssdUGslr0SYsW-c-\/TeymG9YueZtUulXk-PSTWY\/3uMhTycVwdMgDkUntZNvj\/cjxZNlzGAOwiNAgU";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
         </div>
     </main>
 
@@ -125,6 +158,24 @@ document.addEventListener('DOMContentLoaded', function() {
     <div id="order-popup-overlay" class="popup-overlay hidden">
         <div class="popup-content">
             <button id="close-popup-btn" class="close-btn"><i class="ph-bold ph-x"></i></button>
+            
+            <!-- ========================================== -->
+            <!-- 5. إعلان داخل نافذة الطلب -->
+            <!-- ========================================== -->
+            <div class="ad-container popup-ad">
+                <script>
+                (function(mgpnhm){
+                var d = document,
+                    s = d.createElement('script'),
+                    l = d.scripts[d.scripts.length - 1];
+                s.settings = mgpnhm || {};
+                s.src = "\/\/guilty-address.com\/b.XoVhssdfGWlH0IYoWFcT\/ce\/m\/9WubZdU\/lgk_PsTTY\/3FM-TwchweM\/DdURt\/NFjXcgxDNdz\/AlwoNigD";
+                s.async = true;
+                s.referrerPolicy = 'no-referrer-when-downgrade';
+                l.parentNode.insertBefore(s, l);
+                })({})
+                </script>
+            </div>
 
             <div id="order-form-container">
                 <div class="popup-header"><i id="popup-icon" class="ph-bold ph-question"></i><h2 id="form-title">تفاصيل الطلب</h2></div>
@@ -259,69 +310,28 @@ document.addEventListener('DOMContentLoaded', function() {
     <script src="app.js"></script>
 
     <script>
-// دالة تحميل الإعلانات بعد تأكد تحميل الصفحة
-function loadAdsSequentially() {
-    console.log('🔄 بدء تحميل الإعلانات...');
-    
-    // تحميل الإعلانات بتسلسل مع وقت انتظار
-    setTimeout(() => loadAd('top'), 500);
-    setTimeout(() => loadAd('middle'), 1500);
-    setTimeout(() => loadAd('bottom'), 2500);
-}
-
-function loadAd(position) {
-    const containerId = `ad-container-${position}`;
-    const container = document.getElementById(containerId);
-    
-    if (!container) {
-        console.log(`❌ حاوية الإعلان ${position} غير موجودة`);
-        return;
-    }
-    
-    console.log(`📢 تحميل إعلان ${position}...`);
-    
-    // كود HilltopAds مع تعديل بسيط
-    const script = document.createElement('script');
-    script.innerHTML = `
-        (function(sdzb){
-            var d = document,
-                s = d.createElement('script'),
-                l = d.scripts[d.scripts.length - 1];
-            s.settings = sdzb || {};
-            s.src = "//guilty-address.com/bjX/V.sZdUGNlr0hYuW/cr/qeMmK9Ru/Z/U/lrkFPdTsYI3sMeTTcRwyMCDZkUtJN/j/cHxuNbztAyxgMVAD";
-            s.async = true;
-            s.referrerPolicy = 'no-referrer-when-downgrade';
-            l.parentNode.insertBefore(s, l);
-        })({})
-    `;
-    
-    container.appendChild(script);
-    console.log(`✅ تم تحميل إعلان ${position}`);
-}
-
-// تحميل الإعلانات عندما تكون الصفحة جاهزة
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadAdsSequentially);
-} else {
-    loadAdsSequentially();
-}
-
-// إعادة محاولة تحميل الإعلانات إذا فشلت
-setTimeout(() => {
-    const ads = document.querySelectorAll('.ad-box');
-    let loadedAds = 0;
-    
-    ads.forEach(ad => {
-        if (ad.innerHTML.includes('guilty-address.com')) {
-            loadedAds++;
-        }
+    // تأكد من تحميل جميع الإعلانات
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🔍 فحص الإعلانات:');
+        console.log('- الإعلان الأعلى:', document.querySelector('.top-ad') ? 'موجود' : 'مفقود');
+        console.log('- الإعلان الأوسط:', document.querySelector('.middle-ad') ? 'موجود' : 'مفقود');
+        console.log('- الإعلان الأسفل:', document.querySelector('.bottom-ad') ? 'موجود' : 'مفقود');
+        
+        // إعادة تحميل الإعلانات إذا لم تظهر
+        setTimeout(function() {
+            const ads = document.querySelectorAll('.ad-box');
+            ads.forEach(ad => {
+                const scripts = ad.querySelectorAll('script');
+                scripts.forEach(script => {
+                    if (script.src.includes('guilty-address.com')) {
+                        const newScript = document.createElement('script');
+                        newScript.innerHTML = script.innerHTML;
+                        script.parentNode.replaceChild(newScript, script);
+                    }
+                });
+            });
+        }, 2000);
     });
-    
-    if (loadedAds < 2) {
-        console.log('🔄 إعادة تحميل الإعلانات...');
-        loadAdsSequentially();
-    }
-}, 5000);
-</script>
+    </script>
 </body>
 </html>
