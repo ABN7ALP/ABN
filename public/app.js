@@ -1,4 +1,45 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- 0. تفعيل وضع سطح المكتب على الهواتف ---
+    function suggestDesktopView() {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            console.log('📱 تم الكشف عن جهاز محمول - تفعيل عرض سطح المكتب');
+            
+            // إضافة CSS بسيط لتحسين العرض
+            const style = document.createElement('style');
+            style.textContent = `
+                /* تحسين العرض على الهواتف مع عرض سطح المكتب */
+                body {
+                    min-width: 100%;
+                }
+                .container {
+                    width: 100%;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                }
+                
+                /* تحسين عرض البطاقات */
+                .services-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                    gap: 1.5rem;
+                }
+                
+                /* تحسين الهيدر */
+                .main-header .container {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+
+    // تشغيل الدالة
+    suggestDesktopView();
+
     // --- 1. إعداد الاتصال الفوري (Socket.IO) ---
     const socket = io();
 
