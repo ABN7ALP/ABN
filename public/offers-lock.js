@@ -18,7 +18,7 @@ class OffersLockSystem {
     }
 
     checkDeveloperRole() {
-        const developerUserId = '1921d6a914a8ff08372c731a'; 
+        const developerUserId = '6921d6a914a8ff08372c731a'; 
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
         
         const isDev = userInfo && userInfo._id === developerUserId;
