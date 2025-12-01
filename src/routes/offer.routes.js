@@ -2,11 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Offer = require('../models/offer.model');
 const Notification = require('../models/notification.model');
-const User = require('../models/user.model'); // تأكد من وجود هذا الاستيراد
+const User = require('../models/user.model');
+const { addNotificationJob } = require('../services/queue'); // 🆕 الاستيراد الجديد
 const authMiddleware = require('../middleware/auth.middleware');
 const adminMiddleware = require('../middleware/admin.middleware');
-const { addNotificationJob } = require('../services/queue');
-
 
 // GET /api/offers/active - جلب العروض النشطة
 router.get('/active', async (req, res) => {
@@ -52,7 +51,7 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
             startDate: new Date(req.body.startDate),
             endDate: new Date(req.body.endDate),
             targetUsers: req.body.targetUsers || 'all',
-            services: req.body.services || [] // تأكد أن هذا مصفوفة
+            services: req.body.services || []
         };
 
         // إضافة الخصم (نسبة أو مبلغ)
@@ -70,46 +69,46 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
 
         console.log('✅ تم إنشاء العرض بنجاح:', newOffer);
 
-        // 🆕 إرسال إشعار لجميع المستخدمين (مع معالجة الأخطاء)
+        // 🎯 إرسال إشعار لجميع المستخدمين باستخدام Redis Queue
         try {
-            const users = await User.find({});
-            if (users && users.length > 0) {
-                const notifications = users.map(user => ({
-                    user: user._id,
-                    message: `🎊 ${newOffer.title} - ${newOffer.description}`,
-                    link: '/',
-                    type: 'offer'
-                }));
-                
-                await Notification.insertMany(notifications);
-                
-                // إرسال إشعار فوري
-                req.io.emit('broadcast-notification', {
-                    message: `🎊 ${newOffer.title} - ${newOffer.description}`,
-                    link: '/'
-                });
-            }
-        } catch (notificationError) {
-            console.error('⚠️ خطأ في إرسال الإشعارات:', notificationError);
-            // لا نوقف العملية إذا فشل الإشعار
-        }
+            // أضف مهمة إرسال الإشعارات إلى Redis Queue
+            const notificationJob = await addNotificationJob('new-offer', {
+                title: newOffer.title,
+                description: newOffer.description,
+                targetUsers: newOffer.targetUsers || 'all'
+            }, {
+                priority: 'high',
+                delay: 1000, // تأخير ثانية واحدة
+                attempts: 3
+            });
 
-        // 🆕 🎯 الإصلاح: أضف أقواس متعرجة حول الكود الجديد
-        {
-            // 🆕 إرسال إشعار مخصص للعروض
-            if (req.io) {
-                req.io.emit('new-offer', {
-                    message: `🎊 ${newOffer.title} - ${newOffer.description}`,
-                    offer: newOffer,
-                    link: '/',
-                    type: 'offer_created'
-                });
-                console.log('📢 تم إرسال إشعار new-offer');
-            }
+            console.log(`📨 تم إضافة إشعار العرض إلى Redis Queue (Job ID: ${notificationJob.id})`);
+
+            // إرسال إشعار فوري عبر Socket.io (للمستخدمين المتصلين حالياً)
+            req.io.emit('broadcast-notification', {
+                message: `🎊 ${newOffer.title} - ${newOffer.description}`,
+                link: '/',
+                type: 'offer_created'
+            });
+
+            // إرسال إشعار خاص للعروض
+            req.io.emit('new-offer', {
+                message: `🎊 ${newOffer.title} - ${newOffer.description}`,
+                offer: newOffer,
+                link: '/'
+            });
+
+        } catch (notificationError) {
+            console.error('⚠️ خطأ في إضافة إشعار العرض إلى الطابور:', notificationError);
+            // لا نوقف العملية إذا فشل الإشعار، لكن نرسل إشعاراً فورياً كبديل
+            req.io.emit('broadcast-notification', {
+                message: `🎊 ${newOffer.title} - ${newOffer.description}`,
+                link: '/'
+            });
         }
 
         res.status(201).json({ 
-            message: 'تم إنشاء العرض بنجاح وإرسال الإشعارات!',
+            message: 'تم إنشاء العرض بنجاح!',
             offer: newOffer 
         });
 
