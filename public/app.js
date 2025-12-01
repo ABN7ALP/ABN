@@ -1188,39 +1188,123 @@ function showSearchResultsCount(visible, total) {
 }
     
     // --- 3. نظام شحن الرصيد ---
-    function showDepositPopup() {
-        depositForm.reset();
-        depositFormResponse.textContent = '';
-        depositFormResponse.className = 'form-message';
-        paymentDetailsContainer.classList.add('hidden');
-        paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
-        depositPopupOverlay.classList.remove('hidden');
-    }
+    // --- 3. نظام شحن الرصيد ---
+function showDepositPopup() {
+    depositForm.reset();
+    depositFormResponse.textContent = '';
+    depositFormResponse.className = 'form-message';
+    paymentDetailsContainer.classList.add('hidden');
+    paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
+    depositPopupOverlay.classList.remove('hidden');
+}
 
-    function hideDepositPopup() { 
-        depositPopupOverlay.classList.add('hidden'); 
-    }
+function hideDepositPopup() { 
+    depositPopupOverlay.classList.add('hidden'); 
+}
 
-    function handlePaymentMethodSelect(event) {
-        const selectedMethod = event.currentTarget.dataset.method;
-        paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
-        event.currentTarget.classList.add('active');
-        let detailsHTML = '';
-        switch (selectedMethod) {
-            case 'bank': 
-                detailsHTML = `<p>يرجى تحويل المبلغ إلى الحساب التالي:</p><p>الاسم: <span>BESSAR</span></p><p>رقم الحساب (IBAN): <span>TR9785431312751367319</span></p>`; 
-                break;
-            case 'sham': 
-                detailsHTML = `<p>يرجى مسح الباركود التالي والدفع عبر شام كاش:</p><img src="https://i.ibb.co/GvXw59R/bfa34fae23d4f3b4089e6d615bbd07d7.png" alt="Sham Cash QR Code">`; 
-                break;
-            case 'whatsapp': 
-                detailsHTML = `<p>للحوالة عبر مكتب، يرجى التواصل معنا عبر واتساب للحصول على التفاصيل. بعد إتمام الحوالة، قم برفع صورة الإيصال هنا.</p>`; 
-                break;
+function handlePaymentMethodSelect(event) {
+    const selectedMethod = event.currentTarget.dataset.method;
+    paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    let detailsHTML = '';
+    
+    switch (selectedMethod) {
+        case 'bank': 
+            detailsHTML = `<p>يرجى تحويل المبلغ إلى الحساب التالي:</p>
+                          <p>الاسم: <span>MUHAMMED ERRAHIM</span></p>
+                          <p>رقم الحساب (IBAN): <span>TR77 0014 3000 0000 0013 8811 28</span></p>`; 
+            break;
+        case 'sham': 
+            detailsHTML = `<p>يرجى مسح الباركود التالي والدفع عبر شام كاش:</p>
+                          <img src="https://i.imgur.com/LvVpAx1.jpeg" alt="Sham Cash QR Code">`; 
+            break;
+        case 'whatsapp': 
+            detailsHTML = `<p>للحوالة عبر مكتب، يرجى التواصل معنا عبر واتساب للحصول على التفاصيل.</p>`; 
+            break;
+        case 'usdt':
+            detailsHTML = `<p><strong>💰 اسم العملية:</strong> USDT</p>
+                          <p><strong>🌐 اسم الشبكة:</strong> Tron (TRC20)</p>
+                          <p><strong>📍 عنوان الدفع:</strong></p>
+                          <div class="wallet-address">
+                              <span class="address-copy">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
+                              <button class="copy-btn" onclick="copyAddress('TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM', event)">
+                                  <i class="ph-bold ph-copy"></i>
+                              </button>
+                          </div>
+                          <p class="warning-note">⚠️ تأكد من إرسال USDT فقط عبر شبكة TRC20</p>`; 
+            break;
+        case 'trx':
+            detailsHTML = `<p><strong>💰 اسم العملية:</strong> TRX</p>
+                          <p><strong>🌐 اسم الشبكة:</strong> Tron (TRC20)</p>
+                          <p><strong>📍 عنوان الدفع:</strong></p>
+                          <div class="wallet-address">
+                              <span class="address-copy">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
+                              <button class="copy-btn" onclick="copyAddress('TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM', event)">
+                                  <i class="ph-bold ph-copy"></i>
+                              </button>
+                          </div>
+                          <p class="warning-note">⚠️ تأكد من إرسال TRX فقط عبر شبكة TRC20</p>`; 
+            break;
+        case 'bnb':
+            detailsHTML = `<p><strong>💰 اسم العملية:</strong> BNB</p>
+                          <p><strong>🌐 اسم الشبكة:</strong> BNB Smart Chain (BEP20)</p>
+                          <p><strong>📍 عنوان الدفع:</strong></p>
+                          <div class="wallet-address">
+                              <span class="address-copy">0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd</span>
+                              <button class="copy-btn" onclick="copyAddress('0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd', event)">
+                                  <i class="ph-bold ph-copy"></i>
+                              </button>
+                          </div>
+                          <p class="warning-note">⚠️ تأكد من إرسال BNB فقط عبر شبكة BEP20</p>`; 
+            break;
+    }
+    
+    paymentDetailsContainer.innerHTML = detailsHTML;
+    paymentDetailsContainer.classList.remove('hidden');
+}
+
+// 🆕 دالة نسخ العنوان للمحفظة - مصححة
+function copyAddress(address, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    navigator.clipboard.writeText(address).then(() => {
+        const button = event.target.closest('.copy-btn');
+        if (button) {
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="ph-bold ph-check"></i>';
+            button.style.background = 'var(--success-green)';
+            
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.style.background = '';
+            }, 2000);
         }
-        paymentDetailsContainer.innerHTML = detailsHTML;
-        paymentDetailsContainer.classList.remove('hidden');
-    }
+    }).catch(err => {
+        console.error('فشل النسخ: ', err);
+        alert('فشل نسخ العنوان، يرجى نسخه يدوياً');
+    });
+}
 
+// 🆕 دالة بديلة يمكن استخدامها مع onclick على العنصر مباشرة
+function copyToClipboard(element) {
+    const text = element.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        const originalColor = element.style.color;
+        const originalFontWeight = element.style.fontWeight;
+        
+        element.style.color = 'var(--success-green)';
+        element.style.fontWeight = 'bold';
+        
+        setTimeout(() => {
+            element.style.color = originalColor;
+            element.style.fontWeight = originalFontWeight;
+        }, 2000);
+    }).catch(err => {
+        console.error('فشل النسخ: ', err);
+        alert('فشل نسخ العنوان، يرجى نسخه يدوياً');
+    });
+}
     async function handleDepositSubmit(event) {
         event.preventDefault();
         depositFormResponse.textContent = 'جاري إرسال الطلب...';
