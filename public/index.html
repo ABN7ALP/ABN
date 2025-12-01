@@ -2,671 +2,273 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="referrer" content="no-referrer-when-downgrade" />
     <meta name="ce4b20eaad169926674d96f53817df4c87de5c86" content="ce4b20eaad169926674d96f53817df4c87de5c86" />
-    <title>🛍️ MX GROUP - متجر الخدمات الرقمية</title>
-    
-    <!-- الخطوط -->
+    <title>متجر الخدمات الرقمية</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- الأيقونات -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Socket.IO -->
     <script src="/socket.io/socket.io.js"></script>
-    
-    <!-- الأنماط -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="main.css">
-    <link rel="stylesheet" href="footer.css">
+    <!-- Font Awesome للآيكونات -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Desktop Mode للجوال -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // تحقق إذا كان جهاز محمول
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="https://img.icons8.com/color/96/shopping-cart--v1.png">
-    
-    <!-- وصف الموقع -->
-    <meta name="description" content="MX GROUP - أفضل متجر لخدمات السوشيال ميديا: متابعين، لايكات، مشاهدات، تعليقات بأسعار منافسة وجودة عالية">
-    <meta name="keywords" content="خدمات سوشيال ميديا, متابعين, لايكات, مشاهدات, إنستغرام, يوتيوب, تيك توك, فيسبوك">
-    
-    <!-- وضع سطح المكتب الذكي للجوال -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+        console.log('📱 تم اكتشاف جهاز محمول - تفعيل وضع الكمبيوتر');
         
-        if (isMobile) {
-            document.body.classList.add('smart-mobile-view');
-            
-            // CSS ديناميكي
-            const style = document.createElement('style');
-            style.textContent = `
-                body.smart-mobile-view { min-width: 100%; overflow-x: hidden; }
-                .smart-mobile-view .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 15px; }
-                .smart-mobile-view .services-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
-                .smart-mobile-view .popup-content { width: 95%; max-height: 90vh; }
-            `;
-            document.head.appendChild(style);
+        // تغيير الـ viewport لمحاكاة الكمبيوتر
+        const viewport = document.querySelector('meta[name="viewport"]');
+        if (viewport) {
+            viewport.setAttribute('content', 'width=1200, initial-scale=0.5, user-scalable=yes');
         }
-    });
-    </script>
-    
-    <!-- أنميشن CSS -->
-    <style>
-    /* أنميشن التحميل */
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+        
+        // إضافة كلاس للتحكم بالتنسيقات
+        document.body.classList.add('desktop-view-on-mobile');
     }
-    
-    @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-    }
-    
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-    }
-    
-    @keyframes slideInRight {
-        from { opacity: 0; transform: translateX(50px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-    
-    .animate-fadeIn { animation: fadeIn 0.8s ease; }
-    .animate-float { animation: float 3s ease-in-out infinite; }
-    .animate-pulse { animation: pulse 2s ease-in-out infinite; }
-    .animate-slideInRight { animation: slideInRight 0.6s ease; }
-    
-    /* تأثيرات خاصة */
-    .hover-glow:hover {
-        box-shadow: 0 0 20px rgba(124, 30, 255, 0.3);
-        transition: box-shadow 0.3s ease;
-    }
-    
-    .gradient-text {
-        background: linear-gradient(135deg, var(--purple-main), #667eea);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-    
-    .glass-effect {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    </style>
+});
+</script>
 </head>
 <body>
-    <!-- الخلفية المتحركة -->
     <div class="background-gradient"></div>
-    <div class="floating-shapes">
-        <div class="shape shape-1"></div>
-        <div class="shape shape-2"></div>
-        <div class="shape shape-3"></div>
-        <div class="shape shape-4"></div>
-    </div>
 
-    <!-- ========================================== -->
-    <!-- 🎪 الهيدر الذكي -->
-    <!-- ========================================== -->
-    <header class="main-header glass-effect animate-fadeIn">
+    <!-- Header -->
+    <header class="main-header">
         <div class="container">
-            <!-- اللوجو مع أنيميشن -->
-            <div class="logo-container">
-                <div class="logo-icon animate-float">
-                    <i class="fas fa-shopping-cart"></i>
-                </div>
-                <div class="logo-text">
-                    <h1 class="logo gradient-text">MX GROUP</h1>
-                    <p class="logo-subtitle">متجر الخدمات الرقمية</p>
-                </div>
-            </div>
-
-            <!-- إحصائيات حية -->
-            <div class="live-stats">
-                <div class="stat-item">
-                    <i class="fas fa-users"></i>
-                    <div>
-                        <span class="stat-number" id="live-users">0</span>
-                        <span class="stat-label">مستخدم نشط</span>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <i class="fas fa-shopping-cart"></i>
-                    <div>
-                        <span class="stat-number" id="live-orders">0</span>
-                        <span class="stat-label">طلب اليوم</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- التنقل الرئيسي -->
+            <div class="logo"> متجر MX GROUP</div>
             <div class="header-actions">
-                <!-- جرس الإشعارات -->
-                <div id="notification-bell-container"></div>
-                
-                <!-- قائمة المستخدم -->
-                <nav id="main-nav" class="main-nav"></nav>
-                
-                <!-- زر القائمة للموبايل -->
-                <button class="mobile-menu-btn" id="mobile-menu-toggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-        </div>
-        
-        <!-- قائمة الموبايل -->
-        <div class="mobile-menu" id="mobile-menu">
-            <div class="mobile-menu-header">
-                <h3>القائمة</h3>
-                <button class="close-mobile-menu" id="close-mobile-menu">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="mobile-menu-content">
-                <!-- سيتم تعبئته بالجافاسكريبت -->
-            </div>
+             <!-- جرس الإشعارات سيوضع هنا بواسطة JavaScript -->
+            <div id="notification-bell-container"></div>
+            <!-- قائمة المستخدم -->
+           <nav id="main-nav" class="main-nav"></nav>
         </div>
     </header>
 
+ <!-- ========================================== -->
+    <!-- 1. إعلان تحت الهيدر مباشرة -->
     <!-- ========================================== -->
-    <!-- 🎪 الإعلان العلوي -->
-    <!-- ========================================== -->
-    <div class="ad-box top-ad animate-slideInRight">
-        <div class="ad-label"><i class="fas fa-ad"></i> إعلان</div>
-        <div class="ad-content">
-            <script>
-            (function(sdzb){
-            var d = document,
-                s = d.createElement('script'),
-                l = d.scripts[d.scripts.length - 1];
-            s.settings = sdzb || {};
-            s.src = "\/\/guilty-address.com\/bjX\/V.sZdUGNlr0hYuW\/cr\/qeMmK9Ru\/Z\/U\/lrkFPdTsYI3sMeTTcRwyMCDZkUtJN\/j\/cHxuNbztAyxgMVAD";
-            s.async = true;
-            s.referrerPolicy = 'no-referrer-when-downgrade';
-            l.parentNode.insertBefore(s, l);
-            })({})
-            </script>
-        </div>
+    <div class="ad-box top-ad">
+        <div class="ad-label">إعلان</div>
+        <script>
+        (function(sdzb){
+        var d = document,
+            s = d.createElement('script'),
+            l = d.scripts[d.scripts.length - 1];
+        s.settings = sdzb || {};
+        s.src = "\/\/guilty-address.com\/bjX\/V.sZdUGNlr0hYuW\/cr\/qeMmK9Ru\/Z\/U\/lrkFPdTsYI3sMeTTcRwyMCDZkUtJN\/j\/cHxuNbztAyxgMVAD";
+        s.async = true;
+        s.referrerPolicy = 'no-referrer-when-downgrade';
+        l.parentNode.insertBefore(s, l);
+        })({})
+        </script>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 🎪 قسم البطل (Hero) -->
-    <!-- ========================================== -->
-    <section class="hero-section animate-fadeIn">
-        <div class="container">
-            <div class="hero-content">
-                <!-- النص الرئيسي -->
-                <div class="hero-text">
-                    <h1 class="hero-title animate-fadeIn" style="animation-delay: 0.2s">
-                        <span class="gradient-text">أفضل الخدمات الرقمية</span> 
-                        <br>لمنصات التواصل الاجتماعي
-                    </h1>
-                    
-                    <p class="hero-description animate-fadeIn" style="animation-delay: 0.4s">
-                        نوفر لك كل ما تحتاجه لتطوير حساباتك على جميع المنصات.
-                        <strong>متابعين، لايكات، مشاهدات، تعليقات</strong> بجودة عالية وأسعار منافسة.
-                    </p>
-                    
-                    <!-- إحصائيات Hero -->
-                    <div class="hero-stats animate-fadeIn" style="animation-delay: 0.6s">
-                        <div class="hero-stat">
-                            <i class="fas fa-bolt"></i>
-                            <div>
-                                <h3>بدء فوري</h3>
-                                <p>يبدأ من 5 دقائق</p>
-                            </div>
-                        </div>
-                        <div class="hero-stat">
-                            <i class="fas fa-shield-alt"></i>
-                            <div>
-                                <h3>ضمان آمن</h3>
-                                <p>نضمن استرجاع الرصيد</p>
-                            </div>
-                        </div>
-                        <div class="hero-stat">
-                            <i class="fas fa-headset"></i>
-                            <div>
-                                <h3>دعم فني</h3>
-                                <p>24/7 على مدار الساعة</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- أزرار Hero -->
-                    <div class="hero-actions animate-fadeIn" style="animation-delay: 0.8s">
-                        <button class="pill-button primary-button animate-pulse" id="hero-services-btn">
-                            <i class="fas fa-rocket"></i>
-                            <span>استعرض الخدمات</span>
-                        </button>
-                        <button class="pill-button secondary-button" id="hero-offers-btn">
-                            <i class="fas fa-gift"></i>
-                            <span>العروض الحالية</span>
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- صورة Hero -->
-                <div class="hero-image animate-fadeIn" style="animation-delay: 0.3s">
-                    <div class="image-container">
-                        <img src="https://cdn.pixabay.com/photo/2018/05/18/15/30/web-3411373_1280.jpg" alt="خدمات سوشيال ميديا">
-                        <div class="image-badge">
-                            <i class="fas fa-check-circle"></i>
-                            <span>+5000 عميل راضٍ</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Main Content -->
+    <main class="container">
+        <section class="hero">
+            <h1>أفضل الخدمات الرقمية لمنصات التواصل الاجتماعي</h1>
+            <p>اختر المنصة التي تريدها وابدأ في تنمية حسابك اليوم!</p>
+        </section>
 
-    <!-- ========================================== -->
-    <!-- 🎪 قسم البحث الذكي -->
-    <!-- ========================================== -->
-    <section class="search-section glass-effect animate-fadeIn" style="animation-delay: 0.5s">
-        <div class="container">
-            <div class="section-header">
-                <h2><i class="fas fa-search"></i> ابحث عن الخدمة التي تريدها</h2>
-                <p>ابحث بالاسم، المنصة، أو السعر</p>
-            </div>
-            
-            <div class="smart-search-box">
-                <div class="search-input-group">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="services-search" 
-                           placeholder="مثال: انستغرام، متابعين، لايكات، مشاهدات..."
-                           autocomplete="off">
-                    <button id="clear-search" class="clear-search-btn">
-                        <i class="fas fa-times"></i>
-                    </button>
-                    <button id="voice-search" class="voice-search-btn" title="بحث صوتي">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                </div>
-                
-                <!-- عوامل التصفية الذكية -->
-                <div class="smart-filters">
-                    <div class="filter-category">
-                        <span class="filter-label"><i class="fas fa-filter"></i> التصفية:</span>
-                        <div class="filter-buttons">
-                            <button class="filter-btn active" data-filter="all">
-                                <i class="fas fa-layer-group"></i> الكل
-                            </button>
-                            <button class="filter-btn" data-filter="instagram">
-                                <i class="fab fa-instagram"></i> انستغرام
-                            </button>
-                            <button class="filter-btn" data-filter="tiktok">
-                                <i class="fab fa-tiktok"></i> تيك توك
-                            </button>
-                            <button class="filter-btn" data-filter="facebook">
-                                <i class="fab fa-facebook"></i> فيسبوك
-                            </button>
-                            <button class="filter-btn" data-filter="youtube">
-                                <i class="fab fa-youtube"></i> يوتيوب
-                            </button>
-                            <button class="filter-btn" data-filter="twitter">
-                                <i class="fab fa-twitter"></i> تويتر
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- فلترة السعر -->
-                    <div class="price-filter">
-                        <span class="filter-label"><i class="fas fa-dollar-sign"></i> السعر:</span>
-                        <input type="range" id="price-range" min="0" max="100" value="100">
-                        <span id="price-value">إلى 100$</span>
-                    </div>
-                </div>
-                
-                <!-- نتائج البحث -->
-                <div id="search-results-info" class="search-results-info"></div>
-            </div>
+       <!-- 🔍 قسم البحث -->
+<section class="search-section">
+    <div class="container">
+        <div class="search-box">
+            <i class="ph-bold ph-magnifying-glass"></i>
+            <input type="text" id="services-search" placeholder="ابحث عن خدمة معينة... (مثال: انستغرام، متابعين، لايكات)">
+            <button id="clear-search" class="clear-search-btn hidden">
+                <i class="ph-bold ph-x"></i>
+            </button>
         </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- 🎪 قسم العروض الحالية -->
-    <!-- ========================================== -->
-    <section id="offers-section" class="offers-section animate-fadeIn" style="animation-delay: 0.6s">
-        <div class="container">
-            <div class="section-header">
-                <div class="section-title">
-                    <h2><i class="fas fa-gift"></i> العروض الحالية</h2>
-                    <div class="offer-badge">
-                        <span class="badge-count" id="offers-count">0</span>
-                        <span class="badge-text">عرض فعال</span>
-                    </div>
-                </div>
-                <p class="section-subtitle">خصومات حصرية لفترة محدودة!</p>
-            </div>
-            
-            <!-- شريط العروض المتحرك -->
-            <div class="offers-marquee" id="offers-marquee">
-                <!-- سيتم تعبئته بالجافاسكريبت -->
-            </div>
-            
-            <!-- شبكة العروض -->
-            <div id="offers-container" class="offers-grid"></div>
-            
-            <!-- عداد تنازلي للعروض -->
-            <div class="offers-countdown">
-                <div class="countdown-title">
-                    <i class="fas fa-clock"></i>
-                    <span>ينتهي العرض خلال:</span>
-                </div>
-                <div class="countdown-timer" id="countdown-timer">
-                    <div class="countdown-item">
-                        <span class="countdown-number">00</span>
-                        <span class="countdown-label">يوم</span>
-                    </div>
-                    <div class="countdown-item">
-                        <span class="countdown-number">00</span>
-                        <span class="countdown-label">ساعة</span>
-                    </div>
-                    <div class="countdown-item">
-                        <span class="countdown-number">00</span>
-                        <span class="countdown-label">دقيقة</span>
-                    </div>
-                    <div class="countdown-item">
-                        <span class="countdown-number">00</span>
-                        <span class="countdown-label">ثانية</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- 🎪 قسم الخدمات -->
-    <!-- ========================================== -->
-    <section id="services-section" class="services-section animate-fadeIn" style="animation-delay: 0.7s">
-        <div class="container">
-            <div class="section-header">
-                <h2><i class="fas fa-list-alt"></i> جميع الخدمات المتاحة</h2>
-                <p>اختر منصة وابدأ في تنمية حسابك الآن</p>
-            </div>
-            
-            <!-- فلاتر الخدمات -->
-            <div class="services-filters">
-                <div class="filter-tags" id="platform-tags">
-                    <!-- سيتم تعبئتها بالجافاسكريبت -->
-                </div>
-                <div class="sort-options">
-                    <select id="sort-services" class="sort-select">
-                        <option value="name">الترتيب بالأسم</option>
-                        <option value="price-low">السعر: منخفض إلى عالي</option>
-                        <option value="price-high">السعر: عالي إلى منخفض</option>
-                        <option value="popular">الأكثر شيوعاً</option>
-                    </select>
-                </div>
-            </div>
-            
-            <!-- شبكة الخدمات -->
-            <div id="services-container" class="services-grid"></div>
-            
-            <!-- تحميل المزيد -->
-            <div class="load-more-container">
-                <button id="load-more-services" class="pill-button secondary-button">
-                    <i class="fas fa-sync-alt"></i>
-                    <span>تحميل المزيد</span>
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- 🎪 الإعلان الأوسط -->
-    <!-- ========================================== -->
-    <div class="ad-box middle-ad animate-fadeIn" style="animation-delay: 0.8s">
-        <div class="ad-label"><i class="fas fa-bullhorn"></i> إعلان</div>
-        <div class="ad-content">
-            <script>
-            (function(tjgy){
-            var d = document,
-                s = d.createElement('script'),
-                l = d.scripts[d.scripts.length - 1];
-            s.settings = tjgy || {};
-            s.src = "\/\/guilty-address.com\/b.XFVkshd\/GQl\/0UYvWFcK\/ce\/m_9RuAZsUdlCkqPCTAYr3lMLTVY\/5VOqTlIItfNPjocXx\/NKjokL5BM\/wt";
-            s.async = true;
-            s.referrerPolicy = 'no-referrer-when-downgrade';
-            l.parentNode.insertBefore(s, l);
-            })({})
-            </script>
+        <div class="search-filters">
+            <button class="filter-btn active" data-filter="all">الكل</button>
+            <button class="filter-btn" data-filter="instagram">انستغرام</button>
+            <button class="filter-btn" data-filter="tiktok">تيك توك</button>
+            <button class="filter-btn" data-filter="facebook">فيسبوك</button>
+            <button class="filter-btn" data-filter="youtube">يوتيوب</button>
+            <button class="filter-btn" data-filter="twitter">تويتر</button>
         </div>
     </div>
+</section> 
+        
+            <!-- في index.html - أضف هذا بعد section الخدمات -->
+<section id="offers-section" class="offers-section">
+    <div class="container">
+        <div class="offers-toggle" id="offers-toggle">
+            <h2>
+                <i class="ph-bold ph-gift"></i> 
+                العروض الحالية
+                <span class="offers-count" id="offers-count">(0 عرض)</span>
+            </h2>
+            <i class="ph-bold ph-caret-down toggle-icon"></i>
+        </div>
+        <div id="offers-container" class="offers-grid">
+            <!-- سيتم ملؤها بالعروض عبر JavaScript -->
+        </div>
+    </div>
+</section>
+        
+        <section id="services-container" class="services-grid"></section>
 
     <!-- ========================================== -->
-    <!-- 🎪 قسم المميزات -->
-    <!-- ========================================== -->
-    <section class="features-section animate-fadeIn" style="animation-delay: 0.9s">
-        <div class="container">
-            <div class="section-header">
-                <h2><i class="fas fa-crown"></i> لماذا تختار MX GROUP؟</h2>
-                <p>مميزات تجعلنا الأفضل في السوق</p>
+        <!-- 2. إعلان في منتصف الصفحة بعد البحث -->
+        <!-- ========================================== -->
+        <div class="ad-box middle-ad">
+            <div class="ad-label">إعلان</div>
+            <script>
+(function(tjgy){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = tjgy || {};
+s.src = "\/\/guilty-address.com\/b.XFVkshd\/GQl\/0UYvWFcK\/ce\/m_9RuAZsUdlCkqPCTAYr3lMLTVY\/5VOqTlIItfNPjocXx\/NKjokL5BM\/wt";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+        </div>
+    </main>
+
+    <!-- Order Form Popup -->
+    <div id="order-popup-overlay" class="popup-overlay hidden">
+        <div class="popup-content">
+            <button id="close-popup-btn" class="close-btn"><i class="ph-bold ph-x"></i></button>
+
+            <div id="order-form-container">
+                <div class="popup-header"><i id="popup-icon" class="ph-bold ph-question"></i><h2 id="form-title">تفاصيل الطلب</h2></div>
+                <form id="order-form">
+                    <div class="form-group"><label for="service-select">نوع الخدمة</label><div class="select-wrapper"><select id="service-select" required></select></div></div>
+                    <div class="form-group"><label for="link-input">رابط الحساب أو المنشور</label><input type="url" id="link-input" placeholder="https://www.instagram.com/..." required><small id="link-warning">تأكد أن الحساب عام وليس خاصاً.</small><p id="link-error" class="error-message"></p></div>
+                    <!-- ******** هذا هو التعديل ******** -->
+                    <div class="form-group">
+                        <label for="quantity-input">الكمية المطلوبة</label>
+                        <input type="number" id="quantity-input" required>
+                        <p id="quantity-error" class="error-message"></p>
+                    </div>
+                    <!-- ******** نهاية التعديل ******** -->
+                    <div class="price-section"><p>السعر الإجمالي</p><span id="price-display">0.00 $</span></div>
+                    <button type="submit" class="pill-button primary-button"><i class="ph-bold ph-arrow-right"></i><span>متابعة للدفع</span></button>
+                </form>
             </div>
-            
-            <div class="features-grid">
-                <!-- ميزة 1 -->
-                <div class="feature-card hover-glow">
-                    <div class="feature-icon">
-                        <i class="fas fa-bolt"></i>
-                    </div>
-                    <h3>بدء فوري</h3>
-                    <p>خدماتنا تبدأ فوراً بعد الطلب، بعضها يبدأ خلال 5 دقائق فقط!</p>
+            <div id="payment-options-container" class="hidden">
+                <div class="price-section"><p>المبلغ المطلوب دفعه</p><span id="final-price-display">0.00 $</span></div>
+                <p class="payment-instructions">اختر طريقة الدفع لإكمال طلبك:</p>
+                <div class="payment-buttons">
+                    <button id="pay-with-balance-btn" class="pill-button primary-button" disabled><i class="ph-bold ph-wallet"></i><span>الدفع بالرصيد</span></button>
+                    <button id="pay-with-whatsapp-btn" class="pill-button secondary-button"><i class="ph-bold ph-whatsapp-logo"></i><span>إرسال عبر واتساب</span></button>
                 </div>
-                
-                <!-- ميزة 2 -->
-                <div class="feature-card hover-glow">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3>أمان تام</h3>
-                    <p>نضمن أمان حسابك ولا نطلب كلمة مرورك أبداً. مدفوعات آمنة 100%.</p>
-                </div>
-                
-                <!-- ميزة 3 -->
-                <div class="feature-card hover-glow">
-                    <div class="feature-icon">
-                        <i class="fas fa-headset"></i>
-                    </div>
-                    <h3>دعم فني 24/7</h3>
-                    <p>فريق دعم فني متاح على مدار الساعة للإجابة على استفساراتك.</p>
-                </div>
-                
-                <!-- ميزة 4 -->
-                <div class="feature-card hover-glow">
-                    <div class="feature-icon">
-                        <i class="fas fa-gift"></i>
-                    </div>
-                    <h3>عروض مستمرة</h3>
-                    <p>خصومات وعروض خاصة باستمرار للمستخدمين الجدد والحاليين.</p>
-                </div>
-                
-                <!-- ميزة 5 -->
-                <div class="feature-card hover-glow">
-                    <div class="feature-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3>تقرير متقدم</h3>
-                    <p>تقارير مفصلة عن تقدم طلباتك وإحصائيات دقيقة عن نمو حسابك.</p>
-                </div>
-                
-                <!-- ميزة 6 -->
-                <div class="feature-card hover-glow">
-                    <div class="feature-icon">
-                        <i class="fas fa-sync-alt"></i>
-                    </div>
-                    <h3>تجديد تلقائي</h3>
-                    <p>يمكنك تفعيل التجديد التلقائي للخدمات المفضلة لديك.</p>
-                </div>
+                <p id="balance-error" class="error-message"></p>
+            </div>
+            <div id="success-message-container" class="hidden">
+                 <div class="popup-header"><i class="ph-bold ph-check-circle success-icon"></i><h2>تم بنجاح!</h2></div>
+                <p id="form-response" class="success-text"></p>
+                <button id="success-ok-btn" class="pill-button secondary-button"><span>حسناً</span></button>
             </div>
         </div>
-    </section>
+    </div>
+    
+    <!-- Auth Popups -->
+<div id="auth-popup-overlay" class="popup-overlay hidden">
+    <div id="login-form-container" class="popup-content hidden">
+        <button class="close-btn"><i class="ph-bold ph-x"></i></button>
+        <div class="popup-header"><i class="ph-bold ph-sign-in"></i><h2>تسجيل الدخول</h2></div>
+        <form id="login-form-popup">
+            <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="login-email" required></div>
+            <div class="form-group"><label>كلمة المرور</label><input type="password" id="login-password" required></div>
+            <!-- في login-form-container، أضف بعد حقل كلمة المرور -->
+            <div class="form-options">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="remember-me">
+                    <span class="checkmark"></span>
+                    تذكرني
+                </label>
+                <a href="#" id="forgot-password-link">نسيت كلمة المرور؟</a>
+            </div>
+            <button type="submit" class="pill-button primary-button">دخول</button>
+            <p id="login-popup-error" class="error-message"></p>
+            <p class="switch-form-text">ليس لديك حساب؟ <a href="#" id="show-register">أنشئ حساباً جديداً</a></p>
+        </form>
+    </div>
 
-    <!-- ========================================== -->
-    <!-- 🎪 قسم العملاء -->
-    <!-- ========================================== -->
-    <section class="testimonials-section animate-fadeIn" style="animation-delay: 1s">
-        <div class="container">
-            <div class="section-header">
-                <h2><i class="fas fa-comment-alt"></i> آراء عملائنا</h2>
-                <p>ماذا يقولون عن خدماتنا</p>
+    <div id="register-form-container" class="popup-content hidden">
+        <button class="close-btn"><i class="ph-bold ph-x"></i></button>
+        <div class="popup-header"><i class="ph-bold ph-user-plus"></i><h2>إنشاء حساب جديد</h2></div>
+        <form id="register-form-popup">
+            <div class="form-group">
+                <label>اسم المستخدم</label>
+                <input type="text" id="register-username" required>
             </div>
             
-            <div class="testimonials-slider">
-                <!-- آراء العملاء -->
-                <div class="testimonial-card">
-                    <div class="testimonial-header">
-                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="محمد">
-                        <div>
-                            <h4>محمد أحمد</h4>
-                            <div class="testimonial-rating">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="testimonial-text">
-                        "خدمة ممتازة! حصلت على 10 آلاف متابع خلال 3 أيام فقط. فريق الدعم كان سريعاً جداً."
-                    </p>
-                    <span class="testimonial-date">قبل 3 أيام</span>
-                </div>
-                
-                <div class="testimonial-card">
-                    <div class="testimonial-header">
-                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="سارة">
-                        <div>
-                            <h4>سارة خالد</h4>
-                            <div class="testimonial-rating">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="testimonial-text">
-                        "اشتريت مشاهدات لليوتيوب، النتائج كانت طبيعية جداً واستمرت. أنصح بالتعامل معهم."
-                    </p>
-                    <span class="testimonial-date">قبل أسبوع</span>
-                </div>
-                
-                <div class="testimonial-card">
-                    <div class="testimonial-header">
-                        <img src="https://randomuser.me/api/portraits/men/67.jpg" alt="علي">
-                        <div>
-                            <h4>علي حسين</h4>
-                            <div class="testimonial-rating">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="testimonial-text">
-                        "الأسعار منافسة جداً والجودة عالية. طلبت عدة خدمات وكلها كانت ممتازة."
-                    </p>
-                    <span class="testimonial-date">قبل شهر</span>
-                </div>
+            <div class="form-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" id="register-email" required>
             </div>
-        </div>
-    </section>
 
-    <!-- ========================================== -->
-    <!-- 🎪 قسم الأسئلة الشائعة -->
-    <!-- ========================================== -->
-    <section class="faq-section animate-fadeIn" style="animation-delay: 1.1s">
-        <div class="container">
-            <div class="section-header">
-                <h2><i class="fas fa-question-circle"></i> الأسئلة الشائعة</h2>
-                <p>أجوبة على أكثر الأسئلة تداولاً</p>
-            </div>
-            
-            <div class="faq-accordion">
-                <!-- سؤال 1 -->
-                <div class="faq-item">
-                    <button class="faq-question">
-                        <span>كيف أبدأ في طلب الخدمات؟</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <p>1. قم بتسجيل الدخول أو إنشاء حساب جديد.<br>
-                           2. اختر الخدمة التي تريدها من القائمة.<br>
-                           3. املأ بيانات الطلب (الرابط، الكمية).<br>
-                           4. اختر طريقة الدفع (رصيد أو واتساب).<br>
-                           5. سيبدأ التنفيذ فوراً بعد التأكيد.</p>
+            <!-- 🔽 حقل كلمة المرور مع قوة التحقق -->
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <input type="password" id="register-password" required minlength="6">
+                <div id="password-strength" style="margin-top: 0.5rem;">
+                    <div style="display: flex; gap: 0.3rem; margin-bottom: 0.3rem;">
+                        <div class="strength-bar" style="flex: 1; height: 4px; background: #e2e8f0; border-radius: 2px;"></div>
+                        <div class="strength-bar" style="flex: 1; height: 4px; background: #e2e8f0; border-radius: 2px;"></div>
+                        <div class="strength-bar" style="flex: 1; height: 4px; background: #e2e8f0; border-radius: 2px;"></div>
+                        <div class="strength-bar" style="flex: 1; height: 4px; background: #e2e8f0; border-radius: 2px;"></div>
                     </div>
-                </div>
-                
-                <!-- سؤال 2 -->
-                <div class="faq-item">
-                    <button class="faq-question">
-                        <span>هل الخدمات آمنة على حسابي؟</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <p>نعم، جميع خدماتنا آمنة 100%. نحن:<br>
-                           • لا نطلب كلمة مرور حسابك أبداً.<br>
-                           • نستخدم طرق آمنة ومعتمدة.<br>
-                           • نضمن استرجاع الرصيد في حال حدوث أي مشكلة.<br>
-                           • لدينا سياسة خصوصية صارمة.</p>
-                    </div>
-                </div>
-                
-                <!-- سؤال 3 -->
-                <div class="faq-item">
-                    <button class="faq-question">
-                        <span>كم يستغرق تنفيذ الطلب؟</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <p>مدة التنفيذ تختلف حسب الخدمة:<br>
-                           • الخدمات السريعة: تبدأ خلال 5-30 دقيقة.<br>
-                           • الخدمات العادية: تبدأ خلال 1-24 ساعة.<br>
-                           • الخدمات الكبيرة: قد تستغرق 2-3 أيام.<br>
-                           يمكنك متابعة حالة طلبك في أي وقت.</p>
-                    </div>
-                </div>
-                
-                <!-- سؤال 4 -->
-                <div class="faq-item">
-                    <button class="faq-question">
-                        <span>كيف يمكنني شحن رصيدي؟</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <p>طرق شحن الرصيد المتاحة:<br>
-                           1. تحويل بنكي مباشر.<br>
-                           2. شام كاش (عن طريق باركود).<br>
-                           3. حوالة مكتب (واتساب).<br>
-                           بعد التحويل، أرسل إيصال الدفع وسيتم إضافة الرصيد خلال 24 ساعة.</p>
-                    </div>
+                    <small id="password-strength-text" style="font-size: 0.8rem; color: #64748b;"></small>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- ========================================== -->
-    <!-- 🎪 إعلان جانبي للشاشات الكبيرة -->
-    <!-- ========================================== -->
-    <div class="ad-sidebar desktop-only">
-        <div class="ad-label"><i class="fas fa-star"></i> إعلان</div>
-        <div class="ad-content">
-            <div class="ad-placeholder">
-                <h4>مساحة إعلانية</h4>
-                <p>للإعلان هنا</p>
-                <small>contact@mxgroup.com</small>
+            <!-- 🔽 حقل الصورة الشخصية -->
+            <div class="form-group">
+                <label>صورة الملف الشخصي (اختياري)</label>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div id="profile-image-preview" style="width: 80px; height: 80px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; overflow: hidden;">
+                        <i class="ph-bold ph-user" style="font-size: 2rem; color: #94a3b8;"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <input type="file" id="register-profile-image" accept="image/*" style="display: none;">
+                        <button type="button" id="choose-image-btn" class="pill-button secondary-button" style="padding: 0.5rem 1rem;">
+                            <i class="ph-bold ph-image"></i> اختر صورة
+                        </button>
+                        <small style="display: block; margin-top: 0.5rem; color: #64748b;">الحجم الأقصى: 2MB</small>
+                    </div>
+                </div>
             </div>
+
+            <button type="submit" class="pill-button primary-button">إنشاء الحساب</button>
+            <p id="register-popup-error" class="error-message"></p>
+            <p class="switch-form-text">لديك حساب بالفعل؟ <a href="#" id="show-login">سجل الدخول</a></p>
+        </form>
+    </div>
+</div>
+    <!-- Deposit Popup -->
+    <div id="deposit-popup-overlay" class="popup-overlay hidden">
+        <div class="popup-content scrollable">
+            <button id="close-deposit-popup-btn" class="close-btn"><i class="ph-bold ph-x"></i></button>
+            <div class="popup-header"><i class="ph-bold ph-money"></i><h2>شحن الرصيد</h2></div>
+            <form id="deposit-form" enctype="multipart/form-data">
+                <p class="payment-instructions">اختر طريقة الدفع المفضلة لديك واتبع التعليمات.</p>
+                <div class="payment-method-selector">
+                    <button type="button" class="payment-method-btn" data-method="bank"><i class="ph-bold ph-bank"></i><span>تحويل بنكي</span></button>
+                    <button type="button" class="payment-method-btn" data-method="sham"><i class="ph-bold ph-qr-code"></i><span>شام كاش</span></button>
+                    <button type="button" class="payment-method-btn" data-method="whatsapp"><i class="ph-bold ph-storefront"></i><span>حوالة مكتب</span></button>
+                </div>
+                <div id="payment-details-container" class="hidden"></div>
+                <div class="form-group"><label for="deposit-amount">المبلغ الذي قمت بتحويله ($)</label><input type="number" id="deposit-amount" min="1" step="any" required></div>
+                <div class="form-group"><label for="depositor-name">اسمك الكامل (كما في الإيصال)</label><input type="text" id="depositor-name" required></div>
+                <div class="form-group"><label for="deposit-receipt">إيصال التحويل (صورة)</label><input type="file" id="deposit-receipt" accept="image/*" required></div>
+                <button type="submit" class="pill-button primary-button">إرسال طلب الشحن</button>
+                <p id="deposit-form-response" class="form-message"></p>
+            </form>
         </div>
     </div>
 <!-- ========================================== -->
@@ -943,90 +545,5 @@
     </div>
 </div>
     <script src="app.js"></script>
-    
-    <!-- جافاسكريبت إضافي للميزات الجديدة -->
-    <script>
-    // كود إضافي للميزات الجديدة
-    document.addEventListener('DOMContentLoaded', function() {
-        // تهيئة إحصائيات حية
-        function initLiveStats() {
-            // محاكاة إحصائيات حية
-            setInterval(() => {
-                const liveUsers = Math.floor(Math.random() * 50) + 10;
-                const liveOrders = Math.floor(Math.random() * 20) + 5;
-                
-                document.getElementById('live-users').textContent = liveUsers;
-                document.getElementById('live-orders').textContent = liveOrders;
-            }, 5000);
-        }
-        
-        // قائمة الموبايل
-        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const closeMobileMenu = document.getElementById('close-mobile-menu');
-        
-        if (mobileMenuToggle && mobileMenu) {
-            mobileMenuToggle.addEventListener('click', () => {
-                mobileMenu.classList.add('active');
-            });
-            
-            closeMobileMenu.addEventListener('click', () => {
-                mobileMenu.classList.remove('active');
-            });
-        }
-        
-        // أزرار Hero
-        document.getElementById('hero-services-btn')?.addEventListener('click', () => {
-            document.getElementById('services-section').scrollIntoView({ behavior: 'smooth' });
-        });
-        
-        document.getElementById('hero-offers-btn')?.addEventListener('click', () => {
-            document.getElementById('offers-section').scrollIntoView({ behavior: 'smooth' });
-        });
-        
-        // فلترة السعر
-        const priceRange = document.getElementById('price-range');
-        const priceValue = document.getElementById('price-value');
-        
-        if (priceRange && priceValue) {
-            priceRange.addEventListener('input', function() {
-                priceValue.textContent = `إلى ${this.value}$`;
-            });
-        }
-        
-        // البحث الصوتي
-        document.getElementById('voice-search')?.addEventListener('click', function() {
-            if ('webkitSpeechRecognition' in window) {
-                const recognition = new webkitSpeechRecognition();
-                recognition.lang = 'ar-SA';
-                recognition.start();
-                
-                recognition.onresult = function(event) {
-                    const transcript = event.results[0][0].transcript;
-                    document.getElementById('services-search').value = transcript;
-                    
-                    // تشغيل البحث
-                    const searchEvent = new Event('input');
-                    document.getElementById('services-search').dispatchEvent(searchEvent);
-                };
-            } else {
-                alert('👆 البحث الصوتي غير مدعوم في متصفحك');
-            }
-        });
-        
-        // FAQ Accordion
-        document.querySelectorAll('.faq-question').forEach(button => {
-            button.addEventListener('click', () => {
-                const item = button.parentElement;
-                item.classList.toggle('active');
-            });
-        });
-        
-        // تشغيل كل شيء
-        initLiveStats();
-        
-        console.log('🚀 موقع MX GROUP جاهز للعمل!');
-    });
-    </script>
 </body>
 </html>
