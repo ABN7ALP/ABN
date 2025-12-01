@@ -514,7 +514,7 @@ textarea:focus {
     border: 2px solid var(--yellow-accent);
 }
 /* تنسيقات وضع الكمبيوتر على الجوال */
-body.desktop-view-on-mobile {
+/*body.desktop-view-on-mobile {
     min-width: 1200px;
     overflow-x: auto;
 }
@@ -525,7 +525,7 @@ body.desktop-view-on-mobile .container {
 }
 
 /* تحسين التنسيقات للعرض على الجوال */
-@media (max-width: 768px) {
+/*@media (max-width: 768px) {
     body.desktop-view-on-mobile .services-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
@@ -539,7 +539,7 @@ body.desktop-view-on-mobile .container {
 /* تنسيقات صناديق الإعلانات الجميلة */
 /* ========================================== */
 
-.ad-box {
+/*.ad-box {
     margin: 0 auto;
     padding: 1rem;
     text-align: center;
@@ -590,7 +590,7 @@ body.desktop-view-on-mobile .container {
 /* ========================================== */
 
 /* الإعلان الأعلى - تحت الهيدر */
-.top-ad {
+/*.top-ad {
     margin: 1rem auto 2rem;
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     border: 2px dashed #cbd5e1;
@@ -602,7 +602,7 @@ body.desktop-view-on-mobile .container {
 }
 
 /* الإعلان الأوسط - بعد البحث */
-.middle-ad {
+/*.middle-ad {
     margin: 2rem auto;
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border: 2px solid #e2e8f0;
@@ -614,7 +614,7 @@ body.desktop-view-on-mobile .container {
 }
 
 /* الإعلان الأسفل - قبل الفوتر */
-.bottom-ad {
+/*.bottom-ad {
     margin: 3rem auto 2rem;
     background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
     border: 2px solid #cbd5e1;
@@ -626,10 +626,10 @@ body.desktop-view-on-mobile .container {
 }
 
 /* ========================================== */
-<!-- تنسيقات متجاوبة -->
+/*<!-- تنسيقات متجاوبة -->
 /* ========================================== */
 
-@media (max-width: 768px) {
+/*@media (max-width: 768px) {
     .ad-box {
         margin: 1rem auto;
         max-width: 280px;
@@ -656,10 +656,10 @@ body.desktop-view-on-mobile .container {
 }
 
 /* ========================================== */
-<!-- تأثيرات إضافية -->
+/*<!-- تأثيرات إضافية -->
 /* ========================================== */
 
-@keyframes fadeInUp {
+/* @keyframes fadeInUp {
     from {
         opacity: 0;
         transform: translateY(20px);
@@ -680,4 +680,4 @@ body.desktop-view-on-mobile .container {
 
 .bottom-ad {
     animation-delay: 0.4s;
-}
+}*/
