@@ -32,12 +32,14 @@ router.post('/clean', authMiddleware, adminMiddleware, async (req, res) => {
 });
 
 // GET /api/queue/health - فحص صحة Redis
-router.get('/health', authMiddleware, adminMiddleware, async (req, res) => {
+router.get('/health', async (req, res) => {
     try {
+        const { checkRedisConnection } = require('../services/queue');
         const isConnected = await checkRedisConnection();
         res.json({ 
             redis: isConnected ? 'connected' : 'disconnected',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            url: process.env.REDIS_URL ? 'محدد' : 'غير محدد'
         });
     } catch (error) {
         res.status(500).json({ 
@@ -46,5 +48,4 @@ router.get('/health', authMiddleware, adminMiddleware, async (req, res) => {
         });
     }
 });
-
 module.exports = router;
