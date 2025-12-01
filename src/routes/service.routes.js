@@ -26,23 +26,22 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
         const newService = new Service({ id: uuidv4(), ...req.body });
         await newService.save();
 
-        // 🆕 استخدام الطابور بدلاً من العملية المباشرة
-        await addNotificationJob('broadcast-notification', {
+        // استخدام Redis Queue
+        await addNotificationJob('broadcast', {
             message: `🆕 خدمة جديدة: ${newService.platform} - ${newService.name}`,
             link: '/',
             type: 'broadcast'
         }, {
-            priority: 'high', // أولوية عالية للإشعارات الجديدة
-            delay: 1000 // تأخير ثانية واحدة لضمان حفظ الخدمة أولاً
+            priority: 'high',
+            delay: 1000
         });
 
-        // إرسال إشعار فوري عبر Socket.io (بدون انتظار الطابور)
+        // إرسال إشعار فوري عبر Socket.io
         req.io.emit('broadcast-notification', { 
             message: `🆕 خدمة جديدة: ${newService.platform} - ${newService.name}`,
             link: '/'
         });
 
-        // إرسال إشارة التحديث الفوري
         req.io.emit('new-service');
 
         res.status(201).json({ message: 'تمت إضافة الخدمة بنجاح!' });
@@ -84,34 +83,34 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
 
         // 🆕 تحسين إشعارات تغيير السعر باستخدام الطابور
         if (oldService && oldService.pricePer1000 !== updatedService.pricePer1000) {
-            const priceChange = updatedService.pricePer1000 > oldService.pricePer1000 ? '📈 ارتفع' : '🎉 انخفض';
-            const changePercentage = ((Math.abs(updatedService.pricePer1000 - oldService.pricePer1000) / oldService.pricePer1000) * 100).toFixed(1);
-            
-            // 🆕 استخدام الطابور للإشعارات الجماعية
-            await addNotificationJob('price-update-notification', {
-                platform: updatedService.platform,
-                serviceName: updatedService.name,
-                oldPrice: oldService.pricePer1000,
-                newPrice: updatedService.pricePer1000,
-                changePercentage: `${changePercentage}%`
-            }, {
-                priority: 'normal',
-                delay: 500 // نصف ثانية تأخير
-            });
+    const priceChange = updatedService.pricePer1000 > oldService.pricePer1000 ? '📈 ارتفع' : '🎉 انخفض';
+    const changePercentage = ((Math.abs(updatedService.pricePer1000 - oldService.pricePer1000) / oldService.pricePer1000) * 100).toFixed(1);
+    
+    // استخدام Redis Queue
+    await addNotificationJob('price-update', {
+        platform: updatedService.platform,
+        serviceName: updatedService.name,
+        oldPrice: oldService.pricePer1000,
+        newPrice: updatedService.pricePer1000,
+        changePercentage: `${changePercentage}%`
+    }, {
+        priority: 'normal',
+        delay: 500
+    });
 
-            // 🆕 إرسال إشعار فوري عبر Socket.io
-            if (updatedService.pricePer1000 < oldService.pricePer1000) {
-                req.io.emit('broadcast-notification', { 
-                    message: `🎉 تخفيض جديد! ${updatedService.platform} - ${updatedService.name} أصبح بسعر ${updatedService.pricePer1000}$ (تخفيض ${changePercentage}%)`,
-                    link: '/'
-                });
-            } else {
-                req.io.emit('broadcast-notification', { 
-                    message: `${priceChange} سعر خدمة ${updatedService.platform} - ${updatedService.name} إلى ${updatedService.pricePer1000}$`,
-                    link: '/'
-                });
-            }
-        }
+    // إرسال إشعار فوري
+    if (updatedService.pricePer1000 < oldService.pricePer1000) {
+        req.io.emit('broadcast-notification', { 
+            message: `🎉 تخفيض جديد! ${updatedService.platform} - ${updatedService.name} أصبح بسعر ${updatedService.pricePer1000}$ (تخفيض ${changePercentage}%)`,
+            link: '/'
+        });
+    } else {
+        req.io.emit('broadcast-notification', { 
+            message: `${priceChange} سعر خدمة ${updatedService.platform} - ${updatedService.name} إلى ${updatedService.pricePer1000}$`,
+            link: '/'
+        });
+    }
+}
 
         // إرسال إشارة التحديث الفوري
         req.io.emit('service-updated');
