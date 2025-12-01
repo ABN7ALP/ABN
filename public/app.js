@@ -1226,8 +1226,8 @@ function handlePaymentMethodSelect(event) {
                           <p><strong>🌐 اسم الشبكة:</strong> Tron (TRC20)</p>
                           <p><strong>📍 عنوان الدفع:</strong></p>
                           <div class="wallet-address">
-                              <span class="address-copy">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
-                              <button class="copy-btn" onclick="copyAddress('TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM', event)">
+                              <span class="address-text">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
+                               <button type="button" class="copy-btn-simple" onclick="simpleCopy('TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM', this)">
                                   <i class="ph-bold ph-copy"></i>
                               </button>
                           </div>
@@ -1238,8 +1238,8 @@ function handlePaymentMethodSelect(event) {
                           <p><strong>🌐 اسم الشبكة:</strong> Tron (TRC20)</p>
                           <p><strong>📍 عنوان الدفع:</strong></p>
                           <div class="wallet-address">
-                              <span class="address-copy">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
-                              <button class="copy-btn" onclick="copyAddress('TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM', event)">
+                              <span class="address-text">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
+                              <button type="button" class="copy-btn-simple" onclick="simpleCopy('TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM', this)">
                                   <i class="ph-bold ph-copy"></i>
                               </button>
                           </div>
@@ -1250,8 +1250,8 @@ function handlePaymentMethodSelect(event) {
                           <p><strong>🌐 اسم الشبكة:</strong> BNB Smart Chain (BEP20)</p>
                           <p><strong>📍 عنوان الدفع:</strong></p>
                           <div class="wallet-address">
-                              <span class="address-copy">0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd</span>
-                              <button class="copy-btn" onclick="copyAddress('0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd', event)">
+                              <span class="address-text">0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd</span>
+                              <button type="button" class="copy-btn-simple" onclick="simpleCopy('0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd', this)">
                                   <i class="ph-bold ph-copy"></i>
                               </button>
                           </div>
@@ -1264,28 +1264,24 @@ function handlePaymentMethodSelect(event) {
 }
 
 // 🆕 دالة نسخ العنوان للمحفظة - مصححة
-function copyAddress(address, event) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    navigator.clipboard.writeText(address).then(() => {
-        const button = event.target.closest('.copy-btn');
-        if (button) {
-            const originalHTML = button.innerHTML;
-            button.innerHTML = '<i class="ph-bold ph-check"></i>';
-            button.style.background = 'var(--success-green)';
-            
-            setTimeout(() => {
-                button.innerHTML = originalHTML;
-                button.style.background = '';
-            }, 2000);
-        }
+function simpleCopy(text, button) {
+    navigator.clipboard.writeText(text).then(() => {
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="ph-bold ph-check"></i>';
+        button.style.background = 'var(--success-green)';
+        
+        setTimeout(() => {
+            button.innerHTML = originalHTML;
+            button.style.background = '';
+        }, 2000);
+        
+        // رسالة نجاح بسيطة
+        alert('✓ تم نسخ العنوان بنجاح');
     }).catch(err => {
-        console.error('فشل النسخ: ', err);
-        alert('فشل نسخ العنوان، يرجى نسخه يدوياً');
+        console.error('فشل النسخ:', err);
+        alert('❌ فشل نسخ العنوان');
     });
 }
-
 // 🆕 دالة بديلة يمكن استخدامها مع onclick على العنصر مباشرة
 function copyToClipboard(element) {
     const text = element.textContent;
