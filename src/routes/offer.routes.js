@@ -5,6 +5,8 @@ const Notification = require('../models/notification.model');
 const User = require('../models/user.model'); // تأكد من وجود هذا الاستيراد
 const authMiddleware = require('../middleware/auth.middleware');
 const adminMiddleware = require('../middleware/admin.middleware');
+const { addNotificationJob } = require('../services/queue');
+
 
 // GET /api/offers/active - جلب العروض النشطة
 router.get('/active', async (req, res) => {
