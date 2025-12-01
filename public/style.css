@@ -681,3 +681,100 @@ body.desktop-view-on-mobile .container {
 .bottom-ad {
     animation-delay: 0.4s;
 }
+
+
+
+
+
+/* 🆕 أضف هذه الأنماط في نهاية style.css أو main.css */
+
+/* تنسيقات عناوين المحافظ */
+.wallet-address {
+    background: var(--gray-bg);
+    padding: 1rem;
+    border-radius: var(--radius-input);
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid var(--gray-border);
+}
+
+.address-copy {
+    font-family: monospace;
+    font-size: 0.9rem;
+    word-break: break-all;
+    color: var(--text-dark);
+    cursor: pointer;
+    flex: 1;
+    padding: 0.5rem;
+    background: var(--white-pure);
+    border-radius: var(--radius-input);
+    direction: ltr;
+    text-align: center;
+}
+
+.address-copy:hover {
+    background: var(--purple-light);
+}
+
+.copy-btn {
+    background: var(--info-blue);
+    color: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-input);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-right: 0.5rem;
+    transition: all var(--transition-fast);
+}
+
+.copy-btn:hover {
+    background: #2563eb;
+    transform: scale(1.05);
+}
+
+.copy-btn.copied {
+    background: var(--success-green);
+}
+
+.warning-note {
+    background: #fff7ed;
+    border: 1px solid #fdba74;
+    color: #9a3412;
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius-input);
+    font-size: 0.85rem;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.warning-note::before {
+    content: '⚠';
+    font-size: 1.1rem;
+}
+
+/* تحسين تنسيق طرق الدفع الجديدة */
+.payment-method-btn[data-method="usdt"] i,
+.payment-method-btn[data-method="trx"] i,
+.payment-method-btn[data-method="bnb"] i {
+    color: #f7931a; /* لون برتقالي للعملات الرقمية */
+}
+
+/* تنسيق عرض تفاصيل المحفظة */
+#payment-details-container p {
+    margin-bottom: 0.8rem;
+    line-height: 1.5;
+}
+
+#payment-details-container strong {
+    color: var(--purple-main);
+    min-width: 120px;
+    display: inline-block;
+}
