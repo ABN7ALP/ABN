@@ -962,72 +962,100 @@ function updateAdminSearchResults(tbodyId, visible, total) {
         }
     }
 
-    function renderDeposits(deposits) {
-        if (!depositsTbody) return;
-        depositsTbody.innerHTML = '';
-        if (deposits.length === 0) { 
-            depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات شحن حالياً.</td></tr>'; 
-            return; 
-        }
+    // 🔽 ضع هذا المتغير في الأعلى مع المتغيرات الأخرى 🔽
+const methodTexts = {
+    'bank': 'تحويل بنكي',
+    'sham': 'شام كاش',
+    'whatsapp': 'حوالة مكتب',
+    'usdt': 'USDT',
+    'trx': 'TRX',
+    'bnb': 'BNB'
+};
+
+function renderDeposits(deposits) {
+    if (!depositsTbody) return;
+    depositsTbody.innerHTML = '';
+    
+    if (deposits.length === 0) { 
+        depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد طلبات شحن حالياً.</td></tr>'; 
+        return; 
+    }
+    
+    deposits.forEach(deposit => {
+        const row = document.createElement('tr');
+        row.dataset.depositId = deposit._id;
+        const statusClass = `status-${deposit.status}`;
+        const statusText = { 
+            pending: 'قيد المراجعة', 
+            approved: 'مقبول', 
+            rejected: 'مرفوض' 
+        }[deposit.status];
         
-        deposits.forEach(deposit => {
-            const row = document.createElement('tr');
-            row.dataset.depositId = deposit._id;
-            const statusClass = `status-${deposit.status}`;
-            const statusText = { pending: 'قيد المراجعة', approved: 'مقبول', rejected: 'مرفوض' }[deposit.status];
-            row.innerHTML = `
-                <td data-label="المستخدم">${deposit.user ? deposit.user.username : 'مستخدم محذوف'}</td>
-                <td data-label="المبلغ">${deposit.amount.toFixed(2)} $</td>
-                <td data-label="الطريقة">${deposit.method}</td>
-                <td data-label="اسم المودع">${deposit.depositorName}</td>
-                <td data-label="الإيصال"><button onclick="viewReceipt('${deposit.receiptImage}')" class="pill-button-link">عرض الإيصال</button></td>
-                <td data-label="الحالة"><span class="status ${statusClass}">${statusText}</span></td>
-                <td data-label="إجراءات" class="action-buttons">
-                    ${deposit.status === 'pending' ? `
-                    <button class="approve-btn pill-button"><i class="ph-bold ph-check"></i> قبول</button>
-                    <button class="reject-btn pill-button"><i class="ph-bold ph-x"></i> رفض</button>
-                    ` : 'تمت المعالجة'}
-                </td>
-            `;
-            depositsTbody.appendChild(row);
+        // 🔽 استخدام methodTexts لتحويل رمز الطريقة إلى نص 🔽
+        const methodDisplay = methodTexts[deposit.method] || deposit.method;
+        
+        row.innerHTML = `
+            <td data-label="المستخدم">${deposit.user ? deposit.user.username : 'مستخدم محذوف'}</td>
+            <td data-label="المبلغ">${deposit.amount.toFixed(2)} $</td>
+            <td data-label="الطريقة">${methodDisplay}</td>
+            <td data-label="اسم المودع">${deposit.depositorName}</td>
+            <td data-label="الإيصال">
+                <button onclick="viewReceipt('${deposit.receiptImage}')" class="pill-button-link">
+                    عرض الإيصال
+                </button>
+            </td>
+            <td data-label="الحالة">
+                <span class="status ${statusClass}">${statusText}</span>
+            </td>
+            <td data-label="إجراءات" class="action-buttons">
+                ${deposit.status === 'pending' ? `
+                    <button class="approve-btn pill-button">
+                        <i class="ph-bold ph-check"></i> قبول
+                    </button>
+                    <button class="reject-btn pill-button">
+                        <i class="ph-bold ph-x"></i> رفض
+                    </button>
+                ` : 'تمت المعالجة'}
+            </td>
+        `;
+        depositsTbody.appendChild(row);
+    });
+    
+    document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
+        btn.addEventListener('click', handleDepositAction);
+    });
+}
+
+async function handleDepositAction(event) {
+    const btn = event.currentTarget;
+    const action = btn.classList.contains('approve-btn') ? 'approve' : 'reject';
+    const row = btn.closest('tr');
+    const depositId = row.dataset.depositId;
+    
+    if (!confirm(`هل أنت متأكد من ${action === 'approve' ? 'الموافقة على' : 'رفض'} هذا الطلب؟`)) return;
+    
+    btn.disabled = true;
+    btn.textContent = 'جاري...';
+    
+    try {
+        const response = await fetch(`/api/deposits/${depositId}/${action}`, { 
+            method: 'PUT',
+            headers: getAuthHeaders()
         });
         
-        document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
-            btn.addEventListener('click', handleDepositAction);
-        });
-    }
-
-    async function handleDepositAction(event) {
-        const btn = event.currentTarget;
-        const action = btn.classList.contains('approve-btn') ? 'approve' : 'reject';
-        const row = btn.closest('tr');
-        const depositId = row.dataset.depositId;
-        
-        if (!confirm(`هل أنت متأكد من ${action === 'approve' ? 'الموافقة على' : 'رفض'} هذا الطلب؟`)) return;
-        
-        btn.disabled = true;
-        btn.textContent = 'جاري...';
-        
-        try {
-            const response = await fetch(`/api/deposits/${depositId}/${action}`, { 
-                method: 'PUT',
-                headers: getAuthHeaders()
-            });
-            
-            if (!response.ok) {
-                const result = await response.json();
-                throw new Error(result.message || 'فشل الإجراء.');
-            }
-            
-            fetchDeposits();
-            
-        } catch (error) {
-            alert(error.message);
-            btn.disabled = false;
-            btn.textContent = action === 'approve' ? 'قبول' : 'رفض';
+        if (!response.ok) {
+            const result = await response.json();
+            throw new Error(result.message || 'فشل الإجراء.');
         }
+        
+        fetchDeposits();
+        
+    } catch (error) {
+        alert(error.message);
+        btn.disabled = false;
+        btn.textContent = action === 'approve' ? 'قبول' : 'رفض';
     }
-
+}
     // 🆕 ربط أحداث إدارة العروض
 const addOfferForm = document.getElementById('add-offer-form');
 if (addOfferForm) {
