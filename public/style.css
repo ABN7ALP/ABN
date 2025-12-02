@@ -896,11 +896,19 @@ body.desktop-view-on-mobile .container {
 .payment-method-btn[data-method="bnb"] i { color: #f0b90b; }
 
 
-/* معلومات الحد الأدنى */
-.min-amount-info {
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-    border: 1px solid #bae6fd;
-    color: #0369a1;
+/* تنسيقات الحد الأدنى */
+.min-amount-label {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.85rem;
+    color: var(--info-blue);
+    font-weight: 600;
+}
+
+/* تنسيقات ملاحظات الدفع */
+.payment-note {
+    background: var(--info-blue);
+    color: white;
     padding: 0.8rem 1rem;
     border-radius: var(--radius-input);
     margin: 1rem 0;
@@ -910,112 +918,77 @@ body.desktop-view-on-mobile .container {
     font-size: 0.9rem;
 }
 
-.min-amount-info i {
+.payment-note i {
     font-size: 1.2rem;
 }
 
-.min-amount-info strong {
-    color: #1d4ed8;
-    font-size: 1.1rem;
-}
-
-/* زر التواصل عبر واتساب */
-.whatsapp-contact-box {
-    background: linear-gradient(135deg, #f0f9ff 0%, #dcfce7 100%);
-    border: 1px solid #bbf7d0;
-    border-radius: var(--radius-card);
-    padding: 1.5rem;
+/* تنسيقات زر التواصل */
+.whatsapp-contact {
+    text-align: center;
     margin: 1rem 0;
 }
 
-.contact-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    padding: 1rem;
-    background: white;
+#whatsapp-contact-btn {
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    border: none;
+}
+
+#whatsapp-contact-btn:hover {
+    background: linear-gradient(135deg, #128C7E 0%, #25D366 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+}
+
+/* تنسيقات العملات الرقمية */
+.wallet-address {
+    background: var(--gray-bg);
     border-radius: var(--radius-input);
+    padding: 1rem;
+    margin: 1rem 0;
     border: 1px solid var(--gray-border);
 }
 
-.whatsapp-contact-btn {
+.address-container {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 0.5rem;
-    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-    color: white;
-    padding: 1rem 1.5rem;
-    border-radius: var(--radius-button);
-    text-decoration: none;
-    font-weight: bold;
-    margin: 1rem 0;
-    transition: all var(--transition-smooth);
-    border: none;
-    cursor: pointer;
-    width: 100%;
 }
 
-.whatsapp-contact-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(37, 211, 102, 0.3);
-}
-
-/* تحسين حقل المبلغ */
-#deposit-amount {
-    border: 2px solid var(--purple-main);
-    background: var(--purple-light);
-    font-weight: bold;
-    text-align: center;
-}
-
-#deposit-amount:focus {
-    box-shadow: 0 0 0 4px rgba(124, 30, 255, 0.2);
-}
-
-/* رسالة التحقق من الحد الأدنى */
-.amount-validation {
-    font-size: 0.85rem;
-    margin-top: 0.5rem;
-    padding: 0.5rem;
+.address-text {
+    flex: 1;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.9rem;
+    padding: 0.8rem;
+    background: var(--white-pure);
     border-radius: var(--radius-input);
-    display: none;
-}
-
-.amount-validation.valid {
-    background: #d1fae5;
-    color: #065f46;
-    border: 1px solid #a7f3d0;
-    display: block;
-}
-
-.amount-validation.invalid {
-    background: #fef2f2;
-    color: #dc2626;
-    border: 1px solid #fca5a5;
-    display: block;
-}
-
-/* تحديث زر النسخ */
-.copy-icon {
+    border: 1px solid var(--gray-border);
+    direction: ltr;
+    text-align: center;
     cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    word-break: break-all;
+    transition: all var(--transition-fast);
+}
+
+.address-text:hover {
+    background: var(--purple-light);
+    border-color: var(--purple-main);
+}
+
+.copy-icon {
     width: 44px;
     height: 44px;
+    background: var(--info-blue);
+    color: white;
+    border-radius: var(--radius-input);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
 }
 
 .copy-icon:hover {
+    background: #2563eb;
     transform: scale(1.05);
-}
-
-.copy-icon.copied {
-    background: var(--success-green) !important;
-}
-
-.copy-icon.copied i::before {
-    content: "✓";
 }
