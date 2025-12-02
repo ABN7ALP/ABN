@@ -1216,90 +1216,199 @@ function handlePaymentMethodSelect(event) {
             break;
         case 'sham': 
             detailsHTML = `<p>يرجى مسح الباركود التالي والدفع عبر شام كاش:</p>
-                          <img src="https://i.imgur.com/LvVpAx1.jpeg" alt="Sham Cash QR Code">`; 
+                          <img src="https://i.imgur.com/LvVpAx1.jpeg" alt="Sham Cash QR Code" style="max-width: 200px; height: auto; border-radius: 10px;">`; 
             break;
         case 'whatsapp': 
             detailsHTML = `<p>للحوالة عبر مكتب، يرجى التواصل معنا عبر واتساب للحصول على التفاصيل.</p>`; 
             break;
         case 'usdt':
-            detailsHTML = `<p><strong>💰 اسم العملية:</strong> USDT</p>
-                          <p><strong>🌐 اسم الشبكة:</strong> Tron (TRC20)</p>
-                          <p><strong>📍 عنوان الدفع:</strong></p>
-                          <div class="wallet-address">
-                              <span class="address-text">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
-                               <button type="button" class="copy-btn-simple" onclick="simpleCopy('TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM', this)">
-                                  <i class="ph-bold ph-copy"></i>
-                              </button>
-                          </div>
-                          <p class="warning-note">⚠️ تأكد من إرسال USDT فقط عبر شبكة TRC20</p>`; 
+            detailsHTML = `
+                <p><strong>💰 اسم العملية:</strong> USDT</p>
+                <p><strong>🌐 اسم الشبكة:</strong> Tron (TRC20)</p>
+                <p><strong>📍 عنوان الدفع:</strong></p>
+                <div class="wallet-address">
+                    <div class="address-container">
+                        <span class="address-text" id="usdt-address">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
+                        <div class="copy-icon" data-address="TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM">
+                            <i class="ph-bold ph-copy"></i>
+                        </div>
+                    </div>
+                </div>
+                <p class="warning-note">⚠️ تأكد من إرسال USDT فقط عبر شبكة TRC20</p>
+            `;
             break;
         case 'trx':
-            detailsHTML = `<p><strong>💰 اسم العملية:</strong> TRX</p>
-                          <p><strong>🌐 اسم الشبكة:</strong> Tron (TRC20)</p>
-                          <p><strong>📍 عنوان الدفع:</strong></p>
-                          <div class="wallet-address">
-                              <span class="address-text">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
-                              <button type="button" class="copy-btn-simple" onclick="simpleCopy('TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM', this)">
-                                  <i class="ph-bold ph-copy"></i>
-                              </button>
-                          </div>
-                          <p class="warning-note">⚠️ تأكد من إرسال TRX فقط عبر شبكة TRC20</p>`; 
+            detailsHTML = `
+                <p><strong>💰 اسم العملية:</strong> TRX</p>
+                <p><strong>🌐 اسم الشبكة:</strong> Tron (TRC20)</p>
+                <p><strong>📍 عنوان الدفع:</strong></p>
+                <div class="wallet-address">
+                    <div class="address-container">
+                        <span class="address-text" id="trx-address">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
+                        <div class="copy-icon" data-address="TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM">
+                            <i class="ph-bold ph-copy"></i>
+                        </div>
+                    </div>
+                </div>
+                <p class="warning-note">⚠️ تأكد من إرسال TRX فقط عبر شبكة TRC20</p>
+            `;
             break;
         case 'bnb':
-            detailsHTML = `<p><strong>💰 اسم العملية:</strong> BNB</p>
-                          <p><strong>🌐 اسم الشبكة:</strong> BNB Smart Chain (BEP20)</p>
-                          <p><strong>📍 عنوان الدفع:</strong></p>
-                          <div class="wallet-address">
-                              <span class="address-text">0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd</span>
-                              <button type="button" class="copy-btn-simple" onclick="simpleCopy('0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd', this)">
-                                  <i class="ph-bold ph-copy"></i>
-                              </button>
-                          </div>
-                          <p class="warning-note">⚠️ تأكد من إرسال BNB فقط عبر شبكة BEP20</p>`; 
+            detailsHTML = `
+                <p><strong>💰 اسم العملية:</strong> BNB</p>
+                <p><strong>🌐 اسم الشبكة:</strong> BNB Smart Chain (BEP20)</p>
+                <p><strong>📍 عنوان الدفع:</strong></p>
+                <div class="wallet-address">
+                    <div class="address-container">
+                        <span class="address-text" id="bnb-address">0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd</span>
+                        <div class="copy-icon" data-address="0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd">
+                            <i class="ph-bold ph-copy"></i>
+                        </div>
+                    </div>
+                </div>
+                <p class="warning-note">⚠️ تأكد من إرسال BNB فقط عبر شبكة BEP20</p>
+            `;
             break;
     }
     
     paymentDetailsContainer.innerHTML = detailsHTML;
     paymentDetailsContainer.classList.remove('hidden');
+    
+    // إعداد أحداث النسخ بعد إضافة المحتوى
+    setupCopyButtons();
 }
 
 // 🆕 دالة نسخ العنوان للمحفظة - مصححة
-function simpleCopy(text, button) {
-    navigator.clipboard.writeText(text).then(() => {
-        const originalHTML = button.innerHTML;
-        button.innerHTML = '<i class="ph-bold ph-check"></i>';
-        button.style.background = 'var(--success-green)';
+// 🆕 دالة لإعداد أحداث النسخ
+function setupCopyButtons() {
+    // 1. النسخ عند النقر على أيقونة النسخ
+    document.querySelectorAll('.copy-icon').forEach(icon => {
+        // إزالة أي أحداث سابقة
+        icon.replaceWith(icon.cloneNode(true));
         
-        setTimeout(() => {
-            button.innerHTML = originalHTML;
-            button.style.background = '';
-        }, 2000);
-        
-        // رسالة نجاح بسيطة
-        alert('✓ تم نسخ العنوان بنجاح');
-    }).catch(err => {
-        console.error('فشل النسخ:', err);
-        alert('❌ فشل نسخ العنوان');
+        // إضافة حدث جديد
+        icon.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const address = this.getAttribute('data-address');
+            copyAddress(address, this);
+        });
+    });
+    
+    // 2. النسخ عند النقر على النص نفسه
+    document.querySelectorAll('.address-text').forEach(textElement => {
+        textElement.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const address = this.textContent;
+            copyToClipboard(this);
+            
+            // إيجاد أيقونة النسخ المرتبطة وتحديثها
+            const copyIcon = this.closest('.address-container')?.querySelector('.copy-icon');
+            if (copyIcon) {
+                showCopySuccessOnIcon(copyIcon);
+            }
+        });
     });
 }
-// 🆕 دالة بديلة يمكن استخدامها مع onclick على العنصر مباشرة
-function copyToClipboard(element) {
-    const text = element.textContent;
-    navigator.clipboard.writeText(text).then(() => {
-        const originalColor = element.style.color;
-        const originalFontWeight = element.style.fontWeight;
+
+// 🆕 دالة نسخ العنوان مع تحديث الأيقونة
+function copyAddress(address, iconElement) {
+    navigator.clipboard.writeText(address).then(() => {
+        // تحديث الأيقونة
+        showCopySuccessOnIcon(iconElement);
         
-        element.style.color = 'var(--success-green)';
-        element.style.fontWeight = 'bold';
+        // إظهار رسالة النجاح
+        showCopySuccessMessage('تم نسخ العنوان بنجاح!');
         
-        setTimeout(() => {
-            element.style.color = originalColor;
-            element.style.fontWeight = originalFontWeight;
-        }, 2000);
     }).catch(err => {
         console.error('فشل النسخ: ', err);
-        alert('فشل نسخ العنوان، يرجى نسخه يدوياً');
+        showCopySuccessMessage('❌ فشل نسخ العنوان، يرجى نسخه يدوياً', true);
     });
+}
+
+// 🆕 دالة نسخ النص المباشر
+function copyToClipboard(textElement) {
+    const text = textElement.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        // تغيير مظهر النص مؤقتاً
+        const originalColor = textElement.style.color;
+        const originalBg = textElement.style.backgroundColor;
+        
+        textElement.style.color = 'var(--success-green)';
+        textElement.style.backgroundColor = 'var(--purple-light)';
+        textElement.style.fontWeight = 'bold';
+        
+        // إظهار رسالة النجاح
+        showCopySuccessMessage('تم نسخ العنوان بنجاح!');
+        
+        setTimeout(() => {
+            textElement.style.color = originalColor;
+            textElement.style.backgroundColor = originalBg;
+            textElement.style.fontWeight = '';
+        }, 2000);
+        
+    }).catch(err => {
+        console.error('فشل النسخ: ', err);
+        showCopySuccessMessage('❌ فشل نسخ العنوان، يرجى نسخه يدوياً', true);
+    });
+}
+
+// 🆕 دالة تحديث أيقونة النسخ
+function showCopySuccessOnIcon(iconElement) {
+    const originalHTML = iconElement.innerHTML;
+    const originalBg = iconElement.style.background;
+    
+    iconElement.innerHTML = '<i class="ph-bold ph-check"></i>';
+    iconElement.style.background = 'var(--success-green)';
+    
+    setTimeout(() => {
+        iconElement.innerHTML = originalHTML;
+        iconElement.style.background = originalBg;
+    }, 2000);
+}
+
+// 🆕 دالة عرض رسالة النجاح
+function showCopySuccessMessage(message, isError = false) {
+    // إزالة أي رسالة سابقة
+    const oldMessage = document.querySelector('.copy-success-msg');
+    if (oldMessage) oldMessage.remove();
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'copy-success-msg';
+    messageDiv.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <i class="ph-bold ph-${isError ? 'warning-circle' : 'check-circle'}" 
+               style="color: ${isError ? 'var(--danger-red)' : 'var(--success-green)'};"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: var(--radius-card);
+        box-shadow: var(--shadow-lg);
+        border-left: 4px solid ${isError ? 'var(--danger-red)' : 'var(--success-green)'};
+        z-index: 10001;
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    document.body.appendChild(messageDiv);
+    
+    setTimeout(() => {
+        messageDiv.style.animation = 'slideOutRight 0.3s ease forwards';
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.parentNode.removeChild(messageDiv);
+            }
+        }, 300);
+    }, 3000);
 }
     async function handleDepositSubmit(event) {
         event.preventDefault();
