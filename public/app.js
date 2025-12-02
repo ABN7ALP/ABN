@@ -1188,29 +1188,8 @@ function showSearchResultsCount(visible, total) {
 }
     
     // --- 3. نظام شحن الرصيد ---
+    // --- 3. نظام شحن الرصيد ---
 function handlePaymentMethodSelect(event) {
-    const selectedMethod = event.currentTarget.dataset.method;
-    paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-    
-    let minAmount = 1;
-    switch (selectedMethod) {
-        case 'bank':
-        case 'usdt':
-        case 'trx':
-        case 'bnb':
-            minAmount = 10;
-            break;
-        case 'sham':
-            minAmount = 5;
-            break;
-        case 'whatsapp':
-            minAmount = 1;
-            break;
-    }
-    
-    // تحديث حقل المبلغ بالحد الأدنى
-    function handlePaymentMethodSelect(event) {
     const selectedMethod = event.currentTarget.dataset.method;
     paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
     event.currentTarget.classList.add('active');
@@ -1434,7 +1413,6 @@ function setupCopyButtons() {
         });
     });
 }
-
 // 🆕 دالة نسخ العنوان مع تحديث الأيقونة
 function copyAddress(address, iconElement) {
     navigator.clipboard.writeText(address).then(() => {
@@ -1571,7 +1549,8 @@ function showCopySuccessMessage(message, isError = false) {
         depositFormResponse.className = 'form-message error'; 
         return; 
     }
-
+    
+        
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -2380,8 +2359,6 @@ quantityInput.addEventListener('input', () => {
         });
     }
 // 🆕 🔼 نهاية الإضافة 🔼
-
-
 
     // ==========================================
 // 🏆 JavaScript للفوتر والاتصال
