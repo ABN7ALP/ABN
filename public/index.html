@@ -251,29 +251,96 @@ l.parentNode.insertBefore(s, l);
     </div>
 </div>
     <!-- Deposit Popup -->
-    <div id="deposit-popup-overlay" class="popup-overlay hidden">
-        <div class="popup-content scrollable">
-            <button id="close-deposit-popup-btn" class="close-btn"><i class="ph-bold ph-x"></i></button>
-            <div class="popup-header"><i class="ph-bold ph-money"></i><h2>شحن الرصيد</h2></div>
-            <form id="deposit-form" enctype="multipart/form-data">
-                <p class="payment-instructions">اختر طريقة الدفع المفضلة لديك واتبع التعليمات.</p>
-                <div class="payment-method-selector">
-                    <button type="button" class="payment-method-btn" data-method="bank"><i class="ph-bold ph-bank"></i><span>تحويل بنكي</span></button>
-                    <button type="button" class="payment-method-btn" data-method="sham"><i class="ph-bold ph-qr-code"></i><span>شام كاش</span></button>
-                    <button type="button" class="payment-method-btn" data-method="whatsapp"><i class="ph-bold ph-storefront"></i><span>حوالة مكتب</span></button>
-                    <button type="button" class="payment-method-btn" data-method="usdt"><i class="ph-bold ph-coin"></i><span>USDT</span></button>
-                    <button type="button" class="payment-method-btn" data-method="trx"><i class="ph-bold ph-currency-circle-dollar"></i><span>TRX</span></button>
-                    <button type="button" class="payment-method-btn" data-method="bnb"><i class="ph-bold ph-coin-vertical"></i><span>BNB</span></button>
-                </div>
-                <div id="payment-details-container" class="hidden"></div>
-                <div class="form-group"><label for="deposit-amount">المبلغ الذي قمت بتحويله ($)</label><input type="number" id="deposit-amount" min="1" step="any" required></div>
-                <div class="form-group"><label for="depositor-name">اسمك الكامل (كما في الإيصال)</label><input type="text" id="depositor-name" required></div>
-                <div class="form-group"><label for="deposit-receipt">إيصال التحويل (صورة)</label><input type="file" id="deposit-receipt" accept="image/*" required></div>
-                <button type="submit" class="pill-button primary-button">إرسال طلب الشحن</button>
-                <p id="deposit-form-response" class="form-message"></p>
-            </form>
+    <!-- Deposit Popup (النسخة الجديدة والمحسّنة) -->
+<div id="deposit-popup-overlay" class="popup-overlay hidden">
+    <div class="popup-content scrollable">
+        <button id="close-deposit-popup-btn" class="close-btn"><i class="ph-bold ph-x"></i></button>
+        <div class="popup-header">
+            <i class="ph-bold ph-rocket-launch"></i>
+            <h2>شحن الرصيد</h2>
         </div>
+        <form id="deposit-form" enctype="multipart/form-data">
+            
+            <!-- 1. اختيار طريقة الدفع (الهيكل الجديد) -->
+            <div class="payment-category">
+                <h4><i class="ph-bold ph-bank"></i> تحويلات بنكية ومكتبية</h4>
+                <div class="payment-method-selector">
+                    <button type="button" class="payment-method-btn" data-method="bank">
+                        <i class="ph-bold ph-bank"></i>
+                        <span>تحويل بنكي</span>
+                    </button>
+                    <button type="button" class="payment-method-btn" data-method="sham">
+                        <i class="ph-bold ph-qr-code"></i>
+                        <span>شام كاش</span>
+                    </button>
+                    <button type="button" class="payment-method-btn" data-method="whatsapp">
+                        <i class="ph-bold ph-storefront"></i>
+                        <span>حوالة مكتب</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="payment-category">
+                <h4><i class="ph-bold ph-wallet"></i> محافظ إلكترونية</h4>
+                <div class="payment-method-selector">
+                    <button type="button" class="payment-method-btn" data-method="payeer">
+                        <img src="https://img.icons8.com/color/48/payeer.png" alt="Payeer Icon">
+                        <span>PAYEER</span>
+                    </button>
+                    <button type="button" class="payment-method-btn" data-method="binance-pay">
+                         <img src="https://img.icons8.com/color/48/binance.png" alt="Binance Pay Icon">
+                        <span>Binance Pay</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="payment-category">
+                <h4><i class="ph-bold ph-currency-btc"></i> عملات رقمية</h4>
+                <div class="payment-method-selector">
+                    <button type="button" class="payment-method-btn" data-method="usdt">
+                        <img src="https://img.icons8.com/color/48/tether.png" alt="USDT Icon">
+                        <span>USDT (TRC20)</span>
+                    </button>
+                    <button type="button" class="payment-method-btn" data-method="trx">
+                        <img src="https://img.icons8.com/color/48/tron.png" alt="TRX Icon">
+                        <span>TRX</span>
+                    </button>
+                    <button type="button" class="payment-method-btn" data-method="bnb">
+                        <img src="https://img.icons8.com/color/48/bnb.png" alt="BNB Icon">
+                        <span>BNB (BEP20)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. تفاصيل الدفع (ستظهر هنا) -->
+            <div id="payment-details-container" class="hidden"></div>
+
+            <!-- 3. حقول إدخال البيانات -->
+            <div class="form-row" style="margin-top: 1.5rem;">
+                <div class="form-group">
+                    <label for="deposit-amount">المبلغ الذي قمت بتحويله ($)</label>
+                    <input type="number" id="deposit-amount" min="1" step="any" required>
+                </div>
+                <div class="form-group">
+                    <label for="depositor-name">اسمك أو معرف العملية</label>
+                    <input type="text" id="depositor-name" placeholder="اسمك الكامل أو رقم العملية" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="deposit-receipt">إيصال التحويل (صورة)</label>
+                <input type="file" id="deposit-receipt" accept="image/*" required>
+            </div>
+
+            <!-- 4. زر الإرسال -->
+            <button type="submit" class="pill-button primary-button" style="width: 100%;">
+                <i class="ph-bold ph-paper-plane-tilt"></i>
+                <span>إرسال طلب الشحن</span>
+            </button>
+            <p id="deposit-form-response" class="form-message"></p>
+        </form>
     </div>
+</div>
+
 <!-- ========================================== -->
 <!-- 🏆 قسم الفوتر مع معلومات الاتصال -->
 <!-- ========================================== -->
