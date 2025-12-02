@@ -142,8 +142,8 @@
     border-left: 1px solid var(--gray-border);
 }
 
-notification-item {
-    padding: 1rem 2.5rem 1rem 1.2rem; /* top, right, bottom, left */
+.notification-item {
+    padding: 1rem 1.2rem;
     border-bottom: 1px solid var(--gray-bg);
     font-size: 0.9rem;
     display: block;
@@ -152,6 +152,7 @@ notification-item {
     transition: all var(--transition-fast);
     position: relative;
 }
+
 
 
 .notifications-header h4 {
@@ -629,6 +630,12 @@ notification-item {
 .payment-method-btn span {
     font-weight: 600;
     font-size: 0.9rem;
+}
+
+
+.notification-item {
+    position: relative;
+    padding-right: 2.5rem;
 }
 
 .notification-item .timestamp {
