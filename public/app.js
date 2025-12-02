@@ -1228,7 +1228,7 @@ function handlePaymentMethodSelect(event) {
             break;
         case 'whatsapp':
             minAmount = 1;
-            minMessage = 'الحد الأدنى للحوالة: 1 دولار';
+            minMessage = '١١١١';
             break;
     }
     
@@ -1338,7 +1338,39 @@ function handlePaymentMethodSelect(event) {
                 <p class="warning-note">⚠️ تأكد من إرسال TRX فقط عبر شبكة TRC20</p>
             `;
             break;
-            
+
+            case 'payeer':
+            detailsHTML = `
+                <p><strong>💰 اسم العملية:</strong> PAYEER</p>
+                <p><strong>🆔 رقم الحساب:</strong></p>
+                <div class="wallet-address">
+                    <div class="address-container">
+                        <span class="address-text">P1031685181</span>
+                        <div class="copy-icon" data-address="P1031685181">
+                            <i class="ph-bold ph-copy"></i>
+                        </div>
+                    </div>
+                </div>
+                <p class="warning-note">⚠️ تأكد من إرسال المبلغ بالدولار الأمريكي (USD).</p>
+            `;
+            break;
+
+            case 'binancepay':
+            detailsHTML = `
+                <p><strong>💰 اسم العملية:</strong> Binance Pay</p>
+                <p><strong>🆔 معرف الدفع (Pay ID):</strong></p>
+                <div class="wallet-address">
+                    <div class="address-container">
+                        <span class="address-text">338952269</span>
+                        <div class="copy-icon" data-address="338952269">
+                            <i class="ph-bold ph-copy"></i>
+                        </div>
+                    </div>
+                </div>
+                <p class="warning-note">⚠️ تأكد من إرسال المبلغ بعملة USDT.</p>
+            `;
+            break;
+
         case 'bnb':
             detailsHTML = `
                 <p><strong>💰 اسم العملية:</strong> BNB</p>
@@ -2142,6 +2174,30 @@ async function updatePrice() {
     payWithBalanceBtn.addEventListener('click', executePayWithBalance);
     payWithWhatsappBtn.addEventListener('click', executePayWithWhatsapp);
 
+        // --- ربط حدث زر "عرض المزيد" لطرق الدفع ---
+    const togglePaymentBtn = document.getElementById('toggle-payment-methods');
+    const additionalMethods = document.getElementById('additional-payment-methods');
+
+    if (togglePaymentBtn && additionalMethods) {
+        togglePaymentBtn.addEventListener('click', () => {
+            // تبديل حالة الإخفاء/الإظهار
+            additionalMethods.classList.toggle('hidden');
+            togglePaymentBtn.classList.toggle('expanded');
+
+            // تحديث نص وأيقونة الزر
+            const isExpanded = togglePaymentBtn.classList.contains('expanded');
+            const icon = togglePaymentBtn.querySelector('i');
+            const text = togglePaymentBtn.querySelector('span');
+
+            if (isExpanded) {
+                icon.className = 'ph-bold ph-caret-up';
+                text.textContent = 'إخفاء الطرق الإضافية';
+            } else {
+                icon.className = 'ph-bold ph-caret-down';
+                text.textContent = 'عرض المزيد من الطرق';
+            }
+        });
+    }
     // --- 8. الاستماع للتحديثات الفورية (Socket.IO) ---
     socket.on('new-service', loadServices);
     socket.on('service-updated', loadServices);
