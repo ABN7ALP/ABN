@@ -1750,3 +1750,134 @@
 .footer-section:nth-child(3) { animation-delay: 0.3s; }
 .footer-section:nth-child(4) { animation-delay: 0.4s; }
 
+
+
+/* ========================================== */
+/* 🎨 تحسينات نافذة شحن الرصيد */
+/* ========================================== */
+
+/* تقسيم طرق الدفع إلى فئات */
+.payment-category {
+    margin-bottom: 2rem;
+    border: 1px solid var(--gray-border);
+    border-radius: var(--radius-card);
+    padding: 1.5rem;
+    background: var(--gray-bg);
+}
+
+.payment-category h4 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    color: var(--text-dark);
+    margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+    padding: 1rem 1.5rem;
+    background: var(--purple-light);
+    border-bottom: 1px solid var(--gray-border);
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+}
+
+.payment-category h4 i {
+    color: var(--purple-main);
+}
+
+/* تصميم جديد لأزرار اختيار طريقة الدفع */
+.payment-method-btn {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    min-height: auto;
+    text-align: right;
+    border-width: 2px;
+}
+
+.payment-method-btn img {
+    width: 32px;
+    height: 32px;
+}
+
+.payment-method-btn i {
+    font-size: 1.8rem;
+    color: var(--purple-main);
+    transition: color 0.3s ease;
+}
+
+.payment-method-btn.active i {
+    color: white;
+}
+
+.payment-method-btn.active {
+    background: var(--purple-gradient);
+    color: white;
+}
+
+/* تصميم جديد لبطاقة تفاصيل الدفع */
+#payment-details-container {
+    margin: 1.5rem 0;
+    padding: 0;
+    background: none;
+    border: none;
+}
+
+.payment-instruction-card {
+    background: var(--white-pure);
+    padding: 1.5rem;
+    border-radius: var(--radius-card);
+    border: 2px solid var(--purple-main);
+    box-shadow: 0 0 20px rgba(124, 30, 255, 0.1);
+    text-align: center;
+}
+
+.payment-instruction-card p {
+    font-size: 1rem;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+}
+
+.info-line {
+    margin: 1rem 0;
+    font-size: 1.1rem;
+}
+
+.info-line strong {
+    color: var(--text-dark);
+}
+
+.info-line span.copyable {
+    background: var(--purple-light);
+    color: var(--purple-main);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-input);
+    font-weight: 700;
+    font-family: monospace;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    display: inline-block;
+}
+
+.info-line span.copyable:hover {
+    background: var(--purple-dark);
+    color: white;
+}
+
+.warning-note {
+    background: #fffbeb;
+    color: #b45309;
+    padding: 0.8rem;
+    border-radius: var(--radius-input);
+    font-size: 0.9rem !important;
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+.qr-card img {
+    max-width: 200px;
+    height: auto;
+    border-radius: var(--radius-input);
+    border: 2px solid var(--gray-border);
+    padding: 0.5rem;
+    background: white;
+}
+
