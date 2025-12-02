@@ -418,17 +418,15 @@ notification-item.unread::before {
 
 /* --- Payment Methods محسن --- */
 .payment-method-selector {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* عرض الأزرار في 3 أعمدة */
+    gap: 0.8rem; /* تقليل المسافة بين الأزرار */
     margin-bottom: 2rem;
 }
 
-.payment-method-btn {
-    flex: 1;
-    min-width: 120px;
-    padding: 1.5rem 1rem;
+
+payment-method-btn {
+    padding: 1rem 0.5rem; /* تقليل الحشوة لجعل الزر أصغر */
     border: 2px solid var(--gray-border);
     border-radius: var(--radius-input);
     background: var(--white-pure);
@@ -436,8 +434,11 @@ notification-item.unread::before {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.8rem;
+    justify-content: center; /* توسيط المحتوى عمودياً */
+    gap: 0.5rem; /* تقليل المسافة بين الأيقونة والنص */
     transition: all var(--transition-smooth);
+    text-align: center;
+    min-height: 90px; /* تحديد ارتفاع أدنى للحفاظ على التناسق */
 }
 
 .payment-method-btn:hover {
@@ -452,9 +453,11 @@ notification-item.unread::before {
     box-shadow: var(--shadow-sm);
 }
 
-.payment-method-btn i {
-    font-size: 2rem;
+payment-method-btn i {
+    font-size: 1.6rem; /* تصغير حجم الأيقونة */
+    margin-bottom: 0.2rem;
 }
+
 
 /* --- Responsive --- */
 @media (max-width: 768px) {
@@ -639,10 +642,11 @@ notification-item.unread::before {
     min-height: 100px;
 }
 
-.payment-method-btn span {
-    font-weight: 600;
-    font-size: 0.9rem;
+payment-method-btn span {
+    font-weight: 700; /* زيادة سماكة الخط قليلاً للوضوح */
+    font-size: 0.8rem; /* تصغير حجم الخط */
 }
+
 
 
 .notification-item {
