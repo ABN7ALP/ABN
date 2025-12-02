@@ -204,31 +204,39 @@ router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
 });
 
 // --- PUT /api/orders/:id (لتحديث حالة الطلب - حماية إدارية) ---
-// 🔽🔽 استبدل الدالة الحالية بهذه النسخة الكاملة 🔽🔽
+// 🔽🔽 استبدل دالة تحديث الطلب الحالية بهذه النسخة الكاملة والمصححة 🔽🔽
+
 router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const order = await Order.findById(req.params.id).populate('user', 'balance');
+        // الخطوة 1: جلب الطلب أولاً للتحقق من حالته وبياناته
+        const order = await Order.findById(req.params.id);
         if (!order) {
             return res.status(404).json({ message: 'الطلب غير موجود' });
         }
-        
+    
         const oldStatus = order.status;
         const newStatus = req.body.status;
-        
+    
         // لا تفعل شيئاً إذا لم تتغير الحالة
         if (oldStatus === newStatus) {
             return res.json(order);
         }
-    
-        // --- 🎯 منطق إرجاع الرصيد عند الإلغاء ---
+
+        // --- 🎯 منطق إرجاع الرصيد عند الإلغاء (النسخة المصححة) ---
         if (newStatus === 'ملغي' && oldStatus !== 'ملغي' && order.user) {
-            // تحقق من أن الطلب تم دفعه بالرصيد (له user مرتبط)
-            const user = await User.findById(order.user._id);
+            
+            // الخطوة 2: ابحث عن مستند المستخدم الفعلي في قاعدة البيانات
+            const user = await User.findById(order.user);
+            
             if (user) {
-                user.balance += order.price; // إرجاع قيمة الطلب للرصيد
-                await user.save();
+                // الخطوة 3: قم بتحديث رصيد المستخدم مباشرة
+                user.balance += order.price;
+                
+                // الخطوة 4: احفظ مستند المستخدم المحدث
+                await user.save(); 
+                
                 console.log(`✅ تم إرجاع ${order.price.toFixed(2)}$ إلى رصيد المستخدم ${user.username}`);
-    
+
                 // إرسال إشعار للمستخدم بإرجاع المبلغ
                 const refundNotification = new Notification({
                     user: user._id,
@@ -243,11 +251,12 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
             }
         }
         // --- نهاية منطق إرجاع الرصيد ---
-    
+
+        // تحديث حالة الطلب
         order.status = newStatus;
         const updatedOrder = await order.save();
-    
-        // إرسال إشعار تحديث الحالة (إذا لم يكن الإشعار هو إرجاع المبلغ)
+
+        // إرسال إشعار تحديث الحالة (فقط إذا لم يكن الإشعار هو إرجاع المبلغ)
         if (newStatus !== 'ملغي' && updatedOrder.user) {
             const notificationMessage = `تم تحديث حالة طلبك للخدمة "${updatedOrder.service}" إلى: ${newStatus}.`;
             const newNotification = new Notification({
@@ -256,21 +265,29 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
                 link: '/my-orders.html'
             });
             await newNotification.save();
-    
+
             req.io.emit('new-notification', {
                 userId: updatedOrder.user.toString(),
                 notification: newNotification
             });
         }
-    
+
+        // إرسال تحديث فوري للواجهات
         req.io.emit('order-status-updated', updatedOrder);
+        
+        // 🆕 إرسال تحديث للرصيد إذا تم الإلغاء
+        if (newStatus === 'ملغي' && order.user) {
+            req.io.emit('deposit-approved', { userId: order.user.toString() });
+        }
+
         res.json(updatedOrder);
-    
+
     } catch (error) {
         console.error("Order update error:", error); 
         res.status(500).json({ message: 'فشل تحديث الطلب' });
     }
 });
+
 // 🔼🔼 نهاية الاستبدال 🔼🔼
 
 
