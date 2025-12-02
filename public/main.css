@@ -1801,3 +1801,65 @@ notification-item.unread::before {
     justify-content: center;
 }
 
+/* ===================================================================
+   6. TOGGLE PAYMENT METHODS STYLES
+   =================================================================== */
+
+/* تعديل الحاوية الرئيسية لتكون شبكة مرنة */
+.payment-method-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.8rem;
+}
+
+/* حاوية الطرق الإضافية */
+.additional-methods-container {
+    display: contents; /* تجعل الأزرار بداخلها جزءاً من الشبكة الرئيسية */
+}
+
+/* إخفاء الحاوية باستخدام display: none */
+.additional-methods-container.hidden {
+    display: none;
+}
+
+/* تصميم زر "عرض المزيد" */
+.toggle-methods-btn {
+    grid-column: 1 / -1; /* لجعل الزر يمتد على عرض الشبكة بالكامل */
+    margin-top: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    background: var(--gray-bg);
+    color: var(--text-light);
+    border: 2px dashed var(--gray-border);
+    border-radius: var(--radius-input);
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all var(--transition-smooth);
+}
+
+.toggle-methods-btn:hover {
+    background: var(--purple-light);
+    color: var(--purple-main);
+    border-color: var(--purple-main);
+    border-style: solid;
+}
+
+.toggle-methods-btn i {
+    transition: transform var(--transition-smooth);
+}
+
+/* تدوير السهم عند فتح القائمة */
+.toggle-methods-btn.expanded i {
+    transform: rotate(180deg);
+}
+
+/* تخصيص أيقونة Binance Pay لتكون دائرية */
+.payment-method-btn[data-method="binancepay"] .payment-icon-single {
+    border-radius: 50%;
+    background-color: #F0B90B; /* لون خلفية شعار باينانس */
+    padding: 4px; /* حشوة داخلية صغيرة */
+   }
+       
