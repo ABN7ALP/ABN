@@ -875,7 +875,7 @@ body.desktop-view-on-mobile .container {
 }
 
 /* إضافة شارة "جديد" */
-.payment-method-btn[data-method="usdt"]::after,
+/*.payment-method-btn[data-method="usdt"]::after,
 .payment-method-btn[data-method="trx"]::after,
 .payment-method-btn[data-method="bnb"]::after {
     content: 'جديد';
@@ -888,7 +888,7 @@ body.desktop-view-on-mobile .container {
     padding: 2px 8px;
     border-radius: 12px;
     font-weight: bold;
-}
+/*}
 
 /* ألوان أيقونات العملات */
 .payment-method-btn[data-method="usdt"] i { color: #26a17b; }
