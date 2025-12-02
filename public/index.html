@@ -258,13 +258,45 @@ l.parentNode.insertBefore(s, l);
             <form id="deposit-form" enctype="multipart/form-data">
                 <p class="payment-instructions">اختر طريقة الدفع المفضلة لديك واتبع التعليمات.</p>
                 <div class="payment-method-selector">
-                    <button type="button" class="payment-method-btn" data-method="bank"><i class="ph-bold ph-bank"></i><span>تحويل بنكي</span></button>
-                    <button type="button" class="payment-method-btn" data-method="sham"><i class="ph-bold ph-qr-code"></i><span>شام كاش</span></button>
-                    <button type="button" class="payment-method-btn" data-method="whatsapp"><i class="ph-bold ph-storefront"></i><span>حوالة مكتب</span></button>
-                    <button type="button" class="payment-method-btn" data-method="usdt"><i class="ph-bold ph-coin"></i><span>USDT</span></button>
-                    <button type="button" class="payment-method-btn" data-method="trx"><i class="ph-bold ph-currency-circle-dollar"></i><span>TRX</span></button>
-                    <button type="button" class="payment-method-btn" data-method="bnb"><i class="ph-bold ph-coin-vertical"></i><span>BNB</span></button>
-                </div>
+    <!-- 1. زر التحويل البنكي مع أيقونات Visa و Mastercard -->
+    <button type="button" class="payment-method-btn" data-method="bank">
+        <div class="payment-icon-group">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" alt="Mastercard">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa">
+        </div>
+        <span>تحويل بنكي</span>
+    </button>
+
+    <!-- 2. زر شام كاش مع الصورة المخصصة -->
+    <button type="button" class="payment-method-btn" data-method="sham">
+        <img class="payment-icon-single" src="https://i.imgur.com/LvVpAx1.jpeg" alt="شام كاش">
+        <span>شام كاش</span>
+    </button>
+
+    <!-- 3. زر حوالة مكتب (سنحتفظ بالأيقونة الحالية لأنها مناسبة) -->
+    <button type="button" class="payment-method-btn" data-method="whatsapp">
+        <i class="ph-bold ph-storefront"></i>
+        <span>حوالة مكتب</span>
+    </button>
+
+    <!-- 4. زر USDT مع الشعار الرسمي -->
+    <button type="button" class="payment-method-btn" data-method="usdt">
+        <img class="payment-icon-single" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Tether_logo.svg/240px-Tether_logo.svg.png" alt="USDT">
+        <span>USDT</span>
+    </button>
+
+    <!-- 5. زر TRX مع الشعار الرسمي -->
+    <button type="button" class="payment-method-btn" data-method="trx">
+        <img class="payment-icon-single" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Tron_Logo.svg/240px-Tron_Logo.svg.png" alt="TRX">
+        <span>TRX</span>
+    </button>
+
+    <!-- 6. زر BNB مع الشعار الرسمي -->
+    <button type="button" class="payment-method-btn" data-method="bnb">
+        <img class="payment-icon-single" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Binance-coin-bnb-logo.svg/240px-Binance-coin-bnb-logo.svg.png" alt="BNB"><span>BNB</span>
+    </button>
+</div>
+
                 <div id="payment-details-container" class="hidden"></div>
                 <div class="form-group"><label for="deposit-amount">المبلغ الذي قمت بتحويله ($)</label><input type="number" id="deposit-amount" min="1" step="any" required></div>
                 <div class="form-group"><label for="depositor-name">اسمك الكامل (كما في الإيصال)</label><input type="text" id="depositor-name" required></div>
