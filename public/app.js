@@ -2183,11 +2183,36 @@ socket.on('new-offer', (data) => {
     });
 });
     
-    socket.on('deposit-approved', (data) => {
-        if (userInfo && userInfo._id === data.userId) {
-            refreshUserData();
-        }
-    });
+    // 🔽🔽 استبدل الكود الحالي بهذا الكود المحسّن 🔽🔽
+
+socket.on('deposit-approved', (data) => {
+    // تحقق مما إذا كان هذا التحديث يخص المستخدم الحالي
+    if (userInfo && userInfo._id === data.userId) {
+        console.log('💰 تم استلام تحديث للرصيد، جاري تحديث الواجهة...');
+        
+        // 1. جلب أحدث بيانات المستخدم من الخادم
+        fetch(`/api/auth/me?userId=${userInfo._id}`)
+            .then(response => response.json())
+            .then(updatedUser => {
+                if (updatedUser) {
+                    // 2. تحديث البيانات في التخزين المحلي والمتغير العام
+                    localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+                    userInfo = updatedUser; // تحديث المتغير العام
+                    
+                    // 3. إعادة بناء واجهة المستخدم بالكامل لعرض الرصيد الجديد
+                    updateUIForAuth();
+                    
+                    console.log('✅ تم تحديث الرصيد في الواجهة بنجاح.');
+                }
+            })
+            .catch(error => {
+                console.error('فشل تحديث بيانات المستخدم بعد الموافقة على الإيداع:', error);
+            });
+    }
+});
+
+// 🔼🔼 نهاية الاستبدال 🔼🔼
+
     
     socket.on('broadcast-notification', (data) => {
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
