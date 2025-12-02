@@ -112,7 +112,7 @@ async function calculateFinalPrice(serviceName, platform, quantity, userId = nul
             // تطبيق أفضل خصم
             if (offerDiscount > discount) {
                 discount = offerDiscount;
-                finalPrice = originalPrice - discount;
+                finalPrice = Math.max(0, originalPrice - discount);
                 appliedOffer = offer;
             }
         }
@@ -154,6 +154,7 @@ async function calculateFinalPrice(serviceName, platform, quantity, userId = nul
         }
     }
 }
+
 
 // 🆕 Route جديد لحساب السعر مع الخصم
 router.post('/calculate-price', async (req, res) => {
@@ -203,50 +204,75 @@ router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
 });
 
 // --- PUT /api/orders/:id (لتحديث حالة الطلب - حماية إدارية) ---
+// 🔽🔽 استبدل الدالة الحالية بهذه النسخة الكاملة 🔽🔽
 router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const order = await Order.findById(req.params.id);
+        const order = await Order.findById(req.params.id).populate('user', 'balance');
         if (!order) {
             return res.status(404).json({ message: 'الطلب غير موجود' });
         }
-    
+        
         const oldStatus = order.status;
         const newStatus = req.body.status;
+        
+        // لا تفعل شيئاً إذا لم تتغير الحالة
+        if (oldStatus === newStatus) {
+            return res.json(order);
+        }
     
-        if (oldStatus !== newStatus) {
-            order.status = newStatus;
-            const updatedOrder = await order.save();
+        // --- 🎯 منطق إرجاع الرصيد عند الإلغاء ---
+        if (newStatus === 'ملغي' && oldStatus !== 'ملغي' && order.user) {
+            // تحقق من أن الطلب تم دفعه بالرصيد (له user مرتبط)
+            const user = await User.findById(order.user._id);
+            if (user) {
+                user.balance += order.price; // إرجاع قيمة الطلب للرصيد
+                await user.save();
+                console.log(`✅ تم إرجاع ${order.price.toFixed(2)}$ إلى رصيد المستخدم ${user.username}`);
     
-            // --- منطق إرسال الإشعار الآمن ---
-            // نتحقق من وجود حقل المستخدم وأن الـ ID صالح قبل المتابعة
-            if (updatedOrder.user && mongoose.Types.ObjectId.isValid(updatedOrder.user)) {
-                const notificationMessage = `تم تحديث حالة طلبك للخدمة "${updatedOrder.service}" إلى: ${newStatus}.`;
-                const newNotification = new Notification({
-                    user: updatedOrder.user,
-                    message: notificationMessage,
+                // إرسال إشعار للمستخدم بإرجاع المبلغ
+                const refundNotification = new Notification({
+                    user: user._id,
+                    message: `تم إلغاء طلبك للخدمة "${order.service}" وإرجاع مبلغ ${order.price.toFixed(2)}$ إلى رصيدك.`,
                     link: '/my-orders.html'
                 });
-                await newNotification.save();
-    
+                await refundNotification.save();
                 req.io.emit('new-notification', {
-                    userId: updatedOrder.user.toString(),
-                    notification: newNotification
+                    userId: user._id.toString(),
+                    notification: refundNotification
                 });
             }
-            // --- نهاية منطق الإشعار ---
-    
-            req.io.emit('order-status-updated', updatedOrder);
-            res.json(updatedOrder);
-    
-        } else {
-            res.json(order);
         }
+        // --- نهاية منطق إرجاع الرصيد ---
+    
+        order.status = newStatus;
+        const updatedOrder = await order.save();
+    
+        // إرسال إشعار تحديث الحالة (إذا لم يكن الإشعار هو إرجاع المبلغ)
+        if (newStatus !== 'ملغي' && updatedOrder.user) {
+            const notificationMessage = `تم تحديث حالة طلبك للخدمة "${updatedOrder.service}" إلى: ${newStatus}.`;
+            const newNotification = new Notification({
+                user: updatedOrder.user,
+                message: notificationMessage,
+                link: '/my-orders.html'
+            });
+            await newNotification.save();
+    
+            req.io.emit('new-notification', {
+                userId: updatedOrder.user.toString(),
+                notification: newNotification
+            });
+        }
+    
+        req.io.emit('order-status-updated', updatedOrder);
+        res.json(updatedOrder);
     
     } catch (error) {
         console.error("Order update error:", error); 
         res.status(500).json({ message: 'فشل تحديث الطلب' });
     }
 });
+// 🔼🔼 نهاية الاستبدال 🔼🔼
+
 
 // --- GET /api/orders/my-orders - جلب طلبات المستخدم المسجل دخوله ---
 router.get('/my-orders', async (req, res) => {
