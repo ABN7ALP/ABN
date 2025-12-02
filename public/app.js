@@ -1202,231 +1202,165 @@ function hideDepositPopup() {
     depositPopupOverlay.classList.add('hidden'); 
 }
 
+// 🔽🔽 استبدل الدالة الحالية بهذه النسخة الكاملة 🔽🔽
+
 function handlePaymentMethodSelect(event) {
-    const selectedMethod = event.currentTarget.dataset.method;
-    paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+    const selectedBtn = event.currentTarget;
+    const selectedMethod = selectedBtn.dataset.method;
     
-    // 🆕 تحديد الحد الأدنى لكل طريقة
+    // إزالة التحديد من جميع الأزرار ثم تفعيل الزر المختار
+    paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
+    selectedBtn.classList.add('active');
+    
     let minAmount = 1;
     let minMessage = '';
-    
+    let detailsHTML = '';
+
+    // تحديد الحد الأدنى والرسائل لكل طريقة
     switch (selectedMethod) {
         case 'bank':
             minAmount = 10;
-            minMessage = 'الحد الأدنى للتحويل البنكي: 10 دولار';
+            minMessage = 'الحد الأدنى للتحويل البنكي: 10$';
             break;
         case 'sham':
             minAmount = 5;
-            minMessage = 'الحد الأدنى لشام كاش: 5 دولار';
+            minMessage = 'الحد الأدنى لشام كاش: 5$';
+            break;
+        case 'payeer':
+        case 'binance-pay':
+            minAmount = 1;
+            minMessage = 'الحد الأدنى للدفع: 1$';
             break;
         case 'usdt':
         case 'trx':
         case 'bnb':
             minAmount = 10;
-            minMessage = 'الحد الأدنى للعملات الرقمية: 10 دولار';
+            minMessage = 'الحد الأدنى للعملات الرقمية: 10$';
             break;
         case 'whatsapp':
             minAmount = 1;
-            minMessage = 'الحد الأدنى للحوالة: 1 دولار';
+            minMessage = 'الحد الأدنى للحوالة: 1$';
             break;
     }
-    
-    // 🆕 تحديث حقل المبلغ
+
+    // تحديث حقل المبلغ
     const amountInput = document.getElementById('deposit-amount');
     if (amountInput) {
         amountInput.min = minAmount;
         amountInput.value = minAmount;
         amountInput.setAttribute('data-min', minAmount);
         
-        // 🆕 إضافة رسالة الحد الأدنى
-        let minLabel = amountInput.parentElement.querySelector('.min-amount-label');
+        let minLabel = document.querySelector('.min-amount-label');
         if (!minLabel) {
             minLabel = document.createElement('small');
             minLabel.className = 'min-amount-label';
-            amountInput.parentElement.appendChild(minLabel);
+            amountInput.parentElement.insertAdjacentElement('afterend', minLabel);
         }
         minLabel.textContent = minMessage;
-        minLabel.style.color = 'var(--info-blue)';
-        minLabel.style.fontWeight = '600';
-        minLabel.style.display = 'block';
-        minLabel.style.marginTop = '0.3rem';
+        minLabel.style.cssText = 'color: var(--info-blue); font-weight: 600; display: block; text-align: center; margin-top: -1rem; margin-bottom: 1rem;';
     }
-    
-    let detailsHTML = '';
+
+    // إنشاء تفاصيل الدفع بناءً على الطريقة المختارة
     switch (selectedMethod) {
         case 'bank': 
             detailsHTML = `
-                <p>يرجى تحويل المبلغ إلى الحساب التالي:</p>
-                <p><strong>الاسم:</strong> <span>MUHAMMED ERRAHIM</span></p>
-                <p><strong>رقم الحساب (IBAN):</strong> <span>TR77 0014 3000 0000 0013 8811 28</span></p>
-                <div class="payment-note">
-                    <i class="ph-bold ph-info"></i>
-                    <span>${minMessage}</span>
-                </div>
-            `; 
+                <div class="payment-instruction-card">
+                    <p>يرجى تحويل المبلغ إلى الحساب التالي:</p>
+                    <div class="info-line"><strong>الاسم:</strong> <span>MUHAMMED ERRAHIM</span></div>
+                    <div class="info-line"><strong>IBAN:</strong> <span class="copyable" title="انقر للنسخ">TR770014300000000013881128</span></div>
+                </div>`; 
             break;
-            
         case 'sham': 
             detailsHTML = `
-                <p>يرجى مسح الباركود التالي والدفع عبر شام كاش:</p>
-                <img src="https://i.imgur.com/LvVpAx1.jpeg" alt="Sham Cash QR Code" style="max-width: 200px; height: auto; border-radius: 10px; margin: 1rem auto; display: block;">
-                <div class="payment-note">
-                    <i class="ph-bold ph-info"></i>
-                    <span>${minMessage}</span>
-                </div>
-            `; 
+                <div class="payment-instruction-card qr-card">
+                    <p>يرجى مسح الباركود التالي والدفع عبر شام كاش:</p>
+                    <img src="https://i.imgur.com/LvVpAx1.jpeg" alt="Sham Cash QR Code">
+                </div>`; 
             break;
-            
         case 'whatsapp': 
             detailsHTML = `
-                <p>للحوالة عبر مكتب، يرجى التواصل معنا عبر واتساب للحصول على التفاصيل.</p>
-                <div class="whatsapp-contact">
-                    <button type="button" class="pill-button primary-button" id="whatsapp-contact-btn" style="margin: 1rem auto; display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="ph-bold ph-whatsapp-logo"></i>
-                        <span>تواصل معنا على واتساب</span>
+                <div class="payment-instruction-card">
+                    <p>للحوالة عبر مكتب، يرجى التواصل معنا عبر واتساب للحصول على التفاصيل.</p>
+                    <button type="button" class="pill-button primary-button" id="whatsapp-contact-btn" style="margin: 1rem auto; display: flex;">
+                        <i class="ph-bold ph-whatsapp-logo"></i><span>تواصل معنا</span>
                     </button>
-                    <p style="text-align: center; font-size: 0.9rem; color: var(--text-light); margin-top: 0.5rem;">
-                        سيتم فتح محادثة واتساب مع رسالة جاهزة
-                    </p>
-                </div>
-                <div class="payment-note">
-                    <i class="ph-bold ph-info"></i>
-                    <span>${minMessage}</span>
-                </div>
-            `; 
+                </div>`; 
             break;
-            
+        case 'payeer':
+            detailsHTML = `
+                <div class="payment-instruction-card">
+                    <p>يرجى إرسال المبلغ إلى حساب PAYEER التالي:</p>
+                    <div class="info-line"><strong>المعرف:</strong> <span class="copyable" title="انقر للنسخ">P1031685181</span></div>
+                    <p class="warning-note">⚠️ تأكد من كتابة المعرف بشكل صحيح.</p>
+                </div>`;
+            break;
+        case 'binance-pay':
+            detailsHTML = `
+                <div class="payment-instruction-card">
+                    <p>يرجى إرسال المبلغ عبر Binance Pay إلى المعرف التالي:</p>
+                    <div class="info-line"><strong>Pay ID:</strong> <span class="copyable" title="انقر للنسخ">338952269</span></div>
+                    <p class="warning-note">⚠️ استخدم معرف الدفع (Pay ID) وليس عنوان المحفظة.</p>
+                </div>`;
+            break;
         case 'usdt':
             detailsHTML = `
-                <p><strong>💰 اسم العملية:</strong> USDT</p>
-                <p><strong>🌐 اسم الشبكة:</strong> Tron (TRC20)</p>
-                <p><strong>📍 عنوان الدفع:</strong></p>
-                <div class="wallet-address">
-                    <div class="address-container">
-                        <span class="address-text">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
-                        <div class="copy-icon" data-address="TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM">
-                            <i class="ph-bold ph-copy"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="payment-note">
-                    <i class="ph-bold ph-info"></i>
-                    <span>${minMessage}</span>
-                </div>
-                <p class="warning-note">⚠️ تأكد من إرسال USDT فقط عبر شبكة TRC20</p>
-            `;
+                <div class="payment-instruction-card crypto-card">
+                    <p><strong>العملة:</strong> USDT | <strong>الشبكة:</strong> Tron (TRC20)</p>
+                    <div class="info-line"><strong>العنوان:</strong> <span class="copyable" title="انقر للنسخ">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span></div>
+                    <p class="warning-note">⚠️ تأكد من إرسال USDT فقط عبر شبكة TRC20.</p>
+                </div>`;
             break;
-            
         case 'trx':
             detailsHTML = `
-                <p><strong>💰 اسم العملية:</strong> TRX</p>
-                <p><strong>🌐 اسم الشبكة:</strong> Tron (TRC20)</p>
-                <p><strong>📍 عنوان الدفع:</strong></p>
-                <div class="wallet-address">
-                    <div class="address-container">
-                        <span class="address-text">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
-                        <div class="copy-icon" data-address="TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM">
-                            <i class="ph-bold ph-copy"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="payment-note">
-                    <i class="ph-bold ph-info"></i>
-                    <span>${minMessage}</span>
-                </div>
-                <p class="warning-note">⚠️ تأكد من إرسال TRX فقط عبر شبكة TRC20</p>
-            `;
+                <div class="payment-instruction-card crypto-card">
+                    <p><strong>العملة:</strong> TRX | <strong>الشبكة:</strong> Tron (TRC20)</p>
+                    <div class="info-line"><strong>العنوان:</strong> <span class="copyable" title="انقر للنسخ">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span></div>
+                    <p class="warning-note">⚠️ تأكد من إرسال TRX فقط عبر شبكة TRC20.</p>
+                </div>`;
             break;
-            
         case 'bnb':
             detailsHTML = `
-                <p><strong>💰 اسم العملية:</strong> BNB</p>
-                <p><strong>🌐 اسم الشبكة:</strong> BNB Smart Chain (BEP20)</p>
-                <p><strong>📍 عنوان الدفع:</strong></p>
-                <div class="wallet-address">
-                    <div class="address-container">
-                        <span class="address-text">0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd</span>
-                        <div class="copy-icon" data-address="0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd">
-                            <i class="ph-bold ph-copy"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="payment-note">
-                    <i class="ph-bold ph-info"></i>
-                    <span>${minMessage}</span>
-                </div>
-                <p class="warning-note">⚠️ تأكد من إرسال BNB فقط عبر شبكة BEP20</p>
-            `;
+                <div class="payment-instruction-card crypto-card">
+                    <p><strong>العملة:</strong> BNB | <strong>الشبكة:</strong> BNB Smart Chain (BEP20)</p>
+                    <div class="info-line"><strong>العنوان:</strong> <span class="copyable" title="انقر للنسخ">0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd</span></div>
+                    <p class="warning-note">⚠️ تأكد من إرسال BNB فقط عبر شبكة BEP20.</p>
+                </div>`;
             break;
     }
     
     paymentDetailsContainer.innerHTML = detailsHTML;
     paymentDetailsContainer.classList.remove('hidden');
     
-    // 🆕 إعداد زر التواصل على واتساب
-    const whatsappBtn = document.getElementById('whatsapp-contact-btn');
-    if (whatsappBtn) {
-        whatsappBtn.addEventListener('click', openWhatsAppContact);
+    // إعادة ربط الأحداث للأزرار والعناصر الجديدة
+    if (document.getElementById('whatsapp-contact-btn')) {
+        document.getElementById('whatsapp-contact-btn').addEventListener('click', openWhatsAppContact);
     }
-    
-    // إعداد أحداث النسخ
-    setupCopyButtons();
+    setupCopyEvents();
 }
 
-// 🆕 دالة فتح واتساب مع رسالة جاهزة
-function openWhatsAppContact() {
-    const phoneNumber = "905367893256"; // رقم الواتساب
-    const message = encodeURIComponent(`مرحباً، أريد معلومات حول الحوالة المكتبية لإيداع رصيد في المتجر.
-    
-المبلغ الذي أريد إيداعه: [يرجى كتابة المبلغ]
-الطريقة: حوالة مكتبية
-اسمي: [اسمك]`);
-
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
-    window.open(whatsappUrl, '_blank');
-}
-
-// 🆕 دالة نسخ العنوان للمحفظة - مصححة
-// 🆕 دالة لإعداد أحداث النسخ
-// 🔽 استبدال دالة setupCopyButtons بهذا الكود 🔽
-function setupCopyButtons() {
-    // 1. النسخ عند النقر على أيقونة النسخ
-    document.querySelectorAll('.copy-icon').forEach(icon => {
-        // إزالة أي أحداث سابقة أولاً
-        const newIcon = icon.cloneNode(true);
-        icon.parentNode.replaceChild(newIcon, icon);
-        
-        // إضافة حدث جديد
-        newIcon.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            
-            const address = this.getAttribute('data-address');
-            if (address) {
-                copyAddress(address, this);
-            }
-        });
-    });
-    
-    // 2. النسخ عند النقر على النص نفسه
-    document.querySelectorAll('.address-text').forEach(textElement => {
-        textElement.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const address = this.textContent;
-            copyToClipboard(this);
-            
-            // إيجاد أيقونة النسخ المرتبطة وتحديثها
-            const copyIcon = this.closest('.address-container')?.querySelector('.copy-icon');
-            if (copyIcon) {
-                showCopySuccessOnIcon(copyIcon);
-            }
+// دالة جديدة ومحسنة لربط أحداث النسخ
+function setupCopyEvents() {
+    document.querySelectorAll('.copyable').forEach(element => {
+        element.addEventListener('click', () => {
+            const textToCopy = element.textContent;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalText = element.textContent;
+                element.textContent = '✅ تم النسخ!';
+                setTimeout(() => {
+                    element.textContent = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('فشل النسخ:', err);
+                alert('فشل نسخ النص.');
+            });
         });
     });
 }
+
+// 🔼🔼 نهاية الاستبدال 🔼🔼
+
+
+
 // 🆕 دالة نسخ العنوان مع تحديث الأيقونة
 function copyAddress(address, iconElement) {
     navigator.clipboard.writeText(address).then(() => {
