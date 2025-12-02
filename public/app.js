@@ -2475,7 +2475,26 @@ document.getElementById('scroll-top')?.addEventListener('click', () => {
 });
 
 
+// فتح نافذة الاتصال
+document.getElementById('footer-contact-link')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('contact-modal').classList.remove('hidden');
+});
 
+document.getElementById('floating-phone')?.addEventListener('click', () => {
+    document.getElementById('contact-modal').classList.remove('hidden');
+});
+
+// إغلاق نافذة الاتصال
+document.getElementById('close-contact-modal')?.addEventListener('click', () => {
+    document.getElementById('contact-modal').classList.add('hidden');
+});
+
+document.getElementById('contact-modal')?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) {
+        e.currentTarget.classList.add('hidden');
+    }
+});
 
 // روابط سياسية
 document.querySelectorAll('#privacy-policy, #terms-service, #refund-policy, #faq-link').forEach(link => {
