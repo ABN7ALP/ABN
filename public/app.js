@@ -1355,7 +1355,7 @@ function handlePaymentMethodSelect(event) {
             `;
             break;
 
-            case 'binancepay':
+            case 'binance-pay':
             detailsHTML = `
                 <p><strong>💰 اسم العملية:</strong> Binance Pay</p>
                 <p><strong>🆔 معرف الدفع (Pay ID):</strong></p>
