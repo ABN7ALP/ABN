@@ -355,30 +355,51 @@ function loadDashboardData() {
         }
     }
     
-    async function handleStatusChange(event) {
-        const selectElement = event.target;
-        const orderId = selectElement.dataset.orderId;
-        const newStatus = selectElement.value;
-        const row = selectElement.closest('tr');
-        selectElement.disabled = true;
-        row.style.opacity = '0.5';
-        try {
-            const response = await fetch(`/api/orders/${orderId}`, { 
-                method: 'PUT', 
-                headers: getAuthHeaders(),
-                body: JSON.stringify({ status: newStatus }) 
-            });
-            if (!response.ok) throw new Error('فشل تحديث حالة الطلب');
-            row.style.backgroundColor = '#d4edda';
-            setTimeout(() => { row.style.backgroundColor = ''; }, 1000);
-        } catch (error) {
-            alert(error.message);
-            fetchOrders();
-        } finally {
-            selectElement.disabled = false;
-            row.style.opacity = '1';
+    // 🔽🔽 استبدل الدالة الحالية بهذه النسخة الكاملة 🔽🔽
+
+async function handleStatusChange(event) {
+    const selectElement = event.target;
+    const orderId = selectElement.dataset.orderId;
+    const newStatus = selectElement.value;
+    const row = selectElement.closest('tr');
+    
+    selectElement.disabled = true;
+    row.style.opacity = '0.5';
+
+    try {
+        const response = await fetch(`/api/orders/${orderId}`, { 
+            method: 'PUT', 
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ status: newStatus }) 
+        });
+
+        // 🎯🎯🎯 هذا هو الجزء الجديد والمهم 🎯🎯🎯
+        if (!response.ok) {
+            // إذا فشل الطلب، اقرأ رسالة الخطأ من الخادم
+            const errorData = await response.json();
+            // اعرض الرسالة الواضحة للمدير
+            throw new Error(errorData.message || 'فشل تحديث حالة الطلب');
         }
+        // 🎯🎯🎯 نهاية الجزء الجديد 🎯🎯🎯
+
+        // إذا نجح الطلب، أظهر علامة النجاح
+        row.style.backgroundColor = '#d4edda'; // أخضر فاتح
+        setTimeout(() => { row.style.backgroundColor = ''; }, 1000);
+
+    } catch (error) {
+        // اعرض رسالة الخطأ في تنبيه
+        alert('⚠️ خطأ: ' + error.message);
+        // أعد تحميل قائمة الطلبات لتعود القائمة المنسدلة إلى حالتها الأصلية
+        fetchOrders(); 
+    } finally {
+        // هذا الجزء سيعمل دائماً، لكن fetchOrders سيعيد بناء كل شيء
+        selectElement.disabled = false;
+        row.style.opacity = '1';
     }
+}
+
+// 🔼🔼 نهاية الاستبدال 🔼🔼
+
 
     // --- 5. قسم إدارة الخدمات ---
     async function fetchServices() {
