@@ -142,15 +142,17 @@
     border-left: 1px solid var(--gray-border);
 }
 
-.notifications-header {
-    padding: 1.2rem;
-    border-bottom: 1px solid var(--gray-border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--purple-light);
-    border-radius: var(--radius-card) var(--radius-card) 0 0;
+notification-item {
+    padding: 1rem 2.5rem 1rem 1.2rem; /* top, right, bottom, left */
+    border-bottom: 1px solid var(--gray-bg);
+    font-size: 0.9rem;
+    display: block;
+    text-decoration: none;
+    color: var(--text-dark);
+    transition: all var(--transition-fast);
+    position: relative;
 }
+
 
 .notifications-header h4 {
     font-size: 0.95rem;
@@ -197,18 +199,6 @@
 .notification-item.unread {
     background: var(--purple-light);
     border-right: 4px solid var(--purple-main);
-}
-
-.notification-item.unread::before {
-    content: '';
-    position: absolute;
-    left: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 8px;
-    height: 8px;
-    background: var(--purple-main);
-    border-radius: 50%;
 }
 
 .no-notifications {
@@ -640,20 +630,12 @@
     font-weight: 600;
     font-size: 0.9rem;
 }
-.notification-item {
-    position: relative;
-    padding-right: 2.5rem;
-}
 
 .notification-item .timestamp {
     font-size: 0.8rem;
     color: var(--text-light);
     margin-top: 0.3rem;
     display: block;
-}
-
-.notification-item.unread {
-    border-right: 4px solid var(--purple-main);
 }
 
 .notification-item.unread::after {
@@ -670,10 +652,6 @@
 
 .notifications-dropdown {
     max-height: 500px;
-}
-
-.notifications-list {
-    max-height: 400px;
 }
 /* 🔽 أضف هذا الكود في نهاية main.css */
 
