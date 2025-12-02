@@ -2474,36 +2474,8 @@ document.getElementById('scroll-top')?.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-// فتح نافذة الاتصال
-document.getElementById('footer-contact-link')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    document.getElementById('contact-modal').classList.remove('hidden');
-});
 
-document.getElementById('floating-phone')?.addEventListener('click', () => {
-    document.getElementById('contact-modal').classList.remove('hidden');
-});
 
-// إغلاق نافذة الاتصال
-document.getElementById('close-contact-modal')?.addEventListener('click', () => {
-    document.getElementById('contact-modal').classList.add('hidden');
-});
-
-document.getElementById('contact-modal')?.addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) {
-        e.currentTarget.classList.add('hidden');
-    }
-});
-
-// ربط زر شحن الرصيد في الفوتر
-document.getElementById('footer-deposit-link')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    if (userInfo) {
-        showDepositPopup();
-    } else {
-        showAuthPopup('login');
-    }
-});
 
 // روابط سياسية
 document.querySelectorAll('#privacy-policy, #terms-service, #refund-policy, #faq-link').forEach(link => {
@@ -2538,59 +2510,6 @@ document.querySelectorAll('.contact-info p[dir="ltr"]').forEach(phone => {
     });
 });
 
-// تأثيرات تفاعلية للفوتر
-document.querySelectorAll('.footer-links a, .social-icon, .contact-info li').forEach(item => {
-    item.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateX(-5px)';
-    });
-    
-    item.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateX(0)';
-    });
-});
-
-// إظهار رسالة عند النقر على التطبيق
-document.querySelectorAll('.app-badge.coming-soon').forEach(badge => {
-    badge.addEventListener('click', () => {
-        badge.style.animation = 'pulse 0.5s ease';
-        setTimeout(() => {
-            badge.style.animation = '';
-        }, 500);
-        
-        const modal = document.createElement('div');
-        modal.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9);
-            color: white;
-            padding: 1.5rem;
-            border-radius: var(--radius-card);
-            border: 2px solid var(--purple-main);
-            z-index: 10001;
-            text-align: center;
-            max-width: 300px;
-            animation: fadeIn 0.3s ease;
-        `;
-        modal.innerHTML = `
-            <h3 style="color: var(--purple-main); margin-bottom: 1rem;">📱 قريباً!</h3>
-            <p>تطبيق الجوال قيد التطوير وسيكون متاحاً قريباً على متاجر التطبيقات.</p>
-            <button onclick="this.parentElement.remove()" 
-                    style="margin-top: 1rem; padding: 0.5rem 1rem; background: var(--purple-main); border: none; color: white; border-radius: var(--radius-button); cursor: pointer;">
-                حسناً
-            </button>
-        `;
-        document.body.appendChild(modal);
-        
-        // إغلاق عند النقر خارج
-        setTimeout(() => {
-            modal.onclick = (e) => {
-                if (e.target === modal) modal.remove();
-            };
-        }, 100);
-    });
-});
 
 // إضافة أنيميشن للنبض
 const style = document.createElement('style');
