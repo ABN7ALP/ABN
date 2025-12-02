@@ -258,7 +258,7 @@ l.parentNode.insertBefore(s, l);
             <form id="deposit-form" enctype="multipart/form-data">
                 <p class="payment-instructions">اختر طريقة الدفع المفضلة لديك واتبع التعليمات.</p>
                 <div class="payment-method-selector">
-    <!-- 1. زر التحويل البنكي مع أيقونات Visa و Mastercard -->
+    <!-- 1. طرق الدفع الأساسية (ظاهرة دائماً) -->
     <button type="button" class="payment-method-btn" data-method="bank">
         <div class="payment-icon-group">
             <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" alt="Mastercard">
@@ -266,38 +266,46 @@ l.parentNode.insertBefore(s, l);
         </div>
         <span>تحويل بنكي</span>
     </button>
-
-    <!-- 2. زر شام كاش مع الصورة المخصصة -->
     <button type="button" class="payment-method-btn" data-method="sham">
         <img class="payment-icon-single" src="https://i.ibb.co/fzZW6m4w/file-000000005ce871f58cab356d82b1cd25.png" alt="شام كاش">
         <span>شام كاش</span>
     </button>
-
-    <!-- 3. زر حوالة مكتب (سنحتفظ بالأيقونة الحالية لأنها مناسبة) -->
     <button type="button" class="payment-method-btn" data-method="whatsapp">
         <i class="ph-bold ph-storefront"></i>
         <span>حوالة مكتب</span>
     </button>
 
-    <!-- 4. زر USDT مع الشعار الرسمي -->
-        <!-- 4. زر USDT مع الشعار الرسمي (PNG) -->
-    <button type="button" class="payment-method-btn" data-method="usdt">
-        <img class="payment-icon-single" src="https://cryptologos.cc/logos/tether-usdt-logo.png?v=032" alt="USDT">
-        <span>USDT</span>
-    </button>
+    <!-- 2. حاوية طرق الدفع الإضافية (مخفية افتراضياً) -->
+    <div id="additional-payment-methods" class="additional-methods-container hidden">
+        <button type="button" class="payment-method-btn" data-method="payeer">
+            <img class="payment-icon-single" src="https://cryptologos.cc/logos/payeer-pyy-logo.png?v=032" alt="PAYEER">
+            <span>PAYEER</span>
+        </button>
+        <button type="button" class="payment-method-btn" data-method="binancepay">
+            <img class="payment-icon-single" src="https://cryptologos.cc/logos/binance-usd-busd-logo.png?v=032" alt="Binance Pay">
+            <span>Binance Pay</span>
+        </button>
+        <button type="button" class="payment-method-btn" data-method="usdt">
+            <img class="payment-icon-single" src="https://cryptologos.cc/logos/tether-usdt-logo.png?v=032" alt="USDT">
+            <span>USDT</span>
+        </button>
+        <button type="button" class="payment-method-btn" data-method="trx">
+            <img class="payment-icon-single" src="https://cryptologos.cc/logos/tron-trx-logo.png?v=032" alt="TRX">
+            <span>TRX</span>
+        </button>
+        <button type="button" class="payment-method-btn" data-method="bnb">
+            <img class="payment-icon-single" src="https://cryptologos.cc/logos/bnb-bnb-logo.png?v=032" alt="BNB">
+            <span>BNB</span>
+        </button>
+    </div>
 
-    <!-- 5. زر TRX مع الشعار الرسمي (PNG) -->
-    <button type="button" class="payment-method-btn" data-method="trx">
-        <img class="payment-icon-single" src="https://cryptologos.cc/logos/tron-trx-logo.png?v=032" alt="TRX">
-        <span>TRX</span>
-    </button>
-
-    <!-- 6. زر BNB مع الشعار الرسمي (PNG) -->
-    <button type="button" class="payment-method-btn" data-method="bnb">
-        <img class="payment-icon-single" src="https://cryptologos.cc/logos/bnb-bnb-logo.png?v=032" alt="BNB">
-        <span>BNB</span>
+    <!-- 3. زر "عرض المزيد" -->
+    <button type="button" id="toggle-payment-methods" class="toggle-methods-btn">
+        <i class="ph-bold ph-caret-down"></i>
+        <span>عرض المزيد من الطرق</span>
     </button>
 </div>
+
 
                 <div id="payment-details-container" class="hidden"></div>
                 <div class="form-group"><label for="deposit-amount">المبلغ الذي قمت بتحويله ($)</label><input type="number" id="deposit-amount" min="1" step="any" required></div>
