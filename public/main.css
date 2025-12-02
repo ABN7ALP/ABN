@@ -1760,4 +1760,44 @@ notification-item.unread::before {
 
 
 
+/* ===================================================================
+   5. ENHANCED PAYMENT METHOD ICONS
+   =================================================================== */
+
+/* حاوية أيقونات Visa و Mastercard */
+.payment-icon-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 40px; /* تحديد ارتفاع ثابت للحاوية */
+}
+
+.payment-icon-group img {
+    height: 25px; /* ارتفاع مناسب لشعارات البطاقات */
+    width: auto;
+    object-fit: contain;
+}
+
+/* أيقونات العملات الرقمية وشام كاش (صورة واحدة) */
+.payment-icon-single {
+    height: 36px; /* ارتفاع ثابت ومناسب للأيقونة الواحدة */
+    width: 36px;
+    object-fit: contain; /* يحافظ على أبعاد الصورة */
+    border-radius: 50%; /* جعل أيقونات العملات دائرية */
+}
+
+/* تخصيص أيقونة شام كاش لتكون مربعة */
+.payment-method-btn[data-method="sham"] .payment-icon-single {
+    border-radius: 8px; /* زوايا دائرية بدلاً من دائرة كاملة */
+}
+
+/* إزالة الحجم الافتراضي لأيقونات Font Awesome داخل الأزرار */
+.payment-method-btn i {
+    font-size: 2.5rem; /* حجم مناسب لأيقونة "حوالة مكتب" */
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
