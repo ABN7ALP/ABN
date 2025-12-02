@@ -159,12 +159,6 @@ body.admin-body {
     }
 }
 
-.section-header {
-    margin-bottom: 2.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid var(--gray-border);
-}
-
 .section-header h2 {
     font-size: 2rem;
     font-weight: 800;
@@ -485,10 +479,6 @@ tr:hover td {
         padding-right: 1.5rem;
     }
     
-    .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
     
     .table-container {
         padding: 1rem;
