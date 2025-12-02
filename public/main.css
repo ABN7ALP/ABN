@@ -1015,400 +1015,6 @@ notification-item.unread::before {
 
 
 /* ========================================== */
-/* 🏆 تنسيقات الفوتر والاتصال */
-/* ========================================== */
-
-     /* ========================================== */
-/* 🏆 تنسيقات الفوتر والاتصال - ألوان متناسقة */
-/* ========================================== */
-
-.site-footer {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    color: var(--text-dark);
-    padding: 3rem 0 1rem;
-    margin-top: 4rem;
-    position: relative;
-    border-top: 4px solid var(--purple-main);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
-}
-
-.footer-top {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2.5rem;
-    margin-bottom: 2rem;
-}
-
-.footer-section {
-    animation: fadeInUp 0.6s ease;
-}
-
-.footer-logo {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--purple-main);
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.footer-description {
-    color: var(--text-light);
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-    font-size: 0.95rem;
-}
-
-.footer-title {
-    color: var(--text-dark);
-    font-size: 1.2rem;
-    margin-bottom: 1.5rem;
-    position: relative;
-    padding-bottom: 0.5rem;
-}
-
-.footer-title::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 50px;
-    height: 3px;
-    background: var(--purple-gradient);
-    border-radius: 2px;
-}
-
-/* روابط الفوتر */
-.footer-links {
-    list-style: none;
-    padding: 0;
-}
-
-.footer-links li {
-    margin-bottom: 0.8rem;
-}
-
-.footer-links a {
-    color: var(--text-dark);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    padding: 0.5rem;
-    border-radius: var(--radius-input);
-    transition: all 0.3s ease;
-}
-
-.footer-links a:hover {
-    color: var(--purple-main);
-    background: var(--purple-light);
-    padding-right: 1rem;
-}
-
-.footer-links a i {
-    width: 20px;
-    text-align: center;
-    color: var(--purple-main);
-}
-
-/* معلومات الاتصال */
-.contact-info {
-    list-style: none;
-    padding: 0;
-}
-
-.contact-info li {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 1.2rem;
-    padding: 0.8rem;
-    background: var(--white-pure);
-    border-radius: var(--radius-input);
-    border: 1px solid var(--gray-border);
-    transition: transform 0.3s ease;
-    box-shadow: var(--shadow-sm);
-}
-
-.contact-info li:hover {
-    transform: translateX(-5px);
-    border-color: var(--purple-main);
-    box-shadow: var(--shadow-md);
-}
-
-.contact-icon {
-    color: var(--purple-main);
-    font-size: 1.2rem;
-    margin-top: 0.2rem;
-    min-width: 24px;
-}
-
-.contact-info strong {
-    display: block;
-    color: var(--text-dark);
-    font-size: 0.9rem;
-    margin-bottom: 0.2rem;
-}
-
-.contact-info p {
-    color: var(--text-light);
-    font-size: 0.85rem;
-    margin: 0;
-}
-
-/* أيقونات التواصل الاجتماعي */
-.footer-social h4 {
-    color: var(--text-dark);
-    margin-bottom: 1rem;
-    font-size: 1rem;
-}
-
-.social-icons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.8rem;
-}
-
-.social-icon {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.7rem 1rem;
-    border-radius: var(--radius-button);
-    text-decoration: none;
-    color: white;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    min-width: 120px;
-    box-shadow: var(--shadow-sm);
-}
-
-.social-icon::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
-}
-
-.social-icon:hover::before {
-    transform: translateX(0);
-}
-
-.social-icon i {
-    font-size: 1.2rem;
-    z-index: 1;
-}
-
-.social-text {
-    z-index: 1;
-}
-
-/* ألوان كل شبكة - ظلال أفتح */
-.social-icon.whatsapp {
-    background: linear-gradient(135deg, #25D366 0%, #1da851 100%);
-}
-
-.social-icon.telegram {
-    background: linear-gradient(135deg, #0088cc 0%, #0077b3 100%);
-}
-
-.social-icon.instagram {
-    background: linear-gradient(135deg, #E4405F 0%, #c13584 100%);
-}
-
-.social-icon.twitter {
-    background: linear-gradient(135deg, #1DA1F2 0%, #0d95e8 100%);
-}
-
-.social-icon.facebook {
-    background: linear-gradient(135deg, #1877F2 0%, #166fe0 100%);
-}
-
-.social-icon:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-}
-
-/* طرق الدفع */
-.payment-methods {
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-    margin-bottom: 2rem;
-}
-
-.payment-method {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.8rem 1rem;
-    background: var(--white-pure);
-    border-radius: var(--radius-input);
-    color: var(--text-dark);
-    border: 1px solid var(--gray-border);
-    transition: all 0.3s ease;
-    box-shadow: var(--shadow-sm);
-}
-
-.payment-method:hover {
-    border-color: var(--purple-main);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
-.payment-method i {
-    color: var(--purple-main);
-    font-size: 1.2rem;
-    width: 24px;
-}
-
-/* التطبيق */
-.app-download {
-    background: var(--white-pure);
-    padding: 1.2rem;
-    border-radius: var(--radius-card);
-    border: 1px solid var(--gray-border);
-    box-shadow: var(--shadow-sm);
-}
-
-.app-download h4 {
-    color: var(--text-dark);
-    margin-bottom: 1rem;
-    font-size: 1rem;
-}
-
-.app-badges {
-    display: flex;
-    gap: 1rem;
-}
-
-.app-badge {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    padding: 0.8rem;
-    background: var(--gray-bg);
-    border-radius: var(--radius-input);
-    color: var(--text-dark);
-    border: 1px solid var(--gray-border);
-}
-
-.app-badge.coming-soon {
-    opacity: 0.8;
-    position: relative;
-}
-
-.app-badge.coming-soon::after {
-    content: 'قريباً';
-    position: absolute;
-    top: -8px;
-    left: -8px;
-    background: var(--purple-gradient);
-    color: white;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 0.7rem;
-    font-weight: bold;
-    box-shadow: var(--shadow-sm);
-}
-
-.app-badge i {
-    font-size: 1.5rem;
-    color: var(--purple-main);
-}
-
-.app-badge small {
-    display: block;
-    font-size: 0.7rem;
-    color: var(--text-light);
-}
-
-.app-badge strong {
-    font-size: 0.9rem;
-    color: var(--text-dark);
-}
-
-/* الخط الفاصل */
-.footer-divider {
-    height: 1px;
-    background: linear-gradient(to right, transparent, var(--purple-main), transparent);
-    margin: 2rem 0;
-    opacity: 0.3;
-}
-
-/* الجزء السفلي */
-.footer-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-}
-
-.copyright {
-    flex: 1;
-    min-width: 300px;
-}
-
-.copyright p {
-    color: var(--text-light);
-    font-size: 0.85rem;
-    margin-bottom: 0.5rem;
-}
-
-.copyright strong {
-    color: var(--purple-main);
-}
-
-.disclaimer {
-    font-size: 0.75rem !important;
-    color: var(--text-light);
-    opacity: 0.7;
-    border-right: 2px solid var(--gray-border);
-    padding-right: 1rem;
-    margin-top: 1rem !important;
-}
-
-.legal-links {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.legal-links a {
-    color: var(--text-light);
-    text-decoration: none;
-    font-size: 0.85rem;
-    transition: color 0.3s ease;
-    position: relative;
-}
-
-.legal-links a:hover {
-    color: var(--purple-main);
-}
-
-.legal-links a::after {
-    content: '•';
-    position: absolute;
-    left: -0.8rem;
-    color: var(--purple-main);
-    opacity: 0.5;
-}
-
-.legal-links a:first-child::after {
-    content: none;
-}
-
-/* ========================================== */
 /* 🎪 أزرار الاتصال العائمة */
 /* ========================================== */
 
@@ -1495,6 +1101,70 @@ notification-item.unread::before {
 .scroll-top.show {
     display: flex;
 }
+
+/* ========================================== */
+/* 🏆 تنسيقات الفوتر الجديد المبسط */
+/* ========================================== */
+
+.site-footer-simple {
+    background-color: var(--gray-bg);
+    border-top: 1px solid var(--gray-border);
+    padding: 2rem 0;
+    margin-top: 4rem;
+    text-align: center;
+}
+
+.site-footer-simple .container {
+    max-width: 800px; /* جعل المحتوى أضيق وأكثر تركيزاً */
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.legal-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem 2rem; /* مسافة بين الروابط */
+}
+
+.legal-links a {
+    color: var(--text-light);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: color var(--transition-fast);
+}
+
+.legal-links a:hover {
+    color: var(--purple-main);
+    text-decoration: underline;
+}
+
+.copyright-section {
+    border-top: 1px solid var(--gray-border);
+    padding-top: 1.5rem;
+}
+
+.copyright-section p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    line-height: 1.5;
+}
+
+.copyright-section .copyright {
+    margin-bottom: 0.5rem;
+}
+
+.copyright-section .copyright strong {
+    color: var(--text-dark);
+}
+
 
 /* ========================================== */
 /* 🎪 نافذة الاتصال - ألوان متناسقة */
