@@ -1189,101 +1189,38 @@ function showSearchResultsCount(visible, total) {
     
     // --- 3. نظام شحن الرصيد ---
     // --- 3. نظام شحن الرصيد ---
+function showDepositPopup() {
+    depositForm.reset();
+    depositFormResponse.textContent = '';
+    depositFormResponse.className = 'form-message';
+    paymentDetailsContainer.classList.add('hidden');
+    paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
+    depositPopupOverlay.classList.remove('hidden');
+}
+
+function hideDepositPopup() { 
+    depositPopupOverlay.classList.add('hidden'); 
+}
+
 function handlePaymentMethodSelect(event) {
     const selectedMethod = event.currentTarget.dataset.method;
     paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
     event.currentTarget.classList.add('active');
-    
-    // 🆕 تحديد الحد الأدنى لكل طريقة
-    let minAmount = 1;
-    let minMessage = '';
-    
-    switch (selectedMethod) {
-        case 'bank':
-            minAmount = 10;
-            minMessage = 'الحد الأدنى للتحويل البنكي: 10 دولار';
-            break;
-        case 'sham':
-            minAmount = 5;
-            minMessage = 'الحد الأدنى لشام كاش: 5 دولار';
-            break;
-        case 'usdt':
-        case 'trx':
-        case 'bnb':
-            minAmount = 10;
-            minMessage = 'الحد الأدنى للعملات الرقمية: 10 دولار';
-            break;
-        case 'whatsapp':
-            minAmount = 1;
-            minMessage = 'الحد الأدنى للحوالة: 1 دولار';
-            break;
-    }
-    
-    // 🆕 تحديث حقل المبلغ
-    const amountInput = document.getElementById('deposit-amount');
-    if (amountInput) {
-        amountInput.min = minAmount;
-        amountInput.value = minAmount;
-        amountInput.setAttribute('data-min', minAmount);
-        
-        // 🆕 إضافة رسالة الحد الأدنى
-        let minLabel = amountInput.parentElement.querySelector('.min-amount-label');
-        if (!minLabel) {
-            minLabel = document.createElement('small');
-            minLabel.className = 'min-amount-label';
-            amountInput.parentElement.appendChild(minLabel);
-        }
-        minLabel.textContent = minMessage;
-        minLabel.style.color = 'var(--info-blue)';
-        minLabel.style.fontWeight = '600';
-        minLabel.style.display = 'block';
-        minLabel.style.marginTop = '0.3rem';
-    }
-    
     let detailsHTML = '';
+    
     switch (selectedMethod) {
         case 'bank': 
-            detailsHTML = `
-                <p>يرجى تحويل المبلغ إلى الحساب التالي:</p>
-                <p><strong>الاسم:</strong> <span>MUHAMMED ERRAHIM</span></p>
-                <p><strong>رقم الحساب (IBAN):</strong> <span>TR77 0014 3000 0000 0013 8811 28</span></p>
-                <div class="payment-note">
-                    <i class="ph-bold ph-info"></i>
-                    <span>${minMessage}</span>
-                </div>
-            `; 
+            detailsHTML = `<p>يرجى تحويل المبلغ إلى الحساب التالي:</p>
+                          <p>الاسم: <span>MUHAMMED ERRAHIM</span></p>
+                          <p>رقم الحساب (IBAN): <span>TR77 0014 3000 0000 0013 8811 28</span></p>`; 
             break;
-            
         case 'sham': 
-            detailsHTML = `
-                <p>يرجى مسح الباركود التالي والدفع عبر شام كاش:</p>
-                <img src="https://i.imgur.com/LvVpAx1.jpeg" alt="Sham Cash QR Code" style="max-width: 200px; height: auto; border-radius: 10px; margin: 1rem auto; display: block;">
-                <div class="payment-note">
-                    <i class="ph-bold ph-info"></i>
-                    <span>${minMessage}</span>
-                </div>
-            `; 
+            detailsHTML = `<p>يرجى مسح الباركود التالي والدفع عبر شام كاش:</p>
+                          <img src="https://i.imgur.com/LvVpAx1.jpeg" alt="Sham Cash QR Code" style="max-width: 200px; height: auto; border-radius: 10px;">`; 
             break;
-            
         case 'whatsapp': 
-            detailsHTML = `
-                <p>للحوالة عبر مكتب، يرجى التواصل معنا عبر واتساب للحصول على التفاصيل.</p>
-                <div class="whatsapp-contact">
-                    <button type="button" class="pill-button primary-button" id="whatsapp-contact-btn" style="margin: 1rem auto; display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="ph-bold ph-whatsapp-logo"></i>
-                        <span>تواصل معنا على واتساب</span>
-                    </button>
-                    <p style="text-align: center; font-size: 0.9rem; color: var(--text-light); margin-top: 0.5rem;">
-                        سيتم فتح محادثة واتساب مع رسالة جاهزة
-                    </p>
-                </div>
-                <div class="payment-note">
-                    <i class="ph-bold ph-info"></i>
-                    <span>${minMessage}</span>
-                </div>
-            `; 
+            detailsHTML = `<p>للحوالة عبر مكتب، يرجى التواصل معنا عبر واتساب للحصول على التفاصيل.</p>`; 
             break;
-            
         case 'usdt':
             detailsHTML = `
                 <p><strong>💰 اسم العملية:</strong> USDT</p>
@@ -1291,20 +1228,15 @@ function handlePaymentMethodSelect(event) {
                 <p><strong>📍 عنوان الدفع:</strong></p>
                 <div class="wallet-address">
                     <div class="address-container">
-                        <span class="address-text">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
+                        <span class="address-text" id="usdt-address">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
                         <div class="copy-icon" data-address="TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM">
                             <i class="ph-bold ph-copy"></i>
                         </div>
                     </div>
                 </div>
-                <div class="payment-note">
-                    <i class="ph-bold ph-info"></i>
-                    <span>${minMessage}</span>
-                </div>
                 <p class="warning-note">⚠️ تأكد من إرسال USDT فقط عبر شبكة TRC20</p>
             `;
             break;
-            
         case 'trx':
             detailsHTML = `
                 <p><strong>💰 اسم العملية:</strong> TRX</p>
@@ -1312,20 +1244,15 @@ function handlePaymentMethodSelect(event) {
                 <p><strong>📍 عنوان الدفع:</strong></p>
                 <div class="wallet-address">
                     <div class="address-container">
-                        <span class="address-text">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
+                        <span class="address-text" id="trx-address">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
                         <div class="copy-icon" data-address="TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM">
                             <i class="ph-bold ph-copy"></i>
                         </div>
                     </div>
                 </div>
-                <div class="payment-note">
-                    <i class="ph-bold ph-info"></i>
-                    <span>${minMessage}</span>
-                </div>
                 <p class="warning-note">⚠️ تأكد من إرسال TRX فقط عبر شبكة TRC20</p>
             `;
             break;
-            
         case 'bnb':
             detailsHTML = `
                 <p><strong>💰 اسم العملية:</strong> BNB</p>
@@ -1333,15 +1260,11 @@ function handlePaymentMethodSelect(event) {
                 <p><strong>📍 عنوان الدفع:</strong></p>
                 <div class="wallet-address">
                     <div class="address-container">
-                        <span class="address-text">0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd</span>
+                        <span class="address-text" id="bnb-address">0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd</span>
                         <div class="copy-icon" data-address="0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd">
                             <i class="ph-bold ph-copy"></i>
                         </div>
                     </div>
-                </div>
-                <div class="payment-note">
-                    <i class="ph-bold ph-info"></i>
-                    <span>${minMessage}</span>
                 </div>
                 <p class="warning-note">⚠️ تأكد من إرسال BNB فقط عبر شبكة BEP20</p>
             `;
@@ -1351,48 +1274,25 @@ function handlePaymentMethodSelect(event) {
     paymentDetailsContainer.innerHTML = detailsHTML;
     paymentDetailsContainer.classList.remove('hidden');
     
-    // 🆕 إعداد زر التواصل على واتساب
-    const whatsappBtn = document.getElementById('whatsapp-contact-btn');
-    if (whatsappBtn) {
-        whatsappBtn.addEventListener('click', openWhatsAppContact);
-    }
-    
-    // إعداد أحداث النسخ
+    // إعداد أحداث النسخ بعد إضافة المحتوى
     setupCopyButtons();
 }
 
-// 🆕 دالة فتح واتساب مع رسالة جاهزة
-function openWhatsAppContact() {
-    const phoneNumber = "905367893256"; // رقم الواتساب
-    const message = encodeURIComponent(`مرحباً، أريد معلومات حول الحوالة المكتبية لإيداع رصيد في المتجر.
-    
-المبلغ الذي أريد إيداعه: [يرجى كتابة المبلغ]
-الطريقة: حوالة مكتبية
-اسمي: [اسمك]`);
-
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
-    window.open(whatsappUrl, '_blank');
-}
-
 // 🆕 دالة نسخ العنوان للمحفظة - مصححة
-// 🔽 استبدال دالة setupCopyButtons بهذا الكود 🔽
+// 🆕 دالة لإعداد أحداث النسخ
 function setupCopyButtons() {
     // 1. النسخ عند النقر على أيقونة النسخ
     document.querySelectorAll('.copy-icon').forEach(icon => {
-        // إزالة أي أحداث سابقة أولاً
-        const newIcon = icon.cloneNode(true);
-        icon.parentNode.replaceChild(newIcon, icon);
+        // إزالة أي أحداث سابقة
+        icon.replaceWith(icon.cloneNode(true));
         
         // إضافة حدث جديد
-        newIcon.addEventListener('click', function(e) {
+        icon.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            e.stopImmediatePropagation();
             
             const address = this.getAttribute('data-address');
-            if (address) {
-                copyAddress(address, this);
-            }
+            copyAddress(address, this);
         });
     });
     
@@ -1413,6 +1313,7 @@ function setupCopyButtons() {
         });
     });
 }
+
 // 🆕 دالة نسخ العنوان مع تحديث الأيقونة
 function copyAddress(address, iconElement) {
     navigator.clipboard.writeText(address).then(() => {
@@ -1510,46 +1411,23 @@ function showCopySuccessMessage(message, isError = false) {
     }, 3000);
 }
     async function handleDepositSubmit(event) {
-    event.preventDefault();
-    depositFormResponse.textContent = 'جاري إرسال الطلب...';
-    depositFormResponse.className = 'form-message';
-    
-    const receiptFile = document.getElementById('deposit-receipt').files[0];
-    const selectedMethod = document.querySelector('.payment-method-btn.active');
-    const amountInput = document.getElementById('deposit-amount');
-    const amount = parseFloat(amountInput.value);
-    
-    if (!selectedMethod) { 
-        depositFormResponse.textContent = 'الرجاء اختيار طريقة الدفع.'; 
-        depositFormResponse.className = 'form-message error'; 
-        return; 
-    }
-    
-    // 🆕 التحقق من الحد الأدنى
-    const method = selectedMethod.dataset.method;
-    let minAmount = 1;
-    
-    switch (method) {
-        case 'bank': minAmount = 10; break;
-        case 'sham': minAmount = 5; break;
-        case 'usdt':
-        case 'trx':
-        case 'bnb': minAmount = 10; break;
-        case 'whatsapp': minAmount = 1; break;
-    }
-    
-    if (amount < minAmount) {
-        depositFormResponse.textContent = `الحد الأدنى ل${method === 'sham' ? 'شام كاش' : method === 'bank' ? 'التحويل البنكي' : method === 'whatsapp' ? 'الحوالة' : 'هذه العملة'} هو ${minAmount} دولار.`; 
-        depositFormResponse.className = 'form-message error'; 
-        return; 
-    }
-    
-    if (!receiptFile) { 
-        depositFormResponse.textContent = 'الرجاء رفع صورة الإيصال.'; 
-        depositFormResponse.className = 'form-message error'; 
-        return; 
-    }
-    
+        event.preventDefault();
+        depositFormResponse.textContent = 'جاري إرسال الطلب...';
+        depositFormResponse.className = 'form-message';
+        const receiptFile = document.getElementById('deposit-receipt').files[0];
+        const selectedMethod = document.querySelector('.payment-method-btn.active');
+        
+        if (!selectedMethod) { 
+            depositFormResponse.textContent = 'الرجاء اختيار طريقة الدفع.'; 
+            depositFormResponse.className = 'form-message error'; 
+            return; 
+        }
+        
+        if (!receiptFile) { 
+            depositFormResponse.textContent = 'الرجاء رفع صورة الإيصال.'; 
+            depositFormResponse.className = 'form-message error'; 
+            return; 
+        }
         
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
