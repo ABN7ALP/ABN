@@ -778,3 +778,119 @@ body.desktop-view-on-mobile .container {
     min-width: 120px;
     display: inline-block;
 }
+
+/* تنسيقات عناوين المحافظ */
+.wallet-address {
+    margin: 1rem 0;
+}
+
+.address-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--gray-bg);
+    padding: 1rem;
+    border-radius: var(--radius-input);
+    border: 1px solid var(--gray-border);
+}
+
+.address-text {
+    flex: 1;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.9rem;
+    padding: 0.8rem;
+    background: var(--white-pure);
+    border-radius: var(--radius-input);
+    border: 1px solid var(--gray-border);
+    direction: ltr;
+    text-align: center;
+    cursor: pointer;
+    word-break: break-all;
+    transition: all var(--transition-fast);
+}
+
+.address-text:hover {
+    background: var(--purple-light);
+    border-color: var(--purple-main);
+}
+
+.copy-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--info-blue);
+    color: white;
+    border-radius: var(--radius-input);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.copy-icon:hover {
+    background: #2563eb;
+    transform: scale(1.05);
+}
+
+.copy-icon i {
+    font-size: 1.2rem;
+}
+
+/* تحذيرات العملات */
+.warning-note {
+    background: #fff7ed;
+    border: 1px solid #fdba74;
+    color: #9a3412;
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius-input);
+    font-size: 0.85rem;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.warning-note::before {
+    content: '⚠';
+    font-size: 1.1rem;
+}
+
+/* أنيميشن للرسائل */
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutRight {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+/* تنسيقات طرق الدفع الجديدة */
+.payment-method-btn[data-method="usdt"],
+.payment-method-btn[data-method="trx"],
+.payment-method-btn[data-method="bnb"] {
+    position: relative;
+}
+
+/* إضافة شارة "جديد" */
+.payment-method-btn[data-method="usdt"]::after,
+.payment-method-btn[data-method="trx"]::after,
+.payment-method-btn[data-method="bnb"]::after {
+    content: 'جديد';
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    background: var(--success-green);
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: bold;
+}
+
+/* ألوان أيقونات العملات */
+.payment-method-btn[data-method="usdt"] i { color: #26a17b; }
+.payment-method-btn[data-method="trx"] i { color: #ff060a; }
+.payment-method-btn[data-method="bnb"] i { color: #f0b90b; }
