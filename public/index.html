@@ -2,7 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"> -->
     <meta name="referrer" content="no-referrer-when-downgrade" />
     <meta name="ce4b20eaad169926674d96f53817df4c87de5c86" content="ce4b20eaad169926674d96f53817df4c87de5c86" />
     <title>متجر الخدمات الرقمية</title>
@@ -284,79 +285,87 @@ l.parentNode.insertBefore(s, l);
 <!-- 🏆 قسم الفوتر مع معلومات الاتصال -->
 <!-- ========================================== -->
 <!-- ========================================== -->
-<!-- 🏆 الفوتر الجديد المستوحى من الصور -->
+<!-- 🏆 الفوتر الجديد المتجاوب -->
 <!-- ========================================== -->
-<!--<footer class="bg-[#1a1a2e] text-white pt-16 pb-8 mt-20">
-    <div class="container mx-auto px-6">
+<footer class="new-footer">
+    <div class="container">
         <!-- الشبكة الرئيسية للفوتر -->
-       <!-- <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
+        <div class="new-footer-grid">
             <!-- قسم: خدماتنا -->
-          <!--  <div class="col-span-2 sm:col-span-1">
-                <h3 class="text-sm font-bold tracking-wider uppercase mb-4">خدماتنا</h3>
-                <ul class="space-y-3 text-sm text-gray-400">
-                    <li><a href="#" class="hover:text-white transition-colors">خدمات انستغرام</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">خدمات تيك توك</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">خدمات يوتيوب</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">خدمات فيسبوك</a></li>
+            <div class="footer-column">
+                <h3 class="footer-title">خدماتنا</h3>
+                <ul class="footer-links">
+                    <li><a href="#">خدمات انستغرام</a></li>
+                    <li><a href="#">خدمات تيك توك</a></li>
+                    <li><a href="#">خدمات يوتيوب</a></li>
+                    <li><a href="#">خدمات فيسبوك</a></li>
                 </ul>
             </div>
 
             <!-- قسم: روابط هامة -->
-         <!--   <div class="col-span-1">
-                <h3 class="text-sm font-bold tracking-wider uppercase mb-4">روابط هامة</h3>
-                <ul class="space-y-3 text-sm text-gray-400">
-                    <li><a href="/my-orders.html" class="hover:text-white transition-colors">طلباتي</a></li>
-                    <li><a href="#" id="footer-deposit-link" class="hover:text-white transition-colors">شحن الرصيد</a></li>
-                    <li><a href="#" id="faq-link" class="hover:text-white transition-colors">الأسئلة الشائعة</a></li>
+            <div class="footer-column">
+                <h3 class="footer-title">روابط هامة</h3>
+                <ul class="footer-links">
+                    <li><a href="/my-orders.html">طلباتي</a></li>
+                    <li><a href="#" id="footer-deposit-link">شحن الرصيد</a></li>
+                    <li><a href="#" id="faq-link">الأسئلة الشائعة</a></li>
                 </ul>
             </div>
 
             <!-- قسم: قانوني -->
-         <!--   <div class="col-span-1">
-                <h3 class="text-sm font-bold tracking-wider uppercase mb-4">قانوني</h3>
-                <ul class="space-y-3 text-sm text-gray-400">
-                    <li><a href="#" id="privacy-policy" class="hover:text-white transition-colors">سياسة الخصوصية</a></li>
-                    <li><a href="#" id="terms-service" class="hover:text-white transition-colors">شروط الخدمة</a></li>
-                    <li><a href="#" id="refund-policy" class="hover:text-white transition-colors">سياسة الاسترجاع</a></li>
+            <div class="footer-column">
+                <h3 class="footer-title">قانوني</h3>
+                <ul class="footer-links">
+                    <li><a href="#" id="privacy-policy">سياسة الخصوصية</a></li>
+                    <li><a href="#" id="terms-service">شروط الخدمة</a></li>
+                    <li><a href="#" id="refund-policy">سياسة الاسترجاع</a></li>
                 </ul>
             </div>
 
-            <!-- قسم: تواصل معنا (يفتح النافذة المنبثقة) -->
-         <!--   <div class="col-span-2 lg:col-span-2">
-                 <h3 class="text-sm font-bold tracking-wider uppercase mb-4">تواصل معنا</h3>
-                 <ul class="space-y-3 text-sm text-gray-400">
-                    <li><a href="mailto:support@mxgroup.com" class="hover:text-white transition-colors flex items-center gap-2"><i class="ph ph-envelope"></i> support@mxgroup.com</a></li>
-                    <li dir="ltr"><a href="https://wa.me/905367893256" class="hover:text-white transition-colors flex items-center gap-2"><i class="ph ph-whatsapp-logo"></i> +90 536 789 32 56</a></li>
-                 </ul>
+            <!-- قسم الإعلان (للشاشات الكبيرة فقط) -->
+            <div class="footer-column ad-slot-desktop">
+                <h3 class="footer-title">إعلان</h3>
+                <div class="ad-container-footer-desktop">
+                    <!-- كود إعلان 300x250 -->
+                    <script>
+                   (function(yrvn){
+                    var d = document,
+                        s = d.createElement('script'),
+                        l = d.scripts[d.scripts.length - 1];
+                    s.settings = yrvn || {};
+                    s.src = "\/\/guilty-address.com\/buX.VXsKdPGQl\/0GYDWxcD\/reImp9_uHZsUSlgk\/PpT\/YD3DMLTpYW5\/ORTBI\/tVNZjqcIxzNWjNkR5XMKwx";
+                    s.async = true;
+                    s.referrerPolicy = 'no-referrer-when-downgrade';
+                    l.parentNode.insertBefore(s, l);
+                    })({})
+                   </script>
+                </div>
             </div>
         </div>
 
-        <!-- قسم الإعلان المدمج -->
-       <!-- <div class="mb-12 flex justify-center">
-            <div class="ad-container-footer w-full max-w-xs sm:max-w-sm md:max-w-md">
-                <!-- ضع كود الإعلان 300x100 هنا -->
-              <!-- ========================================== -->
-              <!-- 1. إعلان تحت الهيدر مباشرة -->
-              <!-- ========================================== -->
-        <script>
-        (function(sdzb){
-        var d = document,
-            s = d.createElement('script'),
-            l = d.scripts[d.scripts.length - 1];
-        s.settings = sdzb || {};
-        s.src = "\/\/guilty-address.com\/bjX\/V.sZdUGNlr0hYuW\/cr\/qeMmK9Ru\/Z\/U\/lrkFPdTsYI3sMeTTcRwyMCDZkUtJN\/j\/cHxuNbztAyxgMVAD";
-        s.async = true;
-        s.referrerPolicy = 'no-referrer-when-downgrade';
-        l.parentNode.insertBefore(s, l);
-        })({})
-        </script>
+        <!-- قسم الإعلان (للشاشات الصغيرة فقط) -->
+        <div class="ad-slot-mobile">
+            <div class="ad-container-footer-mobile">
+                <!-- كود إعلان 300x100 -->
+                <script>
+                (function(ihvne){
+                 var d = document,
+                     s = d.createElement('script'),
+                     l = d.scripts[d.scripts.length - 1];
+                 s.settings = ihvne || {};
+                 s.src = "\/\/guilty-address.com\/baXJV.s\/dHGPlq0VYgWIco\/EeXmB9mu\/Z\/UnlEkuPnTeYg3_MWTAcgwoMHD_k\/tINEjXcjxMNMzJATxoMRA_";
+                 s.async = true;
+                 s.referrerPolicy = 'no-referrer-when-downgrade';
+                 l.parentNode.insertBefore(s, l);
+                 })({})
+                </script>
             </div>
         </div>
 
         <!-- الجزء السفلي للفوتر -->
-      <!--  <div class="border-t border-gray-800 pt-8 text-center text-xs text-gray-500 space-y-2">
+        <div class="footer-bottom">
             <p>© 2024 <strong>MX GROUP</strong> - جميع الحقوق محفوظة.</p>
-            <p>نحن لسنا تابعين لأي منصة تواصل اجتماعي. الخدمات المقدمة هي لزيادة التفاعل والحضور الرقمي.</p>
+            <p class="disclaimer">نحن لسنا تابعين لأي منصة تواصل اجتماعي.</p>
         </div>
     </div>
 </footer>
@@ -364,40 +373,53 @@ l.parentNode.insertBefore(s, l);
 <!-- ========================================== -->
 <!-- 🎪 نافذة الاتصال الجديدة -->
 <!-- ========================================== -->
-<!--<div id="contact-modal" class="fixed inset-0 bg-black bg-opacity-70 z-[10000] flex items-center justify-center p-4 hidden">
-    <div id="contact-modal-content" class="bg-white rounded-2xl w-full max-w-md shadow-lg transform transition-all opacity-0 -translate-y-4">
-        <!-- رأس النافذة -->
-   <!--     <div class="flex justify-between items-center p-5 border-b border-gray-200">
-            <h2 class="text-lg font-bold text-gray-800">الدعم الفني</h2>
-            <button id="close-contact-modal" class="text-gray-400 hover:text-gray-600 transition-colors">
-                <i class="ph-bold ph-x text-xl"></i>
+<div id="contact-modal" class="new-modal-overlay hidden">
+    <div id="contact-modal-content" class="new-modal-content">
+        <div class="new-modal-header">
+            <h2 class="new-modal-title">الدعم الفني</h2>
+            <button id="close-contact-modal" class="new-modal-close-btn">
+                <i class="fas fa-times"></i>
             </button>
         </div>
-        <!-- محتوى النافذة -->
-<!--        <div class="p-6 space-y-4">
+        <div class="new-modal-body">
             <a href="https://wa.me/905367893256" target="_blank" class="contact-option group">
-                <i class="ph-bold ph-whatsapp-logo text-green-500 text-3xl"></i>
+                <i class="fab fa-whatsapp contact-option-icon whatsapp"></i>
                 <div>
-                    <h3 class="font-bold text-gray-800">واتساب (الأسرع)</h3>
-                    <p class="text-sm text-gray-500">للمساعدة الفورية والرد السريع.</p>
+                    <h3 class="contact-option-title">واتساب (الأسرع)</h3>
+                    <p class="contact-option-desc">للمساعدة الفورية والرد السريع.</p>
                 </div>
-                <i class="ph ph-arrow-left text-gray-400 group-hover:translate-x-[-4px] transition-transform"></i>
+                <i class="fas fa-chevron-left contact-option-arrow"></i>
             </a>
             <a href="mailto:support@mxgroup.com" class="contact-option group">
-                <i class="ph-bold ph-envelope text-blue-500 text-3xl"></i>
+                <i class="fas fa-envelope contact-option-icon email"></i>
                 <div>
-                    <h3 class="font-bold text-gray-800">البريد الإلكتروني</h3>
-                    <p class="text-sm text-gray-500">للاستفسارات الرسمية والشكاوى.</p>
+                    <h3 class="contact-option-title">البريد الإلكتروني</h3>
+                    <p class="contact-option-desc">للاستفسارات الرسمية والشكاوى.</p>
                 </div>
-                <i class="ph ph-arrow-left text-gray-400 group-hover:translate-x-[-4px] transition-transform"></i>
+                <i class="fas fa-chevron-left contact-option-arrow"></i>
             </a>
         </div>
     </div>
 </div>
 
-                    
-        <!-- <script src="https://cdn.tailwindcss.com"></script> -->
-   
+<!-- ========================================== -->
+<!-- 🎪 الأزرار العائمة الجديدة -->
+<!-- ========================================== -->
+<div class="new-floating-buttons">
+    <a href="https://wa.me/905367893256" target="_blank" class="floating-btn whatsapp-float group">
+        <i class="fab fa-whatsapp"></i>
+        <span class="floating-tooltip">راسلنا على واتساب</span>
+    </a>
+    <button id="floating-phone" class="floating-btn phone-float group">
+        <i class="fas fa-headset"></i>
+        <span class="floating-tooltip">الدعم الفني</span>
+    </button>
+    <button id="scroll-top" class="floating-btn scroll-top-float group hidden">
+        <i class="fas fa-arrow-up"></i>
+        <span class="floating-tooltip">العودة للأعلى</span>
+    </button>
+</div>
+
     <script src="app.js"></script>
 </body>
 </html>
