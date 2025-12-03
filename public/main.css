@@ -1024,8 +1024,8 @@ notification-item.unread::before {
 
 /* --- 1. الفوتر الجديد --- */
 .new-footer {
-    background-color: #1a202c; /* لون داكن وأنيق */
-    color: #a0aec0; /* لون نص فاتح */
+    background-color: #a0aec0; /* لون داكن وأنيق */
+    color: #1a202c; /* لون نص فاتح */
     padding: 4rem 0 2rem 0;
     margin-top: 4rem;
 }
@@ -1252,9 +1252,9 @@ notification-item.unread::before {
 }
 
 /* --- 5. تحسينات التجاوب العامة --- */
-@media (max-width: 767px) {
+/*@media (max-width: 767px) {
     /* تصغير حجم الخطوط والعناصر على الشاشات الصغيرة */
-    .hero h1 { font-size: 1.75rem; }
+  /*  .hero h1 { font-size: 1.75rem; }
     .hero p { font-size: 1rem; }
     .service-card { padding: 1.5rem; }
     .service-card h3 { font-size: 1.1rem; }
@@ -1263,7 +1263,7 @@ notification-item.unread::before {
     .pill-button { padding: 0.8rem 1.5rem; font-size: 0.9rem; }
     
     /* إصلاح حجم نافذة الإشعارات */
-    .notifications-dropdown {
+   /* .notifications-dropdown {
         width: calc(100vw - 2rem);
         max-width: 350px;
         left: auto;
