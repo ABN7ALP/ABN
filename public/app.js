@@ -2457,46 +2457,59 @@ quantityInput.addEventListener('input', () => {
     // ==========================================
 // 🏆 JavaScript للفوتر والاتصال
 // ==========================================
+// ==========================================
+// 🏆 JavaScript للفوتر والأزرار العائمة الجديدة
+// ==========================================
 
 // زر العودة للأعلى
+const scrollTopBtn = document.getElementById('scroll-top');
 window.addEventListener('scroll', () => {
-    const scrollTopBtn = document.getElementById('scroll-top');
     if (scrollTopBtn) {
         if (window.scrollY > 300) {
-            scrollTopBtn.classList.add('show');
+            scrollTopBtn.classList.remove('hidden');
         } else {
-            scrollTopBtn.classList.remove('show');
+            scrollTopBtn.classList.add('hidden');
         }
     }
 });
-
-document.getElementById('scroll-top')?.addEventListener('click', () => {
+scrollTopBtn?.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
+// نافذة الاتصال الجديدة
+const contactModal = document.getElementById('contact-modal');
+const contactModalContent = document.getElementById('contact-modal-content');
+const closeContactModalBtn = document.getElementById('close-contact-modal');
+const openContactButtons = document.querySelectorAll('.floating-action-btn[href="#contact"], .floating-action-btn#floating-phone'); // يمكن تعديل هذا لاحقاً
 
-// فتح نافذة الاتصال
-document.getElementById('footer-contact-link')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    document.getElementById('contact-modal').classList.remove('hidden');
-});
+// دالة فتح النافذة
+function openContactModal() {
+    if (!contactModal) return;
+    contactModal.classList.remove('hidden');
+    setTimeout(() => {
+        contactModalContent.classList.remove('opacity-0', '-translate-y-4');
+    }, 10);
+}
 
-document.getElementById('floating-phone')?.addEventListener('click', () => {
-    document.getElementById('contact-modal').classList.remove('hidden');
-});
+// دالة إغلاق النافذة
+function closeContactModal() {
+    if (!contactModal) return;
+    contactModalContent.classList.add('opacity-0', '-translate-y-4');
+    setTimeout(() => {
+        contactModal.classList.add('hidden');
+    }, 300);
+}
 
-// إغلاق نافذة الاتصال
-document.getElementById('close-contact-modal')?.addEventListener('click', () => {
-    document.getElementById('contact-modal').classList.add('hidden');
-});
-
-document.getElementById('contact-modal')?.addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) {
-        e.currentTarget.classList.add('hidden');
+// ربط الأحداث
+document.getElementById('floating-phone')?.addEventListener('click', openContactModal);
+closeContactModalBtn?.addEventListener('click', closeContactModal);
+contactModal?.addEventListener('click', (e) => {
+    if (e.target === contactModal) {
+        closeContactModal();
     }
 });
 
-// روابط سياسية
+// روابط الفوتر القانونية
 document.querySelectorAll('#privacy-policy, #terms-service, #refund-policy, #faq-link').forEach(link => {
     link.addEventListener('click', (e) => {
         e.preventDefault();
@@ -2504,48 +2517,13 @@ document.querySelectorAll('#privacy-policy, #terms-service, #refund-policy, #faq
     });
 });
 
-// نسخ رقم الهاتف عند النقر
-document.querySelectorAll('.contact-info p[dir="ltr"]').forEach(phone => {
-    phone.style.cursor = 'pointer';
-    phone.title = 'انقر للنسخ';
-    phone.addEventListener('click', async () => {
-        const phoneNumber = phone.textContent.trim();
-        try {
-            await navigator.clipboard.writeText(phoneNumber);
-            
-            // تغيير مؤقت للإشارة للنسخ
-            const originalText = phone.textContent;
-            phone.textContent = '✅ تم النسخ!';
-            phone.style.color = 'var(--success-green)';
-            
-            setTimeout(() => {
-                phone.textContent = originalText;
-                phone.style.color = '';
-            }, 2000);
-            
-        } catch (err) {
-            alert('لم يتم النسخ: ' + err.message);
-        }
-    });
-});
-
-
-// إضافة أنيميشن للنبض
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
+// ربط زر شحن الرصيد في الفوتر
+document.getElementById('footer-deposit-link')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (userInfo) {
+        showDepositPopup();
+    } else {
+        showAuthPopup('login');
     }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translate(-50%, -60%); }
-        to { opacity: 1; transform: translate(-50%, -50%); }
-    }
-`;
-document.head.appendChild(style);
-
-console.log('✅ نظام الفوتر والاتصال جاهز!');
 });
 // 🔼 هذا هو نهاية DOMContentLoaded 🔼
