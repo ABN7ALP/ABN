@@ -512,29 +512,7 @@ textarea:focus {
 .hot-offer {
     animation: pulse-glow 2s infinite;
     border: 2px solid var(--yellow-accent);
-}
-/* تنسيقات وضع الكمبيوتر على الجوال */
-body.desktop-view-on-mobile {
-    min-width: 1200px;
-    overflow-x: auto;
-}
 
-body.desktop-view-on-mobile .container {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-/* تحسين التنسيقات للعرض على الجوال */
-@media (max-width: 768px) {
-    body.desktop-view-on-mobile .services-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-    }
-    
-    body.desktop-view-on-mobile .service-card {
-        min-width: 250px;
-    }
-}
 /* ========================================== */
 /* تنسيقات صناديق الإعلانات الجميلة */
 /* ========================================== */
