@@ -1190,47 +1190,7 @@ notification-item.unread::before {
 /* 🔧 إصلاحات التجاوب العامة */
 /* ========================================== */
 
-/* تصغير حجم الخطوط والعناصر على الشاشات الصغيرة */
-@media (max-width: 768px) {
-    .hero h1 {
-        font-size: 2rem; /* تصغير عنوان الهيرو */
-    }
-    .hero p {
-        font-size: 1rem; /* تصغير النص */
-    }
-    .service-card {
-        padding: 1.5rem; /* تقليل الحشوة الداخلية للبطاقات */
-    }
-    .service-card h3 {
-        font-size: 1.1rem;
-    }
-    .icon-wrapper {
-        width: 60px;
-        height: 60px;
-        margin-bottom: 1rem;
-    }
-    .icon-wrapper img {
-        width: 30px;
-        height: 30px;
-    }
-    .pill-button {
-        padding: 0.8rem 1.5rem;
-        font-size: 0.9rem;
-    }
-    /* إصلاح حجم نافذة الإشعارات */
-    .notifications-dropdown {
-        width: calc(100vw - 2rem); /* جعلها بعرض الشاشة تقريباً */
-        max-width: 350px;
-        left: 1rem; /* محاذاة لليمين */
-        transform: translateX(0) translateY(10px);
-    }
-    .notification-bell.active .notifications-dropdown {
-        transform: translateX(0) translateY(0);
-    }
-    .notifications-dropdown::before {
-        left: 20px; /* تحريك السهم ليتناسب مع الأيقونة */
-    }
-}
+
 
 
 /* ===================================================================
