@@ -2452,11 +2452,6 @@ quantityInput.addEventListener('input', () => {
             updatePasswordStrength(e.target.value);
         });
     }
-// 🆕 🔼 نهاية الإضافة 🔼
-
-    // ==========================================
-// 🏆 JavaScript للفوتر والاتصال
-// ==========================================
 // ==========================================
 // 🏆 JavaScript للفوتر والأزرار العائمة الجديدة
 // ==========================================
@@ -2527,3 +2522,4 @@ document.getElementById('footer-deposit-link')?.addEventListener('click', (e) =>
     }
 });
 // 🔼 هذا هو نهاية DOMContentLoaded 🔼
+});   // ← هذي غالباً ناقصة عندك
