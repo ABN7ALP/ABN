@@ -2456,47 +2456,50 @@ quantityInput.addEventListener('input', () => {
 // 🏆 JavaScript للفوتر والأزرار العائمة الجديدة
 // ==========================================
 
+// ==========================================
+// 🏆 JavaScript للفوتر والأزرار العائمة الجديدة
+// ==========================================
+
 // زر العودة للأعلى
 const scrollTopBtn = document.getElementById('scroll-top');
-window.addEventListener('scroll', () => {
-    if (scrollTopBtn) {
+if (scrollTopBtn) {
+    window.addEventListener('scroll', () => {
         if (window.scrollY > 300) {
             scrollTopBtn.classList.remove('hidden');
         } else {
             scrollTopBtn.classList.add('hidden');
         }
-    }
-});
-scrollTopBtn?.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-});
+    });
+    scrollTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
 
 // نافذة الاتصال الجديدة
 const contactModal = document.getElementById('contact-modal');
 const contactModalContent = document.getElementById('contact-modal-content');
 const closeContactModalBtn = document.getElementById('close-contact-modal');
-const openContactButtons = document.querySelectorAll('.floating-action-btn[href="#contact"], .floating-action-btn#floating-phone'); // يمكن تعديل هذا لاحقاً
+const openContactBtn = document.getElementById('floating-phone');
 
-// دالة فتح النافذة
 function openContactModal() {
-    if (!contactModal) return;
+    if (!contactModal || !contactModalContent) return;
     contactModal.classList.remove('hidden');
     setTimeout(() => {
+        contactModalContent.classList.add('opacity-100', 'translate-y-0');
         contactModalContent.classList.remove('opacity-0', '-translate-y-4');
     }, 10);
 }
 
-// دالة إغلاق النافذة
 function closeContactModal() {
-    if (!contactModal) return;
+    if (!contactModal || !contactModalContent) return;
+    contactModalContent.classList.remove('opacity-100', 'translate-y-0');
     contactModalContent.classList.add('opacity-0', '-translate-y-4');
     setTimeout(() => {
         contactModal.classList.add('hidden');
     }, 300);
 }
 
-// ربط الأحداث
-document.getElementById('floating-phone')?.addEventListener('click', openContactModal);
+openContactBtn?.addEventListener('click', openContactModal);
 closeContactModalBtn?.addEventListener('click', closeContactModal);
 contactModal?.addEventListener('click', (e) => {
     if (e.target === contactModal) {
