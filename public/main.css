@@ -1023,14 +1023,12 @@ notification-item.unread::before {
 /* =================================================================== */
 
 /* --- 1. الفوتر الجديد --- */
-new-footer {
-    background-color: var(--white-pure); /* خلفية بيضاء */
-    color: var(--text-light); /* لون نص رمادي فاتح */
-    border-top: 1px solid var(--gray-border);
+.new-footer {
+    background-color: #a0aec0; /* لون داكن وأنيق */
+    color: #1a202c; /* لون نص فاتح */
     padding: 4rem 0 2rem 0;
     margin-top: 4rem;
 }
-
 
 .new-footer-grid {
     display: grid;
@@ -1039,15 +1037,14 @@ new-footer {
     margin-bottom: 3rem;
 }
 
-footer-title {
-    font-size: 0.875rem;
+.footer-title {
+    font-size: 0.875rem; /* 14px */
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--text-dark); /* لون عنوان داكن */
+    color: var(--white-pure);
     margin-bottom: 1rem;
 }
-
 
 .footer-links {
     list-style: none;
@@ -1055,46 +1052,43 @@ footer-title {
     space-y: 0.75rem;
 }
 
-footer-links a {
-    color: var(--text-light);
+.footer-links a {
+    color: #a0aec0;
     text-decoration: none;
     font-size: 0.9rem;
     transition: color 0.2s ease;
 }
 
 .footer-links a:hover {
-    color: var(--purple-main); /* لون أرجواني عند المرور */
+    color: var(--white-pure);
 }
 
-
-footer-bottom {
-    border-top: 1px solid var(--gray-border);
+.footer-bottom {
+    border-top: 1px solid #2d3748;
     padding-top: 2rem;
     text-align: center;
-    font-size: 0.8rem;
-    color: var(--text-light);
+    font-size: 0.75rem; /* 12px */
+    color: #718096;
 }
 
 .footer-bottom strong {
-    color: var(--text-dark);
+    color: #a0aec0;
 }
-
 
 .footer-bottom .disclaimer {
     margin-top: 0.5rem;
 }
 
 /* --- 2. إعلانات الفوتر المتجاوبة --- */
-ad-slot-desktop {
-    display: none; /* 🎯 افتراضياً: إخفاء إعلان الكمبيوتر */
-}
 .ad-slot-mobile {
-    display: block; /* 🎯 افتراضياً: إظهار إعلان الموبايل */
+    display: block; /* يظهر على الموبايل */
     margin-bottom: 2rem;
 }
+.ad-slot-desktop {
+    display: none; /* يختفي على الموبايل */
+}
 .ad-container-footer-mobile {
-    background-color: var(--gray-bg);
-    border: 1px solid var(--gray-border);
+    background-color: #2d3748;
     border-radius: 0.75rem;
     padding: 0.5rem;
     display: flex;
@@ -1286,20 +1280,18 @@ ad-slot-desktop {
 }
 
 /* --- 6. تعديلات الفوتر والإعلانات للشاشات الكبيرة --- */
-
 @media (min-width: 768px) {
     .new-footer-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(4, 1fr); /* 4 أعمدة على الشاشات المتوسطة */
     }
     .ad-slot-mobile {
-        display: none; /* 🎯 على الشاشات الكبيرة: إخفاء إعلان الموبايل */
+        display: none; /* إخفاء إعلان الموبايل */
     }
     .ad-slot-desktop {
-        display: block; /* 🎯 على الشاشات الكبيرة: إظهار إعلان الكمبيوتر */
+        display: block; /* إظهار إعلان الكمبيوتر */
     }
     .ad-container-footer-desktop {
-        background-color: var(--gray-bg);
-        border: 1px solid var(--gray-border);
+        background-color: #2d3748;
         border-radius: 0.75rem;
         padding: 0.5rem;
         display: flex;
@@ -1310,7 +1302,6 @@ ad-slot-desktop {
         max-width: 300px;
     }
 }
-
 
 @media (min-width: 1024px) {
     .new-footer-grid {
