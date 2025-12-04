@@ -538,7 +538,7 @@ body.desktop-view-on-mobile .container {
 
 
 /* ===================================================================
-   5. ENHANCED PAYMENT METHOD ICONS (FIXED)
+   5. ENHANCED PAYMENT METHOD ICONS
    =================================================================== */
 
 /* حاوية أيقونات Visa و Mastercard */
@@ -569,20 +569,76 @@ body.desktop-view-on-mobile .container {
     border-radius: 8px; /* زوايا دائرية بدلاً من دائرة كاملة */
 }
 
-/* 🎯🎯🎯 الإصلاح هنا: إعادة تعريف حجم أيقونة Font Awesome 🎯🎯🎯 */
-.payment-method-btn i.ph-bold.ph-storefront {
+/* إزالة الحجم الافتراضي لأيقونات Font Awesome داخل الأزرار */
+.payment-method-btn i {
     font-size: 2.5rem; /* حجم مناسب لأيقونة "حوالة مكتب" */
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--purple-main); /* إعادة اللون الأساسي */
 }
 
-.payment-method-btn.active i.ph-bold.ph-storefront {
-    color: var(--purple-main); /* التأكد من بقاء اللون عند الاختيار */
+/* ===================================================================
+   6. TOGGLE PAYMENT METHODS STYLES
+   =================================================================== */
+
+/* تعديل الحاوية الرئيسية لتكون شبكة مرنة */
+.payment-method-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.8rem;
 }
 
+/* حاوية الطرق الإضافية */
+.additional-methods-container {
+    display: contents; /* تجعل الأزرار بداخلها جزءاً من الشبكة الرئيسية */
+}
+
+/* إخفاء الحاوية باستخدام display: none */
+.additional-methods-container.hidden {
+    display: none;
+}
+
+/* تصميم زر "عرض المزيد" */
+.toggle-methods-btn {
+    grid-column: 1 / -1; /* لجعل الزر يمتد على عرض الشبكة بالكامل */
+    margin-top: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    background: var(--gray-bg);
+    color: var(--text-light);
+    border: 2px dashed var(--gray-border);
+    border-radius: var(--radius-input);
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all var(--transition-smooth);
+}
+
+.toggle-methods-btn:hover {
+    background: var(--purple-light);
+    color: var(--purple-main);
+    border-color: var(--purple-main);
+    border-style: solid;
+}
+
+.toggle-methods-btn i {
+    transition: transform var(--transition-smooth);
+}
+
+/* تدوير السهم عند فتح القائمة */
+.toggle-methods-btn.expanded i {
+    transform: rotate(180deg);
+}
+
+/* تخصيص أيقونة Binance Pay لتكون دائرية */
+.payment-method-btn[data-method="binancepay"] .payment-icon-single {
+    border-radius: 50%;
+    background-color: #F0B90B; /* لون خلفية شعار باينانس */
+    padding: 4px; /* حشوة داخلية صغيرة */
+   }
 
 /* 🆕 أضف هذه الأنماط في نهاية style.css أو main.css */
 
