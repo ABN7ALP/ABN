@@ -1068,13 +1068,16 @@ new-footer {
 
 
 
+
 .footer-bottom {
     border-top: 1px solid var(--gray-border);
     padding-top: 2rem;
-    text-align: center;
-    font-size: 0.8rem;
-    color: var(--text-light);
+    display: flex;
+    flex-direction: column; /* عمودي على الهواتف */
+    align-items: center;
+    gap: 1.5rem;
 }
+
 
 .footer-bottom strong {
     color: var(--text-dark);
@@ -1088,6 +1091,51 @@ new-footer {
 .footer-bottom .disclaimer {
     margin-top: 0.5rem;
 }
+
+
+.footer-social-icons {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.footer-social-icons a {
+    color: var(--text-light);
+    font-size: 1.25rem; /* حجم الأيقونة */
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-social-icons a:hover {
+    color: var(--purple-main);
+    transform: scale(1.1);
+}
+
+.footer-legal {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem 1.5rem; /* مسافات بين العناصر */
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+.footer-legal .copyright {
+    white-space: nowrap; /* لمنع كسر السطر */
+}
+
+.footer-legal a {
+    color: var(--text-light);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.footer-legal a:hover {
+    color: var(--purple-main);
+    text-decoration: underline;
+}
+
 
 /* --- 2. إعلانات الفوتر المتجاوبة --- */
 .ad-slot-mobile {
@@ -1311,7 +1359,22 @@ new-footer {
         width: 100%;
         max-width: 300px;
     }
+
+   footer-bottom {
+        flex-direction: row; /* أفقي */
+        justify-content: space-between;
+    }
+
+    .footer-social-icons {
+        order: 2; /* نقل الأيقونات إلى اليسار */
+    }
+
+    .footer-legal {
+        order: 1; /* نقل النصوص إلى اليمين */
+        justify-content: flex-start;
+    }
 }
+
 
 @media (min-width: 1024px) {
     .new-footer-grid {
