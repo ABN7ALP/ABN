@@ -537,10 +537,57 @@ body.desktop-view-on-mobile .container {
 }
 
 
+/* ===================================================================
+   5. ENHANCED PAYMENT METHOD ICONS (FIXED)
+   =================================================================== */
+
+/* حاوية أيقونات Visa و Mastercard */
+.payment-icon-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 40px; /* تحديد ارتفاع ثابت للحاوية */
+}
+
+.payment-icon-group img {
+    height: 25px; /* ارتفاع مناسب لشعارات البطاقات */
+    width: auto;
+    object-fit: contain;
+}
+
+/* أيقونات العملات الرقمية وشام كاش (صورة واحدة) */
+.payment-icon-single {
+    height: 36px; /* ارتفاع ثابت ومناسب للأيقونة الواحدة */
+    width: 36px;
+    object-fit: contain; /* يحافظ على أبعاد الصورة */
+    border-radius: 50%; /* جعل أيقونات العملات دائرية */
+}
+
+/* تخصيص أيقونة شام كاش لتكون مربعة */
+.payment-method-btn[data-method="sham"] .payment-icon-single {
+    border-radius: 8px; /* زوايا دائرية بدلاً من دائرة كاملة */
+}
+
+/* 🎯🎯🎯 الإصلاح هنا: إعادة تعريف حجم أيقونة Font Awesome 🎯🎯🎯 */
+.payment-method-btn i.ph-bold.ph-storefront {
+    font-size: 2.5rem; /* حجم مناسب لأيقونة "حوالة مكتب" */
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--purple-main); /* إعادة اللون الأساسي */
+}
+
+.payment-method-btn.active i.ph-bold.ph-storefront {
+    color: var(--purple-main); /* التأكد من بقاء اللون عند الاختيار */
+}
+
+
 /* 🆕 أضف هذه الأنماط في نهاية style.css أو main.css */
 
 /* تنسيقات عناوين المحافظ */
-.wallet-address {
+/*.wallet-address {
     background: var(--gray-bg);
     padding: 1rem;
     border-radius: var(--radius-input);
@@ -612,14 +659,14 @@ body.desktop-view-on-mobile .container {
 }
 
 /* تحسين تنسيق طرق الدفع الجديدة */
-.payment-method-btn[data-method="usdt"] i,
+/*.payment-method-btn[data-method="usdt"] i,
 .payment-method-btn[data-method="trx"] i,
 .payment-method-btn[data-method="bnb"] i {
     color: #f7931a; /* لون برتقالي للعملات الرقمية */
 }
 
 /* تنسيق عرض تفاصيل المحفظة */
-#payment-details-container p {
+/*#payment-details-container p {
     margin-bottom: 0.8rem;
     line-height: 1.5;
 }
@@ -631,7 +678,7 @@ body.desktop-view-on-mobile .container {
 }
 
 /* تنسيقات عناوين المحافظ */
-.wallet-address {
+/*.wallet-address {
     margin: 1rem 0;
 }
 
@@ -689,7 +736,7 @@ body.desktop-view-on-mobile .container {
 }
 
 /* تحذيرات العملات */
-.warning-note {
+/*.warning-note {
     background: #fff7ed;
     border: 1px solid #fdba74;
     color: #9a3412;
@@ -708,7 +755,7 @@ body.desktop-view-on-mobile .container {
 }
 
 /* أنيميشن للرسائل */
-@keyframes slideInRight {
+/*@keyframes slideInRight {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
@@ -719,14 +766,14 @@ body.desktop-view-on-mobile .container {
 }
 
 /* تنسيقات طرق الدفع الجديدة */
-.payment-method-btn[data-method="usdt"],
+/*.payment-method-btn[data-method="usdt"],
 .payment-method-btn[data-method="trx"],
 .payment-method-btn[data-method="bnb"] {
     position: relative;
 }
 
 /* إضافة شارة "جديد" */
-.payment-method-btn[data-method="usdt"]::after,
+/*.payment-method-btn[data-method="usdt"]::after,
 .payment-method-btn[data-method="trx"]::after,
 .payment-method-btn[data-method="bnb"]::after {
     content: 'جديد';
@@ -742,13 +789,13 @@ body.desktop-view-on-mobile .container {
 }
 
 /* ألوان أيقونات العملات */
-.payment-method-btn[data-method="usdt"] i { color: #26a17b; }
+/*.payment-method-btn[data-method="usdt"] i { color: #26a17b; }
 .payment-method-btn[data-method="trx"] i { color: #ff060a; }
 .payment-method-btn[data-method="bnb"] i { color: #f0b90b; }
 
 
 /* تنسيقات الحد الأدنى */
-.min-amount-label {
+/*.min-amount-label {
     display: block;
     margin-top: 0.3rem;
     font-size: 0.85rem;
@@ -757,7 +804,7 @@ body.desktop-view-on-mobile .container {
 }
 
 /* تنسيقات ملاحظات الدفع */
-.payment-note {
+/*.payment-note {
     background: var(--info-blue);
     color: white;
     padding: 0.8rem 1rem;
@@ -774,7 +821,7 @@ body.desktop-view-on-mobile .container {
 }
 
 /* تنسيقات زر التواصل */
-.whatsapp-contact {
+/*.whatsapp-contact {
     text-align: center;
     margin: 1rem 0;
 }
