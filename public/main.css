@@ -1023,9 +1023,10 @@ notification-item.unread::before {
 /* =================================================================== */
 
 /* --- 1. الفوتر الجديد --- */
-.new-footer {
-    background-color: #a0aec0; /* لون داكن وأنيق */
-    color: #1a202c; /* لون نص فاتح */
+new-footer {
+    background-color: var(--white-pure); /* خلفية بيضاء */
+    color: var(--text-light); /* لون نص رمادي فاتح */
+    border-top: 1px solid var(--gray-border);
     padding: 4rem 0 2rem 0;
     margin-top: 4rem;
 }
@@ -1038,13 +1039,14 @@ notification-item.unread::before {
 }
 
 .footer-title {
-    font-size: 0.875rem; /* 14px */
+    font-size: 0.875rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--white-pure);
+    color: var(--text-dark); /* لون عنوان داكن */
     margin-bottom: 1rem;
 }
+
 
 .footer-links {
     list-style: none;
@@ -1052,24 +1054,32 @@ notification-item.unread::before {
     space-y: 0.75rem;
 }
 
+
 .footer-links a {
-    color: #a0aec0;
+    color: var(--text-light);
     text-decoration: none;
     font-size: 0.9rem;
     transition: color 0.2s ease;
 }
 
 .footer-links a:hover {
-    color: var(--white-pure);
+    color: var(--purple-main); /* لون أرجواني عند المرور */
 }
 
+
+
 .footer-bottom {
-    border-top: 1px solid #2d3748;
+    border-top: 1px solid var(--gray-border);
     padding-top: 2rem;
     text-align: center;
-    font-size: 0.75rem; /* 12px */
-    color: #718096;
+    font-size: 0.8rem;
+    color: var(--text-light);
 }
+
+.footer-bottom strong {
+    color: var(--text-dark);
+}
+
 
 .footer-bottom strong {
     color: #a0aec0;
