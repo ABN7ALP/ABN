@@ -4,7 +4,7 @@ const authMiddleware = require('../middleware/auth.middleware'); // تأكد م�
 const SupportChat = require('../models/supportChat.model');
 const Order = require('../models/order.model');
 const Deposit = require('../models/deposit.model');
-const bot = require('../telegramBot');
+const bot = require('../services/telegramBot');
 
 // مسار لإرسال رسالة جديدة أو متابعة محادثة
 router.post('/chat', authMiddleware, async (req, res) => {
