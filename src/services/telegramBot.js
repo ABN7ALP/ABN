@@ -47,7 +47,7 @@ bot.on('message', async (msg) => {
 
         // إرسال الرد إلى المستخدم عبر Socket.IO
         // (سنحتاج إلى تصدير `io` من الملف الرئيسي)
-        const { getIo } = require('../server'); // تأكد من صحة المسار
+        const { getIo } = require('../../server'); // تأكد من صحة المسار
         const io = getIo();
         io.to(userId).emit('support-reply', {
             userId: userId,
