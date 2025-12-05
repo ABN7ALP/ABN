@@ -1,7 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const SupportChat = require('../models/supportChat.model');
 const User = require('../models/user.model');
-const { getIo } = require('../../server');
+const { getIo } = require('../config/socket'); // استيراد من الملف الصحيح
 
 require('dotenv').config();
 
