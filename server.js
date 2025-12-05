@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
-//const { Server } = require("socket.io");
+const { Server } = require("socket.io");
 const { checkRedisConnection } = require('./src/services/queue'); // أضف هذا
 const adminRoutes = require('./src/routes/admin.routes');
 const offerRoutes = require('./src/routes/offer.routes');
@@ -19,14 +19,6 @@ const {
 const app = express();
 app.set('trust proxy', 1);
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  }
-});
-
-
 // 🎯🎯🎯 إعداد Socket.IO بطريقة قابلة للتصدير 🎯🎯🎯
 let io;
 const initSocket = (server) => {
