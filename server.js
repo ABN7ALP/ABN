@@ -8,6 +8,7 @@ const { Server } = require("socket.io");
 const { checkRedisConnection } = require('./src/services/queue'); // أضف هذا
 const adminRoutes = require('./src/routes/admin.routes');
 const offerRoutes = require('./src/routes/offer.routes');
+const { initSocket, getIo } = require('./src/config/socket');
 const { 
     loginLimiter, 
     registerLimiter, 
@@ -16,36 +17,14 @@ const {
     generalLimiter 
 } = require('./src/middleware/rateLimit');
 
-const { initSocket, getIo } = require('./src/config/socket');
 
 const app = express();
 app.set('trust proxy', 1);
 const server = http.createServer(app);
 
 // 🎯 إعداد Socket.IO الموحد (مرة واحدة فقط)
-let io;
-function initSocket(httpServer) {
-    io = new Server(httpServer, {
-        cors: { origin: "*", methods: ["GET", "POST"] }
-    });
-    io.on('connection', (socket) => {
-        console.log('A user connected:', socket.id);
-        const userId = socket.handshake.query.userId;
-        if (userId) {
-            socket.join(userId);
-            console.log(`User ${userId} joined room ${userId}`);
-        }
-        socket.on('disconnect', () => {
-            console.log('User disconnected:', socket.id);
-        });
-    });
-}
-initSocket(server);
+const io = initSocket(server);
 
-const getIo = () => {
-    if (!io) throw new Error("Socket.io not initialized!");
-    return io;
-};
 
 
 
@@ -95,6 +74,7 @@ if (!fs.existsSync(path.join(publicPath, 'index.html'))) {
 app.use(express.static(publicPath));
 
 // مسارات الـ API
+app.use('/api/support', supportRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/stats', statsRoutes);
@@ -105,7 +85,6 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/offers', offerRoutes);
 app.use('/api/queue', queueRoutes); // أضف هذا
 app.use('/api/', generalLimiter);
-app.use('/api/support', supportRoutes); // 🎯 استخدام المسار الجديد
 
 
 // مسار فحص الصحة
@@ -143,7 +122,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
 });
 
-
+require('./src/services/telegramBot'); // 🎯 3. استدعاء البوت ليبدأ بالعمل
 
 
 // تشغيل الخادم
@@ -152,4 +131,4 @@ server.listen(PORT, () => {
   console.log(`Redis URL: ${process.env.REDIS_URL ? 'محدد' : 'غير محدد'}`);
 });
 
-require('./src/services/telegramBot');
+
