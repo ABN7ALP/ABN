@@ -1320,10 +1320,6 @@ function handlePaymentMethodSelect(event) {
                         سيتم فتح محادثة واتساب مع رسالة جاهزة
                     </p>
                 </div>
-                <div class="payment-note">
-                    <i class="ph-bold ph-info"></i>
-                    <span>${minMessage}</span>
-                </div>
             `; 
             break;
             
@@ -1339,10 +1335,6 @@ function handlePaymentMethodSelect(event) {
                             <i class="ph-bold ph-copy"></i>
                         </div>
                     </div>
-                </div>
-                <div class="payment-note">
-                    <i class="ph-bold ph-info"></i>
-                    <span>${minMessage}</span>
                 </div>
                 <p class="warning-note">⚠️ تأكد من إرسال USDT فقط عبر شبكة TRC20</p>
             `;
@@ -1360,11 +1352,7 @@ function handlePaymentMethodSelect(event) {
                             <i class="ph-bold ph-copy"></i>
                         </div>
                     </div>
-                </div>
-                <div class="payment-note">
-                    <i class="ph-bold ph-info"></i>
-                    <span>${minMessage}</span>
-                </div>
+                </div>                
                 <p class="warning-note">⚠️ تأكد من إرسال TRX فقط عبر شبكة TRC20</p>
             `;
             break;
@@ -1413,10 +1401,6 @@ function handlePaymentMethodSelect(event) {
                             <i class="ph-bold ph-copy"></i>
                         </div>
                     </div>
-                </div>
-                <div class="payment-note">
-                    <i class="ph-bold ph-info"></i>
-                    <span>${minMessage}</span>
                 </div>
                 <p class="warning-note">⚠️ تأكد من إرسال BNB فقط عبر شبكة BEP20</p>
             `;
