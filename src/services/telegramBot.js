@@ -1,8 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
-// 🎯🎯🎯 الإصلاح هنا 🎯🎯🎯
 const SupportChat = require('../models/supportChat.model');
 const User = require('../models/user.model');
-const { getIo } = require('../../server'); // المسار الصحيح للخروج من services ثم src
+const { getIo } = require('../../server');
 
 require('dotenv').config();
 
@@ -14,12 +13,26 @@ if (!token) {
 
 const bot = new TelegramBot(token, { polling: true });
 
-console.log('🤖 Telegram Bot has been started...');
+// 🎯🎯🎯 1. الحصول على معلومات البوت عند البدء 🎯🎯🎯
+let botId = null;
+bot.getMe().then((me) => {
+    botId = me.id;
+    console.log(`🤖 Telegram Bot "${me.first_name}" has been started... (ID: ${botId})`);
+}).catch(err => {
+    console.error("Could not get bot info:", err);
+});
 
-// ... (باقي كود البوت يبقى كما هو)
+
 bot.on('message', async (msg) => {
+    // 🎯🎯🎯 2. التحقق من هوية المرسل (الإصلاح الرئيسي) 🎯🎯🎯
+    // إذا كانت الرسالة من البوت نفسه، تجاهلها تماماً
+    if (msg.from.id === botId) {
+        return; 
+    }
+
+    // تجاهل الرسائل التي ليست رداً
     if (!msg.reply_to_message || !msg.reply_to_message.text) {
-        if (msg.text.startsWith('/')) {
+        if (msg.text && msg.text.startsWith('/')) {
             bot.sendMessage(msg.chat.id, "هذا الأمر غير معروف. للرد على مستخدم، يرجى استخدام ميزة 'Reply' على رسالته.");
         }
         return;
@@ -31,7 +44,7 @@ bot.on('message', async (msg) => {
         
         if (!match || !match[1]) {
             console.error("Failed to find user ID in message:", originalMessageText);
-            bot.sendMessage(msg.chat.id, "لم أتمكن من العثور على معرف المستخدم في الرسالة الأصلية. تأكد من أنك ترد على الرسالة الصحيحة التي تحتوي على [ID: ...].");
+            bot.sendMessage(msg.chat.id, "لم أتمكن من العثور على معرف المستخدم. تأكد من أنك ترد على الرسالة الصحيحة التي تحتوي على [ID: ...].");
             return;
         }
         
@@ -59,6 +72,5 @@ bot.on('message', async (msg) => {
         bot.sendMessage(msg.chat.id, `حدث خطأ أثناء معالجة الرد: ${error.message}`);
     }
 });
-
 
 module.exports = bot;
