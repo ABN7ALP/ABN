@@ -2523,10 +2523,10 @@ const closeChatBtn = document.getElementById('close-chat-btn');
 const chatMessages = document.getElementById('chat-messages');
 const chatInput = document.getElementById('chat-input');
 const sendChatBtn = document.getElementById('send-chat-btn');
-const chatLoading = document.getElementById('chat-loading'); // تأكد من وجود هذا العنصر في HTML
+const chatLoading = document.getElementById('chat-loading');
 
-// 🎯 1. تعديل دالة فتح النافذة لتصبح أكثر ذكاءً
-async function openChatWindow() {
+// 🎯 دالة الفتح والتحميل المحسّنة
+async function openChatAndLoadHistory() {
     // إذا كان المستخدم زائراً، حوله إلى واتساب
     if (!userInfo) {
         window.open('https://wa.me/905367893256', '_blank');
@@ -2534,8 +2534,8 @@ async function openChatWindow() {
     }
 
     chatWindow.classList.remove('hidden');
-    chatLoading.classList.remove('hidden'); // إظهار التحميل
-    chatMessages.innerHTML = ''; // تفريغ الرسائل القديمة
+    chatLoading.classList.remove('hidden');
+    chatMessages.innerHTML = '';
 
     try {
         // جلب سجل المحادثة من الخادم
@@ -2553,24 +2553,23 @@ async function openChatWindow() {
                 appendMessage(msg.text, msg.sender, msg.timestamp);
             });
         } else {
-            // عرض رسالة ترحيبية إذا كانت المحادثة فارغة
-            appendMessage('مرحباً بك في الدعم الفني! كيف يمكننا مساعدتك اليوم؟', 'support');
+            appendMessage('مرحباً! كيف يمكننا مساعدتك اليوم؟', 'support');
         }
 
     } catch (error) {
         console.error('Error fetching chat history:', error);
         appendMessage(`خطأ: ${error.message}`, 'system');
     } finally {
-        chatLoading.classList.add('hidden'); // إخفاء التحميل
-        chatMessages.scrollTop = chatMessages.scrollHeight; // التمرير للأسفل
+        chatLoading.classList.add('hidden');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 }
 
 // ربط الأحداث
-supportChatToggle?.addEventListener('click', openChatWindow);
+supportChatToggle?.addEventListener('click', openChatAndLoadHistory);
 closeChatBtn?.addEventListener('click', () => chatWindow.classList.add('hidden'));
 
-// 🎯 2. دالة إرسال الرسالة (تبقى كما هي تقريباً)
+// دالة إرسال الرسالة (تبقى كما هي)
 async function sendMessage() {
     const messageText = chatInput.value.trim();
     if (!messageText) return;
@@ -2579,7 +2578,7 @@ async function sendMessage() {
     chatInput.value = '';
 
     try {
-        const response = await fetch('/api/support/chat', {
+        await fetch('/api/support/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -2587,10 +2586,6 @@ async function sendMessage() {
             },
             body: JSON.stringify({ message: messageText })
         });
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'فشل إرسال الرسالة');
-        }
     } catch (error) {
         appendMessage(`خطأ: ${error.message}`, 'system');
     }
@@ -2604,11 +2599,10 @@ chatInput?.addEventListener('keypress', (e) => {
     }
 });
 
-// 🎯 3. دالة إضافة الرسائل (تبقى كما هي)
+// دالة إضافة الرسائل (تبقى كما هي)
 function appendMessage(text, type, timestamp = new Date()) {
     const messageDiv = document.createElement('div');
-    // تعديل بسيط: استخدام sender بدلاً من type
-    messageDiv.className = `chat-message ${type === 'user' ? 'user' : 'support'}`;
+    messageDiv.className = `chat-message ${type}`; // 'user' or 'support'
     
     const time = new Date(timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
     
@@ -2620,17 +2614,19 @@ function appendMessage(text, type, timestamp = new Date()) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// 🎯 4. الاستماع للرسائل الحية (تبقى كما هي)
+// الاستماع للرسائل الحية (تبقى كما هي)
 if (userInfo) {
     const liveSocket = io({ query: { userId: userInfo._id } });
     liveSocket.on('support-reply', (data) => {
         if (data.userId === userInfo._id) {
             appendMessage(data.message, 'support', data.timestamp);
-            const notificationSound = new Audio('/sounds/reply.mp3');
-            notificationSound.play().catch(e => console.warn("التشغيل التلقائي للصوت محظور"));
+            try {
+                new Audio('/sounds/reply.mp3').play();
+            } catch (e) { console.warn("Audio play failed."); }
         }
     });
 }
+
 
 
 // روابط الفوتر القانونية
