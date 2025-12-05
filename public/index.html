@@ -374,52 +374,49 @@
 <!-- ========================================== -->
 <!-- 🎪 نافذة الاتصال الجديدة -->
 <!-- ========================================== -->
-<div id="contact-modal" class="new-modal-overlay hidden">
-    <div id="contact-modal-content" class="new-modal-content">
-        <div class="new-modal-header">
-            <h2 class="new-modal-title">الدعم الفني</h2>
-            <button id="close-contact-modal" class="new-modal-close-btn">
-                <i class="fas fa-times"></i>
-            </button>
+<!-- ========================================== -->
+<!-- 🎪 نظام الدردشة الحية والأزرار العائمة الجديدة -->
+<!-- ========================================== -->
+
+<!-- 1. زر الدعم الفني العائم -->
+<button id="support-chat-toggle" class="floating-btn support-float group">
+    <i class="fas fa-question"></i>
+    <span class="floating-tooltip">الدعم المباشر</span>
+</button>
+
+<!-- 2. نافذة الدردشة الحية -->
+<div id="support-chat-window" class="chat-window hidden">
+    <!-- رأس النافذة -->
+    <div class="chat-header">
+        <div class="chat-header-info">
+            <i class="fas fa-headset"></i>
+            <div>
+                <h3 class="chat-title">الدعم الفني المباشر</h3>
+                <p class="chat-status">متصل الآن</p>
+            </div>
         </div>
-        <div class="new-modal-body">
-            <a href="https://wa.me/905367893256" target="_blank" class="contact-option group">
-                <i class="fab fa-whatsapp contact-option-icon whatsapp"></i>
-                <div>
-                    <h3 class="contact-option-title">واتساب (الأسرع)</h3>
-                    <p class="contact-option-desc">للمساعدة الفورية والرد السريع.</p>
-                </div>
-                <i class="fas fa-chevron-left contact-option-arrow"></i>
-            </a>
-            <a href="mailto:support@mxgroup.com" class="contact-option group">
-                <i class="fas fa-envelope contact-option-icon email"></i>
-                <div>
-                    <h3 class="contact-option-title">البريد الإلكتروني</h3>
-                    <p class="contact-option-desc">للاستفسارات الرسمية والشكاوى.</p>
-                </div>
-                <i class="fas fa-chevron-left contact-option-arrow"></i>
-            </a>
-        </div>
+        <button id="close-chat-btn" class="chat-close-btn"><i class="fas fa-times"></i></button>
+    </div>
+
+    <!-- جسم المحادثة -->
+    <div id="chat-messages" class="chat-messages">
+        <!-- سيتم ملء الرسائل هنا بواسطة JavaScript -->
+    </div>
+
+    <!-- حقل الإدخال -->
+    <div class="chat-input-area">
+        <textarea id="chat-input" placeholder="اكتب رسالتك هنا..." rows="1"></textarea>
+        <button id="send-chat-btn" class="send-btn">
+            <i class="fas fa-paper-plane"></i>
+        </button>
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- 🎪 الأزرار العائمة الجديدة -->
-<!-- ========================================== -->
-<div class="new-floating-buttons">
-    <a href="https://wa.me/905367893256" target="_blank" class="floating-btn whatsapp-float group">
-        <i class="fab fa-whatsapp"></i>
-        <span class="floating-tooltip">راسلنا على واتساب</span>
-    </a>
-    <button id="floating-phone" class="floating-btn phone-float group">
-        <i class="fas fa-headset"></i>
-        <span class="floating-tooltip">الدعم الفني</span>
-    </button>
-    <button id="scroll-top" class="floating-btn scroll-top-float group hidden">
-        <i class="fas fa-arrow-up"></i>
-        <span class="floating-tooltip">العودة للأعلى</span>
-    </button>
-</div>
+<!-- 3. زر الرجوع للأعلى (منفصل) -->
+<button id="scroll-top" class="floating-btn scroll-top-float group hidden">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
 
     <script src="app.js"></script>
 </body>
