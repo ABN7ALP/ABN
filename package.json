@@ -38,6 +38,10 @@
     "express-rate-limit": "^7.1.5",
     "dotenv": "^16.0.3",
     "node-telegram-bot-api": "^0.61.0",
+    "compression": "^1.7.4",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "cors": "^2.8.5",
     "express-validator": "^7.0.1"
   }
 }
