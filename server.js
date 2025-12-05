@@ -213,11 +213,12 @@ module.exports = { getIo };
 // - أفضل ممارسات: تعديل telegramBot ليصدّر دالة تقبل getIo كوسيط، مثلاً:
 //     module.exports = (getIo) => { /* use getIo() */ }
 //   ثم هنا تستدعي: require('./src/services/telegramBot')(getIo);
+// Telegram Bot — start after exporting getIo
 try {
-  // إن أردت استدعاء البوت الآن:
-  require('./src/services/telegramBot');
+  const telegramBotInit = require('./src/services/telegramBot');
+  telegramBotInit(getIo); 
 } catch (err) {
-  console.warn('Warning: failed to load telegramBot automatically. If you rely on telegramBot, import it manually or export a function from it. Error:', err.message);
+  console.warn("Telegram bot failed to start:", err.message);
 }
 
 // ====== Start server ======
