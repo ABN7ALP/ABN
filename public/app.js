@@ -1276,16 +1276,27 @@ function handlePaymentMethodSelect(event) {
             `; 
             break;
             
-        case 'sham': // 🎯 تم تحديث معلومات شام كاش
+                case 'sham':
             detailsHTML = `
-                <p>يرجى الدفع إلى الحساب التالي عبر شام كاش:</p>
-                <p><strong>الاسم:</strong> <span>Mohamed Nour Al Rahim</span></p>
-                <p><strong>كود الحساب:</strong></p>
-                <div class="wallet-address">
-                    <div class="address-container">
-                        <span class="address-text">0bc3c408794e5087db1ba11924b2003a</span>
-                        <div class="copy-icon" data-address="0bc3c408794e5087db1ba11924b2003a">
-                            <i class="ph-bold ph-copy"></i>
+                <p>يمكنك الدفع عبر شام كاش باستخدام إحدى الطريقتين:</p>
+                
+                <!-- 1. مسح الباركود -->
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <img src="https://i.ibb.co/Y43J4f7y/IMG-20251205-WA0016.jpg" alt="Sham Cash QR Code" style="max-width: 220px; height: auto; border-radius: 12px; margin: 0.5rem auto; display: block; border: 1px solid var(--gray-border);">
+                    <small style="color: var(--text-light);">امسح الرمز للدفع السريع</small>
+                </div>
+
+                <!-- 2. النسخ اليدوي -->
+                <div>
+                    <p style="margin-bottom: 0.5rem;">أو أرسل إلى الحساب التالي يدوياً:</p>
+                    <p><strong>الاسم:</strong> <span>Mohamed Nour Al Rahim</span></p>
+                    <p><strong>كود الحساب:</strong></p>
+                    <div class="wallet-address" style="margin-top: 0.5rem;">
+                        <div class="address-container">
+                            <span class="address-text">0bc3c408794e5087db1ba11924b2003a</span>
+                            <div class="copy-icon" data-address="0bc3c408794e5087db1ba11924b2003a">
+                                <i class="ph-bold ph-copy"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
