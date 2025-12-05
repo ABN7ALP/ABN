@@ -16,6 +16,8 @@ const {
     generalLimiter 
 } = require('./src/middleware/rateLimit');
 
+const { initSocket, getIo } = require('./src/config/socket');
+
 const app = express();
 app.set('trust proxy', 1);
 const server = http.createServer(app);
@@ -142,12 +144,12 @@ app.get('*', (req, res) => {
 });
 
 
-// 🎯🎯🎯 استيراد وتشغيل البوت وتصدير io 🎯🎯🎯
-module.exports = { getIo };
-require('./src/services/telegramBot');
+
 
 // تشغيل الخادم
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Redis URL: ${process.env.REDIS_URL ? 'محدد' : 'غير محدد'}`);
 });
+
+require('./src/services/telegramBot');
