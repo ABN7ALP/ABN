@@ -2478,52 +2478,98 @@ quantityInput.addEventListener('input', () => {
 // 🏆 JavaScript للفوتر والأزرار العائمة الجديدة
 // ==========================================
 
-// زر العودة للأعلى
-const scrollTopBtn = document.getElementById('scroll-top');
-if (scrollTopBtn) {
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 300) {
-            scrollTopBtn.classList.remove('hidden');
-        } else {
-            scrollTopBtn.classList.add('hidden');
+// ==========================================
+// 🏆 نظام الدردشة الحية الجديد
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    // ... (الكود الحالي لـ app.js يبقى كما هو)
+
+    // --- 10. منطق الدردشة الحية ---
+    const supportChatToggle = document.getElementById('support-chat-toggle');
+    const chatWindow = document.getElementById('support-chat-window');
+    const closeChatBtn = document.getElementById('close-chat-btn');
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const sendChatBtn = document.getElementById('send-chat-btn');
+
+    // دالة لفتح وإغلاق نافذة الدردشة
+    function toggleChatWindow() {
+        // إذا كان المستخدم زائراً، حوله إلى واتساب
+        if (!userInfo) {
+            window.open('https://wa.me/905367893256', '_blank');
+            return;
+        }
+        chatWindow.classList.toggle('hidden');
+    }
+
+    // ربط الأحداث
+    supportChatToggle?.addEventListener('click', toggleChatWindow);
+    closeChatBtn?.addEventListener('click', () => chatWindow.classList.add('hidden'));
+
+    // دالة لإرسال رسالة
+    async function sendMessage() {
+        const messageText = chatInput.value.trim();
+        if (!messageText) return;
+
+        // عرض رسالة المستخدم فوراً
+        appendMessage(messageText, 'user');
+        chatInput.value = '';
+
+        try {
+            // إرسال الرسالة إلى الخادم
+            const response = await fetch('/api/support/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({ message: messageText })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'فشل إرسال الرسالة');
+            }
+            // يمكنك التعامل مع الرد هنا إذا أردت
+        } catch (error) {
+            appendMessage(`خطأ: ${error.message}`, 'system');
+        }
+    }
+
+    sendChatBtn?.addEventListener('click', sendMessage);
+    chatInput?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
         }
     });
-    scrollTopBtn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-}
 
-// نافذة الاتصال الجديدة
-const contactModal = document.getElementById('contact-modal');
-const contactModalContent = document.getElementById('contact-modal-content');
-const closeContactModalBtn = document.getElementById('close-contact-modal');
-const openContactBtn = document.getElementById('floating-phone');
-
-function openContactModal() {
-    if (!contactModal || !contactModalContent) return;
-    contactModal.classList.remove('hidden');
-    setTimeout(() => {
-        contactModalContent.classList.add('opacity-100', 'translate-y-0');
-        contactModalContent.classList.remove('opacity-0', '-translate-y-4');
-    }, 10);
-}
-
-function closeContactModal() {
-    if (!contactModal || !contactModalContent) return;
-    contactModalContent.classList.remove('opacity-100', 'translate-y-0');
-    contactModalContent.classList.add('opacity-0', '-translate-y-4');
-    setTimeout(() => {
-        contactModal.classList.add('hidden');
-    }, 300);
-}
-
-openContactBtn?.addEventListener('click', openContactModal);
-closeContactModalBtn?.addEventListener('click', closeContactModal);
-contactModal?.addEventListener('click', (e) => {
-    if (e.target === contactModal) {
-        closeContactModal();
+    // دالة لإضافة رسالة إلى الواجهة
+    function appendMessage(text, type, timestamp = new Date()) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', type);
+        
+        const time = new Date(timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+        
+        messageDiv.innerHTML = `
+            <div>${text}</div>
+            <span class="timestamp">${time}</span>
+        `;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight; // التمرير للأسفل
     }
+
+    // الاستماع للرسائل القادمة من الدعم عبر Socket.IO
+    socket.on('support-reply', (data) => {
+        if (userInfo && data.userId === userInfo._id) {
+            appendMessage(data.message, 'support');
+            // تشغيل صوت الإشعار
+            const notificationSound = new Audio('/sounds/reply.mp3'); // تأكد من وجود هذا الملف
+            notificationSound.play().catch(e => console.warn("التشغيل التلقائي للصوت محظور"));
+        }
+    });
 });
+
 
 // روابط الفوتر القانونية
 document.querySelectorAll('#privacy-policy, #terms-service, #refund-policy, #faq-link').forEach(link => {
