@@ -1273,8 +1273,6 @@ function handlePaymentMethodSelect(event) {
                         <div class="address-container">
                             <span class="address-text">TR77 0014 3000 0000 0013 8811 28</span>
                             <div class="copy-icon" data-address="TR77 0014 3000 0000 0013 8811 28">
-                            <span class="address-text">MUHAMMED ERRAHIM</span>
-                            <div class="copy-icon" data-address="MUHAMMED ERRAHIM">
                                 <i class="ph-bold ph-copy"></i>
                             </div>
                         </div>
