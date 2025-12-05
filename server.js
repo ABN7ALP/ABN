@@ -214,11 +214,13 @@ module.exports = { getIo };
 //     module.exports = (getIo) => { /* use getIo() */ }
 //   ثم هنا تستدعي: require('./src/services/telegramBot')(getIo);
 // Telegram Bot — start after exporting getIo
+// ====== Telegram Bot Init ======
 try {
-  const telegramBotInit = require('./src/services/telegramBot');
-  telegramBotInit(getIo); 
+    const telegramBotInit = require('./src/services/telegramBot');
+    global.telegramBot = telegramBotInit(getIo);
+    console.log("Telegram bot initialized successfully.");
 } catch (err) {
-  console.warn("Telegram bot failed to start:", err.message);
+    console.warn("Failed to initialize Telegram Bot:", err.message);
 }
 
 // ====== Start server ======
