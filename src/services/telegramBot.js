@@ -1,6 +1,6 @@
 const TelegramBot = require('node-telegram-bot-api');
 const SupportChat = require('../models/supportChat.model');
-const User = require('./models/user.model');
+const User = require('../models/user.model');
 
 // تحميل المتغيرات من .env
 require('dotenv').config();
