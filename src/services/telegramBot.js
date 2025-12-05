@@ -1,7 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const SupportChat = require('../models/supportChat.model');
 const User = require('../models/user.model');
-const { getIo } = require('../config/socket'); // استيراد من الملف الصحيح
+const { getIo } = require('../config/socket');
 
 require('dotenv').config();
 
@@ -31,15 +31,13 @@ bot.on('message', async (msg) => {
     try {
         const originalMessageText = msg.reply_to_message.text;
         
-        // 🎯🎯🎯 خطوة تشخيصية: اطبع النص الذي يراه البوت 🎯🎯🎯
-        console.log("--- DEBUG: Original message text from bot's perspective ---");
-        console.log(originalMessageText);
-        console.log("---------------------------------------------------------");
-
-        const match = originalMessageText.match(/\[ID:\s*(\w{24})\]/); // تعبير نمطي أكثر دقة
+        // 🎯🎯🎯 الإصلاح النهائي هنا 🎯🎯🎯
+        // تعبير نمطي جديد يبحث عن "ID:" متبوعاً بالمعرف
+        const match = originalMessageText.match(/ID:\s*(\w{24})/);
         
         if (!match || !match[1]) {
-            bot.sendMessage(msg.chat.id, "لم أتمكن من العثور على معرف المستخدم. تأكد من أنك ترد على الرسالة الصحيحة التي تحتوي على [ID: ...].");
+            console.error("Failed to find user ID in message:", originalMessageText);
+            bot.sendMessage(msg.chat.id, "لم أتمكن من العثور على معرف المستخدم. تأكد من أنك ترد على الرسالة الصحيحة التي تحتوي على ID.");
             return;
         }
         
