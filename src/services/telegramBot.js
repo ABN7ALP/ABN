@@ -7,43 +7,38 @@ require('dotenv').config();
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 if (!token) {
-    console.error('❌ Telegram Bot Token not found in .env file!');
+    console.error('❌ Telegram Bot Token not found!');
     return;
 }
 
 const bot = new TelegramBot(token, { polling: true });
 
-// 🎯🎯🎯 1. الحصول على معلومات البوت عند البدء 🎯🎯🎯
 let botId = null;
 bot.getMe().then((me) => {
     botId = me.id;
-    console.log(`🤖 Telegram Bot "${me.first_name}" has been started... (ID: ${botId})`);
-}).catch(err => {
-    console.error("Could not get bot info:", err);
-});
-
+    console.log(`🤖 Telegram Bot "${me.first_name}" started (ID: ${botId})`);
+}).catch(err => console.error("Could not get bot info:", err));
 
 bot.on('message', async (msg) => {
-    // 🎯🎯🎯 2. التحقق من هوية المرسل (الإصلاح الرئيسي) 🎯🎯🎯
-    // إذا كانت الرسالة من البوت نفسه، تجاهلها تماماً
     if (msg.from.id === botId) {
         return; 
     }
 
-    // تجاهل الرسائل التي ليست رداً
     if (!msg.reply_to_message || !msg.reply_to_message.text) {
-        if (msg.text && msg.text.startsWith('/')) {
-            bot.sendMessage(msg.chat.id, "هذا الأمر غير معروف. للرد على مستخدم، يرجى استخدام ميزة 'Reply' على رسالته.");
-        }
         return;
     }
 
     try {
         const originalMessageText = msg.reply_to_message.text;
-        const match = originalMessageText.match(/\[ID:\s*(\w+)\]/);
+        
+        // 🎯🎯🎯 خطوة تشخيصية: اطبع النص الذي يراه البوت 🎯🎯🎯
+        console.log("--- DEBUG: Original message text from bot's perspective ---");
+        console.log(originalMessageText);
+        console.log("---------------------------------------------------------");
+
+        const match = originalMessageText.match(/\[ID:\s*(\w{24})\]/); // تعبير نمطي أكثر دقة
         
         if (!match || !match[1]) {
-            console.error("Failed to find user ID in message:", originalMessageText);
             bot.sendMessage(msg.chat.id, "لم أتمكن من العثور على معرف المستخدم. تأكد من أنك ترد على الرسالة الصحيحة التي تحتوي على [ID: ...].");
             return;
         }
@@ -69,7 +64,7 @@ bot.on('message', async (msg) => {
 
     } catch (error) {
         console.error('Error handling Telegram reply:', error);
-        bot.sendMessage(msg.chat.id, `حدث خطأ أثناء معالجة الرد: ${error.message}`);
+        bot.sendMessage(msg.chat.id, `حدث خطأ: ${error.message}`);
     }
 });
 
