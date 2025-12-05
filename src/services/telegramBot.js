@@ -2,69 +2,77 @@
 
 const TelegramBot = require('node-telegram-bot-api');
 const SupportChat = require('../models/supportChat.model');
+const User = require('../models/user.model');
 require('dotenv').config();
 
-module.exports = (getIo) => {
-    const token = process.env.TELEGRAM_BOT_TOKEN;
-    const bot = new TelegramBot(token, { polling: true });
 
-    console.log('🤖 Telegram Bot started...');
+const token = process.env.TELEGRAM_BOT_TOKEN;
+if (!token) {
+    console.error('❌ Telegram Bot Token not found in .env file!');
+    return;
+}
 
-    bot.on('message', async (msg) => {
+const bot = new TelegramBot(token, { polling: true });
 
-        // لازم الرد يكون على رسالة النظام
-        if (!msg.reply_to_message) {
-            return bot.sendMessage(msg.chat.id, "يرجى الرد على رسالة المستخدم فقط.");
+console.log('🤖 Telegram Bot has been started...');
+
+// الاستماع للرسائل الواردة إلى البوت
+bot.on('message', async (msg) => {
+    // تجاهل الرسائل التي ليست رداً
+    if (!msg.reply_to_message || !msg.reply_to_message.text) {
+        // لا ترسل رسالة خطأ للمستخدم العادي، فقط في حالة الأوامر
+        if (msg.text.startsWith('/')) {
+            bot.sendMessage(msg.chat.id, "هذا الأمر غير معروف. للرد على مستخدم، يرجى استخدام ميزة 'Reply' على رسالته.");
+        }
+        return;
+    }
+
+    try {
+        // 🎯🎯🎯 الإصلاح والتحسين هنا 🎯🎯🎯
+        const originalMessageText = msg.reply_to_message.text;
+        
+        // تعبير نمطي أكثر قوة للبحث عن المعرف
+        const match = originalMessageText.match(/\[ID:\s*(\w+)\]/);
+        
+        if (!match || !match[1]) {
+            console.error("Failed to find user ID in message:", originalMessageText);
+            bot.sendMessage(msg.chat.id, "لم أتمكن من العثور على معرف المستخدم في الرسالة الأصلية. تأكد من أنك ترد على الرسالة الصحيحة التي تحتوي على [ID: ...].");
+            return;
+        }
+        
+        const userId = match[1];
+        const replyText = msg.text;
+
+        // العثور على محادثة المستخدم
+        const chat = await SupportChat.findOne({ userId });
+        if (!chat) {
+            bot.sendMessage(msg.chat.id, `لا توجد محادثة نشطة للمستخدم بالمعرف: ${userId}`);
+            return;
         }
 
-        try {
-            // نحاول استخراج userId من الكابتشن أولاً (أقوى طريقة)
-            let userId = null;
+        // إضافة رد الدعم إلى قاعدة البيانات
+        chat.messages.push({
+            sender: 'support',
+            text: replyText,
+            timestamp: new Date()
+        });
+        await chat.save();
 
-            if (msg.reply_to_message.caption && msg.reply_to_message.caption.startsWith("USER_ID:")) {
-                userId = msg.reply_to_message.caption.replace("USER_ID:", "").trim();
-            }
+        // إرسال الرد إلى المستخدم عبر Socket.IO
+        const io = getIo();
+        io.to(userId).emit('support-reply', {
+            userId: userId,
+            message: replyText,
+            timestamp: new Date()
+        });
 
-            // احتياط: في حال بعض الأنظمة ترسل بالـ text
-            if (!userId && msg.reply_to_message.text?.includes("USER_ID:")) {
-                userId = msg.reply_to_message.text.split("USER_ID:")[1].trim();
-            }
+        // إرسال تأكيد للأدمن (اختياري، يمكن إزالته إذا كان مزعجاً)
+        // bot.sendMessage(msg.chat.id, `✅ تم إرسال ردك بنجاح.`);
 
-            // إذا مافي userId → نوقف
-            if (!userId) {
-                return bot.sendMessage(msg.chat.id, "لم يتم العثور على ID المستخدم.");
-            }
+    } catch (error) {
+        console.error('Error handling Telegram reply:', error);
+        bot.sendMessage(msg.chat.id, `حدث خطأ أثناء معالجة الرد: ${error.message}`);
+    }
+});
 
-            const replyText = msg.text;
-
-            const chat = await SupportChat.findOne({ userId });
-            if (!chat) {
-                return bot.sendMessage(msg.chat.id, "لا يوجد محادثة لهذا المستخدم.");
-            }
-
-            // حفظ الرد بالمحادثة
-            chat.messages.push({
-                sender: 'support',
-                text: replyText,
-                timestamp: new Date()
-            });
-            await chat.save();
-
-            // إرسال الرد عبر socket.io
-            const io = getIo();
-            io.to(userId).emit('support-reply', {
-                userId,
-                message: replyText,
-                timestamp: new Date()
-            });
-
-            bot.sendMessage(msg.chat.id, "✔ تم إرسال الرد للمستخدم.");
-
-        } catch (err) {
-            console.error(err);
-            bot.sendMessage(msg.chat.id, `خطأ: ${err.message}`);
-        }
-    });
-
-    return bot;
-};
+module.exports = bot;
