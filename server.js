@@ -26,6 +26,44 @@ const io = new Server(server, {
   }
 });
 
+
+// 🎯🎯🎯 إعداد Socket.IO بطريقة قابلة للتصدير 🎯🎯🎯
+let io;
+const initSocket = (server) => {
+    io = new Server(server, {
+        cors: {
+            origin: "*",
+            methods: ["GET", "POST"]
+        }
+    });
+
+    io.on('connection', (socket) => {
+        console.log('A user connected:', socket.id);
+        const userId = socket.handshake.query.userId;
+        if (userId) {
+            socket.join(userId);
+            console.log(`User ${userId} joined room ${userId}`);
+        }
+        socket.on('disconnect', () => {
+            console.log('User disconnected:', socket.id);
+        });
+    });
+    return io;
+};
+
+// تهيئة Socket.IO
+initSocket(server);
+
+// دالة لتصدير io
+const getIo = () => {
+    if (!io) {
+        throw new Error("Socket.io not initialized!");
+    }
+    return io;
+};
+// 🎯🎯🎯 نهاية إعداد Socket.IO 🎯🎯🎯
+
+
 // Middlewares
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
@@ -44,6 +82,7 @@ const statsRoutes = require('./src/routes/stats.routes.js');
 const authRoutes = require('./src/routes/auth.routes.js');
 const notificationRoutes = require('./src/routes/notification.routes');
 const queueRoutes = require('./src/routes/queue.routes'); // أضف هذا
+const supportRoutes = require('./src/routes/support.routes');
 
 const PORT = process.env.PORT || 3000;
 
@@ -81,6 +120,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/offers', offerRoutes);
 app.use('/api/queue', queueRoutes); // أضف هذا
 app.use('/api/', generalLimiter);
+app.use('/api/support', supportRoutes); // 🎯 استخدام المسار الجديد
+
 
 // مسار فحص الصحة
 app.get('/api/health', async (req, res) => {
@@ -116,6 +157,11 @@ io.on('connection', (socket) => {
 app.get('*', (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
 });
+
+
+// 🎯🎯🎯 استيراد وتشغيل البوت وتصدير io 🎯🎯🎯
+module.exports = { getIo };
+require('./src/telegramBot'); // تأكد من أن المسار صحيح
 
 // تشغيل الخادم
 server.listen(PORT, () => {
