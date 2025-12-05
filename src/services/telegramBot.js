@@ -2,7 +2,6 @@
 
 const TelegramBot = require('node-telegram-bot-api');
 const SupportChat = require('../models/supportChat.model');
-const User = require('../models/user.model');
 require('dotenv').config();
 
 module.exports = (getIo) => {
@@ -12,29 +11,38 @@ module.exports = (getIo) => {
     console.log('🤖 Telegram Bot started...');
 
     bot.on('message', async (msg) => {
+
+        // لازم الرد يكون على رسالة النظام
         if (!msg.reply_to_message) {
-            bot.sendMessage(msg.chat.id, "يرجى الرد على رسالة مستخدم لإرسال الإجابة.");
-            return;
+            return bot.sendMessage(msg.chat.id, "يرجى الرد على رسالة المستخدم فقط.");
         }
 
         try {
-            // استخراج معرف المستخدم من الرسالة الأصلية
-            const originalText = msg.reply_to_message.text;
-            const match = originalText.match(/\[ID: (\w+)\]/);
+            // نحاول استخراج userId من الكابتشن أولاً (أقوى طريقة)
+            let userId = null;
 
-            if (!match) {
+            if (msg.reply_to_message.caption && msg.reply_to_message.caption.startsWith("USER_ID:")) {
+                userId = msg.reply_to_message.caption.replace("USER_ID:", "").trim();
+            }
+
+            // احتياط: في حال بعض الأنظمة ترسل بالـ text
+            if (!userId && msg.reply_to_message.text?.includes("USER_ID:")) {
+                userId = msg.reply_to_message.text.split("USER_ID:")[1].trim();
+            }
+
+            // إذا مافي userId → نوقف
+            if (!userId) {
                 return bot.sendMessage(msg.chat.id, "لم يتم العثور على ID المستخدم.");
             }
 
-            const userId = match[1];
             const replyText = msg.text;
 
             const chat = await SupportChat.findOne({ userId });
             if (!chat) {
-                return bot.sendMessage(msg.chat.id, `لا يوجد محادثة لهذا المستخدم.`);
+                return bot.sendMessage(msg.chat.id, "لا يوجد محادثة لهذا المستخدم.");
             }
 
-            // تسجيل الرد
+            // حفظ الرد بالمحادثة
             chat.messages.push({
                 sender: 'support',
                 text: replyText,
@@ -42,7 +50,7 @@ module.exports = (getIo) => {
             });
             await chat.save();
 
-            // إرسال الرد عبر Socket.IO
+            // إرسال الرد عبر socket.io
             const io = getIo();
             io.to(userId).emit('support-reply', {
                 userId,
