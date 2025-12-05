@@ -1160,14 +1160,22 @@ new-footer {
 /* --- 3. نافذة الاتصال الجديدة --- */
 
 
-/* --- 4. الأزرار العائمة الجديدة --- */
-/* ===================================================================
-   8. LIVE CHAT & NEW FLOATING BUTTONS STYLES
+/* --- 4. الأزرار العائمة الجديدة --- *//* ===================================================================
+   8. PROFESSIONAL LIVE CHAT & FLOATING BUTTONS
    =================================================================== */
 
-/* --- 1. الأزرار العائمة --- */
-.floating-btn {
+/* --- 1. الأزرار العائمة المحسّنة --- */
+.floating-btn-container {
     position: fixed;
+    left: 1.5rem;
+    bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    z-index: 999;
+}
+
+.floating-btn {
     width: 56px;
     height: 56px;
     border-radius: 50%;
@@ -1175,37 +1183,46 @@ new-footer {
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: var(--shadow-md);
-    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
     cursor: pointer;
-    z-index: 999;
 }
 .floating-btn:hover {
-    transform: scale(1.1);
-    box-shadow: var(--shadow-lg);
+    transform: scale(1.1) rotate(10deg);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 .floating-btn i {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
+    transition: transform 0.3s ease;
 }
+.floating-btn:hover i {
+    transform: scale(1.1);
+}
+
 .support-float {
-    left: 1.5rem;
-    bottom: 1.5rem;
     background: var(--purple-gradient);
 }
 .scroll-top-float {
-    left: 1.5rem;
-    bottom: 6rem; /* فوق زر الدعم */
     background-color: var(--text-dark);
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+}
+.scroll-top-float.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
-/* --- 2. نافذة الدردشة --- */
+/* --- 2. نافذة الدردشة الاحترافية --- */
 .chat-window {
     position: fixed;
     bottom: 6.5rem;
     left: 1.5rem;
-    width: 350px;
-    max-height: 500px;
+    width: 360px;
+    height: 70vh;
+    max-height: 550px;
     background-color: var(--white-pure);
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-lg);
@@ -1213,8 +1230,8 @@ new-footer {
     flex-direction: column;
     z-index: 1000;
     transform-origin: bottom left;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    transform: scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+    transform: scale(0.9) translateY(10px);
     opacity: 0;
     pointer-events: none;
 }
@@ -1232,6 +1249,7 @@ new-footer {
     background: var(--purple-gradient);
     color: white;
     border-radius: var(--radius-card) var(--radius-card) 0 0;
+    flex-shrink: 0;
 }
 .chat-header-info {
     display: flex;
@@ -1241,8 +1259,8 @@ new-footer {
 .chat-header-info i { font-size: 1.5rem; }
 .chat-title { font-weight: 700; }
 .chat-status { font-size: 0.8rem; opacity: 0.8; }
-.chat-close-btn { background: none; border: none; color: white; opacity: 0.8; cursor: pointer; font-size: 1.2rem; }
-.chat-close-btn:hover { opacity: 1; }
+.chat-close-btn { background: none; border: none; color: white; opacity: 0.8; cursor: pointer; font-size: 1.2rem; transition: transform 0.2s ease; }
+.chat-close-btn:hover { opacity: 1; transform: rotate(90deg); }
 
 .chat-messages {
     flex-grow: 1;
@@ -1250,81 +1268,138 @@ new-footer {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
 }
-.message {
+
+/* --- 3. فقاعات الدردشة المحسّنة --- */
+.chat-message {
+    display: flex;
+    margin-bottom: 0.5rem;
+    max-width: 85%;
+    animation: message-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes message-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message-bubble {
     padding: 0.75rem 1rem;
-    border-radius: 1rem;
-    max-width: 80%;
-    line-height: 1.4;
+    border-radius: 18px;
+    line-height: 1.5;
     font-size: 0.9rem;
+    position: relative;
 }
-.message.user {
-    background-color: var(--purple-main);
-    color: white;
-    border-bottom-right-radius: 0.25rem;
-    align-self: flex-end;
-}
-.message.support {
-    background-color: var(--gray-border);
-    color: var(--text-dark);
-    border-bottom-left-radius: 0.25rem;
-    align-self: flex-start;
-}
-.message .timestamp {
-    display: block;
+.timestamp {
     font-size: 0.7rem;
-    color: #a0aec0;
+    color: var(--text-light);
     margin-top: 0.25rem;
     text-align: left;
 }
-.message.user .timestamp {
+
+.chat-message.user {
+    align-self: flex-end;
+}
+.chat-message.user .message-bubble {
+    background: var(--purple-main);
+    color: var(--white-pure);
+    border-bottom-right-radius: 4px;
+}
+.chat-message.user .timestamp {
     color: rgba(255, 255, 255, 0.7);
+    text-align: right;
 }
 
+.chat-message.support {
+    align-self: flex-start;
+}
+.chat-message.support .message-bubble {
+    background: #eef2f7; /* لون أفتح قليلاً */
+    color: var(--text-dark);
+    border-bottom-left-radius: 4px;
+}
+
+/* رسالة النظام (خطأ أو تحميل) */
+.chat-message.system {
+    align-self: center;
+    width: 100%;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+/* --- 4. منطقة الإدخال المحسّنة --- */
 .chat-input-area {
     display: flex;
+    align-items: center;
     padding: 0.75rem;
     border-top: 1px solid var(--gray-border);
+    flex-shrink: 0;
 }
 #chat-input {
     flex-grow: 1;
     border: none;
     background: transparent;
-    padding: 0.5rem;
+    padding: 0.75rem;
     resize: none;
     outline: none;
+    font-family: inherit;
+    font-size: 0.95rem;
 }
+#chat-input::placeholder {
+    color: var(--text-light);
+}
+
 .send-btn {
     background: var(--purple-main);
     color: white;
     border: none;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .send-btn:hover {
     background: var(--purple-dark);
+    transform: scale(1.1);
+}
+.send-btn i {
+    font-size: 1.2rem;
 }
 
-/* --- 3. تجاوب نافذة الدردشة --- */
-@media (max-width: 400px) {
+/* --- 5. حالة التحميل --- */
+#chat-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+#chat-loading i {
+    font-size: 2rem;
+    color: var(--purple-main);
+    animation: spin 1s linear infinite;
+}
+
+/* --- 6. التجاوب مع الشاشات الصغيرة --- */
+@media (max-width: 420px) {
     .chat-window {
         width: calc(100vw - 2rem);
+        height: calc(100vh - 7rem);
+        max-height: none;
         left: 1rem;
-        bottom: 5.5rem;
+        bottom: 6rem;
+        border-radius: 16px;
     }
-    .support-float {
+    .floating-btn-container {
         left: 1rem;
         bottom: 1rem;
     }
-    .scroll-top-float {
-        left: 1rem;
-        bottom: 5rem;
-    }
 }
+
 
 
 /* --- 5. تحسينات التجاوب العامة --- */
