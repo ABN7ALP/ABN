@@ -2514,93 +2514,123 @@ quantityInput.addEventListener('input', () => {
         });
     }
 
-// ==========================================
-// 🏆 نظام الدردشة الحية الجديد
-// ==========================================
-    // --- 10. منطق الدردشة الحية ---
-    const supportChatToggle = document.getElementById('support-chat-toggle');
-    const chatWindow = document.getElementById('support-chat-window');
-    const closeChatBtn = document.getElementById('close-chat-btn');
-    const chatMessages = document.getElementById('chat-messages');
-    const chatInput = document.getElementById('chat-input');
-    const sendChatBtn = document.getElementById('send-chat-btn');
+// ===================================================================
+// 10. منطق الدردشة الحية (النسخة النهائية والمحسّنة)
+// ===================================================================
+const supportChatToggle = document.getElementById('support-chat-toggle');
+const chatWindow = document.getElementById('support-chat-window');
+const closeChatBtn = document.getElementById('close-chat-btn');
+const chatMessages = document.getElementById('chat-messages');
+const chatInput = document.getElementById('chat-input');
+const sendChatBtn = document.getElementById('send-chat-btn');
+const chatLoading = document.getElementById('chat-loading'); // تأكد من وجود هذا العنصر في HTML
 
-    // دالة لفتح وإغلاق نافذة الدردشة
-    function toggleChatWindow() {
-        // إذا كان المستخدم زائراً، حوله إلى واتساب
-        if (!userInfo) {
-            window.open('https://wa.me/905367893256', '_blank');
-            return;
-        }
-        chatWindow.classList.toggle('hidden');
+// 🎯 1. تعديل دالة فتح النافذة لتصبح أكثر ذكاءً
+async function openChatWindow() {
+    // إذا كان المستخدم زائراً، حوله إلى واتساب
+    if (!userInfo) {
+        window.open('https://wa.me/905367893256', '_blank');
+        return;
     }
 
-    // ربط الأحداث
-    supportChatToggle?.addEventListener('click', toggleChatWindow);
-    closeChatBtn?.addEventListener('click', () => chatWindow.classList.add('hidden'));
+    chatWindow.classList.remove('hidden');
+    chatLoading.classList.remove('hidden'); // إظهار التحميل
+    chatMessages.innerHTML = ''; // تفريغ الرسائل القديمة
 
-    // دالة لإرسال رسالة
-    async function sendMessage() {
-        const messageText = chatInput.value.trim();
-        if (!messageText) return;
+    try {
+        // جلب سجل المحادثة من الخادم
+        const response = await fetch('/api/support/chat', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
 
-        // عرض رسالة المستخدم فوراً
-        appendMessage(messageText, 'user');
-        chatInput.value = '';
+        if (!response.ok) throw new Error('فشل تحميل المحادثة.');
 
-        try {
-            // إرسال الرسالة إلى الخادم
-            const response = await fetch('/api/support/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({ message: messageText })
+        const chatHistory = await response.json();
+        
+        // عرض الرسائل القديمة
+        if (chatHistory && chatHistory.messages && chatHistory.messages.length > 0) {
+            chatHistory.messages.forEach(msg => {
+                appendMessage(msg.text, msg.sender, msg.timestamp);
             });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'فشل إرسال الرسالة');
-            }
-            // يمكنك التعامل مع الرد هنا إذا أردت
-        } catch (error) {
-            appendMessage(`خطأ: ${error.message}`, 'system');
+        } else {
+            // عرض رسالة ترحيبية إذا كانت المحادثة فارغة
+            appendMessage('مرحباً بك في الدعم الفني! كيف يمكننا مساعدتك اليوم؟', 'support');
         }
-    }
 
-    sendChatBtn?.addEventListener('click', sendMessage);
-    chatInput?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-
-    // دالة لإضافة رسالة إلى الواجهة
-    function appendMessage(text, type, timestamp = new Date()) {
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message', type);
-        
-        const time = new Date(timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-        
-        messageDiv.innerHTML = `
-            <div>${text}</div>
-            <span class="timestamp">${time}</span>
-        `;
-        chatMessages.appendChild(messageDiv);
+    } catch (error) {
+        console.error('Error fetching chat history:', error);
+        appendMessage(`خطأ: ${error.message}`, 'system');
+    } finally {
+        chatLoading.classList.add('hidden'); // إخفاء التحميل
         chatMessages.scrollTop = chatMessages.scrollHeight; // التمرير للأسفل
     }
+}
 
-    // الاستماع للرسائل القادمة من الدعم عبر Socket.IO
-    socket.on('support-reply', (data) => {
-        if (userInfo && data.userId === userInfo._id) {
-            appendMessage(data.message, 'support');
-            // تشغيل صوت الإشعار
-            const notificationSound = new Audio('/sounds/reply.mp3'); // تأكد من وجود هذا الملف
+// ربط الأحداث
+supportChatToggle?.addEventListener('click', openChatWindow);
+closeChatBtn?.addEventListener('click', () => chatWindow.classList.add('hidden'));
+
+// 🎯 2. دالة إرسال الرسالة (تبقى كما هي تقريباً)
+async function sendMessage() {
+    const messageText = chatInput.value.trim();
+    if (!messageText) return;
+
+    appendMessage(messageText, 'user');
+    chatInput.value = '';
+
+    try {
+        const response = await fetch('/api/support/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({ message: messageText })
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'فشل إرسال الرسالة');
+        }
+    } catch (error) {
+        appendMessage(`خطأ: ${error.message}`, 'system');
+    }
+}
+
+sendChatBtn?.addEventListener('click', sendMessage);
+chatInput?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+
+// 🎯 3. دالة إضافة الرسائل (تبقى كما هي)
+function appendMessage(text, type, timestamp = new Date()) {
+    const messageDiv = document.createElement('div');
+    // تعديل بسيط: استخدام sender بدلاً من type
+    messageDiv.className = `chat-message ${type === 'user' ? 'user' : 'support'}`;
+    
+    const time = new Date(timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+    
+    messageDiv.innerHTML = `
+        <div class="message-bubble">${text}</div>
+        <span class="timestamp">${time}</span>
+    `;
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// 🎯 4. الاستماع للرسائل الحية (تبقى كما هي)
+if (userInfo) {
+    const liveSocket = io({ query: { userId: userInfo._id } });
+    liveSocket.on('support-reply', (data) => {
+        if (data.userId === userInfo._id) {
+            appendMessage(data.message, 'support', data.timestamp);
+            const notificationSound = new Audio('/sounds/reply.mp3');
             notificationSound.play().catch(e => console.warn("التشغيل التلقائي للصوت محظور"));
         }
     });
+}
 
 
 // روابط الفوتر القانونية
