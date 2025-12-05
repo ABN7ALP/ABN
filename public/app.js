@@ -1227,9 +1227,18 @@ function handlePaymentMethodSelect(event) {
             minMessage = 'الحد الأدنى للعملات الرقمية: 10 دولار';
             break;
         case 'whatsapp':
-            minAmount = 1;
-            minMessage = '١١١١';
+            minAmount = 50;
+            minMessage = 'الحد الأدنى للحوالة المكتبية: 50 دولار';
             break;
+         case 'payeer':
+            minAmount = 10;
+            minMessage = 'الحد الأدنى لـ PAYEER: 10$';
+            break;
+         case 'binance-pay': 
+            minAmount = 10;
+            minMessage = 'الحد الأدنى لـ Binance Pay: 10$';
+            break;
+            
     }
     
     // 🆕 تحديث حقل المبلغ
@@ -1267,13 +1276,18 @@ function handlePaymentMethodSelect(event) {
             `; 
             break;
             
-        case 'sham': 
+        case 'sham': // 🎯 تم تحديث معلومات شام كاش
             detailsHTML = `
-                <p>يرجى مسح الباركود التالي والدفع عبر شام كاش:</p>
-                <img src="https://i.imgur.com/LvVpAx1.jpeg" alt="Sham Cash QR Code" style="max-width: 200px; height: auto; border-radius: 10px; margin: 1rem auto; display: block;">
-                <div class="payment-note">
-                    <i class="ph-bold ph-info"></i>
-                    <span>${minMessage}</span>
+                <p>يرجى الدفع إلى الحساب التالي عبر شام كاش:</p>
+                <p><strong>الاسم:</strong> <span>Mohamed Nour Al Rahim</span></p>
+                <p><strong>كود الحساب:</strong></p>
+                <div class="wallet-address">
+                    <div class="address-container">
+                        <span class="address-text">0bc3c408794e5087db1ba11924b2003a</span>
+                        <div class="copy-icon" data-address="0bc3c408794e5087db1ba11924b2003a">
+                            <i class="ph-bold ph-copy"></i>
+                        </div>
+                    </div>
                 </div>
             `; 
             break;
@@ -1575,20 +1589,24 @@ function showCopySuccessMessage(message, isError = false) {
     const method = selectedMethod.dataset.method;
     let minAmount = 1;
     
+    // 🎯🎯🎯 التعديلات هنا 🎯🎯🎯
     switch (method) {
         case 'bank': minAmount = 10; break;
         case 'sham': minAmount = 5; break;
+        case 'whatsapp': minAmount = 50; break; // 🎯 تم التحديث
+        case 'payeer': minAmount = 10; break; // 🎯 تم التحديث
+        case 'binance-pay': minAmount = 10; break; // 🎯 تم التحديث
         case 'usdt':
         case 'trx':
         case 'bnb': minAmount = 10; break;
-        case 'whatsapp': minAmount = 1; break;
     }
     
     if (amount < minAmount) {
-        depositFormResponse.textContent = `الحد الأدنى ل${method === 'sham' ? 'شام كاش' : method === 'bank' ? 'التحويل البنكي' : method === 'whatsapp' ? 'الحوالة' : 'هذه العملة'} هو ${minAmount} دولار.`; 
+        depositFormResponse.textContent = `الحد الأدنى لهذه الطريقة هو ${minAmount}$`; 
         depositFormResponse.className = 'form-message error'; 
         return; 
     }
+
     
     if (!receiptFile) { 
         depositFormResponse.textContent = 'الرجاء رفع صورة الإيصال.'; 
