@@ -2558,7 +2558,6 @@ quantityInput.addEventListener('input', () => {
             notificationSound.play().catch(e => console.warn("التشغيل التلقائي للصوت محظور"));
         }
     });
-});
 
 
 // روابط الفوتر القانونية
