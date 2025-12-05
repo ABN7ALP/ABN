@@ -2216,6 +2216,49 @@ async function updatePrice() {
             }
         });
     }
+
+
+    // ... (داخل document.addEventListener('DOMContentLoaded', () => { ...
+
+    // ===================================================================
+    // 🎯 8.5. الاستماع لردود الدعم الفني عبر Socket.IO
+    // ===================================================================
+    if (userInfo && userInfo._id) {
+        // إعادة الاتصال بالـ socket مع معرف المستخدم
+        const socket = io({ query: { userId: userInfo._id } });
+
+        socket.on('support-reply', (data) => {
+            console.log('📨 رسالة دعم جديدة مستلمة من الخادم:', data);
+
+            // التحقق من أن الرسالة تخص المستخدم الحالي
+            if (data.userId === userInfo._id) {
+                // تشغيل صوت تنبيه
+                try {
+                    new Audio('/sounds/support_reply.mp3').play().catch(e => console.log("التفاعل مطلوب لتشغيل الصوت."));
+                } catch (e) {
+                    console.error("فشل تشغيل صوت الرد.");
+                }
+
+                // عرض الرسالة في نافذة الدردشة إذا كانت مفتوحة
+                const chatWindow = document.getElementById('support-chat-window');
+                if (chatWindow && !chatWindow.classList.contains('hidden')) {
+                    const messagesContainer = document.getElementById('chat-messages');
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'chat-message support'; // رسالة من الدعم
+                    messageElement.innerHTML = `<div class="message-bubble">${data.message}</div>`;
+                    messagesContainer.appendChild(messageElement);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight; // التمرير للأسفل
+                } else {
+                    // إذا كانت النافذة مغلقة، أظهر إشعاراً
+                    showNotificationAlert({
+                        message: `💬 رد جديد من الدعم الفني: "${data.message.substring(0, 30)}..."`
+                    });
+                }
+            }
+        });
+    }
+
+    
     // --- 8. الاستماع للتحديثات الفورية (Socket.IO) ---
     socket.on('new-service', loadServices);
     socket.on('service-updated', loadServices);
