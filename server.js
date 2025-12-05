@@ -161,7 +161,7 @@ app.get('*', (req, res) => {
 
 // 🎯🎯🎯 استيراد وتشغيل البوت وتصدير io 🎯🎯🎯
 module.exports = { getIo };
-require('./src/telegramBot'); // تأكد من أن المسار صحيح
+require('./src/services/telegramBot'); // تأكد من أن المسار صحيح
 
 // تشغيل الخادم
 server.listen(PORT, () => {
