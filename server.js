@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
-//const { Server } = require("socket.io");
+const { Server } = require("socket.io");
 const { checkRedisConnection } = require('./src/services/queue'); // أضف هذا
 const adminRoutes = require('./src/routes/admin.routes');
 const offerRoutes = require('./src/routes/offer.routes');
@@ -19,24 +19,13 @@ const {
 const app = express();
 app.set('trust proxy', 1);
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  }
-});
 
-
-// 🎯🎯🎯 إعداد Socket.IO بطريقة قابلة للتصدير 🎯🎯🎯
+// 🎯 إعداد Socket.IO الموحد (مرة واحدة فقط)
 let io;
-const initSocket = (server) => {
-    io = new Server(server, {
-        cors: {
-            origin: "*",
-            methods: ["GET", "POST"]
-        }
+function initSocket(httpServer) {
+    io = new Server(httpServer, {
+        cors: { origin: "*", methods: ["GET", "POST"] }
     });
-
     io.on('connection', (socket) => {
         console.log('A user connected:', socket.id);
         const userId = socket.handshake.query.userId;
@@ -48,20 +37,14 @@ const initSocket = (server) => {
             console.log('User disconnected:', socket.id);
         });
     });
-    return io;
-};
-
-// تهيئة Socket.IO
+}
 initSocket(server);
 
-// دالة لتصدير io
 const getIo = () => {
-    if (!io) {
-        throw new Error("Socket.io not initialized!");
-    }
+    if (!io) throw new Error("Socket.io not initialized!");
     return io;
 };
-// 🎯🎯🎯 نهاية إعداد Socket.IO 🎯🎯🎯
+
 
 
 // Middlewares
@@ -161,7 +144,7 @@ app.get('*', (req, res) => {
 
 // 🎯🎯🎯 استيراد وتشغيل البوت وتصدير io 🎯🎯🎯
 module.exports = { getIo };
-require('./src/services/telegramBot'); // تأكد من أن المسار صحيح
+require('./src/services/telegramBot');
 
 // تشغيل الخادم
 server.listen(PORT, () => {
