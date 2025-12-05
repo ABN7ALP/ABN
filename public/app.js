@@ -1268,7 +1268,7 @@ function handlePaymentMethodSelect(event) {
             detailsHTML = `
                 <p>يرجى تحويل المبلغ إلى الحساب التالي:</p>
                 <p><strong>الاسم:</strong> <span>MUHAMMED ERRAHIM</span></p>
-                <p><strong>رقم الحساب (IBAN):</strong> <span>TR77 0014 3000 0000 0013 8811 28</span></p>
+                <p><strong>رقم الحساب (IBAN):</strong></p>
                 <div class="wallet-address" style="margin-top: 0.5rem;">
                         <div class="address-container">
                             <span class="address-text">TR77 0014 3000 0000 0013 8811 28</span>
