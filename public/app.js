@@ -2470,20 +2470,10 @@ quantityInput.addEventListener('input', () => {
             updatePasswordStrength(e.target.value);
         });
     }
-// ==========================================
-// 🏆 JavaScript للفوتر والأزرار العائمة الجديدة
-// ==========================================
-
-// ==========================================
-// 🏆 JavaScript للفوتر والأزرار العائمة الجديدة
-// ==========================================
 
 // ==========================================
 // 🏆 نظام الدردشة الحية الجديد
 // ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-    // ... (الكود الحالي لـ app.js يبقى كما هو)
-
     // --- 10. منطق الدردشة الحية ---
     const supportChatToggle = document.getElementById('support-chat-toggle');
     const chatWindow = document.getElementById('support-chat-window');
