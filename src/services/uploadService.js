@@ -1,5 +1,5 @@
 // services/uploadService.js
-const cloudinary = require('../config/cloudinary');
+const { cloudinary } = require('../config/cloudinary'); 
 
 class UploadService {
     // رفع صورة إلى Cloudinary - النسخة المحسنة
