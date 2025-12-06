@@ -5,32 +5,31 @@ const { Server } = require("socket.io");
 let io;
 
 function initSocket(httpServer) {
-    // 🎯 قائمة النطاقات المسموح بها
+    // 🎯 قائمة النطاقات المسموح بها (تم تحديثها)
     const allowedOrigins = [
-        "https://bae.up.railway.app", // نطاق الإنتاج الرئيسي
-        "http://localhost:3000",      // نطاق التطوير المحلي (يمكنك تغييره أو حذفه)
-        "http://127.0.0.1:5500"       // مثال لنطاق آخر قد تستخدمه
+        "https://abn-production-cbae.up.railway.app", // ✅ تم إضافة نطاقك الجديد هنا
+        "https://bae.up.railway.app",                 // النطاق القديم (من الجيد إبقاؤه)
+        "http://localhost:3000",                     // نطاق التطوير المحلي
+        "http://127.0.0.1:5500"                      // نطاق Live Server في VS Code
     ];
 
     io = new Server(httpServer, {
         cors: {
-            // ✅ استبدال "*" بالقائمة الموثوقة
             origin: function (origin, callback) {
-                // السماح بالطلبات التي لا تحتوي على origin (مثل تطبيقات الموبايل أو Postman)
-                if (!origin) return callback(null, true);
-                
-                if (allowedOrigins.indexOf(origin) === -1) {
+                if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+                    callback(null, true);
+                } else {
+                    console.error(`❌ CORS Error: Origin ${origin} not allowed.`); // 🎯 إضافة سجل خطأ أوضح
                     const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-                    return callback(new Error(msg), false);
+                    callback(new Error(msg), false);
                 }
-                return callback(null, true);
             },
             methods: ["GET", "POST"]
         }
     });
 
     io.on('connection', (socket) => {
-        console.log('A user connected:', socket.id);
+        console.log('✅ A user connected from allowed origin:', socket.handshake.headers.origin);
         const userId = socket.handshake.query.userId;
         if (userId) {
             socket.join(userId);
