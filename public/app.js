@@ -2543,6 +2543,7 @@ async function openChatAndLoadHistory() {
     chatWindow.classList.remove('hidden');
     chatLoading.classList.remove('hidden');
     chatMessages.innerHTML = '';
+    document.getElementById('support-chat-toggle')?.classList.remove('has-new-message');
     try {
         const response = await fetch('/api/support/chat', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
         if (!response.ok) throw new Error('فشل تحميل المحادثة.');
@@ -2650,18 +2651,47 @@ attachFileBtn?.addEventListener('click', () => chatFileInput.click());
 chatFileInput?.addEventListener('change', handleFileSelect);
 removeImageBtn?.addEventListener('click', resetAttachment);
 
-// الاستماع للردود (محدثة لدعم الصور)
-if (userInfo) {
+// ابحث عن هذا الكود واستبدله
+// ===================================================================
+// 🎯 8.5. الاستماع لردود الدعم الفني عبر Socket.IO (النسخة المطورة)
+// ===================================================================
+if (userInfo && userInfo._id) {
+    // تأكد من وجود اتصال واحد فقط بالـ socket
     const socket = io({ query: { userId: userInfo._id } });
+
     socket.on('support-reply', (data) => {
+        console.log('📨 رسالة دعم جديدة مستلمة من الخادم:', data);
+
+        // التحقق من أن الرسالة تخص المستخدم الحالي
         if (data.userId === userInfo._id) {
-            appendMessage(data.message, 'support', data.timestamp, data.imageUrl);
-            try { new Audio('/sounds/reply.mp3').play(); } catch (e) {}
+            // تشغيل صوت تنبيه
+            try {
+                new Audio('/sounds/support_reply.mp3').play().catch(e => console.log("التفاعل مطلوب لتشغيل الصوت."));
+            } catch (e) {
+                console.error("فشل تشغيل صوت الرد.");
+            }
+
+            const chatWindow = document.getElementById('support-chat-window');
+            
+            // التحقق إذا كانت نافذة الدردشة مفتوحة
+            if (chatWindow && !chatWindow.classList.contains('hidden')) {
+                // إذا كانت مفتوحة، أضف الرسالة مباشرة
+                appendMessage(data.message, 'support', data.timestamp, data.imageUrl);
+            } else {
+                // 🎯 إذا كانت مغلقة، أظهر شارة الإشعار على الأيقونة
+                const supportToggle = document.getElementById('support-chat-toggle');
+                if (supportToggle) {
+                    supportToggle.classList.add('has-new-message');
+                }
+                
+                // وأظهر إشعاراً منبثقاً أيضاً
+                showNotificationAlert({
+                    message: `💬 رد جديد من الدعم الفني: "${(data.message || 'صورة جديدة').substring(0, 30)}..."`
+                });
+            }
         }
     });
 }
-
-
 
 // ===================================================================
 // 11. منطق الفوتر والأزرار العائمة الجديد
