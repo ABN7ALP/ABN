@@ -240,6 +240,7 @@ router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
 });
 
 // --- POST /api/auth/reset-password مع Rate Limiting ---
+// --- POST /api/auth/reset-password مع Rate Limiting ---
 router.post('/reset-password', passwordResetLimiter, async (req, res) => {
     try {
         const { email, token, newPassword } = req.body;
@@ -259,17 +260,19 @@ router.post('/reset-password', passwordResetLimiter, async (req, res) => {
             return res.status(400).json({ message: 'رابط إعادة التعيين غير صالح أو منتهي الصلاحية' });
         }
 
-        // 🆕 التحقق مما إذا كلمة المرور الجديدة مطابقة للقديمة
-        const isSamePassword = await user.matchPassword(newPassword);
+        // 🎯 التحقق مما إذا كانت كلمة المرور الجديدة مطابقة للقديمة
+        // سنستخدم bcrypt.compare هنا لأننا لا نريد تشغيل منطق قفل الحساب
+        const isSamePassword = await require('bcryptjs').compare(newPassword, user.password);
         if (isSamePassword) {
             return res.status(400).json({ message: 'كلمة المرور الجديدة يجب أن تكون مختلفة عن القديمة' });
         }
 
-        // تحديث كلمة المرور
+        // تحديث كلمة المرور مباشرة
         user.password = newPassword;
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
         
+        // سيتم تشفير كلمة المرور الجديدة تلقائياً بفضل userSchema.pre('save', ...)
         await user.save();
 
         res.json({ message: 'تم إعادة تعيين كلمة المرور بنجاح' });
@@ -279,5 +282,6 @@ router.post('/reset-password', passwordResetLimiter, async (req, res) => {
         res.status(500).json({ message: 'فشل إعادة تعيين كلمة المرور' });
     }
 });
+
 
 module.exports = router;
