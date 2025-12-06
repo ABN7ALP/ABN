@@ -52,14 +52,25 @@
             </section>
 
             <!-- Orders Section -->
-<section id="orders-section" class="admin-section">
-    <div class="section-header">
-        <h2><i class="ph-bold ph-shopping-cart"></i> الطلبات الأخيرة</h2>
+<div class="section-header">
+    <h2><i class="ph-bold ph-shopping-cart"></i> الطلبات الأخيرة</h2>
+    <div class="header-controls">
         <div class="admin-search-box">
             <input type="text" id="orders-search" placeholder="ابحث في الطلبات...">
             <i class="ph-bold ph-magnifying-glass"></i>
         </div>
+        <!-- 🎯 القائمة المنسدلة الجديدة هنا -->
+        <div class="select-wrapper week-filter-wrapper">
+            <select id="orders-week-filter">
+                <option value="0">الأسبوع الحالي</option>
+                <option value="1">الأسبوع الماضي</option>
+                <option value="2">قبل أسبوعين</option>
+                <option value="3">قبل 3 أسابيع</option>
+                <option value="4">قبل 4 أسابيع</option>
+            </select>
+        </div>
     </div>
+</div>
     <div class="table-container">
         <table id="orders-table">
             <thead><tr><th>المنصة</th><th>الخدمة</th><th>الرابط</th><th>الكمية</th><th>السعر</th><th>تاريخ الطلب</th><th>الحالة</th></tr></thead>
@@ -197,14 +208,25 @@
 </section>
             
             <!-- Deposits Section -->
-<section id="deposits-section" class="admin-section">
-    <div class="section-header">
-        <h2><i class="ph-bold ph-bank"></i> طلبات شحن الرصيد</h2>
+<div class="section-header">
+    <h2><i class="ph-bold ph-bank"></i> طلبات شحن الرصيد</h2>
+    <div class="header-controls">
         <div class="admin-search-box">
             <input type="text" id="deposits-search" placeholder="ابحث في طلبات الشحن...">
             <i class="ph-bold ph-magnifying-glass"></i>
         </div>
+        <!-- 🎯 القائمة المنسدلة الجديدة هنا -->
+        <div class="select-wrapper week-filter-wrapper">
+            <select id="deposits-week-filter">
+                <option value="0">الأسبوع الحالي</option>
+                <option value="1">الأسبوع الماضي</option>
+                <option value="2">قبل أسبوعين</option>
+                <option value="3">قبل 3 أسابيع</option>
+                <option value="4">قبل 4 أسابيع</option>
+            </select>
+        </div>
     </div>
+</div>
     <div class="table-container">
         <table id="deposits-table">
             <thead><tr><th>المستخدم</th><th>المبلغ</th><th>الطريقة</th><th>اسم المودع</th><th>الإيصال</th><th>الحالة</th><th>إجراءات</th></tr></thead>
