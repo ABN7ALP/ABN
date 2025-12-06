@@ -11,13 +11,45 @@ const handleValidationErrors = (req, res, next) => {
 };
 
 // --- قواعد التحقق للمصادقة (Auth) ---
+const sanitizeInput = (value) => {
+    if (typeof value !== 'string') return value;
+    
+    // إزالة الأحرف الخطرة
+    const dangerousPatterns = [
+        /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, // scripts
+        /javascript:/gi, // JavaScript URLs
+        /on\w+\s*=/gi, // event handlers
+        /data:/gi, // data URLs
+        /vbscript:/gi // vbscript
+    ];
+    
+    let sanitized = value;
+    dangerousPatterns.forEach(pattern => {
+        sanitized = sanitized.replace(pattern, '');
+    });
+    
+    // إزالة المسافات الزائدة
+    sanitized = sanitized.trim();
+    
+    // تحديد طول أقصى
+    if (sanitized.length > 5000) {
+        sanitized = sanitized.substring(0, 5000);
+    }
+    
+    return sanitized;
+};
+
+// ✅ أعدل كل القواعد لتشمل التعقيم
 const registerRules = [
     body('username')
         .trim()
+        .customSanitizer(sanitizeInput) // 🆕 أضف هذا
         .isLength({ min: 3 }).withMessage('اسم المستخدم يجب أن يكون 3 أحرف على الأقل.'),
+    
     body('email')
         .isEmail().withMessage('الرجاء إدخال بريد إلكتروني صالح.')
         .normalizeEmail(),
+    
     body('password')
         .isLength({ min: 8 }).withMessage('كلمة المرور يجب أن تكون 8 أحرف على الأقل.')
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
