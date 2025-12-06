@@ -1,6 +1,4 @@
 // الصق الدالة هنا في الخارج لتصبح عامة
-let csrfToken = null;
-
 function viewReceipt(base64Image) {
     const newWindow = window.open();
     if (newWindow) {
@@ -13,19 +11,11 @@ function viewReceipt(base64Image) {
     }
 }
 
-async function fetchCsrfToken() {
-    try {
-        const response = await fetch('/api/csrf-token');
-        if (!response.ok) throw new Error('Failed to fetch CSRF token');
-        const data = await response.json();
-        csrfToken = data.csrfToken;
-        console.log('✅ CSRF Token fetched successfully.');
-    } catch (error) {
-        console.error('❌ Critical CSRF Error:', error);
-        alert('حدث خطأ أمني حرج. قد لا تعمل بعض الميزات. يرجى تحديث الصفحة.');
-    }
-}
+// ===============================================
+// ******** الدوال المساعدة للأمان (الجديدة) ********
+// ===============================================
 
+// دالة لجلب الـ Headers اللازمة لإرسال التوكن مع كل طلب
 function getAuthHeaders(extraHeaders = {}) {
     const token = localStorage.getItem('token');
     const headers = {
@@ -35,16 +25,8 @@ function getAuthHeaders(extraHeaders = {}) {
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
     }
-    if (csrfToken) {
-        headers['CSRF-Token'] = csrfToken;
-    }
     return headers;
 }
-
-// ===============================================
-// ******** الدوال المساعدة للأمان (الجديدة) ********
-// ===============================================
-
 
 // 🆕 دالة تصدير الإيميلات
 async function handleExportEmails() {
@@ -142,6 +124,9 @@ if (!document.querySelector('#admin-animations')) {
 // ******** بدء تشغيل السكربت (DOMContentLoaded) ********
 // ===============================================
 
+document.addEventListener('DOMContentLoaded', () => {
+    // --- 1. إعداد الاتصال الفوري (Socket.IO) ---
+    const socket = io();
 
     // --- عناصر الصفحة العامة ---
     const loginOverlay = document.getElementById('login-overlay');
@@ -1114,68 +1099,36 @@ fetchOffers();
 setupAdminSearch();
 
 
-    // =================================================================
-// استبدل كل الكود السابق في نهاية الملف بهذا الكود المنظم
-// =================================================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    
-    // 1. جهّز الواجهة التي لا تحتاج إلى انترنت
-    console.log("DOM Loaded. Setting up UI listeners.");
-    const socket = io();
-    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
-    const sections = document.querySelectorAll('.admin-section');
+    // 🎯 ربط حدث فلتر أسابيع الطلبات
     const ordersWeekFilter = document.getElementById('orders-week-filter');
-    const depositsWeekFilter = document.getElementById('deposits-week-filter');
-    
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            if (!link.classList.contains('logout-link')) {
-                e.preventDefault();
-                const targetId = link.getAttribute('href').substring(1);
-                navLinks.forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-                sections.forEach(section => {
-                    section.classList.toggle('active', section.id === `${targetId}-section`);
-                });
-            }
-        });
-    });
-
     if (ordersWeekFilter) {
-        ordersWeekFilter.addEventListener('change', (e) => fetchOrders(e.target.value));
-    }
-    if (depositsWeekFilter) {
-        depositsWeekFilter.addEventListener('change', (e) => fetchDeposits(e.target.value));
-    }
-    
-    setupAdminSearch();
-
-    // 2. اذهب وجلب "المفتاح" ثم ابدأ العمل الحقيقي
-    console.log("Fetching CSRF token before loading data...");
-    fetchCsrfToken().then(() => {
-        console.log("CSRF Token is ready. Initializing data-dependent functions.");
-
-        const addOfferForm = document.getElementById('add-offer-form');
-        if (addOfferForm) {
-            addOfferForm.addEventListener('submit', handleAddOffer);
-        }
-
-        socket.on('new-order', () => {
-            const currentWeek = ordersWeekFilter ? ordersWeekFilter.value : 0;
-            fetchOrders(currentWeek);
-            fetchStats();
-        }); 
-        socket.on('new-deposit', () => {
-            const currentWeek = depositsWeekFilter ? depositsWeekFilter.value : 0;
-            fetchDeposits(currentWeek);
+        ordersWeekFilter.addEventListener('change', (e) => {
+            fetchOrders(e.target.value);
         });
-        socket.on('new-service', fetchServices);
-        socket.on('service-updated', fetchServices);
-        socket.on('service-deleted', fetchServices);
+    }
 
-        // الآن، ابدأ بتحميل كل شيء عن طريق التحقق من هوية المدير
-        checkAdminAccess();
+    // 🎯 ربط حدث فلتر أسابيع الشحن
+    const depositsWeekFilter = document.getElementById('deposits-week-filter');
+    if (depositsWeekFilter) {
+        depositsWeekFilter.addEventListener('change', (e) => {
+            fetchDeposits(e.target.value);
+        });
+    }
+
+    // --- 7. الاستماع للتحديثات الفورية (Socket.IO) ---
+    socket.on('new-order', () => {
+        console.log('New order received! Refreshing...');
+        fetchOrders();
+        fetchStats();
     });
+    socket.on('new-deposit', () => {
+        console.log('New deposit request received! Refreshing...');
+        fetchDeposits();
+    });
+    socket.on('new-service', fetchServices);
+    socket.on('service-updated', fetchServices);
+    socket.on('service-deleted', fetchServices);
+    
+    // تشغيل التحقق من الصلاحيات عند تحميل الصفحة
+    checkAdminAccess();
 });
-
