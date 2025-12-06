@@ -8,6 +8,7 @@ const Offer = require('../models/offer.model.js');
 const Notification = require('../models/notification.model.js');
 const authMiddleware = require('../middleware/auth.middleware');
 const adminMiddleware = require('../middleware/admin.middleware');
+const { createOrderRules } = require('../middleware/validators'); 
 
 // في order.routes.js - أضف في الأعلى بعد الـ requires
 let cachedOffers = null;
@@ -179,7 +180,7 @@ router.post('/calculate-price', async (req, res) => {
 });
 
 // --- POST /api/orders (للطلبات العادية عبر واتساب) ---
-router.post('/', async (req, res) => {
+router.post('/', createOrderRules, async (req, res) => {
     try {
         const newOrder = new Order(req.body);
         await newOrder.save();
