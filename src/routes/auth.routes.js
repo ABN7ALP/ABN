@@ -86,13 +86,21 @@ router.post('/register', registerLimiter, registerRules, async (req, res) => {
 });
 
 // --- POST /api/auth/login مع Rate Limiting ---
+// استبدل هذا المسار بالكامل
 router.post('/login', loginLimiter, loginRules, async (req, res) => {
     const { email, password } = req.body;
 
     try {
         const user = await User.findOne({ email });
 
-        if (user && (await user.matchPassword(password))) {
+        // 🎯 تعديل بسيط هنا للوضوح
+        if (!user) {
+            return res.status(401).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' });
+        }
+
+        const isPasswordCorrect = await user.matchPassword(password);
+
+        if (isPasswordCorrect) {
             if (!user.emailVerified) {
                 return res.status(401).json({ 
                     message: 'يرجى تفعيل بريدك الإلكتروني أولاً. تحقق من بريدك الوارد.' 
@@ -103,7 +111,7 @@ router.post('/login', loginLimiter, loginRules, async (req, res) => {
                 _id: user._id,
                 username: user.username,
                 email: user.email,
-                profileImage: user.profileImage, // 🆕 الآن سيُرجع رابط Cloudinary
+                profileImage: user.profileImage,
                 balance: user.balance,
                 isAdmin: user.isAdmin,
                 token: generateToken(user._id),
@@ -112,9 +120,11 @@ router.post('/login', loginLimiter, loginRules, async (req, res) => {
             res.status(401).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' });
         }
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        // التعامل مع الأخطاء (مثل خطأ الحساب المقفول)
+        res.status(401).json({ message: error.message });
     }
 });
+
 // GET /api/auth/me - جلب بيانات المستخدم المسجل دخوله حالياً
 router.get('/me', async (req, res) => {
     const { userId } = req.query;
