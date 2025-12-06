@@ -370,19 +370,21 @@
     </div>
 </footer>
 
-
-<!-- ========================================== -->
-<!-- 🎪 نافذة الاتصال الجديدة -->
-<!-- ========================================== -->
 <!-- ========================================== -->
 <!-- 🎪 نظام الدردشة الحية والأزرار العائمة الجديدة -->
 <!-- ========================================== -->
 
-<!-- 1. زر الدعم الفني العائم -->
-<button id="support-chat-toggle" class="floating-btn support-float group">
-    <i class="fas fa-question"></i>
-    <span class="floating-tooltip">الدعم المباشر</span>
-</button>
+<!-- 1. حاوية الأزرار العائمة -->
+<div class="floating-btn-container">
+    <!-- زر الدعم الفني -->
+    <button id="support-chat-toggle" class="floating-btn support-float">
+        <i class="fas fa-headset"></i>
+    </button>
+    <!-- زر الرجوع للأعلى -->
+    <button id="scroll-top" class="floating-btn scroll-top-float">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+</div>
 
 <!-- 2. نافذة الدردشة الحية -->
 <div id="support-chat-window" class="chat-window hidden">
@@ -400,6 +402,10 @@
 
     <!-- جسم المحادثة -->
     <div id="chat-messages" class="chat-messages">
+        <!-- 🎯🎯🎯 العنصر المفقود هنا 🎯🎯🎯 -->
+        <div id="chat-loading" class="hidden">
+            <i class="fas fa-spinner fa-spin"></i>
+        </div>
         <!-- سيتم ملء الرسائل هنا بواسطة JavaScript -->
     </div>
 
@@ -412,10 +418,6 @@
     </div>
 </div>
 
-<!-- 3. زر الرجوع للأعلى (منفصل) -->
-<button id="scroll-top" class="floating-btn scroll-top-float group hidden">
-    <i class="fas fa-arrow-up"></i>
-</button>
 
 
     <script src="app.js"></script>
