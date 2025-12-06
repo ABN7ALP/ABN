@@ -120,27 +120,34 @@ userSchema.pre('save', async function(next) {
 });
 
 // --- دالة لمقارنة كلمة المرور المدخلة بالكلمة المشفرة ---
+// استبدل الدالة الحالية بالكامل بهذه النسخة المصححة
+// --- دالة لمقارنة كلمة المرور المدخلة بالكلمة المشفرة ---
 userSchema.methods.matchPassword = async function(enteredPassword) {
-    // 🆕 التحقق إذا كان الحساب مقفول
+    // الخطوة 1: التحقق إذا كان الحساب مقفولاً
     if (this.isLocked) {
+        // إذا كان مقفولاً، ألقِ خطأً واضحاً
         throw new Error('الحساب مقفول مؤقتاً بسبب كثرة المحاولات الفاشلة. يرجى المحاولة بعد 30 دقيقة.');
     }
-    
-    const isMatch = await bcrypt.compare(enteredPassword, this.password);
-    
-    if (!isMatch) {
-        // زيادة عدد المحاولات الفاشلة
+
+    // الخطوة 2: مقارنة كلمة المرور
+    const isMatch = await require('bcryptjs').compare(enteredPassword, this.password);
+
+    // الخطوة 3: التعامل مع النتائج
+    if (isMatch) {
+        // إذا كانت كلمة المرور صحيحة، قم بإعادة تعيين محاولات الدخول الفاشلة
+        if (this.loginAttempts > 0) {
+            await this.resetLoginAttempts();
+        }
+        // أرجع true للإشارة إلى نجاح المصادقة
+        return true;
+    } else {
+        // إذا كانت كلمة المرور خاطئة، قم بزيادة عدد المحاولات الفاشلة
         await this.incrementLoginAttempts();
-        throw new Error('كلمة المرور غير صحيحة');
+        // أرجع false للإشارة إلى فشل المصادقة
+        return false;
     }
-    
-    // إعادة تعيين المحاولات بعد تسجيل الدخول الناجح
-    if (isMatch && this.loginAttempts > 0) {
-        await this.resetLoginAttempts();
-    }
-    
-    return isMatch;
 };
+
 
 const User = mongoose.model('User', userSchema);
 
