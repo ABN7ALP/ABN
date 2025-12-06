@@ -45,22 +45,6 @@ function getAuthHeaders(extraHeaders = {}) {
 // ******** الدوال المساعدة للأمان (الجديدة) ********
 // ===============================================
 
-// دالة لجلب الـ Headers اللازمة لإرسال التوكن مع كل طلب
-function getAuthHeaders(extraHeaders = {}) {
-    const token = localStorage.getItem('token');
-    const headers = {
-        'Content-Type': 'application/json',
-        ...extraHeaders
-    };
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
-    // إضافة توكن CSRF إلى الهيدر
-    if (csrfToken) {
-        headers['CSRF-Token'] = csrfToken;
-    }
-    return headers;
-}
 
 // 🆕 دالة تصدير الإيميلات
 async function handleExportEmails() {
