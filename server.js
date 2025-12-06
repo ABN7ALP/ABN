@@ -9,6 +9,8 @@ const { checkRedisConnection } = require('./src/services/queue'); // أضف هذ
 const adminRoutes = require('./src/routes/admin.routes');
 const offerRoutes = require('./src/routes/offer.routes');
 const { initSocket, getIo } = require('./src/config/socket');
+const cookieParser = require('cookie-parser');
+const csrf = require('csurf'); 
 const { 
     loginLimiter, 
     registerLimiter, 
@@ -31,6 +33,18 @@ const io = initSocket(server);
 // Middlewares
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(cookieParser()); 
+
+// 🎯 4. إعداد حماية CSRF
+const csrfProtection = csrf({ 
+    cookie: {
+        httpOnly: true, // لا يمكن الوصول للكوكيز من خلال JavaScript في المتصفح
+        secure: process.env.NODE_ENV === 'production', // استخدم كوكيز آمنة في بيئة الإنتاج فقط
+        sameSite: 'strict' // يمنع إرسال الكوكيز مع الطلبات من مواقع أخرى
+    } 
+});
+
+
 
 // جعل io متاحاً لكل الطلبات
 app.use((req, res, next) => {
@@ -73,6 +87,13 @@ if (!fs.existsSync(path.join(publicPath, 'index.html'))) {
 }
 app.use(express.static(publicPath));
 
+
+app.use('/api', csrfProtection);
+
+// مسار خاص لإرسال التوكن إلى الواجهة الأمامية
+app.get('/api/csrf-token', (req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
+});
 // مسارات الـ API
 app.use('/api/support', supportRoutes);
 app.use('/api/orders', orderRoutes);
@@ -86,6 +107,17 @@ app.use('/api/offers', offerRoutes);
 app.use('/api/queue', queueRoutes); // أضف هذا
 app.use('/api/', generalLimiter);
 
+
+// 🎯 6. معالج أخطاء CSRF (مهم جداً)
+app.use((err, req, res, next) => {
+    if (err.code === 'EBADCSRFTOKEN') {
+        // هذا الخطأ يعني أن توكن CSRF غير صالح أو مفقود
+        console.warn(`🚨 Invalid CSRF Token: IP=${req.ip}, URL=${req.originalUrl}`);
+        res.status(403).json({ message: 'تم رفض الطلب: جلسة غير صالحة أو منتهية. يرجى تحديث الصفحة والمحاولة مرة أخرى.' });
+    } else {
+        next(err);
+    }
+});
 
 // مسار فحص الصحة
 app.get('/api/health', async (req, res) => {
