@@ -29,22 +29,42 @@ const authMiddleware = async (req, res, next) => {
         // ******** حماية مسارات المدير (منطقك الجديد) ********
         // ------------------------------------------
 
+        // ✅ أضف هذه المسارات في السطر 38
         const adminRoutes = [
-            '/api/stats', 
-            '/api/orders', 
-            '/api/services', 
-            '/api/deposits'
-        ];
+        '/api/stats', 
+        '/api/orders', 
+        '/api/services', 
+        '/api/deposits',
+        '/api/admin',      // 🆕 أضف هذا
+        '/api/offers',     // 🆕 أضف هذا
+        '/api/queue'       // 🆕 أضف هذا
+      ];
         
         const isAdminRoute = adminRoutes.some(route => req.originalUrl.startsWith(route));
 
         if (isAdminRoute) {
             // إذا كان المسار يتطلب صلاحية المدير والمستخدم ليس مديراً
-            if (req.user.isAdmin !== true) {
-                console.log(`ACCESS DENIED: User ${req.user.username} (ID: ${req.user._id}) tried to access Admin route: ${req.originalUrl}`);
-                return res.status(403).json({ message: 'غير مصرح لك: يتطلب صلاحيات المدير.' });
-            }
-        }
+           if (req.user.isAdmin !== true) {
+            console.log(`🚨 ACCESS DENIED - IP: ${req.ip || req.connection.remoteAddress}, User: ${req.user.username} (${req.user._id}), Path: ${req.originalUrl}, Method: ${req.method}, Time: ${new Date().toISOString()}`);
+    
+           // 🆕 إضافة إشعار للمدير إذا كانت محاولة متكررة
+            const recentAttempts = req.app.locals.unauthorizedAttempts || [];
+            recentAttempts.push({
+              userId: req.user._id,
+              ip: req.ip,
+              path: req.originalUrl,
+              timestamp: new Date()
+    });
+    
+           // الاحتفاظ بـ 20 محاولة فقط
+           if (recentAttempts.length > 20) recentAttempts.shift();
+           req.app.locals.unauthorizedAttempts = recentAttempts;
+    
+          return res.status(403).json({ 
+           message: 'غير مصرح لك: يتطلب صلاحيات المدير.',
+           error: 'ACCESS_DENIED'
+    });
+}
         
         // ------------------------------------------
         
