@@ -26,12 +26,13 @@ const registerRules = [
     handleValidationErrors
 ];
 
+
 const loginRules = [
     body('email')
         .isEmail().withMessage('الرجاء إدخال بريد إلكتروني صالح.')
         .normalizeEmail(),
     body('password')
-        .notEmpty().withMessage('كلمة المرور مطلوبة.'),
+        .notEmpty().withMessage('كلمة المرور مطلوبة.'), // ✅ هذا هو التحقق الصحيح لتسجيل الدخول
     handleValidationErrors
 ];
 
