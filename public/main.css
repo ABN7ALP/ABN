@@ -1203,6 +1203,10 @@ new-footer {
 .support-float {
     background: var(--purple-gradient);
 }
+.support-float i {
+    font-size: 1.6rem; /* تأكد من وجود حجم للأيقونة */
+}
+
 .scroll-top-float {
     background-color: var(--text-dark);
     opacity: 0;
