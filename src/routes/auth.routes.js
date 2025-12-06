@@ -87,7 +87,7 @@ router.post('/register', registerLimiter, registerRules, async (req, res) => {
 
 // --- POST /api/auth/login مع Rate Limiting ---
 // استبدل هذا المسار بالكامل
-router.post('/login', loginLimiter, loginRules, async (req, res) => {
+router.post('/login', /* loginLimiter, */ loginRules, async (req, res) => { // 🎯 قمنا بتعليق الـ limiter
     const { email, password } = req.body;
 
     try {
