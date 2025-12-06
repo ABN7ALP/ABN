@@ -410,12 +410,26 @@
     </div>
 
     <!-- حقل الإدخال -->
-    <div class="chat-input-area">
-        <textarea id="chat-input" placeholder="اكتب رسالتك هنا..." rows="1"></textarea>
-        <button id="send-chat-btn" class="send-btn">
-            <i class="fas fa-paper-plane"></i>
-        </button>
-    </div>
+    <!-- حقل الإدخال المطور مع زر إرفاق صورة -->
+<div class="chat-input-area">
+    <!-- 🎯 1. زر إرفاق الصورة الجديد -->
+    <button id="attach-file-btn" class="icon-btn">
+        <i class="fas fa-paperclip"></i>
+    </button>
+    <!-- حقل إدخال الملفات (مخفي) -->
+    <input type="file" id="chat-file-input" accept="image/*" class="hidden">
+
+    <textarea id="chat-input" placeholder="اكتب رسالتك هنا..." rows="1"></textarea>
+    
+    <button id="send-chat-btn" class="send-btn">
+        <i class="fas fa-paper-plane"></i>
+    </button>
+</div>
+
+<!-- 🎯 2. حاوية معاينة الصورة (مخفية افتراضياً) -->
+<div id="image-preview-container" class="image-preview-container hidden">
+    <img id="image-preview-thumb" src="#" alt="Image Preview">
+    <button id="remove-image-btn" class="remove-image-btn"><i class="fas fa-times"></i></button>
 </div>
 
 
