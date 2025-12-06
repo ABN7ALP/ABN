@@ -496,7 +496,9 @@ tr:hover td {
 }
 @media (max-width: 768px) {
     .main-content {
-        padding: 1.5rem 1rem;
+        padding-bottom: 230px;
+        padding-left: 1.5rem;
+        padding-right: 1.8rem;
     }
     
     .section-header h2 {
