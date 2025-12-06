@@ -2544,6 +2544,7 @@ async function openChatAndLoadHistory() {
     chatLoading.classList.remove('hidden');
     chatMessages.innerHTML = '';
     document.getElementById('support-chat-toggle')?.classList.remove('has-new-message');
+    localStorage.removeItem('hasUnreadSupportMessage');
     try {
         const response = await fetch('/api/support/chat', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
         if (!response.ok) throw new Error('فشل تحميل المحادثة.');
@@ -2656,15 +2657,12 @@ removeImageBtn?.addEventListener('click', resetAttachment);
 // 🎯 8.5. الاستماع لردود الدعم الفني عبر Socket.IO (النسخة المطورة)
 // ===================================================================
 if (userInfo && userInfo._id) {
-    // تأكد من وجود اتصال واحد فقط بالـ socket
     const socket = io({ query: { userId: userInfo._id } });
 
     socket.on('support-reply', (data) => {
         console.log('📨 رسالة دعم جديدة مستلمة من الخادم:', data);
 
-        // التحقق من أن الرسالة تخص المستخدم الحالي
         if (data.userId === userInfo._id) {
-            // تشغيل صوت تنبيه
             try {
                 new Audio('/sounds/support_reply.mp3').play().catch(e => console.log("التفاعل مطلوب لتشغيل الصوت."));
             } catch (e) {
@@ -2673,18 +2671,16 @@ if (userInfo && userInfo._id) {
 
             const chatWindow = document.getElementById('support-chat-window');
             
-            // التحقق إذا كانت نافذة الدردشة مفتوحة
             if (chatWindow && !chatWindow.classList.contains('hidden')) {
-                // إذا كانت مفتوحة، أضف الرسالة مباشرة
                 appendMessage(data.message, 'support', data.timestamp, data.imageUrl);
             } else {
-                // 🎯 إذا كانت مغلقة، أظهر شارة الإشعار على الأيقونة
                 const supportToggle = document.getElementById('support-chat-toggle');
                 if (supportToggle) {
                     supportToggle.classList.add('has-new-message');
+                    // 🎯 أضف هذا السطر هنا لتخزين الحالة
+                    localStorage.setItem('hasUnreadSupportMessage', 'true');
                 }
                 
-                // وأظهر إشعاراً منبثقاً أيضاً
                 showNotificationAlert({
                     message: `💬 رد جديد من الدعم الفني: "${(data.message || 'صورة جديدة').substring(0, 30)}..."`
                 });
@@ -2730,5 +2726,21 @@ footerDepositLink?.addEventListener('click', (e) => {
         showAuthPopup('login');
     }
 });
+    // ===================================================================
+    // 15. التحقق من وجود رسائل دعم غير مقروءة عند تحميل الصفحة
+    // ===================================================================
+    function checkUnreadSupportMessages() {
+        const hasUnread = localStorage.getItem('hasUnreadSupportMessage') === 'true';
+        const supportToggle = document.getElementById('support-chat-toggle');
+        
+        if (hasUnread && supportToggle) {
+            console.log('📥 تم العثور على رسالة دعم غير مقروءة من الجلسة السابقة.');
+            supportToggle.classList.add('has-new-message');
+        }
+    }
+
+    // استدعاء الدالة عند بدء تشغيل السكربت
+    checkUnreadSupportMessages();
+ 
 // 🔼 هذا هو نهاية DOMContentLoaded 🔼
 });   // ← هذي غالباً ناقصة عندك
