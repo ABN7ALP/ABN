@@ -148,10 +148,6 @@ if (!document.querySelector('#admin-animations')) {
 // ******** بدء تشغيل السكربت (DOMContentLoaded) ********
 // ===============================================
 
-document.addEventListener('DOMContentLoaded', () => {
-    fetchCsrfToken().then(() => {
-    // --- 1. إعداد الاتصال الفوري (Socket.IO) ---
-    const socket = io();
 
     // --- عناصر الصفحة العامة ---
     const loginOverlay = document.getElementById('login-overlay');
@@ -1124,39 +1120,78 @@ fetchOffers();
 setupAdminSearch();
 
 
-    // 🎯 ربط حدث فلتر أسابيع الطلبات
+    // =================================================================
+// استبدل كل الكود السابق في نهاية الملف بهذا الكود المنظم
+// =================================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // --- الجزء الأول: تشغيل الواجهة فوراً (لا يحتاج لمفتاح أمان) ---
+    
+    console.log("DOM Loaded. Setting up UI listeners.");
+    
+    const socket = io();
+    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+    const sections = document.querySelectorAll('.admin-section');
     const ordersWeekFilter = document.getElementById('orders-week-filter');
-        if (ordersWeekFilter) {
-            ordersWeekFilter.addEventListener('change', (e) => {
-                fetchOrders(e.target.value);
-            });
+    const depositsWeekFilter = document.getElementById('deposits-week-filter');
+    
+    // تفعيل أزرار التنقل بين الأقسام
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            if (!link.classList.contains('logout-link')) {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                sections.forEach(section => {
+                    section.classList.toggle('active', section.id === `${targetId}-section`);
+                });
+            }
+        });
+    });
+
+    // تفعيل فلاتر الأسابيع
+    if (ordersWeekFilter) {
+        ordersWeekFilter.addEventListener('change', (e) => fetchOrders(e.target.value));
+    }
+    if (depositsWeekFilter) {
+        depositsWeekFilter.addEventListener('change', (e) => fetchDeposits(e.target.value));
+    }
+    
+    // تفعيل البحث
+    setupAdminSearch();
+
+    // --- الجزء الثاني: جلب مفتاح الأمان ثم تحميل البيانات ---
+    
+    console.log("Fetching CSRF token before loading data...");
+    
+    fetchCsrfToken().then(() => {
+        // ممتاز، لقد حصلنا على المفتاح! الآن يمكننا بأمان تشغيل كل شيء آخر.
+        console.log("CSRF Token is ready. Initializing data-dependent functions.");
+
+        // ربط الأحداث التي تعتمد على الدوال التي ستُعرّف لاحقاً
+        const addOfferForm = document.getElementById('add-offer-form');
+        if (addOfferForm) {
+            addOfferForm.addEventListener('submit', handleAddOffer);
         }
 
-        // 🎯 ربط حدث فلتر أسابيع الشحن
-        const depositsWeekFilter = document.getElementById('deposits-week-filter');
-        if (depositsWeekFilter) {
-            depositsWeekFilter.addEventListener('change', (e) => {
-                fetchDeposits(e.target.value);
-            });
-        }
-
-        // --- 7. الاستماع للتحديثات الفورية (Socket.IO) ---
+        // الاستماع للتحديثات الفورية من الخادم
         socket.on('new-order', () => {
-            console.log('New order received! Refreshing...');
             const currentWeek = ordersWeekFilter ? ordersWeekFilter.value : 0;
             fetchOrders(currentWeek);
             fetchStats();
         });
         socket.on('new-deposit', () => {
-            console.log('New deposit request received! Refreshing...');
             const currentWeek = depositsWeekFilter ? depositsWeekFilter.value : 0;
             fetchDeposits(currentWeek);
         });
         socket.on('new-service', fetchServices);
         socket.on('service-updated', fetchServices);
         socket.on('service-deleted', fetchServices);
-  
-    
-    // تشغيل التحقق من الصلاحيات عند تحميل الصفحة
-        checkAdminAccess(); 
+
+        // الآن، ابدأ بتحميل كل شيء عن طريق التحقق من هوية المدير
+        checkAdminAccess();
+    });
 });
+
