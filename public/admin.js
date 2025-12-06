@@ -262,20 +262,21 @@ function loadDashboardData() {
     }
 
     // --- 4. قسم إدارة الطلبات ---
-    async function fetchOrders() {
-        loadingSpinner.classList.remove('hidden');
-        ordersTbody.innerHTML = '';
-        try {
-            const response = await fetch('/api/orders', { headers: getAuthHeaders() });
-            if (!response.ok) throw new Error('فشل جلب الطلبات. (قد تكون الصلاحيات غير كافية).');
-            const orders = await response.json();
-            renderOrders(orders);
-        } catch (error) {
-            alert(error.message);
-        } finally {
-            loadingSpinner.classList.add('hidden');
-        }
+async function fetchOrders(week = 0) { // 🎯 قبول بارامتر الأسبوع
+    loadingSpinner.classList.remove('hidden');
+    ordersTbody.innerHTML = '';
+    try {
+        // 🎯 إرسال الأسبوع المحدد إلى الـ API
+        const response = await fetch(`/api/orders?week=${week}`, { headers: getAuthHeaders() });
+        if (!response.ok) throw new Error('فشل جلب الطلبات.');
+        const orders = await response.json();
+        renderOrders(orders);
+    } catch (error) {
+        alert(error.message);
+    } finally {
+        loadingSpinner.classList.add('hidden');
     }
+}
 
     function renderOrders(orders) {
         ordersTbody.innerHTML = '';
@@ -541,18 +542,19 @@ async function handleStatusChange(event) {
     closeEditPopupBtn.addEventListener('click', () => editServicePopup.classList.add('hidden'));
 
     // --- 6. قسم إدارة طلبات الشحن ---
-    async function fetchDeposits() {
-        if (!depositsTbody) return;
-        depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">جاري تحميل...</td></tr>';
-        try {
-            const response = await fetch('/api/deposits', { headers: getAuthHeaders() });
-            if (!response.ok) throw new Error('فشل جلب طلبات الشحن.');
-            const deposits = await response.json();
-            renderDeposits(deposits);
-        } catch (error) {
-            depositsTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">${error.message}</td></tr>`;
-        }
+async function fetchDeposits(week = 0) { // 🎯 قبول بارامتر الأسبوع
+    if (!depositsTbody) return;
+    depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">جاري تحميل...</td></tr>';
+    try {
+        // 🎯 إرسال الأسبوع المحدد إلى الـ API
+        const response = await fetch(`/api/deposits?week=${week}`, { headers: getAuthHeaders() });
+        if (!response.ok) throw new Error('فشل جلب طلبات الشحن.');
+        const deposits = await response.json();
+        renderDeposits(deposits);
+    } catch (error) {
+        depositsTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">${error.message}</td></tr>`;
     }
+}
 
     // 🆕 دوال إدارة العروض
 function renderOffers(offers) {
@@ -1095,6 +1097,23 @@ document.getElementById('offer-end-date').value = endDate.toISOString().slice(0,
 loadServicesForOffers();
 fetchOffers();
 setupAdminSearch();
+
+
+    // 🎯 ربط حدث فلتر أسابيع الطلبات
+    const ordersWeekFilter = document.getElementById('orders-week-filter');
+    if (ordersWeekFilter) {
+        ordersWeekFilter.addEventListener('change', (e) => {
+            fetchOrders(e.target.value);
+        });
+    }
+
+    // 🎯 ربط حدث فلتر أسابيع الشحن
+    const depositsWeekFilter = document.getElementById('deposits-week-filter');
+    if (depositsWeekFilter) {
+        depositsWeekFilter.addEventListener('change', (e) => {
+            fetchDeposits(e.target.value);
+        });
+    }
 
     // --- 7. الاستماع للتحديثات الفورية (Socket.IO) ---
     socket.on('new-order', () => {
