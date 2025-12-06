@@ -6,6 +6,7 @@ const Order = require('../models/order.model');
 const Deposit = require('../models/deposit.model');
 const User = require('../models/user.model');
 const bot = require('../services/telegramBot');
+const { uploadToCloudinary, multerUpload } = require('../config/cloudinary');
 
 // ===================================================================
 // 🎯 1. المسار الجديد: جلب سجل المحادثة (GET)
@@ -27,18 +28,27 @@ router.get('/chat', authMiddleware, async (req, res) => {
 // ===================================================================
 // 2. المسار القديم: إرسال رسالة جديدة (POST) - يبقى كما هو
 // ===================================================================
-router.post('/chat', authMiddleware, async (req, res) => {
+router.post('/chat', authMiddleware, multerUpload.single('image'), async (req, res) => {
     const userId = req.user.id;
     const { message } = req.body;
+    let imageUrl = null;
+    let imagePublicId = null;
 
-    if (!message) {
+    if (!message && !req.file) {
         return res.status(400).json({ message: 'الرسالة لا يمكن أن تكون فارغة' });
     }
 
     try {
+        // رفع الصورة إلى Cloudinary إذا وجدت
+        if (req.file) {
+            const result = await uploadToCloudinary(req.file.buffer);
+            imageUrl = result.secure_url;
+            imagePublicId = result.public_id;
+        }
+
         let chat = await SupportChat.findOne({ userId });
         let isFirstMessage = !chat;
-        let initialMessage = message;
+        let initialMessage = message || '(صورة مرفقة)';
 
         if (isFirstMessage) {
             const lastOrder = await Order.findOne({ user: userId }).sort({ createdAt: -1 });
@@ -57,13 +67,23 @@ router.post('/chat', authMiddleware, async (req, res) => {
             chat = new SupportChat({ userId, messages: [] });
         }
 
-        chat.messages.push({ sender: 'user', text: message });
+        // حفظ الرسالة مع معلومات الصورة
+        chat.messages.push({ 
+            sender: 'user', 
+            text: message, 
+            imageUrl, 
+            imagePublicId 
+        });
         await chat.save();
 
         const user = await User.findById(userId).select('username');
         const telegramMessage = `*رسالة جديدة من ${user.username}*\nID: ${userId}\n\n${initialMessage}`;
         
-        bot.sendMessage(process.env.TELEGRAM_CHAT_ID, telegramMessage, { parse_mode: 'Markdown' });
+        if (imageUrl) {
+            bot.sendPhoto(process.env.TELEGRAM_CHAT_ID, imageUrl, { caption: telegramMessage, parse_mode: 'Markdown' });
+        } else {
+            bot.sendMessage(process.env.TELEGRAM_CHAT_ID, telegramMessage, { parse_mode: 'Markdown' });
+        }
 
         res.status(201).json({ message: 'تم إرسال الرسالة بنجاح' });
 
