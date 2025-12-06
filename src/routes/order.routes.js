@@ -227,6 +227,7 @@ router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
 // --- PUT /api/orders/:id (لتحديث حالة الطلب - حماية إدارية) ---
 // 🔽🔽 استبدل دالة تحديث الطلب الحالية بهذه النسخة الكاملة والنهائية 🔽🔽
 
+// ✅ عدل دالة PUT /api/orders/:id (السطر 130 تقريباً)
 router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
@@ -234,6 +235,32 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
             return res.status(404).json({ message: 'الطلب غير موجود' });
         }
 
+        // 🆕 تحقق من أن المستخدم هو مالك الطلب أو مدير
+        const isOrderOwner = order.user && order.user.toString() === req.user._id.toString();
+        const isAdmin = req.user.isAdmin === true;
+        
+        if (!isOrderOwner && !isAdmin) {
+            return res.status(403).json({ 
+                message: 'غير مصرح لك بتعديل هذا الطلب' 
+            });
+        }
+
+        // 🆕 إذا كان المستخدم عادي (ليس مدير) - تحقق من الصلاحيات
+        if (!isAdmin) {
+            // المستخدم العادي يمكنه فقط إلغاء طلبه الخاص
+            if (req.body.status !== 'ملغي') {
+                return res.status(403).json({ 
+                    message: 'يمكنك فقط إلغاء طلباتك الخاصة' 
+                });
+            }
+            
+            // التحقق من أنه يمكن الإلغاء (فقط إذا كان قيد المراجعة)
+            if (order.status !== 'قيد المراجعة') {
+                return res.status(400).json({ 
+                    message: 'لا يمكن إلغاء الطلب في حالته الحالية' 
+                });
+            }
+        }
         const oldStatus = order.status;
         const newStatus = req.body.status;
 
@@ -359,6 +386,27 @@ router.post('/pay-with-balance', async (req, res) => {
         if (isNaN(requestedQuantity) || requestedQuantity <= 0) {
             return res.status(400).json({ message: 'الكمية غير صالحة.' });
         }
+
+        // ✅ في دالة pay-with-balance (السطر 240 تقريباً) - أضف بعد جلب الخدمة
+// 🆕 التحقق من أن الخدمة متاحة
+if (!serviceDoc.isActive) {
+    return res.status(400).json({ message: 'الخدمة غير متاحة حالياً.' });
+}
+
+// 🆕 التحقق من المخزون إذا كان محدوداً
+if (serviceDoc.maxStock !== undefined && serviceDoc.maxStock !== null) {
+    if (serviceDoc.currentStock < requestedQuantity) {
+        return res.status(400).json({ 
+            message: `الكمية المطلوبة غير متوفرة. المتاح: ${serviceDoc.currentStock}` 
+        });
+    }
+}
+
+// 🆕 تحديث المخزون بعد الطلب
+if (serviceDoc.maxStock !== undefined && serviceDoc.maxStock !== null) {
+    serviceDoc.currentStock -= requestedQuantity;
+    await serviceDoc.save();
+}
 
         // جلب المستخدم
         const user = await User.findById(userId);
