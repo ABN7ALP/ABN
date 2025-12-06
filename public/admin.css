@@ -474,7 +474,7 @@ tr:hover td {
     }
     
     .main-content {
-        padding-bottom: 100px;
+        padding-bottom: 130px;
         padding-left: 1.5rem;
         padding-right: 1.5rem;
     }
@@ -484,9 +484,6 @@ tr:hover td {
         padding: 1rem;
     }
 
- .main-content {
-        padding-bottom: 120px;
-    }
     
     .sidebar {
         height: 80px;
@@ -793,17 +790,6 @@ tr:hover td {
     border-radius: var(--radius-card);
 }
 
-/*.lock-content {
-    background: white;
-    padding: 3rem;
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-lg);
-    text-align: center;
-    max-width: 500px;
-    border: 2px solid var(--purple-main);
-    position: relative;
-    z-index: 101;
-}*/
 
 .lock-icon {
     font-size: 4rem;
@@ -811,19 +797,27 @@ tr:hover td {
     margin-bottom: 1rem;
 }
 
-/* جعل المحتوى الأصلي شفافاً وغير قابل للنقر */
-/* #offers-section > div:last-child {
-    opacity: 0.3;
-    pointer-events: none;
-} */
-
-/*.success-button {
-    background: var(--success-green);
-    color: white;
-    border: none;
+/* أضف هذا في نهاية ملف admin.css */
+.header-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap; /* للسماح بالالتفاف على الشاشات الصغيرة */
 }
 
-/*.success-button:hover {
-    background: #059669;
-    transform: translateY(-2px);
-}*/
+.week-filter-wrapper select {
+    background: var(--white-pure);
+    border: 2px solid var(--gray-border);
+    border-radius: var(--radius-input);
+    padding: 0.65rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.week-filter-wrapper select:focus {
+    border-color: var(--purple-main);
+    box-shadow: 0 0 0 3px rgba(124, 30, 255, 0.1);
+}
