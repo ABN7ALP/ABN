@@ -11,6 +11,26 @@ function viewReceipt(base64Image) {
     }
 }
 
+
+let csrfToken = null;
+
+// 🎯 2. دالة لجلب التوكن عند تحميل الصفحة
+async function fetchCsrfToken() {
+    try {
+        const response = await fetch('/api/csrf-token');
+        if (!response.ok) {
+            throw new Error('Failed to fetch CSRF token');
+        }
+        const data = await response.json();
+        csrfToken = data.csrfToken;
+        console.log('✅ CSRF Token fetched successfully.');
+    } catch (error) {
+        console.error('❌ Critical CSRF Error:', error);
+        // عرض رسالة للمستخدم بأن الصفحة قد لا تعمل بشكل صحيح
+        alert('حدث خطأ أمني حرج. قد لا تعمل بعض الميزات. يرجى تحديث الصفحة.');
+    }
+}
+
 // ===============================================
 // ******** الدوال المساعدة للأمان (الجديدة) ********
 // ===============================================
@@ -24,6 +44,10 @@ function getAuthHeaders(extraHeaders = {}) {
     };
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
+    }
+    // إضافة توكن CSRF إلى الهيدر
+    if (csrfToken) {
+        headers['CSRF-Token'] = csrfToken;
     }
     return headers;
 }
@@ -1130,5 +1154,8 @@ setupAdminSearch();
     socket.on('service-deleted', fetchServices);
     
     // تشغيل التحقق من الصلاحيات عند تحميل الصفحة
-    checkAdminAccess();
+
+    document.addEventListener('DOMContentLoaded', () => {
+    fetchCsrfToken().then(() => {
+        checkAdminAccess(); 
 });
