@@ -6,7 +6,9 @@ const Order = require('../models/order.model');
 const Deposit = require('../models/deposit.model');
 const User = require('../models/user.model');
 const bot = require('../services/telegramBot');
-const { uploadToCloudinary, multerUpload } = require('../config/cloudinary');
+//const { uploadToCloudinary, multerUpload } = require('../config/cloudinary');
+const { uploadToCloudinary, multerUpload, cloudinary } = require('../config/cloudinary');
+
 
 // ===================================================================
 // 🎯 1. المسار الجديد: جلب سجل المحادثة (GET)
