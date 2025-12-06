@@ -193,12 +193,32 @@ router.post('/', async (req, res) => {
 // --- GET /api/orders (للوحة التحكم - حماية إدارية) ---
 router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        // نستخدم populate لجلب بيانات المستخدم المرتبط بالطلب إن وجدت
-        const orders = await Order.find({})
-            .populate('user', 'username email') // جلب اسم المستخدم والبريد فقط
+        const { week } = req.query; // 🎯 جلب رقم الأسبوع من الطلب
+        let query = {};
+
+        if (week && !isNaN(parseInt(week))) {
+            const weekOffset = parseInt(week);
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const dayOfWeek = today.getDay(); // 0=Sunday, 1=Monday...
+
+            // حساب بداية ونهاية الأسبوع المطلوب
+            const startDate = new Date(today);
+            startDate.setDate(today.getDate() - dayOfWeek - (weekOffset * 7));
+            
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + 7);
+
+            query.createdAt = { $gte: startDate, $lt: endDate };
+        }
+
+        const orders = await Order.find(query) // 🎯 تطبيق الفلتر على الاستعلام
+            .populate('user', 'username email')
             .sort({ createdAt: -1 });
+            
         res.json(orders);
     } catch (error) {
+        console.error("Error fetching orders:", error);
         res.status(500).json({ message: 'فشل جلب الطلبات' });
     }
 });
