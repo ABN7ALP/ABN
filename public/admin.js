@@ -149,6 +149,7 @@ if (!document.querySelector('#admin-animations')) {
 // ===============================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    fetchCsrfToken().then(() => {
     // --- 1. إعداد الاتصال الفوري (Socket.IO) ---
     const socket = io();
 
@@ -1125,37 +1126,37 @@ setupAdminSearch();
 
     // 🎯 ربط حدث فلتر أسابيع الطلبات
     const ordersWeekFilter = document.getElementById('orders-week-filter');
-    if (ordersWeekFilter) {
-        ordersWeekFilter.addEventListener('change', (e) => {
-            fetchOrders(e.target.value);
-        });
-    }
+        if (ordersWeekFilter) {
+            ordersWeekFilter.addEventListener('change', (e) => {
+                fetchOrders(e.target.value);
+            });
+        }
 
-    // 🎯 ربط حدث فلتر أسابيع الشحن
-    const depositsWeekFilter = document.getElementById('deposits-week-filter');
-    if (depositsWeekFilter) {
-        depositsWeekFilter.addEventListener('change', (e) => {
-            fetchDeposits(e.target.value);
-        });
-    }
+        // 🎯 ربط حدث فلتر أسابيع الشحن
+        const depositsWeekFilter = document.getElementById('deposits-week-filter');
+        if (depositsWeekFilter) {
+            depositsWeekFilter.addEventListener('change', (e) => {
+                fetchDeposits(e.target.value);
+            });
+        }
 
-    // --- 7. الاستماع للتحديثات الفورية (Socket.IO) ---
-    socket.on('new-order', () => {
-        console.log('New order received! Refreshing...');
-        fetchOrders();
-        fetchStats();
-    });
-    socket.on('new-deposit', () => {
-        console.log('New deposit request received! Refreshing...');
-        fetchDeposits();
-    });
-    socket.on('new-service', fetchServices);
-    socket.on('service-updated', fetchServices);
-    socket.on('service-deleted', fetchServices);
+        // --- 7. الاستماع للتحديثات الفورية (Socket.IO) ---
+        socket.on('new-order', () => {
+            console.log('New order received! Refreshing...');
+            const currentWeek = ordersWeekFilter ? ordersWeekFilter.value : 0;
+            fetchOrders(currentWeek);
+            fetchStats();
+        });
+        socket.on('new-deposit', () => {
+            console.log('New deposit request received! Refreshing...');
+            const currentWeek = depositsWeekFilter ? depositsWeekFilter.value : 0;
+            fetchDeposits(currentWeek);
+        });
+        socket.on('new-service', fetchServices);
+        socket.on('service-updated', fetchServices);
+        socket.on('service-deleted', fetchServices);
+  
     
     // تشغيل التحقق من الصلاحيات عند تحميل الصفحة
-
-    document.addEventListener('DOMContentLoaded', () => {
-    fetchCsrfToken().then(() => {
         checkAdminAccess(); 
 });
