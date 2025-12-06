@@ -2515,7 +2515,8 @@ quantityInput.addEventListener('input', () => {
     }
 
 // ===================================================================
-// 10. منطق الدردشة الحية (النسخة النهائية والمحسّنة)
+// ===================================================================
+// 10. منطق الدردشة الحية (مع دعم الصور)
 // ===================================================================
 const supportChatToggle = document.getElementById('support-chat-toggle');
 const chatWindow = document.getElementById('support-chat-window');
@@ -2525,39 +2526,33 @@ const chatInput = document.getElementById('chat-input');
 const sendChatBtn = document.getElementById('send-chat-btn');
 const chatLoading = document.getElementById('chat-loading');
 
-// 🎯 دالة الفتح والتحميل المحسّنة
+// 🎯 عناصر الصور الجديدة
+const attachFileBtn = document.getElementById('attach-file-btn');
+const chatFileInput = document.getElementById('chat-file-input');
+const imagePreviewContainer = document.getElementById('image-preview-container');
+const imagePreviewThumb = document.getElementById('image-preview-thumb');
+const removeImageBtn = document.getElementById('remove-image-btn');
+let attachedFile = null; // لتخزين الملف المرفق
+
+// دالة الفتح والتحميل (تبقى كما هي)
 async function openChatAndLoadHistory() {
-    // إذا كان المستخدم زائراً، حوله إلى واتساب
     if (!userInfo) {
         window.open('https://wa.me/905367893256', '_blank');
         return;
     }
-
     chatWindow.classList.remove('hidden');
     chatLoading.classList.remove('hidden');
     chatMessages.innerHTML = '';
-
     try {
-        // جلب سجل المحادثة من الخادم
-        const response = await fetch('/api/support/chat', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        });
-
+        const response = await fetch('/api/support/chat', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
         if (!response.ok) throw new Error('فشل تحميل المحادثة.');
-
         const chatHistory = await response.json();
-        
-        // عرض الرسائل القديمة
         if (chatHistory && chatHistory.messages && chatHistory.messages.length > 0) {
-            chatHistory.messages.forEach(msg => {
-                appendMessage(msg.text, msg.sender, msg.timestamp);
-            });
+            chatHistory.messages.forEach(msg => appendMessage(msg.text, msg.sender, msg.timestamp, msg.imageUrl));
         } else {
             appendMessage('مرحباً! كيف يمكننا مساعدتك اليوم؟', 'support');
         }
-
     } catch (error) {
-        console.error('Error fetching chat history:', error);
         appendMessage(`خطأ: ${error.message}`, 'system');
     } finally {
         chatLoading.classList.add('hidden');
@@ -2565,64 +2560,103 @@ async function openChatAndLoadHistory() {
     }
 }
 
-// ربط الأحداث
-supportChatToggle?.addEventListener('click', openChatAndLoadHistory);
-closeChatBtn?.addEventListener('click', () => chatWindow.classList.add('hidden'));
-
-// دالة إرسال الرسالة (تبقى كما هي)
+// 🎯 دالة إرسال الرسالة (محدثة لدعم الصور)
 async function sendMessage() {
     const messageText = chatInput.value.trim();
-    if (!messageText) return;
+    if (!messageText && !attachedFile) return;
 
-    appendMessage(messageText, 'user');
+    const formData = new FormData();
+    formData.append('message', messageText);
+    if (attachedFile) {
+        formData.append('image', attachedFile);
+    }
+
+    // عرض الرسالة فوراً (مع معاينة الصورة إذا وجدت)
+    const tempImageUrl = attachedFile ? URL.createObjectURL(attachedFile) : null;
+    appendMessage(messageText, 'user', new Date(), tempImageUrl);
+    
     chatInput.value = '';
+    resetAttachment();
 
     try {
-        await fetch('/api/support/chat', {
+        const response = await fetch('/api/support/chat', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify({ message: messageText })
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+            body: formData
         });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'فشل إرسال الرسالة');
+        }
     } catch (error) {
         appendMessage(`خطأ: ${error.message}`, 'system');
     }
 }
 
-sendChatBtn?.addEventListener('click', sendMessage);
-chatInput?.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
-});
-
-// دالة إضافة الرسائل (تبقى كما هي)
-function appendMessage(text, type, timestamp = new Date()) {
+// 🎯 دالة إضافة الرسالة (محدثة لعرض الصور)
+function appendMessage(text, type, timestamp = new Date(), imageUrl = null) {
     const messageDiv = document.createElement('div');
-    messageDiv.className = `chat-message ${type}`; // 'user' or 'support'
-    
+    messageDiv.className = `chat-message ${type}`;
     const time = new Date(timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
     
+    let imageHTML = '';
+    if (imageUrl) {
+        imageHTML = `<img src="${imageUrl}" alt="صورة مرفقة" onclick="showImageModal('${imageUrl}')">`;
+    }
+
     messageDiv.innerHTML = `
-        <div class="message-bubble">${text}</div>
+        <div class="message-bubble">
+            ${text ? `<div>${text}</div>` : ''}
+            ${imageHTML}
+        </div>
         <span class="timestamp">${time}</span>
     `;
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// الاستماع للرسائل الحية (تبقى كما هي)
+// 🎯 دوال التعامل مع إرفاق الصور
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+        attachedFile = file;
+        imagePreviewThumb.src = URL.createObjectURL(file);
+        imagePreviewContainer.classList.remove('hidden');
+    }
+}
+
+function resetAttachment() {
+    attachedFile = null;
+    chatFileInput.value = ''; // مسح قيمة حقل الملف
+    imagePreviewContainer.classList.add('hidden');
+}
+
+// 🎯 دالة عرض الصورة بحجم كامل
+function showImageModal(src) {
+    const modal = document.createElement('div');
+    modal.className = 'image-modal-overlay';
+    modal.innerHTML = `<img src="${src}" alt="صورة مكبرة"><button class="close-modal-btn">&times;</button>`;
+    document.body.appendChild(modal);
+    modal.querySelector('.close-modal-btn').onclick = () => modal.remove();
+    modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+}
+
+// ربط الأحداث
+supportChatToggle?.addEventListener('click', openChatAndLoadHistory);
+closeChatBtn?.addEventListener('click', () => chatWindow.classList.add('hidden'));
+sendChatBtn?.addEventListener('click', sendMessage);
+chatInput?.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+attachFileBtn?.addEventListener('click', () => chatFileInput.click());
+chatFileInput?.addEventListener('change', handleFileSelect);
+removeImageBtn?.addEventListener('click', resetAttachment);
+
+// الاستماع للردود (محدثة لدعم الصور)
 if (userInfo) {
-    const liveSocket = io({ query: { userId: userInfo._id } });
-    liveSocket.on('support-reply', (data) => {
+    const socket = io({ query: { userId: userInfo._id } });
+    socket.on('support-reply', (data) => {
         if (data.userId === userInfo._id) {
-            appendMessage(data.message, 'support', data.timestamp);
-            try {
-                new Audio('/sounds/reply.mp3').play();
-            } catch (e) { console.warn("Audio play failed."); }
+            appendMessage(data.message, 'support', data.timestamp, data.imageUrl);
+            try { new Audio('/sounds/reply.mp3').play(); } catch (e) {}
         }
     });
 }
