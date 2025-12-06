@@ -2629,16 +2629,36 @@ if (userInfo) {
 
 
 
-// روابط الفوتر القانونية
+// ===================================================================
+// 11. منطق الفوتر والأزرار العائمة الجديد
+// ===================================================================
+
+// --- زر الرجوع للأعلى ---
+const scrollTopBtn = document.getElementById('scroll-top');
+window.addEventListener('scroll', () => {
+    if (scrollTopBtn) {
+        if (window.scrollY > 300) {
+            scrollTopBtn.classList.add('show');
+        } else {
+            scrollTopBtn.classList.remove('show');
+        }
+    }
+});
+scrollTopBtn?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// --- روابط الفوتر القانونية ---
 document.querySelectorAll('#privacy-policy, #terms-service, #refund-policy, #faq-link').forEach(link => {
-    link.addEventListener('click', (e) => {
+    link?.addEventListener('click', (e) => {
         e.preventDefault();
-        alert('🚧 هذه الصفحة قيد التطوير\nستكون متاحة قريباً!');
+        alert('🚧 هذه الصفحة قيد التطوير وستكون متاحة قريباً!');
     });
 });
 
-// ربط زر شحن الرصيد في الفوتر
-document.getElementById('footer-deposit-link')?.addEventListener('click', (e) => {
+// --- رابط شحن الرصيد في الفوتر ---
+const footerDepositLink = document.getElementById('footer-deposit-link');
+footerDepositLink?.addEventListener('click', (e) => {
     e.preventDefault();
     if (userInfo) {
         showDepositPopup();
