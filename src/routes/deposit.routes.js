@@ -66,11 +66,28 @@ router.post('/', async (req, res) => {
     }
 });
 
-// باقي الـ routes تبقى كما هي مع تعديل بسيط...
 // GET جلب كل طلبات الشحن
 router.get('/', async (req, res) => {
     try {
-        const deposits = await Deposit.find({})
+        const { week } = req.query; // 🎯 جلب رقم الأسبوع من الطلب
+        let query = {};
+
+        if (week && !isNaN(parseInt(week))) {
+            const weekOffset = parseInt(week);
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const dayOfWeek = today.getDay();
+
+            const startDate = new Date(today);
+            startDate.setDate(today.getDate() - dayOfWeek - (weekOffset * 7));
+            
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + 7);
+
+            query.createdAt = { $gte: startDate, $lt: endDate };
+        }
+
+        const deposits = await Deposit.find(query) // 🎯 تطبيق الفلتر على الاستعلام
             .populate('user', 'username')
             .sort({ createdAt: -1 });
         res.status(200).json(deposits);
@@ -78,6 +95,7 @@ router.get('/', async (req, res) => {
         res.status(500).json({ message: 'فشل جلب الطلبات.' });
     }
 });
+
 
 // PUT الموافقة على طلب شحن
 router.put('/:id/approve', async (req, res) => {
