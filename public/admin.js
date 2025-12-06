@@ -1,4 +1,6 @@
 // الصق الدالة هنا في الخارج لتصبح عامة
+let csrfToken = null;
+
 function viewReceipt(base64Image) {
     const newWindow = window.open();
     if (newWindow) {
@@ -11,24 +13,32 @@ function viewReceipt(base64Image) {
     }
 }
 
-
-let csrfToken = null;
-
-// 🎯 2. دالة لجلب التوكن عند تحميل الصفحة
 async function fetchCsrfToken() {
     try {
         const response = await fetch('/api/csrf-token');
-        if (!response.ok) {
-            throw new Error('Failed to fetch CSRF token');
-        }
+        if (!response.ok) throw new Error('Failed to fetch CSRF token');
         const data = await response.json();
         csrfToken = data.csrfToken;
         console.log('✅ CSRF Token fetched successfully.');
     } catch (error) {
         console.error('❌ Critical CSRF Error:', error);
-        // عرض رسالة للمستخدم بأن الصفحة قد لا تعمل بشكل صحيح
         alert('حدث خطأ أمني حرج. قد لا تعمل بعض الميزات. يرجى تحديث الصفحة.');
     }
+}
+
+function getAuthHeaders(extraHeaders = {}) {
+    const token = localStorage.getItem('token');
+    const headers = {
+        'Content-Type': 'application/json',
+        ...extraHeaders
+    };
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    if (csrfToken) {
+        headers['CSRF-Token'] = csrfToken;
+    }
+    return headers;
 }
 
 // ===============================================
@@ -1126,17 +1136,14 @@ setupAdminSearch();
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- الجزء الأول: تشغيل الواجهة فوراً (لا يحتاج لمفتاح أمان) ---
-    
+    // 1. جهّز الواجهة التي لا تحتاج إلى انترنت
     console.log("DOM Loaded. Setting up UI listeners.");
-    
     const socket = io();
     const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
     const sections = document.querySelectorAll('.admin-section');
     const ordersWeekFilter = document.getElementById('orders-week-filter');
     const depositsWeekFilter = document.getElementById('deposits-week-filter');
     
-    // تفعيل أزرار التنقل بين الأقسام
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             if (!link.classList.contains('logout-link')) {
@@ -1151,7 +1158,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // تفعيل فلاتر الأسابيع
     if (ordersWeekFilter) {
         ordersWeekFilter.addEventListener('change', (e) => fetchOrders(e.target.value));
     }
@@ -1159,29 +1165,23 @@ document.addEventListener('DOMContentLoaded', () => {
         depositsWeekFilter.addEventListener('change', (e) => fetchDeposits(e.target.value));
     }
     
-    // تفعيل البحث
     setupAdminSearch();
 
-    // --- الجزء الثاني: جلب مفتاح الأمان ثم تحميل البيانات ---
-    
+    // 2. اذهب وجلب "المفتاح" ثم ابدأ العمل الحقيقي
     console.log("Fetching CSRF token before loading data...");
-    
     fetchCsrfToken().then(() => {
-        // ممتاز، لقد حصلنا على المفتاح! الآن يمكننا بأمان تشغيل كل شيء آخر.
         console.log("CSRF Token is ready. Initializing data-dependent functions.");
 
-        // ربط الأحداث التي تعتمد على الدوال التي ستُعرّف لاحقاً
         const addOfferForm = document.getElementById('add-offer-form');
         if (addOfferForm) {
             addOfferForm.addEventListener('submit', handleAddOffer);
         }
 
-        // الاستماع للتحديثات الفورية من الخادم
         socket.on('new-order', () => {
             const currentWeek = ordersWeekFilter ? ordersWeekFilter.value : 0;
             fetchOrders(currentWeek);
             fetchStats();
-        });
+        }); 
         socket.on('new-deposit', () => {
             const currentWeek = depositsWeekFilter ? depositsWeekFilter.value : 0;
             fetchDeposits(currentWeek);
