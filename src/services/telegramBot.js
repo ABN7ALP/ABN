@@ -24,46 +24,46 @@ bot.on('message', async (msg) => {
         return; 
     }
 
-    if (!msg.reply_to_message || !msg.reply_to_message.text) {
-        return;
-    }
+    
+bot.on('message', async (msg) => {
+    if (!msg.reply_to_message) return;
 
     try {
-        const originalMessageText = msg.reply_to_message.text;
-        
-        // 🎯🎯🎯 الإصلاح النهائي هنا 🎯🎯🎯
-        // تعبير نمطي جديد يبحث عن "ID:" متبوعاً بالمعرف
+        const originalMessageText = msg.reply_to_message.caption || msg.reply_to_message.text;
         const match = originalMessageText.match(/ID:\s*(\w{24})/);
-        
-        if (!match || !match[1]) {
-            console.error("Failed to find user ID in message:", originalMessageText);
-            bot.sendMessage(msg.chat.id, "لم أتمكن من العثور على معرف المستخدم. تأكد من أنك ترد على الرسالة الصحيحة التي تحتوي على ID.");
-            return;
-        }
-        
+        if (!match) return;
+
         const userId = match[1];
-        const replyText = msg.text;
+        const replyText = msg.text || msg.caption; // 🎯 الحصول على النص سواء كان مع صورة أو بدون
+        const replyPhoto = msg.photo ? msg.photo[msg.photo.length - 1].file_id : null;
+        let imageUrl = null;
+
+        // لا نحتاج لرفع الصورة هنا، تليجرام يعطينا رابط مباشر
+        if (replyPhoto) {
+            imageUrl = await bot.getFileLink(replyPhoto);
+        }
 
         const chat = await SupportChat.findOne({ userId });
-        if (!chat) {
-            bot.sendMessage(msg.chat.id, `لا توجد محادثة نشطة للمستخدم بالمعرف: ${userId}`);
-            return;
-        }
+        if (!chat) return;
 
-        chat.messages.push({ sender: 'support', text: replyText, timestamp: new Date() });
+        chat.messages.push({
+            sender: 'support',
+            text: replyText,
+            imageUrl: imageUrl, // 🎯 حفظ رابط الصورة
+            timestamp: new Date()
+        });
         await chat.save();
 
-        const io = getIo();
-        io.to(userId).emit('support-reply', {
+        getIo().to(userId).emit('support-reply', {
             userId: userId,
             message: replyText,
+            imageUrl: imageUrl, // 🎯 إرسال رابط الصورة للواجهة الأمامية
             timestamp: new Date()
         });
 
     } catch (error) {
         console.error('Error handling Telegram reply:', error);
-        bot.sendMessage(msg.chat.id, `حدث خطأ: ${error.message}`);
     }
 });
 
-module.exports = bot;
+module.exports = bot
