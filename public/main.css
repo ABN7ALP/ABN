@@ -1405,34 +1405,69 @@ new-footer {
 }
 
 
+/* ===================================================================
+   13. IMAGE ATTACHMENT STYLES FOR CHAT
+   =================================================================== */
 
-/* --- 5. تحسينات التجاوب العامة --- */
-/*@media (max-width: 767px) {
-    /* تصغير حجم الخطوط والعناصر على الشاشات الصغيرة */
-  /*  .hero h1 { font-size: 1.75rem; }
-    .hero p { font-size: 1rem; }
-    .service-card { padding: 1.5rem; }
-    .service-card h3 { font-size: 1.1rem; }
-    .icon-wrapper { width: 60px; height: 60px; margin-bottom: 1rem; }
-    .icon-wrapper img { width: 30px; height: 30px; }
-    .pill-button { padding: 0.8rem 1.5rem; font-size: 0.9rem; }
-    
-    /* إصلاح حجم نافذة الإشعارات */
-   /* .notifications-dropdown {
-        width: calc(100vw - 2rem);
-        max-width: 350px;
-        left: auto;
-        right: 0;
-        transform: translateX(0) translateY(10px);
-    }
-    .notification-bell.active .notifications-dropdown {
-        transform: translateX(0) translateY(0);
-    }
-    .notifications-dropdown::before {
-        left: auto;
-        right: 20px;
-    }
+/* زر الأيقونة (للإرفاق) */
+.icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-light);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
+.icon-btn:hover {
+    background: var(--gray-border);
+    color: var(--purple-main);
+}
+.icon-btn i {
+    font-size: 1.1rem;
+}
+
+/* حاوية معاينة الصورة */
+.image-preview-container {
+    padding: 0.5rem 0.75rem;
+    border-top: 1px solid var(--gray-border);
+    position: relative;
+}
+#image-preview-thumb {
+    max-height: 80px;
+    width: auto;
+    border-radius: 8px;
+}
+.remove-image-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* تنسيق الرسائل التي تحتوي على صور */
+.message-bubble img {
+    max-width: 100%;
+    border-radius: 12px;
+    margin-top: 0.5rem;
+    cursor: pointer;
+}
+
+
 
 /* --- 6. تعديلات الفوتر والإعلانات للشاشات الكبيرة --- */
 @media (min-width: 768px) {
