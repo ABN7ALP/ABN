@@ -34,27 +34,57 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 
-// ✅ أضف بعد Middlewares (السطر 30 تقريباً)
+
+// ✅ جميع المصادر المستخدمه 
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://cdnjs.cloudflare.com"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:", "https:", "http:"],
-            connectSrc: ["'self'", "https://abn-production-cbae.up.railway.app", "ws://localhost:*"]
+            styleSrc: [
+                "'self'", 
+                "'unsafe-inline'", 
+                "https://fonts.googleapis.com",
+                "https://cdn.jsdelivr.net",        // 🆕 للملفات من jsDelivr
+                "https://cdnjs.cloudflare.com"     // 🆕 لـ Font Awesome
+            ],
+            scriptSrc: [
+                "'self'", 
+                "'unsafe-inline'", 
+                "https://unpkg.com", 
+                "https://cdnjs.cloudflare.com",
+                "https://cdn.jsdelivr.net",        // 🆕 لـ Phosphor Icons
+                "https://guilty-address.com"       // 🆕 للإعلانات (إذا تريد السماح)
+            ],
+            fontSrc: [
+                "'self'", 
+                "https://fonts.gstatic.com",
+                "https://cdn.jsdelivr.net",        // 🆕 لـ Phosphor Icons
+                "https://cdnjs.cloudflare.com"     // 🆕 لـ Font Awesome
+            ],
+            imgSrc: [
+                "'self'", 
+                "data:", 
+                "https:", 
+                "http:",
+                "https://upload.wikimedia.org",    // 🆕 لصور المنصات
+                "https://i.imgur.com",             // 🆕 لصور الإعلانات
+                "https://i.ibb.co",                // 🆕 لصور أخرى
+                "https://cryptologos.cc",          // 🆕 لشعارات العملات
+                "https://guilty-address.com"       // 🆕 للإعلانات
+            ],
+            connectSrc: [
+                "'self'", 
+                "https://abn-production-cbae.up.railway.app", 
+                "ws://localhost:*",
+                "wss://*.up.railway.app"           // 🆕 لـ WebSockets
+            ],
+            frameSrc: ["'self'"],                  // 🆕 أضف هذا
+            mediaSrc: ["'self'"],                  // 🆕 أضف هذا
+            objectSrc: ["'none'"],                 // 🆕 لمنع العناصر المضمنة
+            baseUri: ["'self'"]                    // 🆕 أضف هذا
         }
     },
-    hsts: {
-        maxAge: 31536000,
-        includeSubDomains: true,
-        preload: true
-    },
-    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-    frameguard: { action: 'deny' }
 }));
-
 // ✅ أضف هذه الـ Headers الإضافية
 app.use((req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
