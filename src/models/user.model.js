@@ -19,19 +19,13 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         match: [/\S+@\S+\.\S+/, 'الرجاء إدخال بريد إلكتروني صالح']
     },
-    password: {
-        type: String,
-        required: [true, 'كلمة المرور مطلوبة'],
-        minlength: [6, 'يجب أن تكون كلمة المرور 6 أحرف على الأقل'],
-        // 🆕 منع كلمات المرور الضعيفة
-        validate: {
-            validator: function(password) {
-                // تحقق من قوة كلمة المرور
-                return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(password);
-            },
-            message: 'كلمة المرور يجب أن تحتوي على حرف كبير، حرف صغير، رقم، ورمز خاص'
-        }
-    },
+    // استبدل حقل كلمة المرور بالكامل بهذا الكود
+password: {
+    type: String,
+    required: [true, 'كلمة المرور مطلوبة'],
+    minlength: [6, 'يجب أن تكون كلمة المرور 6 أحرف على الأقل'],
+    // 🎯 تم إزالة قاعدة التحقق (validate) من هنا
+},
     profileImage: {
         type: String,
         default: null
