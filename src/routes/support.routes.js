@@ -1,14 +1,32 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/auth.middleware');
-// 🎯🎯🎯 الإصلاح هنا 🎯🎯🎯
 const SupportChat = require('../models/supportChat.model');
 const Order = require('../models/order.model');
 const Deposit = require('../models/deposit.model');
 const User = require('../models/user.model');
-const bot = require('../services/telegramBot'); // المسار الصحيح
+const bot = require('../services/telegramBot');
 
-// ... (باقي كود المسار يبقى كما هو)
+// ===================================================================
+// 🎯 1. المسار الجديد: جلب سجل المحادثة (GET)
+// ===================================================================
+router.get('/chat', authMiddleware, async (req, res) => {
+    try {
+        const chat = await SupportChat.findOne({ userId: req.user.id });
+        if (!chat) {
+            // إذا لم تكن هناك محادثة، أرسل كائن فارغ بدلاً من خطأ
+            return res.status(200).json({ messages: [] });
+        }
+        res.status(200).json(chat);
+    } catch (error) {
+        console.error('Error fetching support chat:', error);
+        res.status(500).json({ message: 'خطأ في الخادم عند جلب المحادثة' });
+    }
+});
+
+// ===================================================================
+// 2. المسار القديم: إرسال رسالة جديدة (POST) - يبقى كما هو
+// ===================================================================
 router.post('/chat', authMiddleware, async (req, res) => {
     const userId = req.user.id;
     const { message } = req.body;
@@ -19,9 +37,10 @@ router.post('/chat', authMiddleware, async (req, res) => {
 
     try {
         let chat = await SupportChat.findOne({ userId });
+        let isFirstMessage = !chat;
         let initialMessage = message;
 
-        if (!chat) {
+        if (isFirstMessage) {
             const lastOrder = await Order.findOne({ user: userId }).sort({ createdAt: -1 });
             const lastDeposit = await Deposit.findOne({ user: userId }).sort({ createdAt: -1 });
 
@@ -35,7 +54,6 @@ router.post('/chat', authMiddleware, async (req, res) => {
             }
             
             initialMessage = `--- ملخص تلقائي ---\n${summary}\n---------------------\n\n${message}`;
-            
             chat = new SupportChat({ userId, messages: [] });
         }
 
@@ -43,7 +61,8 @@ router.post('/chat', authMiddleware, async (req, res) => {
         await chat.save();
 
         const user = await User.findById(userId).select('username');
-        const telegramMessage = `*رسالة جديدة من ${user.username}*\n[ID: ${userId}]\n\n${initialMessage}`;
+        const telegramMessage = `*رسالة جديدة من ${user.username}*\nID: ${userId}\n\n${initialMessage}`;
+        
         bot.sendMessage(process.env.TELEGRAM_CHAT_ID, telegramMessage, { parse_mode: 'Markdown' });
 
         res.status(201).json({ message: 'تم إرسال الرسالة بنجاح' });
