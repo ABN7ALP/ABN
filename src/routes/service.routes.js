@@ -6,6 +6,7 @@ const Notification = require('../models/notification.model');
 const { v4: uuidv4 } = require('uuid');
 const authMiddleware = require('../middleware/auth.middleware');
 const adminMiddleware = require('../middleware/admin.middleware');
+const { serviceRules } = require('../middleware/validators'); 
 
 // 🆕 استيراد نظام الطابور
 const { addNotificationJob } = require('../services/queue');
@@ -21,7 +22,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST إضافة خدمة جديدة
-router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
+router.post('/', authMiddleware, adminMiddleware, serviceRules, async (req, res) => {
     try {
         const newService = new Service({ id: uuidv4(), ...req.body });
         await newService.save();
@@ -66,7 +67,7 @@ router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
 });
 
 // PUT تعديل خدمة
-router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
+router.put('/:id', authMiddleware, adminMiddleware, serviceRules, async (req, res) => {
     try {
         // جلب الخدمة القديمة لمقارنة السعر
         const oldService = await Service.findOne({ id: req.params.id });
