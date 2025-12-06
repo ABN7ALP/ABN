@@ -14,8 +14,7 @@ const handleValidationErrors = (req, res, next) => {
 const registerRules = [
     body('username')
         .trim()
-        .isLength({ min: 3 }).withMessage('اسم المستخدم يجب أن يكون 3 أحرف على الأقل.')
-        .isAlphanumeric().withMessage('اسم المستخدم يجب أن يحتوي على أحرف وأرقام فقط.'),
+        .isLength({ min: 3 }).withMessage('اسم المستخدم يجب أن يكون 3 أحرف على الأقل.'),
     body('email')
         .isEmail().withMessage('الرجاء إدخال بريد إلكتروني صالح.')
         .normalizeEmail(),
@@ -25,6 +24,7 @@ const registerRules = [
         .withMessage('كلمة المرور يجب أن تحتوي على حرف كبير، حرف صغير، رقم، ورمز خاص.'),
     handleValidationErrors
 ];
+
 
 
 const loginRules = [
