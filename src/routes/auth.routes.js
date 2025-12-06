@@ -4,6 +4,7 @@ const User = require('../models/user.model.js');
 const UploadService = require('../services/uploadService.js'); // 🆕 استيراد خدمة الرفع
 const jwt = require('jsonwebtoken');
 const { sendActivationEmail, sendPasswordResetEmail } = require('./emailConfig.js');
+const { registerRules, loginRules } = require('../middleware/validators');
 const { 
     loginLimiter, 
     registerLimiter, 
@@ -19,7 +20,7 @@ const generateToken = (id) => {
 };
 
 // --- POST /api/auth/register مع Rate Limiting ---
-router.post('/register', registerLimiter, async (req, res) => {
+router.post('/register', registerLimiter, registerRules, async (req, res) => {
     const { username, email, password, profileImage } = req.body;
 
     try {
@@ -85,7 +86,7 @@ router.post('/register', registerLimiter, async (req, res) => {
 });
 
 // --- POST /api/auth/login مع Rate Limiting ---
-router.post('/login', loginLimiter, async (req, res) => {
+router.post('/login', loginLimiter, loginRules, async (req, res) => {
     const { email, password } = req.body;
 
     try {
