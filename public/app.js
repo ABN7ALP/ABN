@@ -1,9 +1,4 @@
-
-
-
-
-document.addEventListener('DOMContentLoaded', async () => {
-    
+document.addEventListener('DOMContentLoaded', () => {
     // --- 0. تفعيل وضع سطح المكتب على الهواتف ---
     function suggestDesktopView() {
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -350,10 +345,11 @@ function setupPasswordStrength() {
         const rememberMe = document.getElementById('remember-me')?.checked || false;
         
         try {
-            const response = await apiFetch('/api/auth/login', { 
-            method: 'POST',
-            body: JSON.stringify({ email, password }) 
-        });
+            const response = await fetch('/api/auth/login', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ email, password, rememberMe }) 
+            });
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || 'فشل تسجيل الدخول');
                 
@@ -404,7 +400,7 @@ async function registerHandler(e) {
             profileImageBase64 = await fileToBase64(profileImageInput.files[0]);
         }
         
-        const response = await apiFetch('/api/auth/register', {
+        const response = await fetch('/api/auth/register', { 
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' }, 
             body: JSON.stringify({ 
@@ -515,7 +511,7 @@ async function registerHandler(e) {
         
         errorElement.textContent = 'جاري التحقق...';
         
-        const response = await apiFetch('/api/auth/verify-email', {
+        const response = await fetch('/api/auth/verify-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, code })
@@ -573,7 +569,7 @@ function showVerificationSuccess(message) {
         errorElement.textContent = '';
         
         try {
-            const response = await apiFetch('/api/auth/send-verification', {
+            const response = await fetch('/api/auth/send-verification', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
@@ -645,7 +641,7 @@ function showVerificationSuccess(message) {
     errorElement.textContent = '';
     
     try {
-        const response = await apiFetch('/api/auth/forgot-password', {
+        const response = await fetch('/api/auth/forgot-password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email })
@@ -760,7 +756,7 @@ async function handleResetPassword(e) {
             return;
         }
         
-        const response = await apiFetch('/api/auth/reset-password', {
+        const response = await fetch('/api/auth/reset-password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, token, newPassword })
@@ -1635,7 +1631,7 @@ function showCopySuccessMessage(message, isError = false) {
                 receiptImage: imageBase64 
             };
             
-            const response = await apiFetch('/api/deposits', { 
+            const response = await fetch('/api/deposits', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify(depositData) 
@@ -1936,7 +1932,7 @@ async function updatePrice() {
 
     async function executePayWithBalance() {
         try {
-            const response = await apiFetch('/api/orders/pay-with-balance', { 
+            const response = await fetch('/api/orders/pay-with-balance', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify(currentOrderData) 
@@ -1961,7 +1957,7 @@ async function updatePrice() {
         const orderDataForWhatsapp = { ...currentOrderData, user: userInfo ? userInfo._id : null };
         
         try {
-            await apiFetch('/api/orders', { 
+            await fetch('/api/orders', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify(orderDataForWhatsapp) 
@@ -2070,7 +2066,7 @@ async function updatePrice() {
         }
 
         try {
-            const response = await apiFetch('/api/notifications/mark-read', {
+            const response = await fetch('/api/notifications/mark-read', {
                 method: 'POST',
                 headers: { 
                     'Authorization': `Bearer ${token}`,
@@ -2453,6 +2449,7 @@ function setupOffersToggle() {
    fetchActiveOffers();
    setupOffersToggle();
    setupSearchSystem();
+
 // وأيضاً استمع لتحديثات العروض
 socket.on('broadcast-notification', (data) => {
     // إذا كان الإشعار عن عرض جديد، جدد العروض
@@ -2576,7 +2573,7 @@ async function sendMessage() {
         formData.append('image', attachedFile);
     }
 
-    // عرض الرسالة فوراً
+    // عرض الرسالة فوراً (مع معاينة الصورة إذا وجدت)
     const tempImageUrl = attachedFile ? URL.createObjectURL(attachedFile) : null;
     appendMessage(messageText, 'user', new Date(), tempImageUrl);
     
@@ -2584,14 +2581,11 @@ async function sendMessage() {
     resetAttachment();
 
     try {
-        // 🔽🔽 التعديل هنا: استخدم apiFetch بدلاً من fetch 🔽🔽
-        const response = await apiFetch('/api/support/chat', {
+        const response = await fetch('/api/support/chat', {
             method: 'POST',
-            // لا نضع headers هنا، الدالة ستتعامل معها
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
             body: formData
         });
-        // 🔼🔼 نهاية التعديل 🔼🔼
-
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.message || 'فشل إرسال الرسالة');
@@ -2600,7 +2594,6 @@ async function sendMessage() {
         appendMessage(`خطأ: ${error.message}`, 'system');
     }
 }
-
 
 // 🎯 دالة إضافة الرسالة (محدثة لعرض الصور)
 function appendMessage(text, type, timestamp = new Date(), imageUrl = null) {
