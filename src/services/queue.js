@@ -17,7 +17,7 @@ const redisConfig = {
     }
 };
 
-/ 🆕 إضافة إعدادات المرونة
+// 🆕 إضافة إعدادات المرونة
     settings: {
         maxStalledCount: 3,
         retryProcessDelay: 5000,
