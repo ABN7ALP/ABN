@@ -8,7 +8,7 @@ const User = require('../models/user.model');
 const bot = require('../services/telegramBot');
 //const { uploadToCloudinary, multerUpload } = require('../config/cloudinary');
 const { uploadToCloudinary, multerUpload, cloudinary } = require('../config/cloudinary');
-const { createLimiter } = require('../middleware/rateLimit');
+
 
 // ===================================================================
 // 🎯 1. المسار الجديد: جلب سجل المحادثة (GET)
@@ -30,7 +30,7 @@ router.get('/chat', authMiddleware, async (req, res) => {
 // ===================================================================
 // 2. المسار القديم: إرسال رسالة جديدة (POST) - يبقى كما هو
 // ===================================================================
-router.post('/chat', authMiddleware, multerUpload.single('image'), createLimiter, async (req, res) => {
+router.post('/chat', authMiddleware, multerUpload.single('image'), async (req, res) => {
     const userId = req.user.id;
     const { message } = req.body;
     let imageUrl = null;
