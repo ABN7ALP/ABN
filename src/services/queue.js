@@ -46,39 +46,7 @@ const memoryFallbackQueue = {
     }
 };
 
-// 🆕 أعد تعريف addNotificationJob مع fallback
-const addNotificationJob = async (type, data, options = {}) => {
-    try {
-        // محاولة إضافة إلى Redis أولاً
-        return await notificationsQueue.add(type, data, {
-            priority: options.priority || 'normal',
-            delay: options.delay || 0,
-            attempts: options.attempts || 3,
-            timeout: options.timeout || 30000,
-            ...options
-        });
-    } catch (redisError) {
-        console.error('❌ Redis queue error, using memory fallback:', redisError.message);
-        
-        // 🆕 Fallback: حفظ في الذاكرة وإرسال فوري
-        const fallbackJob = await memoryFallbackQueue.add(type, data);
-        
-        // 🆕 إرسال إشعار فوري عبر Socket.io كبديل
-        if (type === 'broadcast') {
-            const io = require('../config/socket').getIo();
-            if (io) {
-                io.emit('broadcast-notification', {
-                    message: data.message,
-                    link: data.link || '/',
-                    type: 'broadcast',
-                    fromFallback: true
-                });
-            }
-        }
-        
-        return fallbackJob;
-    }
-};
+
 
 // ==========================================
 // ******** معالج الإشعارات الجماعية ********
@@ -279,7 +247,34 @@ const addNotificationJob = async (type, data, options = {}) => {
         ...options
     };
     
-    return await notificationsQueue.add(type, data, jobOptions);
+    try {
+        // محاولة إضافة إلى Redis أولاً
+        return await notificationsQueue.add(type, data, jobOptions);
+    } catch (redisError) {
+        console.error('❌ Redis queue error, using memory fallback:', redisError.message);
+        
+        // Fallback: حفظ في الذاكرة
+        const fallbackJob = await memoryFallbackQueue.add(type, data);
+        
+        // إرسال إشعار فوري كبديل للبث العام
+        if (type === 'broadcast') {
+            try {
+                const io = require('../config/socket').getIo();
+                if (io) {
+                    io.emit('broadcast-notification', {
+                        message: data.message,
+                        link: data.link || '/',
+                        type: 'broadcast',
+                        fromFallback: true
+                    });
+                }
+            } catch (socketError) {
+                console.error('Socket.io fallback failed:', socketError.message);
+            }
+        }
+        
+        return fallbackJob;
+    }
 };
 
 const addEmailJob = async (data, options = {}) => {
