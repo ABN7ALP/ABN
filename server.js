@@ -53,7 +53,7 @@ app.use(helmet({
                 "https://unpkg.com", 
                 "https://cdnjs.cloudflare.com",
                 "https://cdn.jsdelivr.net",        // 🆕 لـ Phosphor Icons
-                "https://guilty-address.com"       // 🆕 للإعلانات (إذا تريد السماح)
+                "https://guilty-address.com"       // 🆕 للإعلانات (إذا تريد السماح
             ],
             fontSrc: [
                 "'self'", 
@@ -77,6 +77,10 @@ app.use(helmet({
                 "https://abn-production-cbae.up.railway.app", 
                 "ws://localhost:*",
                 "wss://*.up.railway.app"           // 🆕 لـ WebSockets
+            ],
+             frameSrc: [
+                "'self'",
+                "https://guilty-address.com"   
             ],
             frameSrc: ["'self'"],                  // 🆕 أضف هذا
             mediaSrc: ["'self'"],                  // 🆕 أضف هذا
