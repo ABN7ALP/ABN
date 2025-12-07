@@ -1,66 +1,14 @@
 // الصق الدالة هنا في الخارج لتصبح عامة
-// ✅ استبدال دالة viewReceipt في admin.js
-function viewReceipt(depositId) {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        alert('يجب تسجيل الدخول');
-        return;
-    }
-    
-    // 🆕 استخدام route آمن بدلاً من base64 مباشرة
-    const url = `/api/deposits/receipt/${depositId}`;
-    
-    // 🆕 فتح نافذة آمنة
-    const newWindow = window.open('', '_blank', 'noopener,noreferrer');
-    if (!newWindow) {
-        alert('المرجو السماح بالنوافذ المنبثقة لعرض الإيصال');
-        return;
-    }
-    
-    // 🆕 تعطيل JavaScript في النافذة الجديدة للأمان
-    newWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>عرض الإيصال</title>
-            <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none';">
-            <style>
-                body { margin: 0; background: #1a1a1a; }
-                img { max-width: 100%; max-height: 100vh; display: block; margin: auto; }
-                .loading { color: white; text-align: center; padding: 2rem; }
-            </style>
-        </head>
-        <body>
-            <div class="loading">جاري تحميل الإيصال...</div>
-        </body>
-        </html>
-    `);
-    newWindow.document.close();
-    
-    // 🆕 تحميل الصورة عبر fetch مع التوكن
-    fetch(url, {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'text/html'
-        }
-    })
-    .then(response => {
-        if (!response.ok) throw new Error(`خطأ ${response.status}: ${response.statusText}`);
-        return response.text();
-    })
-    .then(html => {
-        newWindow.document.write(html);
-        newWindow.document.close();
-    })
-    .catch(error => {
+function viewReceipt(base64Image) {
+    const newWindow = window.open();
+    if (newWindow) {
         newWindow.document.write(`
-            <div style="text-align:center; color:white; padding:2rem;">
-                <h3 style="color:red;">❌ ${error.message}</h3>
-                <p>تعذر تحميل الإيصال</p>
-            </div>
+            <html><head><title>عرض الإيصال</title></head>
+            <body style="margin:0; display:flex; justify-content:center; align-items:center; background-color:#333;">
+            <img src="${base64Image}" style="max-width:100%; max-height:100vh;"></body></html>
         `);
         newWindow.document.close();
-    });
+    }
 }
 
 // ===============================================
