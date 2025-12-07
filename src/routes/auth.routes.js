@@ -94,7 +94,7 @@ router.post('/login', /* loginLimiter, */ loginRules, async (req, res) => {
         const user = await User.findOne({ email });
 
         if (!user) {
-            console.warn(`SECURITY: Failed login attempt for non-existent user: ${email} from IP: ${req.ip}`);
+            createLog('WARN', 'LOGIN_FAILURE', `Failed login for non-existent user: ${email}`, { ip: req.ip });
             return res.status(401).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' });
         }
 
@@ -107,15 +107,15 @@ router.post('/login', /* loginLimiter, */ loginRules, async (req, res) => {
 
         // 🎯 التحقق من تفعيل الايميل
         if (!user.emailVerified) {
-            console.warn(`SECURITY: Unverified email login attempt for user: ${user.username} (ID: ${user._id}) from IP: ${req.ip}`);
+            createLog('WARN', 'LOGIN_FAILURE', `Wrong password for user: ${user.username}`, { userId: user._id, ip: req.ip });
             return res.status(401).json({
                 message: 'يرجى تفعيل بريدك الإلكتروني أولاً. تحقق من بريدك الوارد.'
             });
         }
 
         // 🎯 تسجيل دخول ناجح — بالمكان الصحيح 100%
-        console.log(`SECURITY: Successful login for user: ${user.username} (ID: ${user._id}) from IP: ${req.ip}`);
-
+        createLog('INFO', 'LOGIN_SUCCESS', `User logged in successfully: ${user.username}`, { userId: user._id, ip: req.ip });
+        
         // 🎯 إرسال بيانات المستخدم
         return res.json({
             _id: user._id,
