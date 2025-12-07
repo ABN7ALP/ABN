@@ -57,7 +57,7 @@ async function calculatePriceWithDiscount(serviceName, platform, quantity, userI
     }
 
     try {
-        const response = await fetch('/api/orders/calculate-price', {
+        const response = await apiFetch('/api/orders/calculate-price', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ serviceName, platform, quantity, userId })
@@ -345,7 +345,7 @@ function setupPasswordStrength() {
         const rememberMe = document.getElementById('remember-me')?.checked || false;
         
         try {
-            const response = await fetch('/api/auth/login', { 
+            const response = await apiFetch('/api/auth/login', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify({ email, password, rememberMe }) 
@@ -400,7 +400,7 @@ async function registerHandler(e) {
             profileImageBase64 = await fileToBase64(profileImageInput.files[0]);
         }
         
-        const response = await fetch('/api/auth/register', { 
+        const response = await apiFetch('/api/auth/register', { 
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' }, 
             body: JSON.stringify({ 
@@ -511,7 +511,7 @@ async function registerHandler(e) {
         
         errorElement.textContent = 'جاري التحقق...';
         
-        const response = await fetch('/api/auth/verify-email', {
+        const response = await apiFetch('/api/auth/verify-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, code })
@@ -569,7 +569,7 @@ function showVerificationSuccess(message) {
         errorElement.textContent = '';
         
         try {
-            const response = await fetch('/api/auth/send-verification', {
+            const response = await apiFetch('/api/auth/send-verification', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
@@ -641,7 +641,7 @@ function showVerificationSuccess(message) {
     errorElement.textContent = '';
     
     try {
-        const response = await fetch('/api/auth/forgot-password', {
+        const response = await apiFetch('/api/auth/forgot-password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email })
@@ -669,7 +669,7 @@ function showVerificationSuccess(message) {
     async function refreshUserData() {
         if (!userInfo || !userInfo._id) return;
         try {
-            const response = await fetch(`/api/auth/me?userId=${userInfo._id}`);
+            const response = await apiFetch(`/api/auth/me?userId=${userInfo._id}`);
             if (!response.ok) { 
                 logoutHandler(); 
                 return; 
@@ -756,7 +756,7 @@ async function handleResetPassword(e) {
             return;
         }
         
-        const response = await fetch('/api/auth/reset-password', {
+        const response = await apiFetch('/api/auth/reset-password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, token, newPassword })
@@ -977,7 +977,7 @@ async function fetchActiveOffers() {
     }
     
     try {
-        const response = await fetch('/api/offers/active');
+        const response = await apiFetch('/api/offers/active');
         if (!response.ok) {
             throw new Error('فشل جلب العروض');
         }
@@ -1631,7 +1631,7 @@ function showCopySuccessMessage(message, isError = false) {
                 receiptImage: imageBase64 
             };
             
-            const response = await fetch('/api/deposits', { 
+            const response = await apiFetch('/api/deposits', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify(depositData) 
@@ -1653,7 +1653,7 @@ function showCopySuccessMessage(message, isError = false) {
     // --- 4. تحميل وعرض الخدمات ---
     async function loadServices() {
         try {
-            const response = await fetch('/api/services');
+            const response = await apiFetch('/api/services');
             if (!response.ok) throw new Error('Network response was not ok');
             const servicesFromDB = await response.json();
             
@@ -1932,7 +1932,7 @@ async function updatePrice() {
 
     async function executePayWithBalance() {
         try {
-            const response = await fetch('/api/orders/pay-with-balance', { 
+            const response = await apiFetch('/api/orders/pay-with-balance', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify(currentOrderData) 
@@ -1957,7 +1957,7 @@ async function updatePrice() {
         const orderDataForWhatsapp = { ...currentOrderData, user: userInfo ? userInfo._id : null };
         
         try {
-            await fetch('/api/orders', { 
+            await apiFetch('/api/orders', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify(orderDataForWhatsapp) 
@@ -1996,7 +1996,7 @@ async function updatePrice() {
         }
 
         try {
-            const response = await fetch('/api/notifications', {
+            const response = await apiFetch('/api/notifications', {
                 headers: { 
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -2066,7 +2066,7 @@ async function updatePrice() {
         }
 
         try {
-            const response = await fetch('/api/notifications/mark-read', {
+            const response = await apiFetch('/api/notifications/mark-read', {
                 method: 'POST',
                 headers: { 
                     'Authorization': `Bearer ${token}`,
@@ -2563,6 +2563,7 @@ async function openChatAndLoadHistory() {
 }
 
 // 🎯 دالة إرسال الرسالة (محدثة لدعم الصور)
+// 🎯 دالة إرسال الرسالة (محدثة لدعم الصور)
 async function sendMessage() {
     const messageText = chatInput.value.trim();
     if (!messageText && !attachedFile) return;
@@ -2573,7 +2574,7 @@ async function sendMessage() {
         formData.append('image', attachedFile);
     }
 
-    // عرض الرسالة فوراً (مع معاينة الصورة إذا وجدت)
+    // عرض الرسالة فوراً
     const tempImageUrl = attachedFile ? URL.createObjectURL(attachedFile) : null;
     appendMessage(messageText, 'user', new Date(), tempImageUrl);
     
@@ -2581,11 +2582,14 @@ async function sendMessage() {
     resetAttachment();
 
     try {
-        const response = await fetch('/api/support/chat', {
+        // 🔽🔽 التعديل هنا: استخدم apiFetch بدلاً من fetch 🔽🔽
+        const response = await apiFetch('/api/support/chat', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+            // لا نضع headers هنا، الدالة ستتعامل معها
             body: formData
         });
+        // 🔼🔼 نهاية التعديل 🔼🔼
+
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.message || 'فشل إرسال الرسالة');
@@ -2594,6 +2598,7 @@ async function sendMessage() {
         appendMessage(`خطأ: ${error.message}`, 'system');
     }
 }
+
 
 // 🎯 دالة إضافة الرسالة (محدثة لعرض الصور)
 function appendMessage(text, type, timestamp = new Date(), imageUrl = null) {
