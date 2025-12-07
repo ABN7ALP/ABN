@@ -12,6 +12,7 @@ const {
     emailVerificationLimiter 
 } = require('../middleware/rateLimit');
 const { createLog } = require('../services/logging.service');
+
 // --- دالة لإنشاء توكن JWT ---
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
