@@ -49,15 +49,15 @@ router.get('/users/emails', async (req, res) => {
     }
 });
 
-// 🆕 إضافة route لتحديث بيانات المستخدم
+// 🆕 تحديث بيانات المستخدم
 router.put('/users/:id', validateObjectId('id'), async (req, res) => {
+    const { username, email, balance, emailVerified, isAdmin } = req.body;
+
+    // 🟦 تعريف قبل try حتى نستخدمهم داخل catch بسلام
+    const adminUserId = req.user ? req.user._id : 'UNKNOWN';
+    const targetUserId = req.params.id;
+
     try {
-        const { username, email, balance, emailVerified, isAdmin } = req.body;
-
-        // ⚠️ بدك تعرّفي هدول المتغيرين قبل اللوق
-        const adminUserId = req.user ? req.user._id : 'UNKNOWN';
-        const targetUserId = req.params.id;
-
         const updatedUser = await User.findByIdAndUpdate(
             targetUserId,
             {
@@ -85,8 +85,13 @@ router.put('/users/:id', validateObjectId('id'), async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error updating user:', error);
-        return res.status(500).json({ message: 'فشل تحديث بيانات المستخدم' });
+        console.error(
+            `ERROR: Admin (ID: ${adminUserId}) failed updating user (ID: ${targetUserId}). Error: ${error.message}`
+        );
+
+        return res.status(500).json({
+            message: 'فشل تحديث بيانات المستخدم'
+        });
     }
 });
 
