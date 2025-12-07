@@ -169,7 +169,7 @@ async function fetchOffers() {
     }
 
     try {
-        const response = await fetch('/api/offers', { 
+        const response = await apiFetch('/api/offers', { 
             headers: getAuthHeaders() 
         });
         if (!response.ok) throw new Error('فشل جلب العروض');
@@ -243,7 +243,7 @@ function loadDashboardData() {
     async function fetchStats() {
         statsContainer.innerHTML = '<div class="stat-card loading"></div><div class="stat-card loading"></div><div class="stat-card loading"></div><div class="stat-card loading"></div>';
         try {
-            const response = await fetch('/api/stats', { headers: getAuthHeaders() });
+            const response = await apiFetch('/api/stats', { headers: getAuthHeaders() });
             if (!response.ok) throw new Error('فشل جلب الإحصائيات. (قد تكون الصلاحيات غير كافية).');
             const stats = await response.json();
             renderStats(stats);
@@ -267,7 +267,7 @@ async function fetchOrders(week = 0) { // 🎯 قبول بارامتر الأس�
     ordersTbody.innerHTML = '';
     try {
         // 🎯 إرسال الأسبوع المحدد إلى الـ API
-        const response = await fetch(`/api/orders?week=${week}`, { headers: getAuthHeaders() });
+        const response = await apiFetch(`/api/orders?week=${week}`, { headers: getAuthHeaders() });
         if (!response.ok) throw new Error('فشل جلب الطلبات.');
         const orders = await response.json();
         renderOrders(orders);
@@ -368,7 +368,7 @@ async function handleStatusChange(event) {
     row.style.opacity = '0.5';
 
     try {
-        const response = await fetch(`/api/orders/${orderId}`, { 
+        const response = await apiFetch(`/api/orders/${orderId}`, { 
             method: 'PUT', 
             headers: getAuthHeaders(),
             body: JSON.stringify({ status: newStatus }) 
@@ -405,7 +405,7 @@ async function handleStatusChange(event) {
     // --- 5. قسم إدارة الخدمات ---
     async function fetchServices() {
         try {
-            const response = await fetch('/api/services', { headers: getAuthHeaders() });
+            const response = await apiFetch('/api/services', { headers: getAuthHeaders() });
             if (!response.ok) throw new Error('فشل جلب الخدمات. (قد تكون الصلاحيات غير كافية).');
             const services = await response.json();
             renderServices(services);
@@ -465,7 +465,7 @@ async function handleStatusChange(event) {
             step: parseInt(document.getElementById('service-step').value) || 1
         };
         try {
-            const response = await fetch('/api/services', { 
+            const response = await apiFetch('/api/services', { 
                 method: 'POST', 
                 headers: getAuthHeaders(),
                 body: JSON.stringify(serviceData) 
@@ -525,7 +525,7 @@ async function handleStatusChange(event) {
             step: parseInt(document.getElementById('edit-step').value) || 1
         };
         try {
-            const response = await fetch(`/api/services/${id}`, { 
+            const response = await apiFetch(`/api/services/${id}`, { 
                 method: 'PUT', 
                 headers: getAuthHeaders(),
                 body: JSON.stringify(updatedData) 
@@ -547,7 +547,7 @@ async function fetchDeposits(week = 0) { // 🎯 قبول بارامتر الأ�
     depositsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">جاري تحميل...</td></tr>';
     try {
         // 🎯 إرسال الأسبوع المحدد إلى الـ API
-        const response = await fetch(`/api/deposits?week=${week}`, { headers: getAuthHeaders() });
+        const response = await apiFetch(`/api/deposits?week=${week}`, { headers: getAuthHeaders() });
         if (!response.ok) throw new Error('فشل جلب طلبات الشحن.');
         const deposits = await response.json();
         renderDeposits(deposits);
@@ -641,7 +641,7 @@ async function handleAddOffer(e) {
     console.log('📦 بيانات العرض المرسلة:', formData);
     
     try {
-        const response = await fetch('/api/offers', {
+        const response = await apiFetch('/api/offers', {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify(formData)
@@ -682,7 +682,7 @@ async function handleDeleteOffer(event) {
     }
     
     try {
-        const response = await fetch(`/api/offers/${offerId}`, {
+        const response = await apiFetch(`/api/offers/${offerId}`, {
             method: 'DELETE',
             headers: getAuthHeaders()
         });
@@ -724,7 +724,7 @@ async function handleEditOffer(event) {
 // 🆕 دالة تعبئة قائمة الخدمات
 async function loadServicesForOffers() {
     try {
-        const response = await fetch('/api/services', { 
+        const response = await apiFetch('/api/services', { 
             headers: getAuthHeaders() 
         });
         if (!response.ok) return;
@@ -831,7 +831,7 @@ function updateAdminSearchResults(tbodyId, visible, total) {
         tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">جاري التحميل...</td></tr>';
         
         try {
-            const response = await fetch('/api/admin/users', { 
+            const response = await apiFetch('/api/admin/users', { 
                 headers: getAuthHeaders() 
             });
             
@@ -957,7 +957,7 @@ function updateAdminSearchResults(tbodyId, visible, total) {
         };
         
         try {
-            const response = await fetch(`/api/admin/users/${userId}`, {
+            const response = await apiFetch(`/api/admin/users/${userId}`, {
                 method: 'PUT',
                 headers: getAuthHeaders(),
                 body: JSON.stringify(formData)
@@ -1061,7 +1061,7 @@ async function handleDepositAction(event) {
     btn.textContent = 'جاري...';
     
     try {
-        const response = await fetch(`/api/deposits/${depositId}/${action}`, { 
+        const response = await apiFetch(`/api/deposits/${depositId}/${action}`, { 
             method: 'PUT',
             headers: getAuthHeaders()
         });
