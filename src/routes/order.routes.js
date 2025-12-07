@@ -10,6 +10,8 @@ const authMiddleware = require('../middleware/auth.middleware');
 const adminMiddleware = require('../middleware/admin.middleware');
 const { createOrderRules } = require('../middleware/validators'); 
 const validateObjectId = require('../middleware/objectId.middleware');
+const { createLimiter, calculatePriceLimiter } = require('../middleware/rateLimit');
+
 
 // في order.routes.js - أضف في الأعلى بعد الـ requires
 let cachedOffers = null;
@@ -159,7 +161,7 @@ async function calculateFinalPrice(serviceName, platform, quantity, userId = nul
 
 
 // 🆕 Route جديد لحساب السعر مع الخصم
-router.post('/calculate-price', async (req, res) => {
+router.post('/calculate-price', calculatePriceLimiter, async (req, res) => {
     try {
         console.log('📊 حساب السعر - البيانات المستلمة:', req.body);
         
@@ -181,7 +183,7 @@ router.post('/calculate-price', async (req, res) => {
 });
 
 // --- POST /api/orders (للطلبات العادية عبر واتساب) ---
-router.post('/', createOrderRules, async (req, res) => {
+router.post('/', createOrderRules, createLimiter, async (req, res) => {
     try {
         const newOrder = new Order(req.body);
         await newOrder.save();
@@ -343,7 +345,7 @@ router.get('/my-orders', async (req, res) => {
 });
 
 // --- POST /api/orders/pay-with-balance (النسخة الآمنة والمكتملة) ---
-router.post('/pay-with-balance', async (req, res) => {
+router.post('/pay-with-balance', authMiddleware, createLimiter, async (req, res) => {
     try {
         const { userId, service: serviceName, link, quantity, platform } = req.body;
 
