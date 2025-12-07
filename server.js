@@ -17,7 +17,7 @@ const {
     generalLimiter 
 } = require('./src/middleware/rateLimit');
 
-
+const mongoSanitize = require('express-mongo-sanitize');
 const cookieParser = require('cookie-parser');
 const csrf = require('csurf');
 
@@ -36,6 +36,7 @@ const io = initSocket(server);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser()); 
+app.use(mongoSanitize());
 
 
 
