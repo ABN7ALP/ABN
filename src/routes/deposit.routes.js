@@ -1,31 +1,15 @@
+// routes/deposit.routes.js
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user.model');
 const Deposit = require('../models/deposit.model');
 const Notification = require('../models/notification.model');
-const UploadService = require('../services/uploadService');
+const UploadService = require('../services/uploadService'); // 🆕 استيراد خدمة الرفع
 const { depositRules } = require('../middleware/validators');
-const authMiddleware = require('../middleware/authMiddleware');
-
-// ✨ أضيفي هذا
-const rateLimit = require('express-rate-limit');
-
-// ✅ في rateLimit.js - أضف limiter جديد
-const depositLimiter = rateLimit({
-    windowMs: 60 * 60 * 1000, // ساعة واحدة
-    max: 5, // 5 طلبات شحن كحد أقصى كل ساعة
-    message: {
-        success: false,
-        message: 'تم تجاوز عدد طلبات الشحن المسموحة. يرجى المحاولة مرة أخرى بعد ساعة.'
-    },
-    handler: (req, res, next, options) => {
-        console.log(`🚨 Deposit limit exceeded for IP: ${req.ip}, User: ${req.user?._id || 'guest'}`);
-        res.status(429).json(options.message);
-    }
-});
 // POST إنشاء طلب شحن جديد
 
-router.post('/', depositLimiter, depositRules, async (req, res) => {
+// POST إنشاء طلب شحن جديد
+router.post('/', depositRules, async (req, res) => {
     try {
         const { userId, amount, method, depositorName, receiptImage } = req.body;
 
@@ -150,89 +134,6 @@ router.put('/:id/approve', async (req, res) => {
         res.status(500).json({ message: 'فشل الموافقة على الطلب.' });
     }
 });
-
-// ✅ في deposit.routes.js - عدل route عرض الإيصال
-// أضف route جديد وآمن لعرض الإيصال
-router.get('/receipt/:id', authMiddleware, async (req, res) => {
-    try {
-        const deposit = await Deposit.findById(req.params.id);
-        
-        if (!deposit) {
-            return res.status(404).json({ message: 'الإيصال غير موجود' });
-        }
-        
-        // 🆕 التحقق من أن المستخدم هو مالك الإيصال أو مدير
-        const isOwner = deposit.user.toString() === req.user._id.toString();
-        const isAdmin = req.user.isAdmin === true;
-        
-        if (!isOwner && !isAdmin) {
-            return res.status(403).json({ 
-                message: 'غير مصرح لك بعرض هذا الإيصال' 
-            });
-        }
-        
-        // 🆕 التحقق من أن الصورة موجودة
-        if (!deposit.receiptImage) {
-            return res.status(404).json({ message: 'صورة الإيصال غير متوفرة' });
-        }
-        
-        // إرجاع الصورة مع headers أمنية
-        res.setHeader('Content-Type', 'image/jpeg');
-        res.setHeader('Content-Security-Policy', "default-src 'self'");
-        res.send(`<img src="${deposit.receiptImage}" style="max-width:100%;">`);
-        
-    } catch (error) {
-        console.error('Error fetching receipt:', error);
-        res.status(500).json({ message: 'خطأ في جلب الإيصال' });
-    }
-});
-
-// ✅ ثم في admin.js - عدل دالة viewReceipt
-function viewReceipt(depositId) {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        alert('يجب تسجيل الدخول');
-        return;
-    }
-    
-    const url = `/api/deposits/receipt/${depositId}`;
-    const newWindow = window.open();
-    
-    if (newWindow) {
-        newWindow.document.write(`
-            <html><head><title>جاري تحميل الإيصال...</title></head>
-            <body style="margin:0; background:#333;">
-            <div style="text-align:center; color:white; padding:2rem;">
-                جاري تحميل الإيصال...
-            </div>
-            </body></html>
-        `);
-        newWindow.document.close();
-        
-        // تحميل الصورة عبر fetch مع التوكن
-        fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('فشل تحميل الإيصال');
-            return response.text();
-        })
-        .then(html => {
-            newWindow.document.write(html);
-            newWindow.document.close();
-        })
-        .catch(error => {
-            newWindow.document.write(`
-                <html><body style="text-align:center; padding:2rem;">
-                <h3 style="color:red;">❌ ${error.message}</h3>
-                </body></html>
-            `);
-            newWindow.document.close();
-        });
-    }
-}
 
 // PUT رفض طلب شحن
 router.put('/:id/reject', async (req, res) => {
