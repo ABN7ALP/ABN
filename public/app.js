@@ -434,7 +434,7 @@ function setupPasswordStrength() {
         const rememberMe = document.getElementById('remember-me')?.checked || false;
         
         try {
-            const response = await secureFetch('/api/auth/login', { 
+            const response = await apiFetch('/api/auth/login', { 
             method: 'POST',
             body: JSON.stringify({ email, password }) 
         });
@@ -488,7 +488,7 @@ async function registerHandler(e) {
             profileImageBase64 = await fileToBase64(profileImageInput.files[0]);
         }
         
-        const response = await secureFetch('/api/auth/register', {
+        const response = await apiFetch('/api/auth/register', {
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' }, 
             body: JSON.stringify({ 
@@ -599,7 +599,7 @@ async function registerHandler(e) {
         
         errorElement.textContent = 'جاري التحقق...';
         
-        const response = await secureFetch('/api/auth/verify-email', {
+        const response = await apiFetch('/api/auth/verify-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, code })
@@ -657,7 +657,7 @@ function showVerificationSuccess(message) {
         errorElement.textContent = '';
         
         try {
-            const response = await secureFetch('/api/auth/send-verification', {
+            const response = await apiFetch('/api/auth/send-verification', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
@@ -729,7 +729,7 @@ function showVerificationSuccess(message) {
     errorElement.textContent = '';
     
     try {
-        const response = await secureFetch('/api/auth/forgot-password', {
+        const response = await apiFetch('/api/auth/forgot-password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email })
@@ -844,7 +844,7 @@ async function handleResetPassword(e) {
             return;
         }
         
-        const response = await secureFetch('/api/auth/reset-password', {
+        const response = await apiFetch('/api/auth/reset-password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, token, newPassword })
@@ -1719,7 +1719,7 @@ function showCopySuccessMessage(message, isError = false) {
                 receiptImage: imageBase64 
             };
             
-            const response = await secureFetch('/api/deposits', { 
+            const response = await apiFetch('/api/deposits', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify(depositData) 
@@ -2020,7 +2020,7 @@ async function updatePrice() {
 
     async function executePayWithBalance() {
         try {
-            const response = await secureFetch('/api/orders/pay-with-balance', { 
+            const response = await apiFetch('/api/orders/pay-with-balance', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify(currentOrderData) 
@@ -2045,7 +2045,7 @@ async function updatePrice() {
         const orderDataForWhatsapp = { ...currentOrderData, user: userInfo ? userInfo._id : null };
         
         try {
-            await secureFetch('/api/orders', { 
+            await apiFetch('/api/orders', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify(orderDataForWhatsapp) 
@@ -2154,7 +2154,7 @@ async function updatePrice() {
         }
 
         try {
-            const response = await secureFetch('/api/notifications/mark-read', {
+            const response = await apiFetch('/api/notifications/mark-read', {
                 method: 'POST',
                 headers: { 
                     'Authorization': `Bearer ${token}`,
