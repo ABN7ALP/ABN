@@ -58,19 +58,6 @@ const userSchema = new mongoose.Schema({
     lastLogin: {
         type: Date,
         default: null
-    },
-    sessions: [{
-        token: String,
-        ip: String,
-        userAgent: String,
-        createdAt: { type: Date, default: Date.now },
-        lastActive: { type: Date, default: Date.now },
-        expiresAt: Date
-    }],
-    
-    maxSessions: {
-        type: Number,
-        default: 3  // الحد الأقصى للجلسات المتزامنة
     }
 }, {
     timestamps: true
@@ -123,28 +110,6 @@ userSchema.methods.matchPassword = async function(enteredPassword) {
         await this.incrementLoginAttempts();
         return false;
     }
-};
-
-// ✅ أضف هذه الدالة الجديدة بعد دالة matchPassword
-userSchema.methods.isPasswordReused = async function(newPassword) {
-    // التحقق من أن كلمة المرور الجديدة ليست مطابقة للقديمة
-    return await bcrypt.compare(newPassword, this.password);
-};
-
-userSchema.methods.isPasswordWeak = function(newPassword) {
-    // تحقق من قوة كلمة المرور
-    const minLength = 8;
-    const hasUpperCase = /[A-Z]/.test(newPassword);
-    const hasLowerCase = /[a-z]/.test(newPassword);
-    const hasNumbers = /\d/.test(newPassword);
-    const hasSpecialChar = /[^A-Za-z0-9]/.test(newPassword);
-    
-    if (newPassword.length < minLength) return 'كلمة المرور قصيرة جداً';
-    if (!hasUpperCase) return 'تتطلب حرف كبير على الأقل';
-    if (!hasLowerCase) return 'تتطلب حرف صغير على الأقل';
-    if (!hasNumbers) return 'تتطلب رقم على الأقل';
-    if (!hasSpecialChar) return 'تتطلب رمز خاص على الأقل';
-    return null; // كلمة المرور قوية
 };
 
 const User = mongoose.model('User', userSchema);
