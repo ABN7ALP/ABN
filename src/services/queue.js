@@ -14,16 +14,21 @@ const redisConfig = {
             type: 'exponential', // تأخير أسي
             delay: 1000          // بداية من ثانية واحدة
         }
-    }
-};
-
-// 🆕 إضافة إعدادات المرونة
+    },
+    // 🆕 إضافة إعدادات المرونة
     settings: {
         maxStalledCount: 3,
         retryProcessDelay: 5000,
         drainDelay: 5
     }
 };
+
+console.log('🔗 محاولة الاتصال بـ Redis:', process.env.REDIS_URL ? 'تم العثور على URL' : 'استخدام الافتراضي');
+
+// إنشاء الطوابير
+const notificationsQueue = new Queue('notifications', redisConfig);
+const emailQueue = new Queue('emails', redisConfig);
+
 // 🆕 أضف fallback queue في الذاكرة
 const memoryFallbackQueue = {
     jobs: [],
@@ -74,11 +79,6 @@ const addNotificationJob = async (type, data, options = {}) => {
         return fallbackJob;
     }
 };
-console.log('🔗 محاولة الاتصال بـ Redis:', process.env.REDIS_URL ? 'تم العثور على URL' : 'استخدام الافتراضي');
-
-// إنشاء الطوابير
-const notificationsQueue = new Queue('notifications', redisConfig);
-const emailQueue = new Queue('emails', redisConfig);
 
 // ==========================================
 // ******** معالج الإشعارات الجماعية ********
