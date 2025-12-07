@@ -18,8 +18,8 @@ const {
 } = require('./src/middleware/rateLimit');
 
 
-//const cookieParser = require('cookie-parser');
-//const csrf = require('csurf');
+const cookieParser = require('cookie-parser');
+const csrf = require('csurf');
 
 
 const app = express();
@@ -35,19 +35,19 @@ const io = initSocket(server);
 // Middlewares
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
-//app.use(cookieParser()); 
+app.use(cookieParser()); 
 
 
 
 
 // إعداد حماية CSRF
-//const csrfProtection = csrf({ 
- //   cookie: {
-    //    httpOnly: true, 
-     //   secure: process.env.NODE_ENV === 'production', 
-     //   sameSite: 'strict'
-   // } 
-//});
+const csrfProtection = csrf({ 
+    cookie: {
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production', 
+        sameSite: 'strict'
+    } 
+});
 
 // جعل io متاحاً لكل الطلبات
 app.use((req, res, next) => {
@@ -96,13 +96,13 @@ app.use(express.static(publicPath));
 // ==========================================================
 
 // 1. مسار خاص للحصول على توكن CSRF (لا يحتاج لحماية)
-//app.get('/api/csrf-token', csrfProtection, (req, res) => {
+app.get('/api/csrf-token', csrfProtection, (req, res) => {
     // نستخدم middleware هنا فقط لتوليد التوكن وإرساله
-//    res.json({ csrfToken: req.csrfToken() });
-//});
+    res.json({ csrfToken: req.csrfToken() });
+});
 
 // 2. تطبيق middleware التحقق من CSRF على جميع مسارات الـ API التالية
-//app.use('/api', csrfProtection);
+app.use('/api', csrfProtection);
 
 // 3. تعريف مسارات الـ API المحمية
 app.use('/api/support', supportRoutes);
@@ -157,14 +157,14 @@ app.get('*', (req, res) => {
 // ==========================================================
 // معالج أخطاء CSRF المخصص
 // ==========================================================
-//app.use((err, req, res, next) => {
-  //  if (err.code === 'EBADCSRFTOKEN') {
-//        console.warn(`CSRF Token Error: IP=${req.ip}, URL=${req.originalUrl}`);
-   //     res.status(403).json({ message: 'خطأ في التحقق من الجلسة. يرجى تحديث الصفحة والمحاولة مرة أخرى.' });
-//    } else {
- //       next(err);
-//    }
-//});
+app.use((err, req, res, next) => {
+    if (err.code === 'EBADCSRFTOKEN') {
+        console.warn(`CSRF Token Error: IP=${req.ip}, URL=${req.originalUrl}`);
+        res.status(403).json({ message: 'خطأ في التحقق من الجلسة. يرجى تحديث الصفحة والمحاولة مرة أخرى.' });
+    } else {
+        next(err);
+    }
+});
 
 require('./src/services/telegramBot'); // 🎯 3. استدعاء البوت ليبدأ بالعمل
 
