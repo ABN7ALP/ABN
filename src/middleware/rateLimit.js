@@ -1,3 +1,4 @@
+
 // middleware/rateLimit.js
 const rateLimit = require('express-rate-limit');
 
@@ -82,11 +83,49 @@ const adminLimiter = rateLimit({
     }
 });
 
+// ... (الكود الحالي لـ loginLimiter, registerLimiter, etc.)
+// ⏱️ Rate Limiting لإنشاء الطلبات الجديدة (شحن، خدمات، دعم)
+// يطبق على المستخدمين المسجلين فقط، ويعتمد على IP + User ID
+const createLimiter = rateLimit({
+    windowMs: 10 * 60 * 1000, // 10 دقائق
+    max: 20, // 20 طلب إنشاء كحد أقصى كل 10 دقائق لكل مستخدم
+    message: {
+        success: false,
+        message: 'لقد قمت بإرسال عدد كبير من الطلبات. يرجى المحاولة مرة أخرى بعد 10 دقائق.'
+    },
+    // 🎯 مفتاح التحديد: يعتمد على معرف المستخدم إذا كان مسجلاً، أو على IP إذا كان زائراً
+    keyGenerator: (req, res) => {
+        return req.user ? req.user.id : req.ip;
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// ⏱️ Rate Limiting لحساب الأسعار (عملية قد تكون مكلفة)
+const calculatePriceLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // دقيقة واحدة
+    max: 30, // 30 محاولة حساب سعر كل دقيقة
+    message: {
+        success: false,
+        message: 'تم تجاوز الحد المسموح لطلبات حساب السعر.'
+    },
+    keyGenerator: (req, res) => {
+        return req.user ? req.user.id : req.ip;
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+
+
 module.exports = {
     loginLimiter,
     registerLimiter,
     passwordResetLimiter,
     emailVerificationLimiter,
     generalLimiter,
+    createLimiter, // ⭐️ إضافة جديدة
+    calculatePriceLimiter, // ⭐️ إضافة جديدة
     adminLimiter
+    
 };
