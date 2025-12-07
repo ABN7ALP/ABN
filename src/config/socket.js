@@ -1,5 +1,3 @@
-// src/config/socket.js
-
 const { Server } = require("socket.io");
 const { rateLimit } = require("socket.io-rate-limit");
 
@@ -15,54 +13,48 @@ function initSocket(httpServer) {
     ];
 
     io = new Server(httpServer, {
+        // 🔽🔽 التعديلات الأهم هنا 🔽🔽
+        path: "/socket.io/", // 1. تحديد المسار بشكل صريح
         cors: {
             origin: function (origin, callback) {
+                // السماح بالطلبات التي لا تحتوي على origin (مثل تطبيقات الموبايل أو Postman)
                 if (!origin || allowedOrigins.indexOf(origin) !== -1) {
                     callback(null, true);
                 } else {
-                    console.error(`❌ CORS Error: Origin ${origin} not allowed.`); // 🎯 إضافة سجل خطأ أوضح
-                    const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-                    callback(new Error(msg), false);
+                    console.error(`❌ CORS Error: Origin ${origin} not allowed.`);
+                    callback(new Error('Not allowed by CORS'));
                 }
             },
-            methods: ["GET", "POST"]
-        }
+            methods: ["GET", "POST"],
+            credentials: true
+        },
+        transports: ['websocket', 'polling'] // 2. تحديد طرق الاتصال بشكل صريح
+        // 🔼🔼 نهاية التعديلات 🔼🔼
     });
 
-     // ==========================================================
-    // 🛡️ Socket.IO Rate Limiting Middleware
-    // ==========================================================
+    // تطبيق حماية Rate Limiting
     io.use(rateLimit({
-        // 10 ثوانٍ هي فترة النافذة الزمنية
         window: 10000, 
-        // 15 حدثاً كحد أقصى لكل مستخدم خلال هذه الفترة
-        limit: 15, 
-        // 🎯 الأحداث التي سيتم تطبيق الحماية عليها.
-        // أضف أي حدث مستقبلي ترسله من العميل إلى الخادم هنا.
-        events: [
-            "sendMessage", // هذا مثال لحدث إرسال رسالة دعم
-            // "another_event",
-            // "some_other_action"
-        ]
+        limit: 15,
+        // لا نضع أي أحداث هنا الآن، لكنه جاهز للمستقبل
+        events: [] 
     }));
 
     io.on('connection', (socket) => {
-        console.log('✅ A user connected from allowed origin:', socket.handshake.headers.origin);
+        console.log('✅ A user connected via Socket.IO. Transport:', socket.conn.transport.name);
         
         socket.on("rate-limit", (payload) => {
-            console.warn(`Socket Rate Limit Exceeded: User ${socket.id} tried to send event '${payload.event}' too fast.`);
-            // يمكنك إرسال إشعار للعميل إذا أردت
+            console.warn(`Socket Rate Limit Exceeded for user ${socket.id}`);
             socket.emit("error", { message: "لقد تجاوزت الحد المسموح به من الطلبات، يرجى التمهل." });
         });
-
 
         const userId = socket.handshake.query.userId;
         if (userId) {
             socket.join(userId);
-            console.log(`User ${userId} joined room ${userId}`);
+            console.log(`User ${userId} joined their dedicated room.`);
         }
-        socket.on('disconnect', () => {
-            console.log('User disconnected:', socket.id);
+        socket.on('disconnect', (reason) => {
+            console.log(`User disconnected: ${socket.id}. Reason: ${reason}`);
         });
     });
 
