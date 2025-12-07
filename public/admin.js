@@ -143,6 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const editServicePopup = document.getElementById('edit-service-popup');
     const editServiceForm = document.getElementById('edit-service-form');
     const closeEditPopupBtn = document.getElementById('close-edit-popup-btn');
+    const logsTbody = document.getElementById('logs-tbody');
+    
 
 let offersLockSystem;
 
@@ -187,6 +189,7 @@ function loadDashboardData() {
     fetchServices();
     fetchDeposits();
     fetchUsers();
+    fetchSecurityLogs();
     
     // 🆕 تحميل العروض فقط بعد تهيئة نظام القفل
     initOffersLock(); // هذه بدلاً من fetchOffers() المباشرة
@@ -823,6 +826,47 @@ function updateAdminSearchResults(tbodyId, visible, total) {
         table.parentNode.insertBefore(resultsInfo, table);
     }
 }
+
+
+async function fetchSecurityLogs() {
+    if (!logsTbody) return;
+    logsTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">جاري تحميل السجلات...</td></tr>';
+            
+    try {
+        const response = await apiFetch('/api/admin/logs', { headers: getAuthHeaders() });
+        if (!response.ok) throw new Error('فشل جلب السجلات');
+                
+        const logs = await response.json();
+        renderSecurityLogs(logs);
+    } catch (error) {
+        logsTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">${error.message}</td></tr>`;
+    }
+}
+
+function renderSecurityLogs(logs) {
+    logsTbody.innerHTML = '';
+    if (logs.length === 0) {
+        logsTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد سجلات لعرضها.</td></tr>';
+        return;
+    }
+
+    logsTbody.innerHTML = logs.map(log => {
+        const levelClass = `status-${log.level.toLowerCase()}`; // e.g., status-warn
+        const detailsString = JSON.stringify(log.details, null, 2);
+
+        return `
+            <tr>
+                <td data-label="الوقت">${new Date(log.timestamp).toLocaleString('ar-EG')}</td>
+                <td data-label="المستوى"><span class="status ${levelClass}">${log.level}</span></td>
+                <td data-label="نوع الحدث">${log.eventType}</td>
+                <td data-label="الرسالة">${log.message}</td>
+                <td data-label="التفاصيل"><pre><code>${detailsString}</code></pre></td>
+            </tr>
+        `;
+    }).join('');
+}
+
+    
     // --- قسم إدارة المستخدمين ---
     async function fetchUsers() {
         const tbody = document.getElementById('users-tbody');
