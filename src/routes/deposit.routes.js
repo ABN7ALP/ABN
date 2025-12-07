@@ -5,6 +5,7 @@ const Deposit = require('../models/deposit.model');
 const Notification = require('../models/notification.model');
 const UploadService = require('../services/uploadService');
 const { depositRules } = require('../middleware/validators');
+const authMiddleware = require('../middleware/authMiddleware');
 
 // ✨ أضيفي هذا
 const rateLimit = require('express-rate-limit');
