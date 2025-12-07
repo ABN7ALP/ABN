@@ -44,7 +44,7 @@ async function secureFetch(url, options = {}) {
     };
 
     // تنفيذ الطلب
-    const response = await fetch(url, secureOptions);
+    const response = await secureFetch(url, secureOptions);
 
     // التعامل مع خطأ CSRF (إذا انتهت صلاحية التوكن)
     if (response.status === 403) {
