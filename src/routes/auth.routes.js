@@ -87,41 +87,49 @@ router.post('/register', registerLimiter, registerRules, async (req, res) => {
 
 // --- POST /api/auth/login مع Rate Limiting ---
 // استبدل هذا المسار بالكامل
-router.post('/login', /* loginLimiter, */ loginRules, async (req, res) => { // 🎯 قمنا بتعليق الـ limiter
+router.post('/login', /* loginLimiter, */ loginRules, async (req, res) => {
     const { email, password } = req.body;
 
     try {
         const user = await User.findOne({ email });
 
-        // 🎯 تعديل بسيط هنا للوضوح
         if (!user) {
+            console.warn(`SECURITY: Failed login attempt for non-existent user: ${email} from IP: ${req.ip}`);
             return res.status(401).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' });
         }
 
         const isPasswordCorrect = await user.matchPassword(password);
 
-        if (isPasswordCorrect) {
-            if (!user.emailVerified) {
-                return res.status(401).json({ 
-                    message: 'يرجى تفعيل بريدك الإلكتروني أولاً. تحقق من بريدك الوارد.' 
-                });
-            }
-
-            res.json({
-                _id: user._id,
-                username: user.username,
-                email: user.email,
-                profileImage: user.profileImage,
-                balance: user.balance,
-                isAdmin: user.isAdmin,
-                token: generateToken(user._id),
-            });
-        } else {
-            res.status(401).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' });
+        if (!isPasswordCorrect) {
+            console.warn(`SECURITY: Failed login attempt (wrong password) for user: ${user.username} (ID: ${user._id}) from IP: ${req.ip}`);
+            return res.status(401).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' });
         }
+
+        // 🎯 التحقق من تفعيل الايميل
+        if (!user.emailVerified) {
+            console.warn(`SECURITY: Unverified email login attempt for user: ${user.username} (ID: ${user._id}) from IP: ${req.ip}`);
+            return res.status(401).json({
+                message: 'يرجى تفعيل بريدك الإلكتروني أولاً. تحقق من بريدك الوارد.'
+            });
+        }
+
+        // 🎯 تسجيل دخول ناجح — بالمكان الصحيح 100%
+        console.log(`SECURITY: Successful login for user: ${user.username} (ID: ${user._id}) from IP: ${req.ip}`);
+
+        // 🎯 إرسال بيانات المستخدم
+        return res.json({
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            profileImage: user.profileImage,
+            balance: user.balance,
+            isAdmin: user.isAdmin,
+            token: generateToken(user._id),
+        });
+
     } catch (error) {
-        // التعامل مع الأخطاء (مثل خطأ الحساب المقفول)
-        res.status(401).json({ message: error.message });
+        console.error("SECURITY: Login handler exception:", error);
+        return res.status(500).json({ message: 'حدث خطأ غير متوقع.' });
     }
 });
 
