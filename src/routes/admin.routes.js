@@ -5,6 +5,7 @@ const authMiddleware = require('../middleware/auth.middleware');
 const adminMiddleware = require('../middleware/admin.middleware');
 const validateObjectId = require('../middleware/objectId.middleware');
 const Log = require('../models/log.model');
+const { createLog } = require('../services/logging.service');
 
 // تطبيق middleware للأمان
 router.use(authMiddleware);
