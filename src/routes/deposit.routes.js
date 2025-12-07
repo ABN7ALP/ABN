@@ -6,12 +6,10 @@ const Deposit = require('../models/deposit.model');
 const Notification = require('../models/notification.model');
 const UploadService = require('../services/uploadService'); // 🆕 استيراد خدمة الرفع
 const { depositRules } = require('../middleware/validators');
-const { createLimiter } = require('../middleware/rateLimit');
-const authMiddleware = require('../middleware/auth.middleware'); 
 // POST إنشاء طلب شحن جديد
 
 // POST إنشاء طلب شحن جديد
-router.post('/', authMiddleware, depositRules, createLimiter, async (req, res) => {
+router.post('/', depositRules, async (req, res) => {
     try {
         const { userId, amount, method, depositorName, receiptImage } = req.body;
 
