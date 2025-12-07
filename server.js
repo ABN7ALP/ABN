@@ -182,23 +182,34 @@ app.get('*', (req, res) => {
 app.use((err, req, res, next) => {
     if (err.code === 'EBADCSRFTOKEN') {
         console.warn(`CSRF Token Error: IP=${req.ip}, URL=${req.originalUrl}`);
-        res.status(403).json({ message: 'خطأ في التحقق من الجلسة. يرجى تحديث الصفحة والمحاولة مرة أخرى.' });
-    } else {
-        next(err);
+        return res.status(403).json({
+            message: 'خطأ في التحقق من الجلسة. يرجى تحديث الصفحة والمحاولة مرة أخرى.'
+        });
     }
+
+    console.error(
+        `CRITICAL_ERROR: An unexpected error occurred on ${req.method} ${req.originalUrl}. Error: ${err.message}`,
+        err.stack
+    );
+
+    next(err); // تمرير إلى المعالج العام
 });
-// 🔼🔼 نهاية الإضافة 🔼🔼
+
+// ==========================================================
+// معالج أخطاء عام نهائي (Fallback Error Handler)
+// ==========================================================
+app.use((err, req, res, next) => {
+    res.status(500).json({
+        message: 'حدث خطأ غير متوقع في الخادم.'
+    });
+});
 
 
-
-
-
-
-require('./src/services/telegramBot'); // 🎯 3. استدعاء البوت ليبدأ بالعمل
-
+// تشغيل البوت
+require('./src/services/telegramBot');
 
 // تشغيل الخادم
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`Redis URL: ${process.env.REDIS_URL ? 'محدد' : 'غير محدد'}`);
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`Redis URL: ${process.env.REDIS_URL ? 'محدد' : 'غير محدد'}`);
 });
