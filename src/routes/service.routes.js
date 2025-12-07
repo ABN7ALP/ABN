@@ -69,6 +69,20 @@ router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
 // PUT تعديل خدمة
 router.put('/:id', authMiddleware, adminMiddleware, serviceRules, async (req, res) => {
     try {
+
+         // بعد تحديث الخدمة بنجاح
+        if (updatedService) {
+            // 🆕 مسح كاش العروض لأن الأسعار تغيرت
+            clearOffersCache();
+            
+            // 🆕 إرسال إشعار لتحديث واجهة المستخدم
+            req.io.emit('services-updated');
+            
+            res.status(200).json({ 
+                message: 'تم تعديل الخدمة بنجاح!',
+                service: updatedService 
+            });
+        }
         // جلب الخدمة القديمة لمقارنة السعر
         const oldService = await Service.findOne({ id: req.params.id });
         
