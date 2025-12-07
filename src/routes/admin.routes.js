@@ -48,9 +48,38 @@ router.get('/users/emails', async (req, res) => {
 });
 
 // 🆕 إضافة route لتحديث بيانات المستخدم
+// ✅ في admin.routes.js - عدل دالة تحديث المستخدم
 router.put('/users/:id', async (req, res) => {
     try {
         const { username, email, balance, emailVerified, isAdmin } = req.body;
+        
+        // 🆕 التحقق من صحة البيانات
+        if (balance !== undefined) {
+            if (typeof balance !== 'number' || balance < 0 || balance > 100000) {
+                return res.status(400).json({ 
+                    message: 'قيمة الرصيد غير صالحة. يجب أن تكون بين 0 و 100000' 
+                });
+            }
+        }
+        
+        if (username && (username.length < 3 || username.length > 30)) {
+            return res.status(400).json({ 
+                message: 'اسم المستخدم يجب أن يكون بين 3 و 30 حرفاً' 
+            });
+        }
+        
+        if (email && !/\S+@\S+\.\S+/.test(email)) {
+            return res.status(400).json({ 
+                message: 'البريد الإلكتروني غير صالح' 
+            });
+        }
+        
+        // 🆕 منع المستخدم من جعل نفسه غير مدير
+        if (req.user._id.toString() === req.params.id && isAdmin === false) {
+            return res.status(400).json({ 
+                message: 'لا يمكنك إزالة صلاحيات المدير من نفسك' 
+            });
+        }
         
         const updatedUser = await User.findByIdAndUpdate(
             req.params.id,
@@ -70,9 +99,13 @@ router.put('/users/:id', async (req, res) => {
         
         res.json({ message: 'تم تحديث بيانات المستخدم بنجاح', user: updatedUser });
         
+        
     } catch (error) {
         console.error('Error updating user:', error);
-        res.status(500).json({ message: 'فشل تحديث بيانات المستخدم' });
+        res.status(500).json({ 
+            message: 'فشل تحديث بيانات المستخدم',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 });
 
