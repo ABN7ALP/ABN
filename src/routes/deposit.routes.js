@@ -24,7 +24,7 @@ const depositLimiter = rateLimit({
 });
 // POST إنشاء طلب شحن جديد
 
-router.post('/', depositLimiter, depositRules, async (req, res) =>
+router.post('/', depositLimiter, depositRules, async (req, res) => {
     try {
         const { userId, amount, method, depositorName, receiptImage } = req.body;
 
