@@ -21,7 +21,9 @@ const {
 const cookieParser = require('cookie-parser');
 const csrf = require('csurf');
 const helmet = require('helmet'); // 🔽🔽 أضف هذا السطر 🔽🔽
-
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean'); 
+const hpp = require('hpp');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -29,6 +31,21 @@ const server = http.createServer(app);
 
 // 🎯 إعداد Socket.IO الموحد (مرة واحدة فقط)
 const io = initSocket(server);
+
+
+// ==========================================================
+// 🛡️ تفعيل حزم الأمان الإضافية
+// ==========================================================
+// حماية من NoSQL Injection
+app.use(mongoSanitize());
+
+// حماية من Cross-Site Scripting (XSS)
+app.use(xss());
+
+// حماية من HTTP Parameter Pollution
+app.use(hpp());
+// ==========================================================
+
 
 // 🔽🔽 أضف هذا الكود هنا 🔽🔽
 // ==========================================================
@@ -45,6 +62,7 @@ app.use(
 );
 // ==========================================================
 // 🔼🔼 نهاية الإضافة 🔼🔼
+
 
 
 
