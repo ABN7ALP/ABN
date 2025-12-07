@@ -1,5 +1,4 @@
 require('dotenv').config();
-const helmet = require('helmet');
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -32,91 +31,6 @@ const io = initSocket(server);
 // Middlewares
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
-
-
-
-// ✅ جميع المصادر المستخدمه 
-
-// أضف هذا middleware قبل أي routes
-app.use(helmet({
-    contentSecurityPolicy: {
-        useDefaults: true,
-        directives: {
-            defaultSrc: ["'self'"],
-            // 🎯 السماح بجميع مصادر CSS
-            styleSrc: [
-                "'self'",
-                "'unsafe-inline'",  // ضروري للأنماط المضمنة
-                "https://fonts.googleapis.com",
-                "https://cdn.jsdelivr.net",
-                "https://cdnjs.cloudflare.com",
-                "https://unpkg.com"
-            ],
-            // 🎯 السماح بجميع مصادر JavaScript
-            scriptSrc: [
-                "'self'",
-                "'unsafe-inline'",   // ضروري للأكواد المضمنة
-                "'unsafe-eval'",     // ضروري لبعض المكتبات
-                "https://unpkg.com",
-                "https://cdnjs.cloudflare.com",
-                "https://cdn.jsdelivr.net",
-                "https://guilty-address.com",
-                "https://*.guilty-address.com"  // 🆕 جميع النطاقات الفرعية
-            ],
-            // 🎯 السماح بجميع مصادر الخطوط
-            fontSrc: [
-                "'self'",
-                "data:",
-                "https://fonts.gstatic.com",
-                "https://cdn.jsdelivr.net",
-                "https://cdnjs.cloudflare.com",
-                "https://unpkg.com"
-            ],
-            // 🎯 السماح بجميع مصادر الصور
-            imgSrc: [
-                "'self'",
-                "data:",
-                "blob:",
-                "https:",
-                "http:",
-                "https://*.guilty-address.com"
-            ],
-            // 🎯 السماح بجميع الإطارات (مهم للإعلانات)
-            frameSrc: [
-                "'self'",
-                "https://guilty-address.com",
-                "https://*.guilty-address.com",
-                "https:",
-                "http:"
-            ],
-            // 🎯 السماح بجميع الاتصالات
-            connectSrc: [
-                "'self'",
-                "https://abn-production-cbae.up.railway.app",
-                "wss://abn-production-cbae.up.railway.app",
-                "ws://localhost:*",
-                "wss://*",
-                "https://guilty-address.com"
-            ],
-            // 🎯 إعدادات أخرى
-            mediaSrc: ["'self'", "https:", "http:"],
-            objectSrc: ["'none'"],
-            baseUri: ["'self'"],
-            formAction: ["'self'"],
-            frameAncestors: ["'self'"]
-        }
-    },
-    crossOriginEmbedderPolicy: false,  // 🆕 مهم للإعلانات
-    crossOriginResourcePolicy: { policy: "cross-origin" }  // 🆕 للإعلانات
-}));
-// ✅ أضف هذه الـ Headers الإضافية
-app.use((req, res, next) => {
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
-    next();
-});
 
 // جعل io متاحاً لكل الطلبات
 app.use((req, res, next) => {
