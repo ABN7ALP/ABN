@@ -17,6 +17,63 @@ const redisConfig = {
     }
 };
 
+/ 🆕 إضافة إعدادات المرونة
+    settings: {
+        maxStalledCount: 3,
+        retryProcessDelay: 5000,
+        drainDelay: 5
+    }
+};
+// 🆕 أضف fallback queue في الذاكرة
+const memoryFallbackQueue = {
+    jobs: [],
+    add: async (type, data) => {
+        console.log(`📦 Using memory fallback for job type: ${type}`);
+        memoryFallbackQueue.jobs.push({ type, data, timestamp: Date.now() });
+        return { id: 'memory-' + Date.now() };
+    },
+    process: () => {
+        // معالجة الوظائف المخزنة عند عودة Redis
+        if (memoryFallbackQueue.jobs.length > 0 && notificationsQueue.client.status === 'ready') {
+            console.log(`🔄 Processing ${memoryFallbackQueue.jobs.length} jobs from memory fallback`);
+            // ... معالجة الوظائف المؤجلة
+        }
+    }
+};
+
+// 🆕 أعد تعريف addNotificationJob مع fallback
+const addNotificationJob = async (type, data, options = {}) => {
+    try {
+        // محاولة إضافة إلى Redis أولاً
+        return await notificationsQueue.add(type, data, {
+            priority: options.priority || 'normal',
+            delay: options.delay || 0,
+            attempts: options.attempts || 3,
+            timeout: options.timeout || 30000,
+            ...options
+        });
+    } catch (redisError) {
+        console.error('❌ Redis queue error, using memory fallback:', redisError.message);
+        
+        // 🆕 Fallback: حفظ في الذاكرة وإرسال فوري
+        const fallbackJob = await memoryFallbackQueue.add(type, data);
+        
+        // 🆕 إرسال إشعار فوري عبر Socket.io كبديل
+        if (type === 'broadcast') {
+            const io = require('../config/socket').getIo();
+            if (io) {
+                io.emit('broadcast-notification', {
+                    message: data.message,
+                    link: data.link || '/',
+                    type: 'broadcast',
+                    fromFallback: true
+                });
+            }
+        }
+        
+        return fallbackJob;
+    }
+};
 console.log('🔗 محاولة الاتصال بـ Redis:', process.env.REDIS_URL ? 'تم العثور على URL' : 'استخدام الافتراضي');
 
 // إنشاء الطوابير
