@@ -1,4 +1,67 @@
-document.addEventListener('DOMContentLoaded', () => {
+let csrfToken = null;
+
+// دالة لجلب التوكن عند بدء تشغيل التطبيق
+async function fetchCsrfToken() {
+    try {
+        const response = await fetch('/api/csrf-token');
+        if (!response.ok) {
+            throw new Error('Failed to fetch CSRF token');
+        }
+        const data = await response.json();
+        csrfToken = data.csrfToken;
+        console.log('✅ CSRF Token fetched successfully!');
+    } catch (error) {
+        console.error('❌ Critical: Could not fetch CSRF token. App may not function correctly.', error);
+        // يمكنك عرض رسالة للمستخدم هنا تطلب منه تحديث الصفحة
+        document.body.innerHTML = '<h1>حدث خطأ حرج في الأمان. يرجى تحديث الصفحة.</h1>';
+    }
+}
+
+// دالة fetch مخصصة لإضافة التوكن تلقائياً
+async function secureFetch(url, options = {}) {
+    // تأكد من أن التوكن موجود
+    if (!csrfToken) {
+        console.log('CSRF token not available, fetching now...');
+        await fetchCsrfToken(); // حاول جلبه مرة أخرى
+    }
+
+    // إذا استمر عدم وجوده، أوقف الطلب
+    if (!csrfToken) {
+        throw new Error('CSRF token is missing. Cannot make the request.');
+    }
+
+    // إعداد الـ headers
+    const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers, // دمج أي headers موجودة مسبقاً
+        'CSRF-Token': csrfToken // إضافة توكن CSRF
+    };
+
+    // دمج الـ headers الجديدة مع بقية الخيارات
+    const secureOptions = {
+        ...options,
+        headers
+    };
+
+    // تنفيذ الطلب
+    const response = await fetch(url, secureOptions);
+
+    // التعامل مع خطأ CSRF (إذا انتهت صلاحية التوكن)
+    if (response.status === 403) {
+        console.warn('CSRF token validation failed. Refetching token and retrying...');
+        await fetchCsrfToken(); // جلب توكن جديد
+        headers['CSRF-Token'] = csrfToken; // تحديث التوكن في الـ headers
+        return fetch(url, { ...secureOptions, headers }); // إعادة محاولة الطلب مرة واحدة
+    }
+
+    return response;
+}
+
+
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+    
     // --- 0. تفعيل وضع سطح المكتب على الهواتف ---
     function suggestDesktopView() {
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -345,11 +408,10 @@ function setupPasswordStrength() {
         const rememberMe = document.getElementById('remember-me')?.checked || false;
         
         try {
-            const response = await fetch('/api/auth/login', { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ email, password, rememberMe }) 
-            });
+            const response = await secureFetch('/api/auth/login', { 
+            method: 'POST',
+            body: JSON.stringify({ email, password }) 
+        });
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || 'فشل تسجيل الدخول');
                 
@@ -2449,6 +2511,7 @@ function setupOffersToggle() {
    fetchActiveOffers();
    setupOffersToggle();
    setupSearchSystem();
+   await fetchCsrfToken();
 
 // وأيضاً استمع لتحديثات العروض
 socket.on('broadcast-notification', (data) => {
