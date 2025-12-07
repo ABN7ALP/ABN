@@ -75,6 +75,15 @@ app.use(express.static(publicPath));
 // ==========================================================
 // 🎯🎯🎯 القسم الثالث: الـ Catch-all (بعد الملفات الثابتة) 🎯🎯🎯
 // ==========================================================
+// خدمة الملفات الثابتة
+app.use(express.static(publicPath));
+
+// ✔✔ إصلاح مشكلة socket.io client
+app.get('/socket.io/socket.io.js', (req, res) => {
+    res.sendFile(require.resolve('socket.io/client-dist/socket.io.js'));
+});
+
+// catch-all
 app.get('*', (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
 });
