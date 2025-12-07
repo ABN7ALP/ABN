@@ -53,9 +53,13 @@ router.get('/users/emails', async (req, res) => {
 router.put('/users/:id', validateObjectId('id'), async (req, res) => {
     try {
         const { username, email, balance, emailVerified, isAdmin } = req.body;
-        
+
+        // ⚠️ بدك تعرّفي هدول المتغيرين قبل اللوق
+        const adminUserId = req.user ? req.user._id : 'UNKNOWN';
+        const targetUserId = req.params.id;
+
         const updatedUser = await User.findByIdAndUpdate(
-            req.params.id,
+            targetUserId,
             {
                 username,
                 email,
@@ -65,16 +69,24 @@ router.put('/users/:id', validateObjectId('id'), async (req, res) => {
             },
             { new: true, runValidators: true }
         ).select('-password');
-        
+
         if (!updatedUser) {
             return res.status(404).json({ message: 'المستخدم غير موجود' });
         }
-        
-        res.json({ message: 'تم تحديث بيانات المستخدم بنجاح', user: updatedUser });
-        
+
+        console.log(
+            `SECURITY: Admin (ID: ${adminUserId}) updated user (ID: ${targetUserId}). ` +
+            `New data: username=${username}, email=${email}, balance=${balance}, isAdmin=${isAdmin}`
+        );
+
+        return res.json({
+            message: 'تم تحديث بيانات المستخدم بنجاح',
+            user: updatedUser
+        });
+
     } catch (error) {
         console.error('Error updating user:', error);
-        res.status(500).json({ message: 'فشل تحديث بيانات المستخدم' });
+        return res.status(500).json({ message: 'فشل تحديث بيانات المستخدم' });
     }
 });
 
