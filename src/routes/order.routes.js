@@ -9,7 +9,7 @@ const Notification = require('../models/notification.model.js');
 const authMiddleware = require('../middleware/auth.middleware');
 const adminMiddleware = require('../middleware/admin.middleware');
 const { createOrderRules } = require('../middleware/validators'); 
-
+const validateObjectId = require('../middleware/objectId.middleware');
 // في order.routes.js - أضف في الأعلى بعد الـ requires
 let cachedOffers = null;
 let cacheTimestamp = 0;
@@ -227,7 +227,7 @@ router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
 // --- PUT /api/orders/:id (لتحديث حالة الطلب - حماية إدارية) ---
 // 🔽🔽 استبدل دالة تحديث الطلب الحالية بهذه النسخة الكاملة والنهائية 🔽🔽
 
-router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
+router.put('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
         if (!order) {
