@@ -1,13 +1,13 @@
-// routes/deposit.routes.js
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user.model');
 const Deposit = require('../models/deposit.model');
 const Notification = require('../models/notification.model');
-const UploadService = require('../services/uploadService'); // 🆕 استيراد خدمة الرفع
+const UploadService = require('../services/uploadService');
 const { depositRules } = require('../middleware/validators');
-const { depositLimiter } = require('../middleware/rateLimit');
 
+// ✨ أضيفي هذا
+const rateLimit = require('express-rate-limit');
 
 // ✅ في rateLimit.js - أضف limiter جديد
 const depositLimiter = rateLimit({
