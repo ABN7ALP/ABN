@@ -1,5 +1,5 @@
 // ==========================================================
-// 🎯🎯🎯 النسخة النهائية والصحيحة لدالة إرسال الطلبات 🎯🎯🎯
+// 🎯🎯🎯 النسخة النهائية والمحسّنة لدالة إرسال الطلبات 🎯🎯🎯
 // ==========================================================
 
 let csrfToken = null;
@@ -7,7 +7,6 @@ let csrfToken = null;
 // دالة جلب التوكن (تبقى كما هي)
 async function fetchCsrfToken() {
     try {
-        // نستخدم fetch الأصلية هنا لأن هذا الطلب GET وآمن
         const response = await fetch('/api/csrf-token');
         if (!response.ok) throw new Error('Failed to fetch CSRF token');
         const data = await response.json();
@@ -19,43 +18,67 @@ async function fetchCsrfToken() {
     }
 }
 
+/**
+ * دالة ذكية لإرسال طلبات API مؤمنة (تدعم JSON و FormData)
+ * وتضيف توكن المصادقة و CSRF تلقائياً.
+ * @param {string} url - رابط الـ API
+ * @param {object} options - خيارات الطلب (مثل method, body)
+ * @returns {Promise<Response>}
+ */
 async function apiFetch(url, options = {}) {
     if (!csrfToken) {
-        console.log('CSRF token not available, fetching now...');
         await fetchCsrfToken();
     }
     if (!csrfToken) {
         throw new Error('CSRF token is missing. Cannot make the request.');
     }
 
+    // --- 🔽🔽 الإضافة الجديدة والمهمة هنا 🔽🔽 ---
+    // جلب توكن المصادقة من localStorage
+    const authToken = localStorage.getItem('token');
+    
     // إعداد الـ headers الأساسية
     const headers = {
-        ...options.headers, // دمج أي headers مخصصة
+        ...options.headers,
         'CSRF-Token': csrfToken
     };
 
-    // 🎯 الجزء الذكي: التحقق من نوع الـ body
+    // إضافة توكن المصادقة إذا كان موجوداً
+    if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+    }
+    // --- 🔼🔼 نهاية الإضافة 🔼🔼 ---
+
+    // التعامل الذكي مع Content-Type
     if (options.body instanceof FormData) {
-    
+        // لا تقم بتعيين Content-Type، المتصفح سيفعل ذلك
+        // ولكن تأكد من أن headers القديمة لا تحتوي عليه
+        delete headers['Content-Type'];
     } else if (options.body) {
-        // إذا كان هناك body ولكنه ليس FormData (نفترض أنه JSON)
         headers['Content-Type'] = 'application/json';
     }
 
     const secureOptions = { ...options, headers };
 
-    // 🎯 نستخدم fetch الأصلية الخاصة بالمتصفح
     let response = await fetch(url, secureOptions);
 
     // التعامل مع خطأ انتهاء صلاحية توكن CSRF
     if (response.status === 403) {
         console.warn('CSRF token validation failed. Refetching token and retrying...');
         await fetchCsrfToken(); 
-        secureOptions.headers['CSRF-Token'] = csrfToken; // تحديث التوكن
-        
-        // 🎯 إعادة المحاولة باستخدام fetch الأصلية
+        secureOptions.headers['CSRF-Token'] = csrfToken;
         response = await fetch(url, secureOptions); 
     }
+    
+    // --- 🔽🔽 إضافة جديدة للتعامل مع خطأ 401 🔽🔽 ---
+    // إذا فشلت المصادقة، قم بتسجيل خروج المستخدم
+    if (response.status === 401) {
+        console.error('Authentication failed (401). Logging out user.');
+        logoutHandler(); // استدعاء دالة تسجيل الخروج
+        // يمكنك إظهار رسالة للمستخدم هنا
+        alert('انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.');
+    }
+    // --- 🔼🔼 نهاية الإضافة 🔼🔼 ---
 
     return response;
 }
