@@ -215,40 +215,18 @@ router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
             return res.status(400).json({ message: 'البريد الإلكتروني مطلوب' });
         }
 
-        // 🆕 إضافة delay وهمي لمنع enumeration
-        await new Promise(resolve => setTimeout(resolve, 500));
-
         const user = await User.findOne({ email });
         
-        // 🆕 إرجاع نفس الرسالة سواء كان المستخدم موجود أم لا
-        const responseMessage = 'إذا كان البريد الإلكتروني مسجلاً، سيصلك كود إعادة التعيين قريباً.';
-        
         if (!user) {
-            console.log(`⚠️ Password reset attempt for non-existent email: ${email} from IP: ${req.ip}`);
-            return res.json({ message: responseMessage });
-        }
-
-        // 🆕 التحقق من عدد محاولات إعادة التعيين
-        if (user.resetPasswordAttempts >= 5) {
-            const lockTime = 24 * 60 * 60 * 1000; // 24 ساعة
-            if (user.resetPasswordLockUntil && user.resetPasswordLockUntil > Date.now()) {
-                return res.status(429).json({ 
-                    message: 'تم تجاوز عدد محاولات إعادة التعيين. يرجى المحاولة بعد 24 ساعة.' 
-                });
-            }
-            // إعادة تعيين العد بعد 24 ساعة
-            user.resetPasswordAttempts = 0;
+            return res.json({ 
+                message: 'إذا كان البريد الإلكتروني مسجلاً، سيصلك كود إعادة التعيين قريباً.' 
+            });
         }
 
         const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
         
         user.resetPasswordToken = resetToken;
         user.resetPasswordExpires = Date.now() + 1 * 60 * 60 * 1000;
-        user.resetPasswordAttempts = (user.resetPasswordAttempts || 0) + 1;
-        
-        if (user.resetPasswordAttempts >= 5) {
-            user.resetPasswordLockUntil = Date.now() + (24 * 60 * 60 * 1000);
-        }
         
         await user.save();
 
@@ -273,18 +251,13 @@ router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
 });
 
 // --- POST /api/auth/reset-password مع Rate Limiting ---
-// ✅ أضف في بداية دالة reset-password (السطر 190)
+// --- POST /api/auth/reset-password مع Rate Limiting ---
 router.post('/reset-password', passwordResetLimiter, async (req, res) => {
     try {
         const { email, token, newPassword } = req.body;
 
         if (!email || !token || !newPassword) {
             return res.status(400).json({ message: 'جميع الحقول مطلوبة' });
-        }
-
-        // 🆕 التحقق من أن التوكن ليس فارغاً أو قصيراً جداً
-        if (token.length !== 6 || !/^\d+$/.test(token)) {
-            return res.status(400).json({ message: 'رمز التحقق غير صالح' });
         }
 
         // البحث عن المستخدم
@@ -295,29 +268,7 @@ router.post('/reset-password', passwordResetLimiter, async (req, res) => {
         });
 
         if (!user) {
-            // 🆕 زيادة عدد المحاولات الفاشلة
-            const failedUser = await User.findOne({ email });
-            if (failedUser) {
-                failedUser.failedResetAttempts = (failedUser.failedResetAttempts || 0) + 1;
-                await failedUser.save();
-                
-                if (failedUser.failedResetAttempts >= 3) {
-                    return res.status(429).json({ 
-                        message: 'عدد كبير من المحاولات الفاشلة. يرجى الانتظار 15 دقيقة.' 
-                    });
-                }
-            }
-            
-            return res.status(400).json({ 
-                message: 'رابط إعادة التعيين غير صالح أو منتهي الصلاحية' 
-            });
-        }
-
-        // 🆕 التحقق من أن التوكن لم يستخدم من قبل
-        if (user.resetPasswordUsed) {
-            return res.status(400).json({ 
-                message: 'تم استخدام رمز التحقق هذا مسبقاً' 
-            });
+            return res.status(400).json({ message: 'رابط إعادة التعيين غير صالح أو منتهي الصلاحية' });
         }
 
         // 🎯 التحقق مما إذا كانت كلمة المرور الجديدة مطابقة للقديمة
@@ -328,12 +279,9 @@ router.post('/reset-password', passwordResetLimiter, async (req, res) => {
         }
 
         // تحديث كلمة المرور مباشرة
-        // 🆕 وضع علامة أن التوكن تم استخدامه
-        user.resetPasswordUsed = true;
+        user.password = newPassword;
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
-        user.failedResetAttempts = 0; // إعادة تعيين العد
-        
         
         // سيتم تشفير كلمة المرور الجديدة تلقائياً بفضل userSchema.pre('save', ...)
         await user.save();
