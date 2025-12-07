@@ -6,6 +6,7 @@ const Deposit = require('../models/deposit.model');
 const Notification = require('../models/notification.model');
 const UploadService = require('../services/uploadService'); // 🆕 استيراد خدمة الرفع
 const { depositRules } = require('../middleware/validators');
+//const { depositLimiter } = require('../middleware/rateLimit');
 
 
 // ✅ في rateLimit.js - أضف limiter جديد
@@ -22,8 +23,6 @@ const depositLimiter = rateLimit({
     }
 });
 // POST إنشاء طلب شحن جديد
-// ✅ في deposit.routes.js - استخدم الـ limiter
-const { depositLimiter } = require('../middleware/rateLimit');
 
 router.post('/', depositLimiter, depositRules, async (req, res) =>
     try {
