@@ -1,57 +1,60 @@
+// ==========================================================
+// 🎯🎯🎯 النسخة النهائية والصحيحة لدالة إرسال الطلبات 🎯🎯🎯
+// ==========================================================
+
 let csrfToken = null;
 
-// دالة لجلب التوكن عند بدء تشغيل التطبيق
+// دالة جلب التوكن (تبقى كما هي)
 async function fetchCsrfToken() {
     try {
+        // نستخدم fetch الأصلية هنا لأن هذا الطلب GET وآمن
         const response = await fetch('/api/csrf-token');
-        if (!response.ok) {
-            throw new Error('Failed to fetch CSRF token');
-        }
+        if (!response.ok) throw new Error('Failed to fetch CSRF token');
         const data = await response.json();
         csrfToken = data.csrfToken;
         console.log('✅ CSRF Token fetched successfully!');
     } catch (error) {
-        console.error('❌ Critical: Could not fetch CSRF token. App may not function correctly.', error);
-        // يمكنك عرض رسالة للمستخدم هنا تطلب منه تحديث الصفحة
+        console.error('❌ Critical: Could not fetch CSRF token.', error);
         document.body.innerHTML = '<h1>حدث خطأ حرج في الأمان. يرجى تحديث الصفحة.</h1>';
     }
 }
 
-// دالة fetch مخصصة لإضافة التوكن تلقائياً
-async function secureFetch(url, options = {}) {
-    // تأكد من أن التوكن موجود
+async function apiFetch(url, options = {}) {
     if (!csrfToken) {
         console.log('CSRF token not available, fetching now...');
-        await fetchCsrfToken(); // حاول جلبه مرة أخرى
+        await fetchCsrfToken();
     }
-
-    // إذا استمر عدم وجوده، أوقف الطلب
     if (!csrfToken) {
         throw new Error('CSRF token is missing. Cannot make the request.');
     }
 
-    // إعداد الـ headers
+    // إعداد الـ headers الأساسية
     const headers = {
-        'Content-Type': 'application/json',
-        ...options.headers, // دمج أي headers موجودة مسبقاً
-        'CSRF-Token': csrfToken // إضافة توكن CSRF
+        ...options.headers, // دمج أي headers مخصصة
+        'CSRF-Token': csrfToken
     };
 
-    // دمج الـ headers الجديدة مع بقية الخيارات
-    const secureOptions = {
-        ...options,
-        headers
-    };
+    // 🎯 الجزء الذكي: التحقق من نوع الـ body
+    if (options.body instanceof FormData) {
+    
+    } else if (options.body) {
+        // إذا كان هناك body ولكنه ليس FormData (نفترض أنه JSON)
+        headers['Content-Type'] = 'application/json';
+    }
 
-    // تنفيذ الطلب
-    const response = await fetch(url, secureOptions);
+    const secureOptions = { ...options, headers };
 
-    // التعامل مع خطأ CSRF (إذا انتهت صلاحية التوكن)
+    // 🎯 نستخدم fetch الأصلية الخاصة بالمتصفح
+    let response = await fetch(url, secureOptions);
+
+    // التعامل مع خطأ انتهاء صلاحية توكن CSRF
     if (response.status === 403) {
         console.warn('CSRF token validation failed. Refetching token and retrying...');
-        await fetchCsrfToken(); // جلب توكن جديد
-        headers['CSRF-Token'] = csrfToken; // تحديث التوكن في الـ headers
-        return fetch(url, { ...secureOptions, headers }); // إعادة محاولة الطلب مرة واحدة
+        await fetchCsrfToken(); 
+        secureOptions.headers['CSRF-Token'] = csrfToken; // تحديث التوكن
+        
+        // 🎯 إعادة المحاولة باستخدام fetch الأصلية
+        response = await fetch(url, secureOptions); 
     }
 
     return response;
@@ -2636,7 +2639,7 @@ async function sendMessage() {
         formData.append('image', attachedFile);
     }
 
-    // عرض الرسالة فوراً (مع معاينة الصورة إذا وجدت)
+    // عرض الرسالة فوراً
     const tempImageUrl = attachedFile ? URL.createObjectURL(attachedFile) : null;
     appendMessage(messageText, 'user', new Date(), tempImageUrl);
     
@@ -2644,11 +2647,14 @@ async function sendMessage() {
     resetAttachment();
 
     try {
-        const response = await secureFetch('/api/support/chat', {
+        // 🔽🔽 التعديل هنا: استخدم apiFetch بدلاً من fetch 🔽🔽
+        const response = await apiFetch('/api/support/chat', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+            // لا نضع headers هنا، الدالة ستتعامل معها
             body: formData
         });
+        // 🔼🔼 نهاية التعديل 🔼🔼
+
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.message || 'فشل إرسال الرسالة');
@@ -2657,6 +2663,7 @@ async function sendMessage() {
         appendMessage(`خطأ: ${error.message}`, 'system');
     }
 }
+
 
 // 🎯 دالة إضافة الرسالة (محدثة لعرض الصور)
 function appendMessage(text, type, timestamp = new Date(), imageUrl = null) {
