@@ -6,7 +6,7 @@ const Deposit = require('../models/deposit.model');
 const Notification = require('../models/notification.model');
 const UploadService = require('../services/uploadService'); // 🆕 استيراد خدمة الرفع
 const { depositRules } = require('../middleware/validators');
-//const { depositLimiter } = require('../middleware/rateLimit');
+const { depositLimiter } = require('../middleware/rateLimit');
 
 
 // ✅ في rateLimit.js - أضف limiter جديد
