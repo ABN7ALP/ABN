@@ -3,7 +3,6 @@ const router = express.Router();
 const User = require('../models/user.model');
 const authMiddleware = require('../middleware/auth.middleware');
 const adminMiddleware = require('../middleware/admin.middleware');
-const validateObjectId = require('../middleware/objectId.middleware');
 
 // تطبيق middleware للأمان
 router.use(authMiddleware);
@@ -49,7 +48,7 @@ router.get('/users/emails', async (req, res) => {
 });
 
 // 🆕 إضافة route لتحديث بيانات المستخدم
-router.put('/users/:id', validateObjectId('id'), async (req, res) => {
+router.put('/users/:id', async (req, res) => {
     try {
         const { username, email, balance, emailVerified, isAdmin } = req.body;
         
