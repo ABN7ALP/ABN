@@ -21,6 +21,7 @@ const {
 //تعيدل جديد 
 const cookieParser = require('cookie-parser');
 const csrf = require('csurf');
+const helmet = require('helmet'); // 🔽🔽 أضف هذا السطر 🔽🔽
 
 
 const app = express();
@@ -30,6 +31,21 @@ const server = http.createServer(app);
 // 🎯 إعداد Socket.IO الموحد (مرة واحدة فقط)
 const io = initSocket(server);
 
+// 🔽🔽 أضف هذا الكود هنا 🔽🔽
+// ==========================================================
+// 🛡️ تطبيق Helmet للأمان
+// ==========================================================
+app.use(
+    helmet({
+        // 🎯 تعطيل سياسة أمان المحتوى (CSP) مؤقتاً لتجنب كسر أي شيء
+        // سنتعامل معها بشكل منفصل لاحقاً إذا لزم الأمر.
+        contentSecurityPolicy: false, 
+        // 🎯 السماح بعرض الصور من مصادر مختلفة (مثل i.ibb.co)
+        crossOriginResourcePolicy: { policy: "cross-origin" },
+    })
+);
+// ==========================================================
+// 🔼🔼 نهاية الإضافة 🔼🔼
 
 
 
