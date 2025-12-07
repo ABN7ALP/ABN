@@ -96,7 +96,7 @@ function showLoading(tbody, colspan) {
 async function fetchMyOrders() {
     showLoading(myOrdersTbody, 5);
     try {
-        const response = await apiFetch(`/api/orders/my-orders?userId=${userInfo._id}`);
+        const response = await fetch(`/api/orders/my-orders?userId=${userInfo._id}`);
         if (!response.ok) throw new Error('فشل جلب طلبات الخدمات');
         const orders = await response.json();
         renderMyOrders(orders);
@@ -184,7 +184,7 @@ function renderMyOrders(orders) {
 async function fetchMyDeposits() {
     showLoading(depositsTbody, 4);
     try {
-        const response = await apiFetch(`/api/deposits/my-deposits?userId=${userInfo._id}`);
+        const response = await fetch(`/api/deposits/my-deposits?userId=${userInfo._id}`);
         if (!response.ok) throw new Error('فشل جلب معاملات الشحن');
         const deposits = await response.json();
         renderMyDeposits(deposits);
