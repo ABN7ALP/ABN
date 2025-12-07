@@ -18,6 +18,10 @@ const {
 } = require('./src/middleware/rateLimit');
 
 
+const cookieParser = require('cookie-parser');
+const csrf = require('csurf');
+
+
 const app = express();
 app.set('trust proxy', 1);
 const server = http.createServer(app);
@@ -31,6 +35,19 @@ const io = initSocket(server);
 // Middlewares
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(cookieParser()); 
+
+
+
+
+// إعداد حماية CSRF
+const csrfProtection = csrf({ 
+    cookie: {
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production', 
+        sameSite: 'strict'
+    } 
+});
 
 // جعل io متاحاً لكل الطلبات
 app.use((req, res, next) => {
@@ -73,7 +90,21 @@ if (!fs.existsSync(path.join(publicPath, 'index.html'))) {
 }
 app.use(express.static(publicPath));
 
-// مسارات الـ API
+
+// ==========================================================
+// مسارات الـ API (مع حماية CSRF)
+// ==========================================================
+
+// 1. مسار خاص للحصول على توكن CSRF (لا يحتاج لحماية)
+app.get('/api/csrf-token', csrfProtection, (req, res) => {
+    // نستخدم middleware هنا فقط لتوليد التوكن وإرساله
+    res.json({ csrfToken: req.csrfToken() });
+});
+
+// 2. تطبيق middleware التحقق من CSRF على جميع مسارات الـ API التالية
+app.use('/api', csrfProtection);
+
+// 3. تعريف مسارات الـ API المحمية
 app.use('/api/support', supportRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/services', serviceRoutes);
@@ -83,7 +114,7 @@ app.use('/api/deposits', depositRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/offers', offerRoutes);
-app.use('/api/queue', queueRoutes); // أضف هذا
+app.use('/api/queue', queueRoutes);
 app.use('/api/', generalLimiter);
 
 
@@ -120,6 +151,19 @@ io.on('connection', (socket) => {
 // توجيه كل الطلبات لـ index.html
 app.get('*', (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
+});
+
+
+// ==========================================================
+// معالج أخطاء CSRF المخصص
+// ==========================================================
+app.use((err, req, res, next) => {
+    if (err.code === 'EBADCSRFTOKEN') {
+        console.warn(`CSRF Token Error: IP=${req.ip}, URL=${req.originalUrl}`);
+        res.status(403).json({ message: 'خطأ في التحقق من الجلسة. يرجى تحديث الصفحة والمحاولة مرة أخرى.' });
+    } else {
+        next(err);
+    }
 });
 
 require('./src/services/telegramBot'); // 🎯 3. استدعاء البوت ليبدأ بالعمل
