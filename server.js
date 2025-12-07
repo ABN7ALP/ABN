@@ -36,58 +36,78 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 
 // ✅ جميع المصادر المستخدمه 
+
+// أضف هذا middleware قبل أي routes
 app.use(helmet({
     contentSecurityPolicy: {
+        useDefaults: true,
         directives: {
             defaultSrc: ["'self'"],
+            // 🎯 السماح بجميع مصادر CSS
             styleSrc: [
-                "'self'", 
-                "'unsafe-inline'", 
-                "https://fonts.googleapis.com",
-                "https://cdn.jsdelivr.net",        // 🆕 للملفات من jsDelivr
-                "https://cdnjs.cloudflare.com"     // 🆕 لـ Font Awesome
-            ],
-            scriptSrc: [
-                "'self'", 
-                "'unsafe-inline'", 
-                "https://unpkg.com", 
-                "https://cdnjs.cloudflare.com",
-                "https://cdn.jsdelivr.net",        // 🆕 لـ Phosphor Icons
-                "https://guilty-address.com"       // 🆕 للإعلانات (إذا تريد السماح
-            ],
-            fontSrc: [
-                "'self'", 
-                "https://fonts.gstatic.com",
-                "https://cdn.jsdelivr.net",        // 🆕 لـ Phosphor Icons
-                "https://cdnjs.cloudflare.com"     // 🆕 لـ Font Awesome
-            ],
-            imgSrc: [
-                "'self'", 
-                "data:", 
-                "https:", 
-                "http:",
-                "https://upload.wikimedia.org",    // 🆕 لصور المنصات
-                "https://i.imgur.com",             // 🆕 لصور الإعلانات
-                "https://i.ibb.co",                // 🆕 لصور أخرى
-                "https://cryptologos.cc",          // 🆕 لشعارات العملات
-                "https://guilty-address.com"       // 🆕 للإعلانات
-            ],
-            connectSrc: [
-                "'self'", 
-                "https://abn-production-cbae.up.railway.app", 
-                "ws://localhost:*",
-                "wss://*.up.railway.app"           // 🆕 لـ WebSockets
-            ],
-             frameSrc: [
                 "'self'",
-                "https://guilty-address.com"   
+                "'unsafe-inline'",  // ضروري للأنماط المضمنة
+                "https://fonts.googleapis.com",
+                "https://cdn.jsdelivr.net",
+                "https://cdnjs.cloudflare.com",
+                "https://unpkg.com"
             ],
-            frameSrc: ["'self'"],                  // 🆕 أضف هذا
-            mediaSrc: ["'self'"],                  // 🆕 أضف هذا
-            objectSrc: ["'none'"],                 // 🆕 لمنع العناصر المضمنة
-            baseUri: ["'self'"]                    // 🆕 أضف هذا
+            // 🎯 السماح بجميع مصادر JavaScript
+            scriptSrc: [
+                "'self'",
+                "'unsafe-inline'",   // ضروري للأكواد المضمنة
+                "'unsafe-eval'",     // ضروري لبعض المكتبات
+                "https://unpkg.com",
+                "https://cdnjs.cloudflare.com",
+                "https://cdn.jsdelivr.net",
+                "https://guilty-address.com",
+                "https://*.guilty-address.com"  // 🆕 جميع النطاقات الفرعية
+            ],
+            // 🎯 السماح بجميع مصادر الخطوط
+            fontSrc: [
+                "'self'",
+                "data:",
+                "https://fonts.gstatic.com",
+                "https://cdn.jsdelivr.net",
+                "https://cdnjs.cloudflare.com",
+                "https://unpkg.com"
+            ],
+            // 🎯 السماح بجميع مصادر الصور
+            imgSrc: [
+                "'self'",
+                "data:",
+                "blob:",
+                "https:",
+                "http:",
+                "https://*.guilty-address.com"
+            ],
+            // 🎯 السماح بجميع الإطارات (مهم للإعلانات)
+            frameSrc: [
+                "'self'",
+                "https://guilty-address.com",
+                "https://*.guilty-address.com",
+                "https:",
+                "http:"
+            ],
+            // 🎯 السماح بجميع الاتصالات
+            connectSrc: [
+                "'self'",
+                "https://abn-production-cbae.up.railway.app",
+                "wss://abn-production-cbae.up.railway.app",
+                "ws://localhost:*",
+                "wss://*",
+                "https://guilty-address.com"
+            ],
+            // 🎯 إعدادات أخرى
+            mediaSrc: ["'self'", "https:", "http:"],
+            objectSrc: ["'none'"],
+            baseUri: ["'self'"],
+            formAction: ["'self'"],
+            frameAncestors: ["'self'"]
         }
     },
+    crossOriginEmbedderPolicy: false,  // 🆕 مهم للإعلانات
+    crossOriginResourcePolicy: { policy: "cross-origin" }  // 🆕 للإعلانات
 }));
 // ✅ أضف هذه الـ Headers الإضافية
 app.use((req, res, next) => {
