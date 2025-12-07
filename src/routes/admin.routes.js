@@ -4,7 +4,7 @@ const User = require('../models/user.model');
 const authMiddleware = require('../middleware/auth.middleware');
 const adminMiddleware = require('../middleware/admin.middleware');
 const validateObjectId = require('../middleware/objectId.middleware');
-
+const Log = require('../models/log.model');
 
 // تطبيق middleware للأمان
 router.use(authMiddleware);
@@ -92,6 +92,24 @@ router.put('/users/:id', validateObjectId('id'), async (req, res) => {
         return res.status(500).json({
             message: 'فشل تحديث بيانات المستخدم'
         });
+    }
+});
+
+
+// ==========================================================
+// GET /api/admin/logs - جلب سجلات الأمان
+// ==========================================================
+router.get('/logs', async (req, res) => {
+    try {
+        // جلب آخر 100 سجل، مرتبة من الأحدث إلى الأقدم
+        const logs = await Log.find({})
+            .sort({ timestamp: -1 })
+            .limit(100);
+        
+        res.status(200).json(logs);
+    } catch (error) {
+        console.error('Error fetching security logs:', error);
+        res.status(500).json({ message: 'فشل جلب سجلات الأمان' });
     }
 });
 
