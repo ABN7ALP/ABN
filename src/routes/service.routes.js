@@ -14,12 +14,36 @@ const { addNotificationJob } = require('../services/queue');
 // GET كل الخدمات
 router.get('/', async (req, res) => {
     try {
-        const services = await Service.find({});
-        res.status(200).json(services);
+        // جلب الخدمات وتصنيفها باستخدام aggregate
+        const categorizedServices = await Service.aggregate([
+            { $sort: { platform: 1, name: 1 } }, // ترتيب الخدمات
+            {
+                $group: {
+                    _id: "$category", // التجميع حسب الفئة
+                    services: { $push: "$$ROOT" } // إضافة الخدمة الكاملة إلى مصفوفة
+                }
+            }
+        ]);
+
+        // تحويل النتيجة إلى كائن يسهل التعامل معه في الواجهة الأمامية
+        const result = {
+            'social-media': [],
+            'games-topup': []
+        };
+
+        categorizedServices.forEach(group => {
+            if (result[group._id]) {
+                result[group._id] = group.services;
+            }
+        });
+
+        res.status(200).json(result);
     } catch (error) {
-        res.status(500).json({ message: 'فشل جلب الخدمات.' });
+        console.error("Error fetching categorized services:", error);
+        res.status(500).json({ message: 'فشل جلب الخدمات المصنفة.' });
     }
 });
+
 
 // POST إضافة خدمة جديدة
 router.post('/', authMiddleware, adminMiddleware, serviceRules, async (req, res) => {
