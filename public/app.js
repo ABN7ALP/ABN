@@ -1758,18 +1758,79 @@ function getPlatformIcon(platform, serviceName = '') {
     }
 }
 
-    function getPlatformValidation(platform) {
-        const p = platform.toLowerCase().trim();
-        if (p.includes('instagram') || p.includes('انستجرام') || p.includes('انستا')) return /instagram\.com/;
-        if (p.includes('tiktok') || p.includes('تيك توك')) return /tiktok\.com/;
-        if (p.includes('twitter') || p.includes('تويتر') || p === 'x') return /(twitter|x)\.com/;
-        if (p.includes('facebook') || p.includes('فيس بوك') || p.includes('فيسبوك')) return /facebook\.com/;
-        if (p.includes('youtube') || p.includes('يوتيوب')) return /(youtube\.com|youtu\.be)/;
-        if (p.includes('telegram') || p.includes('تيليجرام')) return /(telegram\.me|t\.me)/;
-        if (p.includes('snapchat') || p.includes('سناب شات')) return /snapchat\.com/;
-        if (p.includes('threads') || p.includes('ثريدز')) return /threads\.net/;
-        return new RegExp(`${p.replace(/\s/g, '')}\\.com`, 'i');
+    // 🔽🔽 استبدل الدالة القديمة بالكامل بهذه النسخة المطورة 🔽🔽
+function getPlatformValidation(platform) {
+    const p = platform.toLowerCase().trim();
+
+    // --- منصات التواصل الاجتماعي الأساسية ---
+    if (p.includes('instagram') || p.includes('انستغرام') || p.includes('انستا')) {
+        return /instagram\.com/;
     }
+    if (p.includes('tiktok') || p.includes('تيك توك')) {
+        return /tiktok\.com/;
+    }
+    if (p.includes('twitter') || p.includes('تويتر') || p === 'x' || p === 'اكس') {
+        return /(twitter|x)\.com/;
+    }
+    if (p.includes('facebook') || p.includes('فيس بوك') || p.includes('فيسبوك')) {
+        return /facebook\.com/;
+    }
+    if (p.includes('youtube') || p.includes('يوتيوب')) {
+        return /(youtube\.com|youtu\.be)/;
+    }
+    if (p.includes('telegram') || p.includes('تلغرام') || p.includes('تيليجرام')) {
+        return /(telegram\.me|t\.me)/;
+    }
+    if (p.includes('snapchat') || p.includes('سناب شات')) {
+        return /snapchat\.com/;
+    }
+    if (p.includes('threads') || p.includes('ثريدز')) {
+        return /threads\.net/;
+    }
+
+    // --- المنصات الجديدة التي أضفناها ---
+    if (p.includes('discord') || p.includes('ديسكورد')) {
+        // ✅ يقبل روابط الدعوة discord.gg أو روابط الخوادم discord.com/invite
+        return /(discord\.gg|discord\.com\/invite)/;
+    }
+    if (p.includes('reddit') || p.includes('ريديت')) {
+        // ✅ يقبل روابط المستخدمين والمجتمعات
+        return /reddit\.com\/(r|u|user)\//;
+    }
+    if (p.includes('linkedin') || p.includes('لينكد')) {
+        // ✅ يقبل روابط الصفحات الشخصية والشركات
+        return /linkedin\.com\/(in|company)\//;
+    }
+    if (p.includes('spotify') || p.includes('سبوتيفاي')) {
+        // ✅ يقبل روابط الأغاني والفنانين والألبومات
+        return /open\.spotify\.com\/(track|artist|album)/;
+    }
+    if (p.includes('whatsapp') || p.includes('واتساب') || p.includes('واتس')) {
+        // ✅ يقبل روابط wa.me أو api.whatsapp.com
+        return /(wa\.me|api\.whatsapp\.com)/;
+    }
+    if (p.includes('kwai') || p.includes('كواي')) {
+        return /kwai\.com/;
+    }
+    if (p.includes('kick') || p.includes('كيك')) {
+        return /kick\.com/;
+    }
+    if (p.includes('google') || p.includes('جوجل')) {
+        // ✅ يقبل أي رابط يحتوي على google.com (للمراجعات مثلاً)
+        return /google\.com/;
+    }
+
+    // --- قاعدة افتراضية للمنصات غير المحددة ---
+    // تحاول تخمين النطاق من اسم المنصة
+    console.warn(`No specific validation rule for platform: ${platform}. Using default.`);
+    try {
+        const domain = p.replace(/\s/g, '').replace(/[^a-z0-9-]/g, '');
+        return new RegExp(domain + '\\.'); // يبحث عن "domain." في أي مكان
+    } catch (e) {
+        return /.*/; // إذا فشل كل شيء، اقبل أي رابط
+    }
+}
+
 
     function renderServiceCards() {
         servicesContainer.innerHTML = '';
