@@ -1816,6 +1816,46 @@ function getPlatformIcon(platform, serviceName = '') {
         }
     }
 
+
+function setupShowMoreButtons() {
+    const socialContainer = document.getElementById('social-media-services');
+    const gamesContainer = document.getElementById('games-topup-services');
+    const socialBtn = document.getElementById('social-media-show-more');
+    const gamesBtn = document.getElementById('games-topup-show-more');
+
+    // قسم التواصل الاجتماعي
+    if (socialContainer.children.length > 6) {
+        socialBtn.classList.remove('hidden');
+        socialBtn.addEventListener('click', () => {
+            socialContainer.querySelectorAll('.service-card:nth-child(n+7)').forEach(card => {
+                card.style.display = socialContainer.classList.contains('expanded') ? 'none' : 'block';
+            });
+            socialContainer.classList.toggle('expanded');
+            socialBtn.classList.toggle('expanded');
+            socialBtn.querySelector('span').textContent = socialContainer.classList.contains('expanded') ? 'عرض أقل' : 'عرض المزيد';
+        });
+    } else {
+        socialBtn.classList.add('hidden');
+    }
+
+    // قسم الألعاب
+    if (gamesContainer.children.length > 9) {
+        gamesBtn.classList.remove('hidden');
+        gamesBtn.addEventListener('click', () => {
+            gamesContainer.querySelectorAll('.service-card:nth-child(n+10)').forEach(card => {
+                card.style.display = gamesContainer.classList.contains('expanded') ? 'none' : 'block';
+            });
+            gamesContainer.classList.toggle('expanded');
+            gamesBtn.classList.toggle('expanded');
+            gamesBtn.querySelector('span').textContent = gamesContainer.classList.contains('expanded') ? 'عرض أقل' : 'عرض المزيد';
+        });
+    } else {
+        gamesBtn.classList.add('hidden');
+    }
+}
+
+    
+
 // ✅ تأكد من وجود هذه الدالة كما هي
 function renderCategorizedServices() {
     const socialContainer = document.getElementById('social-media-services');
