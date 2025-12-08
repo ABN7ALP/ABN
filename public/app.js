@@ -1651,52 +1651,34 @@ function showCopySuccessMessage(message, isError = false) {
     }
 
     // --- 4. تحميل وعرض الخدمات ---
-    // 🔽🔽 استبدل هذه الدالة بالكامل 🔽🔽
-async function loadServices() {
-    try {
-        const response = await apiFetch('/api/services');
-        if (!response.ok) throw new Error('Network response was not ok');
+    async function loadServices() {
+        try {
+            const response = await apiFetch('/api/services');
+            if (!response.ok) throw new Error('Network response was not ok');
+            const servicesFromDB = await response.json();
             
-        const allServicesFromDB = await response.json();
+            servicesData = servicesFromDB.reduce((acc, service) => {
+                const platform = service.platform;
+                if (!acc[platform]) { 
+                    acc[platform] = { 
+                        icon: getPlatformIcon(platform), 
+                        description: `خدمات متنوعة لمنصة ${platform}`, 
+                        validation: getPlatformValidation(platform), 
+                        services: [] 
+                    }; 
+                }
+                acc[platform].services.push(service);
+                return acc;
+            }, {});
             
-        // إعادة بناء servicesData من الصفر
-        servicesData = {}; 
+            renderServiceCards();
             
-        allServicesFromDB.forEach(service => {
-            const platform = service.platform;
-            if (!servicesData[platform]) {
-                servicesData[platform] = {
-                    icon: getPlatformIcon(platform, service.name),
-                    description: `خدمات متنوعة لمنصة ${platform}`,
-                    validation: getPlatformValidation(platform),
-                    services: [],
-                    // 🎯 تحديد الفئة هنا في الواجهة الأمامية
-                    category: isGamePlatform(platform) ? 'games-topup' : 'social-media'
-                };
-            }
-            servicesData[platform].services.push(service);
-        });
-            
-        renderCategorizedServices();
-
-    } catch (error) {
-        console.error("Failed to load services from API:", error);
-        const socialContainer = document.getElementById('social-media-services');
-        if (socialContainer) socialContainer.innerHTML = '<p>فشل تحميل الخدمات.</p>';
+        } catch (error) {
+            console.error("Failed to load services from API:", error);
+            servicesContainer.innerHTML = '<p style="color:white; text-align:center;">فشل تحميل الخدمات. يرجى المحاولة مرة أخرى.</p>';
+        }
     }
-}
 
-
-
-// 🔽🔽 أضف هذه الدالة الجديدة في أي مكان 🔽🔽
-function isGamePlatform(platformName) {
-    const p = platformName.toLowerCase();
-    const gameKeywords = ['pubg', 'free fire', 'call of duty', 'ببجي', 'فري فاير'];
-    return gameKeywords.some(keyword => p.includes(keyword));
-}
-
-
-    
     // 🔽🔽 استبدل الدالة القديمة بالكامل بهذه النسخة المطورة 🔽🔽
 function getPlatformIcon(platform, serviceName = '') {
     const p = platform.toLowerCase().trim();
@@ -1816,85 +1798,6 @@ function getPlatformIcon(platform, serviceName = '') {
         }
     }
 
-
-function setupShowMoreButtons() {
-    const socialContainer = document.getElementById('social-media-services');
-    const gamesContainer = document.getElementById('games-topup-services');
-    const socialBtn = document.getElementById('social-media-show-more');
-    const gamesBtn = document.getElementById('games-topup-show-more');
-
-    // قسم التواصل الاجتماعي
-    if (socialContainer.children.length > 6) {
-        socialBtn.classList.remove('hidden');
-        socialBtn.addEventListener('click', () => {
-            socialContainer.querySelectorAll('.service-card:nth-child(n+7)').forEach(card => {
-                card.style.display = socialContainer.classList.contains('expanded') ? 'none' : 'block';
-            });
-            socialContainer.classList.toggle('expanded');
-            socialBtn.classList.toggle('expanded');
-            socialBtn.querySelector('span').textContent = socialContainer.classList.contains('expanded') ? 'عرض أقل' : 'عرض المزيد';
-        });
-    } else {
-        socialBtn.classList.add('hidden');
-    }
-
-    // قسم الألعاب
-    if (gamesContainer.children.length > 9) {
-        gamesBtn.classList.remove('hidden');
-        gamesBtn.addEventListener('click', () => {
-            gamesContainer.querySelectorAll('.service-card:nth-child(n+10)').forEach(card => {
-                card.style.display = gamesContainer.classList.contains('expanded') ? 'none' : 'block';
-            });
-            gamesContainer.classList.toggle('expanded');
-            gamesBtn.classList.toggle('expanded');
-            gamesBtn.querySelector('span').textContent = gamesContainer.classList.contains('expanded') ? 'عرض أقل' : 'عرض المزيد';
-        });
-    } else {
-        gamesBtn.classList.add('hidden');
-    }
-}
-
-    
-
-// ✅ تأكد من وجود هذه الدالة كما هي
-function renderCategorizedServices() {
-    const socialContainer = document.getElementById('social-media-services');
-    const gamesContainer = document.getElementById('games-topup-services');
-        
-    if (!socialContainer || !gamesContainer) return;
-
-    socialContainer.innerHTML = '';
-    gamesContainer.innerHTML = '';
-
-    Object.keys(servicesData).forEach(platform => {
-        const data = servicesData[platform];
-        const card = document.createElement('div');
-        card.className = 'service-card';
-        card.innerHTML = `
-            <div class="icon-wrapper">
-                <img src="${data.icon}" alt="${platform} icon" onerror="this.style.display='none'">
-            </div>
-            <h3>${platform}</h3>
-            <p>${data.description}</p>
-            <button class="pill-button get-button">
-                <i class="ph-bold ph-arrow-circle-right"></i>
-                <span>اطلب الآن</span>
-            </button>
-        `;
-        card.addEventListener('click', () => showOrderForm(platform));
-
-        if (data.category === 'games-topup') {
-            gamesContainer.appendChild(card);
-        } else {
-            socialContainer.appendChild(card);
-        }
-    });
-
-    setupShowMoreButtons();
-}
-
-
-    
     // --- 5. إظهار وتحديث نموذج الطلب ---
     function showOrderForm(platform) {
     refreshUserData();
