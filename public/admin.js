@@ -432,10 +432,12 @@ async function handleStatusChange(event) {
             const min = service.min ? service.min.toLocaleString() : '-';
             const max = service.max ? service.max.toLocaleString() : '-';
             const step = service.step || service.step === 0 ? service.step : (service.multiple || 1);
+            const categoryText = service.category === 'games-topup' ? 'شحن ألعاب' : 'تواصل اجتماعي';
 
             row.innerHTML = `
                 <td data-label="المنصة">${platform}</td>
                 <td data-label="الخدمة">${name}</td>
+                <td data-label="الفئة">${categoryText}</td>
                 <td data-label="السعر/1000">${price} $</td>
                 <td data-label="أدنى/أقصى حد">${min} / ${max}</td>
                 <td data-label="الخطوة">${step}</td>
@@ -462,6 +464,7 @@ async function handleStatusChange(event) {
         const serviceData = {
             platform: document.getElementById('service-platform').value.trim(),
             name: document.getElementById('service-name').value.trim(),
+            category: document.getElementById('service-category').value,
             pricePer1000: parseFloat(document.getElementById('service-price').value),
             min: parseInt(document.getElementById('service-min').value),
             max: parseInt(document.getElementById('service-max').value),
@@ -506,6 +509,9 @@ async function handleStatusChange(event) {
         editServiceForm.innerHTML = `
             <input type="hidden" id="edit-service-id" value="${service.id}">
             <div class="form-group"><label>المنصة</label><input type="text" id="edit-platform" value="${service.platform}" required></div>
+            <div class="form-group"><label>فئة الخدمة</label><select id="edit-category">
+            <option value="social-media" ${service.category === 'social-media' ? 'selected' : ''}>مواقع التواصل الاجتماعي</option>
+            <option value="games-topup" ${service.category === 'games-topup' ? 'selected' : ''}>شحن ألعاب وبرامج</option></select></div>
             <div class="form-group"><label>اسم الخدمة</label><input type="text" id="edit-name" value="${service.name}" required></div>
             <div class="form-group"><label>السعر لكل 1000</label><input type="number" id="edit-price" value="${service.pricePer1000}" step="0.01" required></div>
             <div class="form-group"><label>الحد الأدنى</label><input type="number" id="edit-min" value="${service.min}" required></div>
@@ -522,6 +528,7 @@ async function handleStatusChange(event) {
         const updatedData = {
             platform: document.getElementById('edit-platform').value.trim(),
             name: document.getElementById('edit-name').value.trim(),
+            category: document.getElementById('edit-category').value,
             pricePer1000: parseFloat(document.getElementById('edit-price').value),
             min: parseInt(document.getElementById('edit-min').value),
             max: parseInt(document.getElementById('edit-max').value),
