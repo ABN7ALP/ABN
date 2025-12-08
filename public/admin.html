@@ -273,28 +273,27 @@
         </div>
     </div>
                 <form id="add-service-form" class="admin-form">
-                    <div class="form-row">
-                        <div class="form-group"><label>المنصة</label><input type="text" id="service-platform" placeholder="مثال: Instagram" required></div>
-                        <div class="form-group"><label>اسم الخدمة</label><input type="text" id="service-name" placeholder="مثال: متابعين" required></div>
-                    
-                    <div class="form-group">
-                       <label>فئة الخدمة</label>
-                       <select id="service-category" required>
-                       <option value="social-media" selected>مواقع التواصل الاجتماعي</option>
-                       <option value="games-topup">شحن ألعاب وبرامج</option>
-                    </select>
-                   </div>
+    <div class="form-row">
+        <div class="form-group"><label>المنصة</label><input type="text" id="service-platform" placeholder="مثال: Instagram" required></div>
+        <div class="form-group"><label>اسم الخدمة</label><input type="text" id="service-name" placeholder="مثال: متابعين" required></div>
+        <!-- 🟢 نقل حقل الفئة إلى هنا -->
+        <div class="form-group">
+            <label>فئة الخدمة</label>
+            <select id="service-category" required>
+                <option value="social-media" selected>مواقع التواصل الاجتماعي</option>
+                <option value="games-topup">شحن ألعاب وبرامج</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group"><label>السعر لكل 1000</label><input type="number" id="service-price" placeholder="10.5" step="0.01" required></div>
+        <div class="form-group"><label>الحد الأدنى</label><input type="number" id="service-min" placeholder="100" required></div>
+        <div class="form-group"><label>الحد الأقصى</label><input type="number" id="service-max" placeholder="100000" required></div>
+        <div class="form-group"><label>الخطوة (المضاعف)</label><input type="number" id="service-step" placeholder="100" value="1" required></div>
+    </div>
+    <button type="submit" class="pill-button primary-button">إضافة الخدمة</button>
+</form>
 
-                    <div class="form-row">
-                        <div class="form-group"><label>السعر لكل 1000</label><input type="number" id="service-price" placeholder="10.5" step="0.01" required></div>
-                        <div class="form-group"><label>الحد الأدنى</label><input type="number" id="service-min" placeholder="100" required></div>
-                        <div class="form-group"><label>الحد الأقصى</label><input type="number" id="service-max" placeholder="100000" required></div>
-                        <!-- ******** هذا هو الحقل الجديد ******** -->
-                        <div class="form-group"><label>الخطوة (المضاعف)</label><input type="number" id="service-step" placeholder="100" value="1" required></div>
-                        <!-- ******** نهاية الإضافة ******** -->
-                    </div>
-                    <button type="submit" class="pill-button primary-button">إضافة الخدمة</button>
-                </form>
                 <div id="service-form-response"></div>
                 <hr class="divider">
                 <h2><i class="ph-bold ph-list-bullets"></i> الخدمات الحالية</h2>
