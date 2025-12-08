@@ -1687,59 +1687,59 @@ function getPlatformIcon(platform, serviceName = '') {
     // --- 1. الأولوية للكلمات المفتاحية الخاصة في اسم الخدمة ---
     if (s.includes('توثيق')) {
         // أيقونة التوثيق (العلامة الزرقاء)
-        return 'https://i.ibb.co/LdGBs2j/file-000000000a6081f5b61ed1dbb4f89643.png'; 
+        return 'https://i.ibb.co/601T5nRV/7d580cf284dbd895ae2db4b598ec8bb2.jpg'; 
     }
     if (s.includes('خاص') || s.includes('private')) {
         // أيقونة المفتاح للخدمات الخاصة
-        return 'https://i.ibb.co/fGScgM4/file-000000000f2871f5b61ed1dbb4f89643.png';
+        return 'https://i.ibb.co/HLjt30Sm/71336bb14a6c5638a5d1466fa4b92355.jpg';
     }
 
     // --- 2. البحث عن اسم المنصة والأسماء البديلة ---
     // تويتر / X
     if (p.includes('twitter') || p.includes('تويتر') || p === 'x' || p === 'اكس') {
-        return 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg';
+        return 'https://i.ibb.co/5ghPT58L/5a7a34abbaf48383f76062a5b8a6a22b.jpg';
     }
     // واتساب
     if (p.includes('whatsapp') || p.includes('واتساب') || p.includes('واتس اب') || p.includes('واتس')) {
-        return 'https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg';
+        return 'https://i.ibb.co/ycMYfV8N/366551d8ad02521a40576fde83356f3a.jpg';
     }
     // ديسكورد
     if (p.includes('discord') || p.includes('ديسكورد')) {
-        return 'https://upload.wikimedia.org/wikipedia/en/9/98/Discord_logo.svg';
+        return 'https://i.ibb.co/LW9bchh/88d419fe6a6c79323df65ea11b9eaac6.jpg';
     }
     // سبوتيفاي
     if (p.includes('spotify') || p.includes('سبوتيفاي')) {
-        return 'https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg';
+        return 'https://i.ibb.co/nMfthSZ9/3b94d9b0a380484928dbfd085a9eb3f0.jpg';
     }
     // كواي
     if (p.includes('kwai') || p.includes('كواي')) {
-        return 'https://i.ibb.co/hCM7NSJ/11.png'; // أيقونة مؤقتة
+        return 'https://i.ibb.co/GQr4jG8f/d2142f724cf1accdee39408194c39880.jpg'; // أيقونة مؤقتة
     }
     // كيك
     if (p.includes('kick') || p.includes('كيك')) {
-        return 'https://i.ibb.co/hCM7NSJ/11.png'; // أيقونة مؤقتة
+        return 'https://i.ibb.co/WvVwZNsg/b08335b4f96fe5973ec3a4e17a8e14d2.jpg'; // أيقونة مؤقتة
     }
     // لينكدإن
     if (p.includes('linkedin') || p.includes('لينكد')) {
-        return 'https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png';
+        return 'https://i.ibb.co/NgGkDM8f/685486db0be53e07f63e27e226cf5f46.jpg';
     }
     // ريديت
     if (p.includes('reddit') || p.includes('ريديت')) {
-        return 'https://upload.wikimedia.org/wikipedia/en/b/bd/Reddit_Logo_Icon.svg';
+        return 'https://i.ibb.co/VPBrmCh/c5c811c8b91572d3b2c332e191078648.jpg';
     }
     // جوجل
     if (p.includes('google') || p.includes('جوجل')) {
-        return 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg';
+        return 'https://i.ibb.co/bRKYDvM7/df8782b4edb61e087566d4c268e6cb4f.jpg';
     }
     
     // --- 3. الأيقونات الأصلية (Fallback) ---
-    if (p.includes('instagram') || p.includes('انستجرام')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
-    if (p.includes('tiktok') || p.includes('تيك توك')) return 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg';
-    if (p.includes('facebook') || p.includes('فيس بوك')) return 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg';
-    if (p.includes('youtube') || p.includes('يوتيوب')) return 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg';
-    if (p.includes('telegram') || p.includes('تيليجرام')) return 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg';
-    if (p.includes('snapchat') || p.includes('سناب شات')) return 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg';
-    if (p.includes('threads') || p.includes('ثريدز')) return 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Threads_app_icon.svg';
+    if (p.includes('instagram') || p.includes('انستجرام')) return 'https://i.ibb.co/0jChzynk/7551fe8d9b1252d9393b34de59cf6662.jpg';
+    if (p.includes('tiktok') || p.includes('تيك توك')) return 'https://i.ibb.co/ZzGx3V0m/94e9aed2396372bada54b9f4295e469a.jpg';
+    if (p.includes('facebook') || p.includes('فيس بوك')) return 'https://i.ibb.co/HDRLPm1Y/ba8ae19c192e3e85f4031c895051f0df.jpg';
+    if (p.includes('youtube') || p.includes('يوتيوب')) return 'https://i.ibb.co/YG51f6R/bce22c44bc279acf7b61e0c5d158ecd2.jpg';
+    if (p.includes('telegram') || p.includes('تيليجرام')) return 'https://i.ibb.co/27NjYKLC/9971ef6276673985849e59a5039dfcab.jpg';
+    if (p.includes('snapchat') || p.includes('سناب شات')) return 'https://i.ibb.co/ycRshTGS/ebcc7ca29dd53a9b44133baf63cf6e44.jpg';
+    if (p.includes('threads') || p.includes('ثريدز')) return 'https://i.ibb.co/wZT7cM4K/203a752779f46b53971bef4639c6043a.jpg';
     
     // --- 4. أيقونة افتراضية إذا لم يتم العثور على أي تطابق ---
     try {
@@ -1753,7 +1753,7 @@ function getPlatformIcon(platform, serviceName = '') {
 
     function getPlatformValidation(platform) {
         const p = platform.toLowerCase().trim();
-        if (p.includes('instagram') || p.includes('انستغرام') || p.includes('انستا')) return /instagram\.com/;
+        if (p.includes('instagram') || p.includes('انستجرام') || p.includes('انستا')) return /instagram\.com/;
         if (p.includes('tiktok') || p.includes('تيك توك')) return /tiktok\.com/;
         if (p.includes('twitter') || p.includes('تويتر') || p === 'x') return /(twitter|x)\.com/;
         if (p.includes('facebook') || p.includes('فيس بوك') || p.includes('فيس')) return /facebook\.com/;
