@@ -1818,7 +1818,8 @@ function getPlatformIcon(platform, serviceName = '') {
             socialContainer.appendChild(card);
         }
     });
-
+setupShowMoreButtons();
+}
 
     // --- 5. إظهار وتحديث نموذج الطلب ---
     function showOrderForm(platform) {
@@ -2604,7 +2605,6 @@ function setupOffersToggle() {
    fetchActiveOffers();
    setupOffersToggle();
    setupSearchSystem();
-   setupShowMoreButtons();
 
 // وأيضاً استمع لتحديثات العروض
 socket.on('broadcast-notification', (data) => {
