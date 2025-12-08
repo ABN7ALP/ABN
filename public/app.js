@@ -1095,6 +1095,7 @@ function renderOffers(offers) {
 }
 
 // 🔍 نظام البحث والفلترة
+// 🔽🔽 استبدل هذه الدالة بالكامل 🔽🔽
 function setupSearchSystem() {
     const searchInput = document.getElementById('services-search');
     const clearSearchBtn = document.getElementById('clear-search');
@@ -1103,41 +1104,48 @@ function setupSearchSystem() {
 
     if (!searchInput) return;
 
-    // بحث أثناء الكتابة
-    searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.trim().toLowerCase();
-        clearSearchBtn.classList.toggle('hidden', !searchTerm);
+    const performFilter = () => {
+        const searchTerm = searchInput.value.trim().toLowerCase();
         filterServices(searchTerm, currentFilter);
+    };
+
+    searchInput.addEventListener('input', () => {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        clearSearchBtn.classList.toggle('hidden', !searchTerm);
+        performFilter();
     });
 
-    // مسح البحث
-    clearSearchBtn.addEventListener('click', function() {
+    clearSearchBtn.addEventListener('click', () => {
         searchInput.value = '';
         clearSearchBtn.classList.add('hidden');
-        filterServices('', currentFilter);
+        performFilter();
         searchInput.focus();
     });
 
-    // الفلترة
     filterBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             filterBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             currentFilter = this.dataset.filter;
-            filterServices(searchInput.value.trim().toLowerCase(), currentFilter);
+            performFilter();
         });
     });
 }
 
+
+// 🔽🔽 استبدل هذه الدالة بالكامل 🔽🔽
 function filterServices(searchTerm, filter) {
-    const servicesContainer = document.getElementById('services-container');
-    const serviceCards = servicesContainer.querySelectorAll('.service-card');
+    // 🎯 البحث في كلا الحاويتين
+    const allServiceCards = document.querySelectorAll('.services-category-section .service-card');
     let visibleCount = 0;
 
-    serviceCards.forEach(card => {
+    allServiceCards.forEach(card => {
         const platform = card.querySelector('h3').textContent.toLowerCase();
         const description = card.querySelector('p').textContent.toLowerCase();
-        const servicesList = servicesData[card.querySelector('h3').textContent]?.services || [];
+        
+        // التأكد من وجود بيانات للخدمة قبل محاولة الوصول إليها
+        const platformData = servicesData[card.querySelector('h3').textContent];
+        const servicesList = platformData ? platformData.services : [];
         
         let matchesSearch = true;
         let matchesFilter = true;
@@ -1145,8 +1153,7 @@ function filterServices(searchTerm, filter) {
         // تطبيق البحث
         if (searchTerm) {
             const serviceMatches = servicesList.some(service => 
-                service.name.toLowerCase().includes(searchTerm) ||
-                service.platform.toLowerCase().includes(searchTerm)
+                service.name.toLowerCase().includes(searchTerm)
             );
             matchesSearch = platform.includes(searchTerm) || 
                           description.includes(searchTerm) || 
@@ -1167,8 +1174,9 @@ function filterServices(searchTerm, filter) {
         }
     });
 
-    // عرض عدد النتائج
-    showSearchResultsCount(visibleCount, serviceCards.length);
+    // تحديث حالة أزرار "عرض المزيد" بعد الفلترة
+    updateShowMoreAfterFilter();
+    showSearchResultsCount(visibleCount, allServiceCards.length);
 }
 
 function showSearchResultsCount(visible, total) {
@@ -1186,6 +1194,33 @@ function showSearchResultsCount(visible, total) {
         resultsCount.textContent = `عرض ${visible} من ${total} خدمة`;
     }
 }
+
+
+// 🔽🔽 أضف هذه الدالة الجديدة 🔽🔽
+function updateShowMoreAfterFilter() {
+    const sections = [
+        { containerId: 'social-media-services', buttonId: 'social-media-show-more', limit: 6 },
+        { containerId: 'games-topup-services', buttonId: 'games-topup-show-more', limit: 9 }
+    ];
+
+    sections.forEach(section => {
+        const container = document.getElementById(section.containerId);
+        const button = document.getElementById(section.buttonId);
+        if (!container || !button) return;
+
+        // حساب عدد البطاقات الظاهرة فقط
+        const visibleCards = Array.from(container.children).filter(card => card.style.display !== 'none').length;
+
+        // إظهار أو إخفاء زر "عرض المزيد"
+        if (visibleCards > section.limit) {
+            button.classList.remove('hidden');
+        } else {
+            button.classList.add('hidden');
+        }
+    });
+}
+
+    
     
     // --- 3. نظام شحن الرصيد ---
     // --- 3. نظام شحن الرصيد ---
