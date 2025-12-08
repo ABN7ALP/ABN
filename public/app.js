@@ -1679,24 +1679,77 @@ function showCopySuccessMessage(message, isError = false) {
         }
     }
 
-    function getPlatformIcon(platform) {
-        const p = platform.toLowerCase().trim();
-        if (p.includes('instagram') || p.includes('انستغرام') || p.includes('انستا')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
-        if (p.includes('tiktok') || p.includes('تيك توك')) return 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg';
-        if (p.includes('twitter') || p.includes('تويتر') || p === 'x') return 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg';
-        if (p.includes('facebook') || p.includes('فيس بوك') || p.includes('فيس')) return 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg';
-        if (p.includes('youtube') || p.includes('يوتيوب')) return 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg';
-        if (p.includes('telegram') || p.includes('تلغرام')) return 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg';
-        if (p.includes('snapchat') || p.includes('سناب شات')) return 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg';
-        if (p.includes('threads') || p.includes('ثريدز')) return 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Threads_app_icon.svg';
-        
-        try {
-            const initial = encodeURIComponent(platform.charAt(0).toUpperCase());
-            return `https://ui-avatars.com/api/?name=${initial}&background=random&size=50&color=fff`;
-        } catch (e) { 
-            return ''; 
-        }
+    // 🔽🔽 استبدل الدالة القديمة بالكامل بهذه النسخة المطورة 🔽🔽
+function getPlatformIcon(platform, serviceName = '') {
+    const p = platform.toLowerCase().trim();
+    const s = serviceName.toLowerCase().trim();
+
+    // --- 1. الأولوية للكلمات المفتاحية الخاصة في اسم الخدمة ---
+    if (s.includes('توثيق')) {
+        // أيقونة التوثيق (العلامة الزرقاء)
+        return 'https://i.ibb.co/LdGBs2j/file-000000000a6081f5b61ed1dbb4f89643.png'; 
     }
+    if (s.includes('خاص') || s.includes('private')) {
+        // أيقونة المفتاح للخدمات الخاصة
+        return 'https://i.ibb.co/fGScgM4/file-000000000f2871f5b61ed1dbb4f89643.png';
+    }
+
+    // --- 2. البحث عن اسم المنصة والأسماء البديلة ---
+    // تويتر / X
+    if (p.includes('twitter') || p.includes('تويتر') || p === 'x' || p === 'اكس') {
+        return 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg';
+    }
+    // واتساب
+    if (p.includes('whatsapp') || p.includes('واتساب') || p.includes('واتس اب') || p.includes('واتس')) {
+        return 'https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg';
+    }
+    // ديسكورد
+    if (p.includes('discord') || p.includes('ديسكورد')) {
+        return 'https://upload.wikimedia.org/wikipedia/en/9/98/Discord_logo.svg';
+    }
+    // سبوتيفاي
+    if (p.includes('spotify') || p.includes('سبوتيفاي')) {
+        return 'https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg';
+    }
+    // كواي
+    if (p.includes('kwai') || p.includes('كواي')) {
+        return 'https://i.ibb.co/hCM7NSJ/11.png'; // أيقونة مؤقتة
+    }
+    // كيك
+    if (p.includes('kick') || p.includes('كيك')) {
+        return 'https://i.ibb.co/hCM7NSJ/11.png'; // أيقونة مؤقتة
+    }
+    // لينكدإن
+    if (p.includes('linkedin') || p.includes('لينكد')) {
+        return 'https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png';
+    }
+    // ريديت
+    if (p.includes('reddit') || p.includes('ريديت')) {
+        return 'https://upload.wikimedia.org/wikipedia/en/b/bd/Reddit_Logo_Icon.svg';
+    }
+    // جوجل
+    if (p.includes('google') || p.includes('جوجل')) {
+        return 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg';
+    }
+    
+    // --- 3. الأيقونات الأصلية (Fallback) ---
+    if (p.includes('instagram') || p.includes('انستجرام')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
+    if (p.includes('tiktok') || p.includes('تيك توك')) return 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg';
+    if (p.includes('facebook') || p.includes('فيس بوك')) return 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg';
+    if (p.includes('youtube') || p.includes('يوتيوب')) return 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg';
+    if (p.includes('telegram') || p.includes('تيليجرام')) return 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg';
+    if (p.includes('snapchat') || p.includes('سناب شات')) return 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg';
+    if (p.includes('threads') || p.includes('ثريدز')) return 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Threads_app_icon.svg';
+    
+    // --- 4. أيقونة افتراضية إذا لم يتم العثور على أي تطابق ---
+    try {
+        const initial = encodeURIComponent(platform.charAt(0).toUpperCase());
+        return `https://ui-avatars.com/api/?name=${initial}&background=random&size=50&color=fff`;
+    } catch (e) { 
+        return ''; // إرجاع سلسلة فارغة في حالة حدوث خطأ
+    }
+}
+
 
     function getPlatformValidation(platform) {
         const p = platform.toLowerCase().trim();
@@ -1705,7 +1758,7 @@ function showCopySuccessMessage(message, isError = false) {
         if (p.includes('twitter') || p.includes('تويتر') || p === 'x') return /(twitter|x)\.com/;
         if (p.includes('facebook') || p.includes('فيس بوك') || p.includes('فيس')) return /facebook\.com/;
         if (p.includes('youtube') || p.includes('يوتيوب')) return /(youtube\.com|youtu\.be)/;
-        if (p.includes('telegram') || p.includes('تلغرام')) return /(telegram\.me|t\.me)/;
+        if (p.includes('telegram') || p.includes('تيليجرام')) return /(telegram\.me|t\.me)/;
         if (p.includes('snapchat') || p.includes('سناب شات')) return /snapchat\.com/;
         if (p.includes('threads') || p.includes('ثريدز')) return /threads\.net/;
         return new RegExp(`${p.replace(/\s/g, '')}\\.com`, 'i');
@@ -1740,33 +1793,53 @@ function showCopySuccessMessage(message, isError = false) {
 
     // --- 5. إظهار وتحديث نموذج الطلب ---
     function showOrderForm(platform) {
-        refreshUserData();
-        currentPlatform = platform;
-        orderFormContainer.classList.remove('hidden');
-        successMessageContainer.classList.add('hidden');
-        paymentOptionsContainer.classList.add('hidden');
-        formTitle.textContent = `طلب خدمة لـ ${platform}`;
-        const iconName = platform.toLowerCase().replace(/\s/g, '');
-        popupIcon.className = `ph-bold ph-${iconName}-logo`;
-        serviceSelect.innerHTML = '';
+    refreshUserData();
+    currentPlatform = platform;
+    orderFormContainer.classList.remove('hidden');
+    successMessageContainer.classList.add('hidden');
+    paymentOptionsContainer.classList.add('hidden');
+    formTitle.textContent = `طلب خدمة لـ ${platform}`;
+    
+    // 🔽🔽 ابدأ التعديل من هنا 🔽🔽
+    
+    // مسح الخيارات القديمة وتعبئتها بالجديدة
+    serviceSelect.innerHTML = '';
+    servicesData[platform].services.forEach(service => {
+        const option = document.createElement('option');
+        option.value = service.name;
+        option.dataset.price = service.pricePer1000;
+        option.dataset.min = service.min;
+        option.dataset.max = service.max;
+        option.dataset.step = service.step || 1;
+        option.textContent = `${service.name}`;
+        serviceSelect.appendChild(option);
+    });
+
+    // دالة داخلية لتحديث أيقونة النافذة المنبثقة
+    const updatePopupIcon = () => {
+        const selectedServiceName = serviceSelect.value;
+        const iconUrl = getPlatformIcon(platform, selectedServiceName);
         
-        servicesData[platform].services.forEach(service => {
-            const option = document.createElement('option');
-            option.value = service.name;
-            option.dataset.price = service.pricePer1000;
-            option.dataset.min = service.min;
-            option.dataset.max = service.max;
-            option.dataset.step = service.step || 1;
-            option.textContent = `${service.name}`;
-            serviceSelect.appendChild(option);
-        });
-        
-        orderForm.reset();
-        linkError.textContent = '';
-        quantityError.textContent = '';
-        orderPopupOverlay.classList.remove('hidden');
-        updateFormBasedOnService();
-    }
+        // استخدام innerHTML لوضع عنصر <img> مباشرة
+        popupIcon.innerHTML = `<img src="${iconUrl}" alt="${platform}" style="width: 32px; height: 32px; object-fit: contain;">`;
+        popupIcon.className = ''; // إزالة أي classes قديمة مثل ph-bold
+    };
+
+    // استدعاء الدالة عند فتح النافذة لأول مرة
+    updatePopupIcon();
+    
+    // إضافة مستمع لتحديث الأيقونة عند تغيير الخدمة
+    serviceSelect.addEventListener('change', updatePopupIcon);
+
+    // 🔼🔼 نهاية التعديل 🔼🔼
+
+    orderForm.reset();
+    linkError.textContent = '';
+    quantityError.textContent = '';
+    orderPopupOverlay.classList.remove('hidden');
+    updateFormBasedOnService();
+}
+
 
     function updateFormBasedOnService() {
         const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
