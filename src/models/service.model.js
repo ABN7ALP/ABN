@@ -36,8 +36,12 @@ const serviceSchema = new mongoose.Schema({
         type: Number,
         required: true,
         default: 1 // القيمة الافتراضية 1 تعني قبول أي رقم صحيح
+    },
+    category: {
+        type: String,
+        enum: ['social-media', 'games-topup'],
+        default: 'social-media' // القيمة الافتراضية للخدمات الحالية
     }
-    // ******** نهاية الإضافة ********
 });
 
 const Service = mongoose.model('Service', serviceSchema);
