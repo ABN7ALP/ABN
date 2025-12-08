@@ -1684,20 +1684,19 @@ function getPlatformIcon(platform, serviceName = '') {
     const p = platform.toLowerCase().trim();
     const s = serviceName.toLowerCase().trim();
 
-    // --- 1. الأولوية للكلمات المفتاحية الخاصة في اسم الخدمة ---
+    // --- 1. الأولوية للكلمات المفتاحية الخاصة ---
     if (s.includes('توثيق')) {
-        // أيقونة التوثيق (العلامة الزرقاء)
+        // ✅ أيقونة توثيق جديدة وواضحة
         return 'https://i.ibb.co/LdGBs2j/file-000000000a6081f5b61ed1dbb4f89643.png'; 
     }
     if (s.includes('خاص') || s.includes('private')) {
-        // أيقونة المفتاح للخدمات الخاصة
         return 'https://i.ibb.co/fGScgM4/file-000000000f2871f5b61ed1dbb4f89643.png';
     }
 
-    // --- 2. البحث عن اسم المنصة والأسماء البديلة ---
+    // --- 2. البحث عن اسم المنصة (بروابط محسنة) ---
     // تويتر / X
     if (p.includes('twitter') || p.includes('تويتر') || p === 'x' || p === 'اكس') {
-        return 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg';
+        return 'https://upload.wikimedia.org/wikipedia/commons/c/ce/X_logo_2023.svg';
     }
     // واتساب
     if (p.includes('whatsapp') || p.includes('واتساب') || p.includes('واتس اب') || p.includes('واتس')) {
@@ -1705,7 +1704,18 @@ function getPlatformIcon(platform, serviceName = '') {
     }
     // ديسكورد
     if (p.includes('discord') || p.includes('ديسكورد')) {
-        return 'https://upload.wikimedia.org/wikipedia/en/9/98/Discord_logo.svg';
+        // ✅ أيقونة بدون اسم
+        return 'https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.svg';
+    }
+    // تيك توك
+    if (p.includes('tiktok') || p.includes('تيك توك')) {
+        // ✅ أيقونة بدون اسم
+        return 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg';
+    }
+    // ثريدز
+    if (p.includes('threads') || p.includes('ثريدز')) {
+        // ✅ أيقونة جديدة
+        return 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Threads_app_icon.svg';
     }
     // سبوتيفاي
     if (p.includes('spotify') || p.includes('سبوتيفاي')) {
@@ -1734,30 +1744,26 @@ function getPlatformIcon(platform, serviceName = '') {
     
     // --- 3. الأيقونات الأصلية (Fallback) ---
     if (p.includes('instagram') || p.includes('انستجرام')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
-    if (p.includes('tiktok') || p.includes('تيك توك')) return 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg';
     if (p.includes('facebook') || p.includes('فيس بوك')) return 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg';
     if (p.includes('youtube') || p.includes('يوتيوب')) return 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg';
-    if (p.includes('telegram') || p.includes('تلغرام')) return 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg';
+    if (p.includes('telegram') || p.includes('تيليجرام')) return 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg';
     if (p.includes('snapchat') || p.includes('سناب شات')) return 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg';
-    if (p.includes('threads') || p.includes('ثريدز')) return 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Threads_app_icon.svg';
     
-    // --- 4. أيقونة افتراضية إذا لم يتم العثور على أي تطابق ---
+    // --- 4. أيقونة افتراضية ---
     try {
         const initial = encodeURIComponent(platform.charAt(0).toUpperCase());
         return `https://ui-avatars.com/api/?name=${initial}&background=random&size=50&color=fff`;
     } catch (e) { 
-        return ''; // إرجاع سلسلة فارغة في حالة حدوث خطأ
+        return '';
     }
 }
-
-
 
     function getPlatformValidation(platform) {
         const p = platform.toLowerCase().trim();
         if (p.includes('instagram') || p.includes('انستجرام') || p.includes('انستا')) return /instagram\.com/;
         if (p.includes('tiktok') || p.includes('تيك توك')) return /tiktok\.com/;
         if (p.includes('twitter') || p.includes('تويتر') || p === 'x') return /(twitter|x)\.com/;
-        if (p.includes('facebook') || p.includes('فيس بوك') || p.includes('فيس')) return /facebook\.com/;
+        if (p.includes('facebook') || p.includes('فيس بوك') || p.includes('فيسبوك')) return /facebook\.com/;
         if (p.includes('youtube') || p.includes('يوتيوب')) return /(youtube\.com|youtu\.be)/;
         if (p.includes('telegram') || p.includes('تيليجرام')) return /(telegram\.me|t\.me)/;
         if (p.includes('snapchat') || p.includes('سناب شات')) return /snapchat\.com/;
