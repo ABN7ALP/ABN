@@ -1095,7 +1095,6 @@ function renderOffers(offers) {
 }
 
 // 🔍 نظام البحث والفلترة
-// 🔽🔽 استبدل هذه الدالة بالكامل 🔽🔽
 function setupSearchSystem() {
     const searchInput = document.getElementById('services-search');
     const clearSearchBtn = document.getElementById('clear-search');
@@ -1104,48 +1103,41 @@ function setupSearchSystem() {
 
     if (!searchInput) return;
 
-    const performFilter = () => {
-        const searchTerm = searchInput.value.trim().toLowerCase();
-        filterServices(searchTerm, currentFilter);
-    };
-
-    searchInput.addEventListener('input', () => {
-        const searchTerm = searchInput.value.trim().toLowerCase();
+    // بحث أثناء الكتابة
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.trim().toLowerCase();
         clearSearchBtn.classList.toggle('hidden', !searchTerm);
-        performFilter();
+        filterServices(searchTerm, currentFilter);
     });
 
-    clearSearchBtn.addEventListener('click', () => {
+    // مسح البحث
+    clearSearchBtn.addEventListener('click', function() {
         searchInput.value = '';
         clearSearchBtn.classList.add('hidden');
-        performFilter();
+        filterServices('', currentFilter);
         searchInput.focus();
     });
 
+    // الفلترة
     filterBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             filterBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             currentFilter = this.dataset.filter;
-            performFilter();
+            filterServices(searchInput.value.trim().toLowerCase(), currentFilter);
         });
     });
 }
 
-
-// 🔽🔽 استبدل هذه الدالة بالكامل 🔽🔽
 function filterServices(searchTerm, filter) {
-    // 🎯 البحث في كلا الحاويتين
-    const allServiceCards = document.querySelectorAll('.services-category-section .service-card');
+    const servicesContainer = document.getElementById('services-container');
+    const serviceCards = servicesContainer.querySelectorAll('.service-card');
     let visibleCount = 0;
 
-    allServiceCards.forEach(card => {
+    serviceCards.forEach(card => {
         const platform = card.querySelector('h3').textContent.toLowerCase();
         const description = card.querySelector('p').textContent.toLowerCase();
-        
-        // التأكد من وجود بيانات للخدمة قبل محاولة الوصول إليها
-        const platformData = servicesData[card.querySelector('h3').textContent];
-        const servicesList = platformData ? platformData.services : [];
+        const servicesList = servicesData[card.querySelector('h3').textContent]?.services || [];
         
         let matchesSearch = true;
         let matchesFilter = true;
@@ -1153,7 +1145,8 @@ function filterServices(searchTerm, filter) {
         // تطبيق البحث
         if (searchTerm) {
             const serviceMatches = servicesList.some(service => 
-                service.name.toLowerCase().includes(searchTerm)
+                service.name.toLowerCase().includes(searchTerm) ||
+                service.platform.toLowerCase().includes(searchTerm)
             );
             matchesSearch = platform.includes(searchTerm) || 
                           description.includes(searchTerm) || 
@@ -1174,9 +1167,8 @@ function filterServices(searchTerm, filter) {
         }
     });
 
-    // تحديث حالة أزرار "عرض المزيد" بعد الفلترة
-    updateShowMoreAfterFilter();
-    showSearchResultsCount(visibleCount, allServiceCards.length);
+    // عرض عدد النتائج
+    showSearchResultsCount(visibleCount, serviceCards.length);
 }
 
 function showSearchResultsCount(visible, total) {
@@ -1194,33 +1186,6 @@ function showSearchResultsCount(visible, total) {
         resultsCount.textContent = `عرض ${visible} من ${total} خدمة`;
     }
 }
-
-
-// 🔽🔽 أضف هذه الدالة الجديدة 🔽🔽
-function updateShowMoreAfterFilter() {
-    const sections = [
-        { containerId: 'social-media-services', buttonId: 'social-media-show-more', limit: 6 },
-        { containerId: 'games-topup-services', buttonId: 'games-topup-show-more', limit: 9 }
-    ];
-
-    sections.forEach(section => {
-        const container = document.getElementById(section.containerId);
-        const button = document.getElementById(section.buttonId);
-        if (!container || !button) return;
-
-        // حساب عدد البطاقات الظاهرة فقط
-        const visibleCards = Array.from(container.children).filter(card => card.style.display !== 'none').length;
-
-        // إظهار أو إخفاء زر "عرض المزيد"
-        if (visibleCards > section.limit) {
-            button.classList.remove('hidden');
-        } else {
-            button.classList.add('hidden');
-        }
-    });
-}
-
-    
     
     // --- 3. نظام شحن الرصيد ---
     // --- 3. نظام شحن الرصيد ---
@@ -1687,46 +1652,32 @@ function showCopySuccessMessage(message, isError = false) {
 
     // --- 4. تحميل وعرض الخدمات ---
     async function loadServices() {
-    try {
-        const response = await apiFetch('/api/services');
-        if (!response.ok) throw new Error('Network response was not ok');
-        
-        const categorizedServices = await response.json();
-        
-        // إعادة بناء servicesData من الصفر
-        servicesData = {}; 
-        
-        // دمج خدمات الفئتين في مكان واحد للمعالجة
-        const allServices = [
-            ...(categorizedServices['social-media'] || []),
-            ...(categorizedServices['games-topup'] || [])
-        ];
-
-        allServices.forEach(service => {
-            const platform = service.platform;
-            if (!servicesData[platform]) {
-                servicesData[platform] = {
-                    icon: getPlatformIcon(platform, service.name), // 🎯 تمرير اسم الخدمة أيضاً
-                    description: `خدمات متنوعة لمنصة ${platform}`,
-                    validation: getPlatformValidation(platform),
-                    services: [],
-                    category: service.category 
-                };
-            }
-            servicesData[platform].services.push(service);
-        });
-        
-        renderCategorizedServices();
-
-    } catch (error) {
-        console.error("Failed to load services from API:", error);
-        const socialContainer = document.getElementById('social-media-services');
-        const gamesContainer = document.getElementById('games-topup-services');
-        if (socialContainer) socialContainer.innerHTML = '<p>فشل تحميل الخدمات.</p>';
-        if (gamesContainer) gamesContainer.innerHTML = '<p>فشل تحميل الخدمات.</p>';
+        try {
+            const response = await apiFetch('/api/services');
+            if (!response.ok) throw new Error('Network response was not ok');
+            const servicesFromDB = await response.json();
+            
+            servicesData = servicesFromDB.reduce((acc, service) => {
+                const platform = service.platform;
+                if (!acc[platform]) { 
+                    acc[platform] = { 
+                        icon: getPlatformIcon(platform), 
+                        description: `خدمات متنوعة لمنصة ${platform}`, 
+                        validation: getPlatformValidation(platform), 
+                        services: [] 
+                    }; 
+                }
+                acc[platform].services.push(service);
+                return acc;
+            }, {});
+            
+            renderServiceCards();
+            
+        } catch (error) {
+            console.error("Failed to load services from API:", error);
+            servicesContainer.innerHTML = '<p style="color:white; text-align:center;">فشل تحميل الخدمات. يرجى المحاولة مرة أخرى.</p>';
+        }
     }
-}
-
 
     // 🔽🔽 استبدل الدالة القديمة بالكامل بهذه النسخة المطورة 🔽🔽
 function getPlatformIcon(platform, serviceName = '') {
@@ -1820,69 +1771,41 @@ function getPlatformIcon(platform, serviceName = '') {
         return new RegExp(`${p.replace(/\s/g, '')}\\.com`, 'i');
     }
 
-    function renderCategorizedServices() {
-    const socialContainer = document.getElementById('social-media-services');
-    const gamesContainer = document.getElementById('games-topup-services');
-    
-    if (!socialContainer || !gamesContainer) return;
-
-    socialContainer.innerHTML = '';
-    gamesContainer.innerHTML = '';
-
-    const platforms = Object.keys(servicesData);
-
-    if (platforms.length === 0) {
-        socialContainer.innerHTML = '<p>لا توجد خدمات متاحة حالياً.</p>';
-        return;
-    }
-
-    platforms.forEach(platform => {
-        const data = servicesData[platform];
-        const card = document.createElement('div');
-        card.className = 'service-card';
-        // 🎯 استخدام getPlatformIcon هنا أيضاً لضمان الأيقونة الصحيحة
-        card.innerHTML = `
-            <div class="icon-wrapper">
-                <img src="${getPlatformIcon(platform)}" alt="${platform} icon" onerror="this.style.display='none'">
-            </div>
-            <h3>${platform}</h3>
-            <p>${data.description}</p>
-            <button class="pill-button get-button">
-                <i class="ph-bold ph-arrow-circle-right"></i>
-                <span>اطلب الآن</span>
-            </button>
-        `;
-        card.addEventListener('click', () => showOrderForm(platform));
-
-        if (data.category === 'games-topup') {
-            gamesContainer.appendChild(card);
-        } else {
-            socialContainer.appendChild(card);
+    function renderServiceCards() {
+        servicesContainer.innerHTML = '';
+        if (Object.keys(servicesData).length === 0) { 
+            servicesContainer.innerHTML = '<p style="color:white; text-align:center;">لا توجد خدمات متاحة حالياً.</p>'; 
+            return; 
         }
-    });
-
-    setupShowMoreButtons();
-}
+        
+        for (const platform in servicesData) {
+            const data = servicesData[platform];
+            const card = document.createElement('div');
+            card.className = 'service-card';
+            card.innerHTML = `
+                <div class="icon-wrapper">
+                    <img src="${data.icon}" alt="${platform} icon" onerror="this.style.display='none'">
+                </div>
+                <h3>${platform}</h3>
+                <p>${data.description}</p>
+                <button class="pill-button get-button">
+                    <i class="ph-bold ph-arrow-circle-right"></i>
+                    <span>اطلب الآن</span>
+                </button>
+            `;
+            card.addEventListener('click', () => showOrderForm(platform));
+            servicesContainer.appendChild(card);
+        }
+    }
 
     // --- 5. إظهار وتحديث نموذج الطلب ---
     function showOrderForm(platform) {
     refreshUserData();
-    const platformData = servicesData[platform];
-    const isGameTopup = platformData.category === 'games-topup';
     currentPlatform = platform;
     orderFormContainer.classList.remove('hidden');
     successMessageContainer.classList.add('hidden');
     paymentOptionsContainer.classList.add('hidden');
-    document.getElementById('quantity-group').style.display = isGameTopup ? 'none' : 'block';
-    document.getElementById('price-section').style.display = isGameTopup ? 'none' : 'block';
-    document.getElementById('player-id-group').style.display = isGameTopup ? 'block' : 'none';
-
-    if (isGameTopup) {
-        formTitle.textContent = `شحن ${platform}`;
-        // يمكنك تغيير الأيقونة هنا أيضاً إذا أردت
-    } else {
-        formTitle.textContent = `طلب خدمة لـ ${platform}`;
-    }
+    formTitle.textContent = `طلب خدمة لـ ${platform}`;
     
     // 🔽🔽 ابدأ التعديل من هنا 🔽🔽
     
@@ -2141,45 +2064,6 @@ async function updatePrice() {
     function hidePopup() { 
         orderPopupOverlay.classList.add('hidden'); 
     }
-
-
-
-function setupShowMoreButtons() {
-    const sections = [
-        { container: document.getElementById('social-media-services'), button: document.getElementById('social-media-show-more'), limit: 6 },
-        { container: document.getElementById('games-topup-services'), button: document.getElementById('games-topup-show-more'), limit: 9 }
-    ];
-
-    sections.forEach(({ container, button, limit }) => {
-        if (!container || !button) return;
-
-        const allCards = Array.from(container.children);
-        
-        // إخفاء العناصر الزائدة افتراضياً
-        allCards.slice(limit).forEach(card => card.style.display = 'none');
-
-        if (allCards.length > limit) {
-            button.classList.remove('hidden');
-            button.addEventListener('click', () => {
-                const isExpanded = container.classList.toggle('expanded');
-                button.classList.toggle('expanded');
-                button.querySelector('span').textContent = isExpanded ? 'عرض أقل' : 'عرض المزيد';
-
-                // إظهار أو إخفاء العناصر عند النقر
-                allCards.slice(limit).forEach(card => {
-                    // فقط غير العرض إذا كانت البطاقة ظاهرة بسبب فلتر آخر
-                    if (card.style.display !== 'none' || isExpanded) {
-                         card.style.display = isExpanded ? 'block' : 'none';
-                    }
-                });
-            });
-        } else {
-            button.classList.add('hidden');
-        }
-    });
-}
-
-        
 
     // --- 6.5. نظام الإشعارات ---
     async function fetchNotifications() {
