@@ -1651,34 +1651,52 @@ function showCopySuccessMessage(message, isError = false) {
     }
 
     // --- 4. تحميل وعرض الخدمات ---
-    async function loadServices() {
-        try {
-            const response = await apiFetch('/api/services');
-            if (!response.ok) throw new Error('Network response was not ok');
-            const servicesFromDB = await response.json();
+    // 🔽🔽 استبدل هذه الدالة بالكامل 🔽🔽
+async function loadServices() {
+    try {
+        const response = await apiFetch('/api/services');
+        if (!response.ok) throw new Error('Network response was not ok');
             
-            servicesData = servicesFromDB.reduce((acc, service) => {
-                const platform = service.platform;
-                if (!acc[platform]) { 
-                    acc[platform] = { 
-                        icon: getPlatformIcon(platform), 
-                        description: `خدمات متنوعة لمنصة ${platform}`, 
-                        validation: getPlatformValidation(platform), 
-                        services: [] 
-                    }; 
-                }
-                acc[platform].services.push(service);
-                return acc;
-            }, {});
+        const allServicesFromDB = await response.json();
             
-            renderServiceCards();
+        // إعادة بناء servicesData من الصفر
+        servicesData = {}; 
             
-        } catch (error) {
-            console.error("Failed to load services from API:", error);
-            servicesContainer.innerHTML = '<p style="color:white; text-align:center;">فشل تحميل الخدمات. يرجى المحاولة مرة أخرى.</p>';
-        }
-    }
+        allServicesFromDB.forEach(service => {
+            const platform = service.platform;
+            if (!servicesData[platform]) {
+                servicesData[platform] = {
+                    icon: getPlatformIcon(platform, service.name),
+                    description: `خدمات متنوعة لمنصة ${platform}`,
+                    validation: getPlatformValidation(platform),
+                    services: [],
+                    // 🎯 تحديد الفئة هنا في الواجهة الأمامية
+                    category: isGamePlatform(platform) ? 'games-topup' : 'social-media'
+                };
+            }
+            servicesData[platform].services.push(service);
+        });
+            
+        renderCategorizedServices();
 
+    } catch (error) {
+        console.error("Failed to load services from API:", error);
+        const socialContainer = document.getElementById('social-media-services');
+        if (socialContainer) socialContainer.innerHTML = '<p>فشل تحميل الخدمات.</p>';
+    }
+}
+
+
+
+// 🔽🔽 أضف هذه الدالة الجديدة في أي مكان 🔽🔽
+function isGamePlatform(platformName) {
+    const p = platformName.toLowerCase();
+    const gameKeywords = ['pubg', 'free fire', 'call of duty', 'ببجي', 'فري فاير'];
+    return gameKeywords.some(keyword => p.includes(keyword));
+}
+
+
+    
     // 🔽🔽 استبدل الدالة القديمة بالكامل بهذه النسخة المطورة 🔽🔽
 function getPlatformIcon(platform, serviceName = '') {
     const p = platform.toLowerCase().trim();
@@ -1798,6 +1816,45 @@ function getPlatformIcon(platform, serviceName = '') {
         }
     }
 
+// ✅ تأكد من وجود هذه الدالة كما هي
+function renderCategorizedServices() {
+    const socialContainer = document.getElementById('social-media-services');
+    const gamesContainer = document.getElementById('games-topup-services');
+        
+    if (!socialContainer || !gamesContainer) return;
+
+    socialContainer.innerHTML = '';
+    gamesContainer.innerHTML = '';
+
+    Object.keys(servicesData).forEach(platform => {
+        const data = servicesData[platform];
+        const card = document.createElement('div');
+        card.className = 'service-card';
+        card.innerHTML = `
+            <div class="icon-wrapper">
+                <img src="${data.icon}" alt="${platform} icon" onerror="this.style.display='none'">
+            </div>
+            <h3>${platform}</h3>
+            <p>${data.description}</p>
+            <button class="pill-button get-button">
+                <i class="ph-bold ph-arrow-circle-right"></i>
+                <span>اطلب الآن</span>
+            </button>
+        `;
+        card.addEventListener('click', () => showOrderForm(platform));
+
+        if (data.category === 'games-topup') {
+            gamesContainer.appendChild(card);
+        } else {
+            socialContainer.appendChild(card);
+        }
+    });
+
+    setupShowMoreButtons();
+}
+
+
+    
     // --- 5. إظهار وتحديث نموذج الطلب ---
     function showOrderForm(platform) {
     refreshUserData();
