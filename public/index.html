@@ -81,7 +81,52 @@
     </div>
 </section>
         
-        <section id="services-container" class="services-grid"></section>
+        <!-- ========================================================== -->
+<!-- 🔽🔽 الصق هذا الهيكل الجديد بالكامل 🔽🔽 -->
+<!-- ========================================================== -->
+
+<!-- قسم خدمات التواصل الاجتماعي -->
+<section class="services-category-section">
+    <div class="container">
+        <div class="section-title">
+            <i class="ph-bold ph-users-three"></i>
+            <h2>خدمات التواصل الاجتماعي</h2>
+        </div>
+        <div id="social-media-services" class="services-grid expandable">
+            <!-- سيتم ملؤها بالخدمات عبر JavaScript -->
+        </div>
+        <div class="show-more-container">
+            <button id="social-media-show-more" class="show-more-btn hidden">
+                <span>عرض المزيد</span>
+                <i class="ph-bold ph-caret-down"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- قسم شحن الألعاب والبرامج -->
+<section class="services-category-section">
+    <div class="container">
+        <div class="section-title">
+            <i class="ph-bold ph-game-controller"></i>
+            <h2>شحن الألعاب والبرامج</h2>
+        </div>
+        <div id="games-topup-services" class="services-grid expandable">
+            <!-- سيتم ملؤها بالخدمات عبر JavaScript -->
+        </div>
+        <div class="show-more-container">
+            <button id="games-topup-show-more" class="show-more-btn hidden">
+                <span>عرض المزيد</span>
+                <i class="ph-bold ph-caret-down"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================================== -->
+<!-- 🔼🔼 نهاية الهيكل الجديد 🔼🔼 -->
+<!-- ========================================================== -->
+
 
     
         </div>
@@ -98,16 +143,30 @@
                     <div class="form-group"><label for="service-select">نوع الخدمة</label><div class="select-wrapper"><select id="service-select" required></select></div></div>
                     <div class="form-group"><label for="link-input">رابط الحساب أو المنشور</label><input type="url" id="link-input" placeholder="https://www.instagram.com/..." required><small id="link-warning">تأكد أن الحساب عام وليس خاصاً.</small><p id="link-error" class="error-message"></p></div>
                     <!-- ******** هذا هو التعديل ******** -->
-                    <div class="form-group">
-                        <label for="quantity-input">الكمية المطلوبة</label>
-                        <input type="number" id="quantity-input" required>
-                        <p id="quantity-error" class="error-message"></p>
-                    </div>
-                    <!-- ******** نهاية التعديل ******** -->
-                    <div class="price-section"><p>السعر الإجمالي</p><span id="price-display">0.00 $</span></div>
-                    <button type="submit" class="pill-button primary-button"><i class="ph-bold ph-arrow-right"></i><span>متابعة للدفع</span></button>
-                </form>
-            </div>
+                    <!-- 🔽🔽 استبدل الحقول القديمة بهذا الهيكل الجديد 🔽🔽 -->
+
+<!-- حقل لمعرف اللاعب (مخفي افتراضياً) -->
+<div id="player-id-group" class="form-group" style="display: none;">
+    <label for="player-id-input">معرف اللاعب (Player ID)</label>
+    <input type="text" id="player-id-input" placeholder="أدخل معرف اللاعب هنا">
+</div>
+
+<!-- حاوية لحقول التواصل الاجتماعي (ظاهرة افتراضياً) -->
+<div id="social-media-fields">
+    <div id="quantity-group" class="form-group">
+        <label for="quantity-input">الكمية المطلوبة</label>
+        <input type="number" id="quantity-input" required>
+        <p id="quantity-error" class="error-message"></p>
+    </div>
+
+    <div id="price-section" class="price-section">
+        <p>السعر الإجمالي</p>
+        <span id="price-display">0.00 $</span>
+    </div>
+</div>
+
+<!-- 🔼🔼 نهاية الهيكل الجديد 🔼🔼 -->
+
             <div id="payment-options-container" class="hidden">
                 <div class="price-section"><p>المبلغ المطلوب دفعه</p><span id="final-price-display">0.00 $</span></div>
                 <p class="payment-instructions">اختر طريقة الدفع لإكمال طلبك:</p>
