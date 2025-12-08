@@ -1696,7 +1696,7 @@ function getPlatformIcon(platform, serviceName = '') {
     // --- 2. البحث عن اسم المنصة (بروابط محسنة) ---
     // تويتر / X
     if (p.includes('twitter') || p.includes('تويتر') || p === 'x' || p === 'اكس') {
-        return 'https://upload.wikimedia.org/wikipedia/commons/c/ce/X_logo_2023.svg';
+        return 'https://i.ibb.co/5ghPT58L/5a7a34abbaf48383f76062a5b8a6a22b.jpg';
     }
     // واتساب
     if (p.includes('whatsapp') || p.includes('واتساب') || p.includes('واتس اب') || p.includes('واتس')) {
@@ -1705,17 +1705,17 @@ function getPlatformIcon(platform, serviceName = '') {
     // ديسكورد
     if (p.includes('discord') || p.includes('ديسكورد')) {
         // ✅ أيقونة بدون اسم
-        return 'https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.svg';
+        return 'https://i.ibb.co/LW9bchh/88d419fe6a6c79323df65ea11b9eaac6.jpg';
     }
     // تيك توك
     if (p.includes('tiktok') || p.includes('تيك توك')) {
         // ✅ أيقونة بدون اسم
-        return 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg';
+        return 'https://i.ibb.co/ZzGx3V0m/94e9aed2396372bada54b9f4295e469a.jpg';
     }
     // ثريدز
     if (p.includes('threads') || p.includes('ثريدز')) {
         // ✅ أيقونة جديدة
-        return 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Threads_app_icon.svg';
+        return 'https://i.ibb.co/wZT7cM4K/203a752779f46b53971bef4639c6043a.jpg';
     }
     // سبوتيفاي
     if (p.includes('spotify') || p.includes('سبوتيفاي')) {
