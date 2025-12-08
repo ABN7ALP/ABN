@@ -1690,35 +1690,40 @@ function showCopySuccessMessage(message, isError = false) {
     try {
         const response = await apiFetch('/api/services');
         if (!response.ok) throw new Error('Network response was not ok');
-            
-        // الاستجابة الآن تحتوي على الفئات مباشرة
+        
         const categorizedServices = await response.json();
-            
-        // تحويل البيانات إلى servicesData القديم للتوافق
-        servicesData = {};
-        for (const category in categorizedServices) {
-            categorizedServices[category].forEach(service => {
-                const platform = service.platform;
-                if (!servicesData[platform]) {
-                    servicesData[platform] = {
-                        icon: getPlatformIcon(platform),
-                        description: `خدمات متنوعة لمنصة ${platform}`,
-                        validation: getPlatformValidation(platform),
-                        services: [],
-                        category: service.category // 🔽🔽 إضافة الفئة هنا 🔽🔽
-                    };
-                }
-                servicesData[platform].services.push(service);
-            });
-        }
-            
-        // استدعاء دالة العرض الجديدة
+        
+        // إعادة بناء servicesData من الصفر
+        servicesData = {}; 
+        
+        // دمج خدمات الفئتين في مكان واحد للمعالجة
+        const allServices = [
+            ...(categorizedServices['social-media'] || []),
+            ...(categorizedServices['games-topup'] || [])
+        ];
+
+        allServices.forEach(service => {
+            const platform = service.platform;
+            if (!servicesData[platform]) {
+                servicesData[platform] = {
+                    icon: getPlatformIcon(platform, service.name), // 🎯 تمرير اسم الخدمة أيضاً
+                    description: `خدمات متنوعة لمنصة ${platform}`,
+                    validation: getPlatformValidation(platform),
+                    services: [],
+                    category: service.category 
+                };
+            }
+            servicesData[platform].services.push(service);
+        });
+        
         renderCategorizedServices();
 
     } catch (error) {
         console.error("Failed to load services from API:", error);
-        document.getElementById('social-media-services').innerHTML = '<p> فشل تحميل الخدمات . يرجى المحاوله مره اخرى.</p>';
-        document.getElementById('games-topup-services').innerHTML = '<p> فشل تحميل الخدمات . يرجى المحاوله مره اخرى.</p>';
+        const socialContainer = document.getElementById('social-media-services');
+        const gamesContainer = document.getElementById('games-topup-services');
+        if (socialContainer) socialContainer.innerHTML = '<p>فشل تحميل الخدمات.</p>';
+        if (gamesContainer) gamesContainer.innerHTML = '<p>فشل تحميل الخدمات.</p>';
     }
 }
 
@@ -1818,7 +1823,9 @@ function getPlatformIcon(platform, serviceName = '') {
     function renderCategorizedServices() {
     const socialContainer = document.getElementById('social-media-services');
     const gamesContainer = document.getElementById('games-topup-services');
-        
+    
+    if (!socialContainer || !gamesContainer) return;
+
     socialContainer.innerHTML = '';
     gamesContainer.innerHTML = '';
 
@@ -1833,9 +1840,10 @@ function getPlatformIcon(platform, serviceName = '') {
         const data = servicesData[platform];
         const card = document.createElement('div');
         card.className = 'service-card';
+        // 🎯 استخدام getPlatformIcon هنا أيضاً لضمان الأيقونة الصحيحة
         card.innerHTML = `
             <div class="icon-wrapper">
-                <img src="${data.icon}" alt="${platform} icon" onerror="this.style.display='none'">
+                <img src="${getPlatformIcon(platform)}" alt="${platform} icon" onerror="this.style.display='none'">
             </div>
             <h3>${platform}</h3>
             <p>${data.description}</p>
@@ -1846,14 +1854,14 @@ function getPlatformIcon(platform, serviceName = '') {
         `;
         card.addEventListener('click', () => showOrderForm(platform));
 
-        // وضع البطاقة في الحاوية الصحيحة
         if (data.category === 'games-topup') {
             gamesContainer.appendChild(card);
         } else {
             socialContainer.appendChild(card);
         }
     });
-setupShowMoreButtons();
+
+    setupShowMoreButtons();
 }
 
     // --- 5. إظهار وتحديث نموذج الطلب ---
@@ -2137,42 +2145,39 @@ async function updatePrice() {
 
 
 function setupShowMoreButtons() {
-    const socialContainer = document.getElementById('social-media-services');
-    const gamesContainer = document.getElementById('games-topup-services');
-    const socialBtn = document.getElementById('social-media-show-more');
-    const gamesBtn = document.getElementById('games-topup-show-more');
+    const sections = [
+        { container: document.getElementById('social-media-services'), button: document.getElementById('social-media-show-more'), limit: 6 },
+        { container: document.getElementById('games-topup-services'), button: document.getElementById('games-topup-show-more'), limit: 9 }
+    ];
 
-    // قسم التواصل الاجتماعي
-    if (socialContainer.children.length > 6) {
-        socialBtn.classList.remove('hidden');
-        socialBtn.addEventListener('click', () => {
-            socialContainer.querySelectorAll('.service-card:nth-child(n+7)').forEach(card => {
-                card.style.display = socialContainer.classList.contains('expanded') ? 'none' : 'block';
-            });
-            socialContainer.classList.toggle('expanded');
-            socialBtn.classList.toggle('expanded');
-            socialBtn.querySelector('span').textContent = socialContainer.classList.contains('expanded') ? 'عرض أقل' : 'عرض المزيد';
-        });
-    } else {
-        socialBtn.classList.add('hidden');
-    }
+    sections.forEach(({ container, button, limit }) => {
+        if (!container || !button) return;
 
-    // قسم الألعاب
-    if (gamesContainer.children.length > 9) {
-        gamesBtn.classList.remove('hidden');
-        gamesBtn.addEventListener('click', () => {
-            gamesContainer.querySelectorAll('.service-card:nth-child(n+10)').forEach(card => {
-                card.style.display = gamesContainer.classList.contains('expanded') ? 'none' : 'block';
+        const allCards = Array.from(container.children);
+        
+        // إخفاء العناصر الزائدة افتراضياً
+        allCards.slice(limit).forEach(card => card.style.display = 'none');
+
+        if (allCards.length > limit) {
+            button.classList.remove('hidden');
+            button.addEventListener('click', () => {
+                const isExpanded = container.classList.toggle('expanded');
+                button.classList.toggle('expanded');
+                button.querySelector('span').textContent = isExpanded ? 'عرض أقل' : 'عرض المزيد';
+
+                // إظهار أو إخفاء العناصر عند النقر
+                allCards.slice(limit).forEach(card => {
+                    // فقط غير العرض إذا كانت البطاقة ظاهرة بسبب فلتر آخر
+                    if (card.style.display !== 'none' || isExpanded) {
+                         card.style.display = isExpanded ? 'block' : 'none';
+                    }
+                });
             });
-            gamesContainer.classList.toggle('expanded');
-            gamesBtn.classList.toggle('expanded');
-            gamesBtn.querySelector('span').textContent = gamesContainer.classList.contains('expanded') ? 'عرض أقل' : 'عرض المزيد';
-        });
-    } else {
-        gamesBtn.classList.add('hidden');
-    }
+        } else {
+            button.classList.add('hidden');
+        }
+    });
 }
-
 
         
 
