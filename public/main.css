@@ -387,11 +387,13 @@ notification-item.unread::before {
 }
 
 .icon-wrapper img {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
+    width: 100%; /* 🟢 اجعل الصورة تملأ الحاوية */
+    height: 100%; /* 🟢 اجعل الصورة تملأ الحاوية */
+    object-fit: cover; /* 🟢 هذا سيجعل الصورة تملأ الدائرة مع قص الأجزاء الزائدة */
+    border-radius: 50%; /* 🟢 تأكد من أن الصورة نفسها دائرية لتجنب الحواف الحادة */
     transition: all var(--transition-smooth);
 }
+
 
 .service-card:hover .icon-wrapper img {
     filter: brightness(0) invert(1);
