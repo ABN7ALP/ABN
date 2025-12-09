@@ -1637,97 +1637,92 @@ notification-item.unread::before {
     }
 }
 
-/* --- أنماط الأقسام الجديدة --- */
-.services-category-section {
-    padding: 2rem 0;
+
+
+/* --- أنماط نافذة تأكيد الرابط --- */
+.confirmation-details {
+    background: var(--gray-bg);
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-input);
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--gray-border);
 }
 
-.section-title {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid var(--gray-border);
-}
-
-.section-title i {
-    font-size: 2.5rem;
-    background: var(--purple-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.section-title h2 {
-    font-size: 1.8rem;
-    font-weight: 800;
+.confirmation-details p {
+    font-weight: 600;
+    margin-bottom: 1rem;
     color: var(--text-dark);
 }
 
-/* --- نظام عرض المزيد --- */
-.services-grid.expandable {
-    --max-items-sm: 6; /* عدد العناصر المعروضة للتواصل الاجتماعي */
-    --max-items-games: 9; /* عدد العناصر المعروضة للألعاب */
-    max-height: 5000px; /* ارتفاع كبير للسماح بالأنيميشن */
-    transition: max-height 0.7s ease-in-out;
+.confirmation-details ul {
+    list-style: none;
+    padding: 0;
 }
 
-/* إخفاء العناصر الزائدة بشكل افتراضي */
-.services-grid.expandable .service-card {
-    display: none;
-    animation: fadeIn 0.5s ease forwards;
+.confirmation-details li {
+    margin-bottom: 0.8rem;
+    font-size: 0.95rem;
 }
 
-/* إظهار العناصر المسموح بها */
-#social-media-services.expandable .service-card:nth-child(-n+6),
-#games-topup-services.expandable .service-card:nth-child(-n+9) {
-    display: block;
-}
-
-/* عند التوسيع، أظهر كل شيء */
-.services-grid.expandable.expanded .service-card {
-    display: block;
-}
-
-.show-more-container {
-    text-align: center;
-    margin-top: 2rem;
-}
-
-.show-more-btn {
-    background: transparent;
-    border: 2px solid var(--purple-main);
+.confirmation-details li strong {
     color: var(--purple-main);
-    font-weight: 700;
-    padding: 0.8rem 2rem;
-    border-radius: var(--radius-button);
-    cursor: pointer;
-    transition: all var(--transition-smooth);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
+    min-width: 70px;
+    display: inline-block;
 }
 
-.show-more-btn:hover {
-    background: var(--purple-main);
-    color: white;
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
+#confirm-link {
+    word-break: break-all;
+    direction: ltr;
+    text-align: left;
+    display: block;
+    background: var(--white-pure);
+    padding: 0.5rem;
+    border-radius: 8px;
+    margin-top: 0.3rem;
 }
 
-.show-more-btn i {
-    transition: transform 0.3s ease;
+.confirmation-warning {
+    background: #FFFBEB; /* أصفر فاتح */
+    border: 1px solid #FBBF24;
+    border-right: 4px solid #F59E0B;
+    padding: 1.5rem;
+    border-radius: var(--radius-input);
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 2rem;
 }
 
-.show-more-btn.expanded i {
-    transform: rotate(180deg);
+.confirmation-warning i {
+    font-size: 2rem;
+    color: #F59E0B;
 }
 
-.hidden {
-    display: none !important;
+.confirmation-warning h4 {
+    margin: 0 0 0.5rem 0;
+    color: #B45309;
+    font-size: 1.1rem;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+.confirmation-warning p {
+    margin: 0;
+    line-height: 1.6;
+    color: #78350F;
+    font-size: 0.9rem;
 }
+
+.confirmation-warning p strong {
+    font-weight: 900;
+}
+
+.confirmation-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.confirmation-buttons .pill-button {
+    flex-grow: 1;
+}
+
