@@ -193,7 +193,62 @@ function renderMyOrders(orders) {
 }
 
 
+    // ... نهاية دالة renderMyOrders
+    document.getElementById('my-orders-loading').classList.add('hidden');
+}
+
+// ==========================================================
+// 🚀🚀 أضف هذا الكود المفقود هنا 🚀🚀
+// ==========================================================
+
+// دالة يتم استدعاؤها عند النقر على زر الاعتراض
+function handleDisputeButtonClick(event) {
+    // الحصول على معرف الطلب من الصف الذي يحتوي على الزر
+    const orderId = event.target.closest('tr').dataset.orderId;
     
+    // طلب سبب الاعتراض من المستخدم عبر نافذة منبثقة
+    const reason = prompt('يرجى كتابة سبب اعتراضك بوضوح:', 'أعتقد أن الرابط كان صحيحاً والحساب كان عاماً.');
+
+    // إذا أدخل المستخدم سبباً ولم يضغط "إلغاء"
+    if (reason && reason.trim() !== '') {
+        // استدعاء دالة إرسال الاعتراض إلى الخادم
+        submitDispute(orderId, reason.trim(), event.target);
+    }
+}
+
+// دالة لإرسال الاعتراض إلى الواجهة الخلفية (Backend)
+async function submitDispute(orderId, reason, button) {
+    // تعطيل الزر وإظهار رسالة "جاري الإرسال"
+    button.disabled = true;
+    button.textContent = 'جاري الإرسال...';
+
+    try {
+        // إرسال الطلب إلى المسار الذي أنشأناه
+        const response = await apiFetch(`/api/orders/${orderId}/dispute`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason })
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            // إذا فشل الطلب، أظهر رسالة الخطأ من الخادم
+            throw new Error(result.message);
+        }
+
+        // إذا نجح الطلب، أبلغ المستخدم وقم بتحديث القائمة
+        alert(result.message);
+        fetchMyOrders(); // تحديث القائمة لإظهار حالة الاعتراض الجديدة ("قيد المراجعة")
+
+    } catch (error) {
+        // في حال حدوث أي خطأ، أبلغ المستخدم وأعد تفعيل الزر
+        alert(`خطأ: ${error.message}`);
+        button.disabled = false;
+        button.textContent = 'الاعتراض على الخصم';
+    }
+}
+
+
     // إخفاء دائرة التحميل بعد عرض البيانات
     const loadingElement = document.getElementById('my-orders-loading');
     if (loadingElement) {
