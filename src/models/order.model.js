@@ -1,5 +1,7 @@
-// 🔽🔽 استبدل orderSchema بالكامل بهذا الكود 🔽🔽
+// 🚀🚀 أضف هذا السطر في بداية الملف 🚀🚀
+const mongoose = require('mongoose');
 
+// 🔽🔽 الكود الحالي الخاص بك يبدأ من هنا 🔽🔽
 const orderSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -29,11 +31,9 @@ const orderSchema = new mongoose.Schema({
     status: {
         type: String,
         required: true,
-        // 🚀🚀 الإضافة هنا 🚀🚀
         enum: ['قيد المراجعة', 'قيد التنفيذ', 'مكتمل', 'ملغي', 'ملغي (خطأ مستخدم)'],
         default: 'قيد المراجعة'
     },
-    // 🚀🚀 الحقل الجديد هنا 🚀🚀
     cancellationReason: {
         type: String,
         trim: true,
@@ -43,6 +43,6 @@ const orderSchema = new mongoose.Schema({
     timestamps: true 
 });
 
-// ... باقي الكود يبقى كما هو
 const Order = mongoose.model('Order', orderSchema);
+
 module.exports = Order;
