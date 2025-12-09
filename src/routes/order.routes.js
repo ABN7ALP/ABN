@@ -227,7 +227,7 @@ router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
 // --- PUT /api/orders/:id (لتحديث حالة الطلب - حماية إدارية) ---
 // 🔽🔽 استبدل دالة تحديث الطلب الحالية بهذه النسخة الكاملة والنهائية 🔽
 
-router.put('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), async (req, res) => {
+router.put('/:id', authMiddleware, validateObjectId('id'), async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
         if (!order) {
