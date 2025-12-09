@@ -1,10 +1,9 @@
-const mongoose = require('mongoose');
+// 🔽🔽 استبدل orderSchema بالكامل بهذا الكود 🔽🔽
 
 const orderSchema = new mongoose.Schema({
-    // حقل لربط الطلب بالمستخدم (اختياري للسماح للزوار بالطلب)
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // هذا الاسم 'User' يجب أن يطابق الاسم في mongoose.model('User', ...)
+        ref: 'User',
         required: false 
     },
     platform: { 
@@ -30,14 +29,20 @@ const orderSchema = new mongoose.Schema({
     status: {
         type: String,
         required: true,
-        enum: ['قيد المراجعة', 'قيد التنفيذ', 'مكتمل', 'ملغي'],
+        // 🚀🚀 الإضافة هنا 🚀🚀
+        enum: ['قيد المراجعة', 'قيد التنفيذ', 'مكتمل', 'ملغي', 'ملغي (خطأ مستخدم)'],
         default: 'قيد المراجعة'
+    },
+    // 🚀🚀 الحقل الجديد هنا 🚀🚀
+    cancellationReason: {
+        type: String,
+        trim: true,
+        default: null
     }
 }, {
-    // هذا الخيار يضيف حقلي createdAt و updatedAt تلقائياً
     timestamps: true 
 });
 
+// ... باقي الكود يبقى كما هو
 const Order = mongoose.model('Order', orderSchema);
-
 module.exports = Order;
