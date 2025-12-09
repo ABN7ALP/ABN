@@ -714,3 +714,74 @@ tr:hover td {
 #my-orders-loading.hidden {
     display: none;
 }
+
+
+/* ======================================= */
+/* 💅 تنسيقات سبب الإلغاء 💅 */
+/* ======================================= */
+
+/* حالة جديدة للطلب الملغي بسبب خطأ مستخدم */
+.status-ملغي-خطأ-مستخدم {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+}
+
+.status-with-reason {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+}
+
+.cancellation-reason {
+    background: #fffbeb;
+    border-right: 3px solid #f59e0b;
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius-input);
+    font-size: 0.85rem;
+    text-align: right;
+    max-width: 300px;
+    animation: fadeIn 0.3s ease;
+}
+
+.cancellation-reason p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.cancellation-reason strong {
+    color: #b45309;
+}
+
+.cancellation-reason .reason-text {
+    font-style: italic;
+    color: #92400e;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    background: rgba(251, 191, 36, 0.2);
+    border-radius: 4px;
+}
+
+.cancellation-reason .reminder-text {
+    margin-top: 0.8rem;
+    font-size: 0.8rem;
+    color: #78350f;
+}
+
+.service-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.service-cell i {
+    color: var(--purple-main);
+    font-size: 1.2rem;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
