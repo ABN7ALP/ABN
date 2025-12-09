@@ -255,18 +255,26 @@ function fileToBase64(file) {
                 document.querySelector('.notification-bell').classList.remove('active');
             });
 
-            const bellIcon = document.querySelector('.notification-bell .ph-bell');
-            if (bellIcon) {
-                bellIcon.addEventListener('click', (e) => {
+            const notificationBell = document.querySelector('.notification-bell');
+            if (notificationBell) {
+                notificationBell.addEventListener('click', (e) => {
+                    // منع إغلاق القائمة عند النقر داخلها
+                    if (e.target.closest('.notifications-dropdown')) {
+                        return;
+                    }
+                    
                     e.stopPropagation();
-                    const bell = document.querySelector('.notification-bell');
-                    bell.classList.toggle('active');
-                    document.querySelector('.user-dropdown').classList.remove('active');
-                    if (bell.classList.contains('active')) {
+                    notificationBell.classList.toggle('active');
+                    // إغلاق قائمة المستخدم عند فتح الإشعارات
+                    document.querySelector('.user-dropdown')?.classList.remove('active');
+                    
+                    // تحديد الإشعارات كمقروءة عند فتح القائمة
+                    if (notificationBell.classList.contains('active')) {
                         markNotificationsAsRead();
                     }
                 });
             }
+
             
             const markAllReadBtn = document.getElementById('mark-all-read-btn');
             if(markAllReadBtn) {
