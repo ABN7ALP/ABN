@@ -2071,7 +2071,6 @@ async function updatePrice() {
         console.log('User cancelled the link confirmation.');
         // لا تفعل شيئاً، اسمح للمستخدم بتعديل الرابط
     }
-}
 
     
     // 🆕 حساب السعر النهائي قبل المتابعة
