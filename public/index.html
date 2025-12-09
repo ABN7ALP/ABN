@@ -124,6 +124,9 @@
             </div>
         </div>
     </div>
+
+
+    
     
     <!-- Auth Popups -->
 <div id="auth-popup-overlay" class="popup-overlay hidden">
@@ -428,6 +431,52 @@
     <button id="remove-image-btn" class="remove-image-btn"><i class="fas fa-times"></i></button>
 </div>
 
+
+<!-- 🔽🔽 أضف هذا الكود الجديد بالكامل 🔽🔽 -->
+
+<!-- نافذة تأكيد الرابط المخصصة -->
+<div id="link-confirmation-popup" class="popup-overlay hidden">
+    <div class="popup-content" style="max-width: 550px;">
+        <div class="popup-header">
+            <i class="ph-bold ph-check-circle"></i>
+            <h2>هل أنت متأكد؟</h2>
+        </div>
+        
+        <div class="confirmation-details">
+            <p>الرجاء مراجعة تفاصيل طلبك بعناية:</p>
+            <ul>
+                <li><strong>المنصة:</strong> <span id="confirm-platform"></span></li>
+                <li><strong>الخدمة:</strong> <span id="confirm-service"></span></li>
+                <li><strong>الرابط:</strong> <span id="confirm-link"></span></li>
+            </ul>
+        </div>
+
+        <div class="confirmation-warning">
+            <i class="ph-bold ph-warning"></i>
+            <div>
+                <h4>تعليمات هامة جداً!</h4>
+                <p>1. يجب أن يكون حسابك أو منشورك **عاماً (Public)** وليس خاصاً.</p>
+                <p id="refund-policy-text">2. أي خطأ في الرابط أو خصوصية الحساب من جانبك قد يؤدي إلى إلغاء الطلب مع **خصم 0.30$** من المبلغ المسترد. لتجنب ذلك، يرجى التأكد من التفاصيل أعلاه.</p>
+            </div>
+        </div>
+
+        <div class="confirmation-buttons">
+            <button id="confirm-btn-yes" class="pill-button primary-button">
+                <i class="ph-bold ph-check"></i>
+                <span>نعم، متأكد وموافق</span>
+            </button>
+            <button id="confirm-btn-no" class="pill-button secondary-button">
+                <i class="ph-bold ph-arrow-counter-clockwise"></i>
+                <span>لا، أريد المراجعة</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 🔼🔼 نهاية الإضافة 🔼🔼 -->
+
+
+    
 
 <script src="app.js"></script>
 <script src="auth-fetch.js"></script>
