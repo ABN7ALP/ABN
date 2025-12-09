@@ -222,14 +222,6 @@ async function submitDispute(orderId, reason, button) {
     }
 }
 
-// 🚀🚀 الاستماع لتحديثات الاعتراض من الخادم 🚀🚀
-socket.on('dispute-resolved', (resolvedOrder) => {
-    if (userInfo && resolvedOrder.user === userInfo._id) {
-        console.log('Dispute resolved, refreshing orders...');
-        fetchMyOrders(); // تحديث القائمة لإظهار الرد
-    }
-});
-
 
     
     // إخفاء دائرة التحميل بعد عرض البيانات
@@ -343,6 +335,14 @@ function getMethodText(method) {
             // يمكنك أيضاً تحديث الرصيد في الهيدر هنا إذا أردت
         }
     });
+
+    socket.on('dispute-resolved', (resolvedOrder) => {
+        if (userInfo && resolvedOrder.user === userInfo._id) {
+            console.log('Dispute resolved, refreshing orders...');
+            fetchMyOrders();
+        }
+    });
+    
 
     // --- 6. بدء تشغيل كل شيء ---
     updateHeaderUI();
