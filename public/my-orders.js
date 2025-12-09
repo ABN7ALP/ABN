@@ -223,7 +223,6 @@ async function submitDispute(orderId, reason, button) {
 }
 
 // 🚀🚀 الاستماع لتحديثات الاعتراض من الخادم 🚀🚀
-const socket = io(); // تأكد من وجود هذا السطر
 socket.on('dispute-resolved', (resolvedOrder) => {
     if (userInfo && resolvedOrder.user === userInfo._id) {
         console.log('Dispute resolved, refreshing orders...');
