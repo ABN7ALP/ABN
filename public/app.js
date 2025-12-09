@@ -2042,7 +2042,7 @@ async function updatePrice() {
     }
 
     // --- 6. معالجة إرسال الطلب وخيارات الدفع ---
-    // 🔽🔽 استبدل الدالة بالكامل بهذا الكود 🔽🔽
+    // --- 6. معالجة إرسال الطلب وخيارات الدفع ---
 function handleFormSubmit(event) {
     event.preventDefault();
 
@@ -2067,24 +2067,23 @@ function handleFormSubmit(event) {
 
     // إظهار النافذة المنبثقة
     linkConfirmationPopup.classList.remove('hidden');
-}
 
-
-    
     // 🆕 حساب السعر النهائي قبل المتابعة
     const quantity = parseInt(quantityInput.value, 10);
+
     calculatePriceWithDiscount(
         serviceSelect.value,
         currentPlatform,
         quantity,
         userInfo ? userInfo._id : null
-    ).then(priceData => {
+    )
+    .then(priceData => {
         currentOrderData = { 
             platform: currentPlatform, 
             service: serviceSelect.value, 
             link: linkInput.value, 
             quantity: quantity, 
-            price: priceData.finalPrice, // 🎯 استخدم السعر بعد الخصم
+            price: priceData.finalPrice, 
             userId: userInfo ? userInfo._id : null 
         };
         
@@ -2097,9 +2096,12 @@ function handleFormSubmit(event) {
             payWithBalanceBtn.disabled = false;
         } else {
             payWithBalanceBtn.disabled = true;
-            balanceError.textContent = userInfo ? 'رصيدك الحالي غير كافٍ.' : 'سجل الدخول للدفع بالرصيد.';
+            balanceError.textContent = userInfo 
+                ? 'رصيدك الحالي غير كافٍ.' 
+                : 'سجل الدخول للدفع بالرصيد.';
         }
-    }).catch(error => {
+    })
+    .catch(error => {
         console.error('Error calculating final price:', error);
         alert('حدث خطأ في حساب السعر. يرجى المحاولة مرة أخرى.');
     });
@@ -2390,6 +2392,8 @@ function handleFormSubmit(event) {
                 text.textContent = 'عرض المزيد من الطرق';
             }
         });
+
+    }
 
 // 🔽🔽 أضف هذا الكود الجديد 🔽🔽
 if (confirmBtnYes) {
