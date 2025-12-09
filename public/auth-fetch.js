@@ -42,9 +42,8 @@ async function apiFetch(url, options = {}) {
         headers['Authorization'] = `Bearer ${authToken}`;
     }
 
-    if (options.body instanceof FormData) {
-        delete headers['Content-Type'];
-    } else if (options.body) {
+    // تحديد نوع المحتوى تلقائياً
+    if (!(options.body instanceof FormData)) {
         headers['Content-Type'] = 'application/json';
     }
 
@@ -52,6 +51,7 @@ async function apiFetch(url, options = {}) {
 
     let response = await fetch(url, secureOptions);
 
+    // إعادة المحاولة عند فشل توكن CSRF
     if (response.status === 403) {
         console.warn('CSRF token validation failed. Refetching token and retrying...');
         await fetchCsrfToken(); 
@@ -59,12 +59,21 @@ async function apiFetch(url, options = {}) {
         response = await fetch(url, secureOptions); 
     }
 
+    // 🚀🚀 التحسين الأهم هنا 🚀🚀
+    // التعامل مع خطأ 401 (غير مصرح به)
     if (response.status === 401 && url.includes('/api/')) {
-        console.error('Authentication failed (401). Logging out user.');
-        localStorage.removeItem('token');
-        localStorage.removeItem('userInfo');
-        alert('انتهت صلاحية جلستك. سيتم تسجيل خروجك.');
-        window.location.href = '/index.html#login';
+        // لا تقم بتسجيل الخروج مباشرة إذا كان الطلب لتسجيل الدخول
+        // لأن خطأ 401 هنا يعني "كلمة مرور خاطئة"
+        if (url.endsWith('/api/auth/login')) {
+            // لا تفعل شيئاً هنا، دع الكود الذي استدعى الدالة يتعامل مع الخطأ
+        } else {
+            // لجميع طلبات API الأخرى، خطأ 401 يعني أن الجلسة منتهية
+            console.error('Authentication failed (401). Logging out user.');
+            localStorage.removeItem('token');
+            localStorage.removeItem('userInfo');
+            alert('انتهت صلاحية جلستك. سيتم تسجيل خروجك.');
+            window.location.href = '/index.html#login';
+        }
     }
 
     return response;
