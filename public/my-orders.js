@@ -118,39 +118,51 @@ function renderMyOrders(orders) {
     myOrdersTbody.innerHTML = '';
     
     if (orders.length === 0) {
-        myOrdersTbody.innerHTML = `
-            <tr>
-                <td colspan="5" class="empty-state">
-                    <i class="ph-bold ph-shopping-cart"></i>
-                    <h3>لم تقم بأي طلبات بعد</h3>
-                    <p>اكتشف خدماتنا وابدأ في تنمية حساباتك الآن!</p>
-                </td>
-            </tr>
-        `;
+        myOrdersTbody.innerHTML = `<tr><td colspan="5" class="empty-state"><h3>لم تقم بأي طلبات بعد</h3></td></tr>`;
         return;
     }
     
     orders.forEach(order => {
         const row = document.createElement('tr');
+        row.dataset.orderId = order._id; // إضافة معرف الطلب للصف
         
         const orderDate = new Date(order.createdAt).toLocaleDateString('ar-EG', {
             year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
         });
         
-        const formattedQuantity = order.quantity.toLocaleString('ar-EG');
-        const formattedPrice = order.price.toFixed(2);
-        
-        // 🚀🚀 المنطق الجديد هنا 🚀🚀
+        // 🚀🚀 منطق عرض الحالة والاعتراض المطور 🚀🚀
         let statusHTML = '';
-        if (order.status === 'ملغي (خطأ مستخدم)' && order.cancellationReason) {
+        if (order.status === 'ملغي (خطأ مستخدم)') {
+            let disputeSection = '';
+            
+            // التحقق من حالة الاعتراض
+            if (!order.dispute || !order.dispute.status) {
+                // الحالة 1: لم يتم تقديم اعتراض بعد
+                disputeSection = `<button class="dispute-btn pill-button secondary-button">الاعتراض على الخصم</button>`;
+            } else if (order.dispute.status === 'pending') {
+                // الحالة 2: الاعتراض قيد المراجعة
+                disputeSection = `<div class="dispute-status pending">⏳ اعتراضك قيد المراجعة...</div>`;
+            } else if (order.dispute.status === 'approved') {
+                // الحالة 3: تمت الموافقة على الاعتراض
+                disputeSection = `<div class="dispute-status approved">✅ تمت الموافقة على اعتراضك وإعادة الخصم.</div>`;
+            } else if (order.dispute.status === 'rejected') {
+                // الحالة 4: تم رفض الاعتراض
+                disputeSection = `
+                    <div class="dispute-status rejected">
+                        ❌ تم رفض اعتراضك.
+                        <p class="admin-response">رد الإدارة: "${order.dispute.adminResponse}"</p>
+                    </div>
+                `;
+            }
+
             statusHTML = `
                 <div class="status-with-reason">
                     <span class="status status-ملغي-خطأ-مستخدم">${order.status}</span>
                     <div class="cancellation-reason">
                         <p><strong>نعتذر، تم إلغاء طلبك للسبب التالي:</strong></p>
                         <p class="reason-text">"${order.cancellationReason}"</p>
-                        <p class="reminder-text">لتجنب ذلك مستقبلاً، يرجى التأكد من أن الحساب عام والرابط صحيح.</p>
                     </div>
+                    ${disputeSection}
                 </div>
             `;
         } else {
@@ -159,22 +171,66 @@ function renderMyOrders(orders) {
         }
         
         row.innerHTML = `
-            <td data-label="الخدمة">
-                <div class="service-cell">
-                    <i class="ph-bold ph-${order.platform?.toLowerCase().replace(/\s/g, '')}-logo"></i>
-                    <span>${order.service}</span>
-                </div>
-            </td>
-            <td data-label="الكمية">${formattedQuantity}</td>
-            <td data-label="السعر">${formattedPrice} $</td>
+            <td data-label="الخدمة"><div class="service-cell">...</div></td>
+            <td data-label="الكمية">${order.quantity.toLocaleString('ar-EG')}</td>
+            <td data-label="السعر">${order.price.toFixed(2)} $</td>
             <td data-label="تاريخ الطلب">${orderDate}</td>
             <td data-label="الحالة">${statusHTML}</td>
         `;
         myOrdersTbody.appendChild(row);
     });
     
+    // ربط حدث النقر على أزرار الاعتراض
+    document.querySelectorAll('.dispute-btn').forEach(btn => {
+        btn.addEventListener('click', handleDisputeButtonClick);
+    });
+
     document.getElementById('my-orders-loading').classList.add('hidden');
 }
+
+// 🚀🚀 إضافة دوال جديدة للتعامل مع الاعتراض 🚀🚀
+function handleDisputeButtonClick(event) {
+    const orderId = event.target.closest('tr').dataset.orderId;
+    const reason = prompt('يرجى كتابة سبب اعتراضك بوضوح:', 'أعتقد أن الرابط كان صحيحاً والحساب كان عاماً.');
+
+    if (reason && reason.trim() !== '') {
+        submitDispute(orderId, reason.trim(), event.target);
+    }
+}
+
+async function submitDispute(orderId, reason, button) {
+    button.disabled = true;
+    button.textContent = 'جاري الإرسال...';
+
+    try {
+        const response = await apiFetch(`/api/orders/${orderId}/dispute`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason })
+        });
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message);
+
+        alert(result.message);
+        fetchMyOrders(); // تحديث القائمة لإظهار حالة الاعتراض الجديدة
+
+    } catch (error) {
+        alert(`خطأ: ${error.message}`);
+        button.disabled = false;
+        button.textContent = 'الاعتراض على الخصم';
+    }
+}
+
+// 🚀🚀 الاستماع لتحديثات الاعتراض من الخادم 🚀🚀
+const socket = io(); // تأكد من وجود هذا السطر
+socket.on('dispute-resolved', (resolvedOrder) => {
+    if (userInfo && resolvedOrder.user === userInfo._id) {
+        console.log('Dispute resolved, refreshing orders...');
+        fetchMyOrders(); // تحديث القائمة لإظهار الرد
+    }
+});
+
 
     
     // إخفاء دائرة التحميل بعد عرض البيانات
