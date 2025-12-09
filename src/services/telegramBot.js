@@ -1,5 +1,9 @@
 const TelegramBot = require('node-telegram-bot-api');
 const SupportChat = require('../models/supportChat.model');
+const Order = require('../models/order.model');
+const User = require('../models/user.model');
+const Notification = require('../models/notification.model')
+
 const { getIo } = require('../config/socket');
 require('dotenv').config();
 
@@ -87,5 +91,93 @@ bot.on('message', async (msg) => {
         bot.sendMessage(msg.chat.id, `حدث خطأ: ${error.message}`);
     }
 });
+
+
+// ==========================================================
+// 🚀🚀 معالج ضغطات الأزرار التفاعلية (Callback Query) 🚀🚀
+// ==========================================================
+bot.on('callback_query', async (callbackQuery) => {
+    const msg = callbackQuery.message;
+    const data = callbackQuery.data; // e.g., "dispute_approve_60d21b4667d0d8992e610c85"
+    const [actionType, action, orderId] = data.split('_');
+
+    if (actionType !== 'dispute') return;
+
+    try {
+        const order = await Order.findById(orderId).populate('user');
+        if (!order) {
+            return bot.answerCallbackQuery(callbackQuery.id, { text: 'الطلب لم يعد موجوداً.' });
+        }
+        if (order.dispute.status !== 'pending') {
+            return bot.answerCallbackQuery(callbackQuery.id, { text: `تمت معالجة هذا الاعتراض مسبقاً. الحالة: ${order.dispute.status}` });
+        }
+
+        const fee = 0.30;
+        const userId = order.user.id;
+
+        if (action === 'approve') {
+            // --- منطق قبول الاعتراض ---
+            order.user.balance += fee;
+            await order.user.save();
+
+            order.dispute.status = 'approved';
+            order.dispute.adminResponse = 'تمت الموافقة على الاعتراض.';
+            await order.save();
+
+            const notification = new Notification({
+                user: userId,
+                message: `🎉 تمت الموافقة على اعتراضك للطلب رقم ${orderId}. تم إعادة مبلغ الخصم ${fee.toFixed(2)}$ إلى رصيدك.`,
+                link: '/my-orders.html'
+            });
+            await notification.save();
+            getIo().to(userId).emit('new-notification', { userId, notification });
+            getIo().to(userId).emit('dispute-resolved', order);
+
+            bot.editMessageText(`✅ تم قبول الاعتراض للطلب \`${orderId}\`.\nتم إعادة ${fee.toFixed(2)}$ إلى رصيد المستخدم ${order.user.username}.`, {
+                chat_id: msg.chat.id,
+                message_id: msg.message_id,
+                parse_mode: 'Markdown'
+            });
+            bot.answerCallbackQuery(callbackQuery.id, { text: 'تم قبول الاعتراض بنجاح!' });
+
+        } else if (action === 'reject') {
+            // --- منطق رفض الاعتراض ---
+            // عند الرفض، سنطلب من المدير إدخال السبب
+            bot.sendMessage(msg.chat.id, `يرجى إدخال سبب رفض الاعتراض للطلب \`${orderId}\` كرد (Reply) على هذه الرسالة.`, {
+                parse_mode: 'Markdown',
+                reply_markup: { force_reply: true } // يجبر المدير على الرد
+            }).then(sentMessage => {
+                // تسجيل مستمع لمرة واحدة فقط للرد على هذه الرسالة
+                bot.onReplyToMessage(sentMessage.chat.id, sentMessage.message_id, async (replyMsg) => {
+                    const reason = replyMsg.text || 'الخصم صحيح حسب سياسة الخدمة.';
+                    order.dispute.status = 'rejected';
+                    order.dispute.adminResponse = reason;
+                    await order.save();
+
+                    const notification = new Notification({
+                        user: userId,
+                        message: `للأسف، تم رفض اعتراضك للطلب رقم ${orderId}. السبب: ${reason}`,
+                        link: '/my-orders.html'
+                    });
+                    await notification.save();
+                    getIo().to(userId).emit('new-notification', { userId, notification });
+                    getIo().to(userId).emit('dispute-resolved', order);
+
+                    bot.editMessageText(`❌ تم رفض الاعتراض للطلب \`${orderId}\`.\nالسبب: ${reason}`, {
+                        chat_id: msg.chat.id,
+                        message_id: msg.message_id,
+                        parse_mode: 'Markdown'
+                    });
+                });
+            });
+            bot.answerCallbackQuery(callbackQuery.id, { text: 'الآن أدخل سبب الرفض.' });
+        }
+    } catch (error) {
+        console.error('Callback query error:', error);
+        bot.answerCallbackQuery(callbackQuery.id, { text: `حدث خطأ: ${error.message}` });
+    }
+});
+
+
 
 module.exports = bot;
