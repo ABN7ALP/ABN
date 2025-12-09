@@ -872,3 +872,43 @@ tr:hover td {
     border-top: 1px dashed #9ca3af;
     font-size: 0.85rem;
 }
+
+
+/* ======================================= */
+/* 💅 تنسيقات قائمة التفاصيل المنسدلة 💅 */
+/* ======================================= */
+
+.cancellation-details {
+    margin-top: 0.8rem;
+}
+
+.cancellation-details summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--info-blue);
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    list-style: none; /* إخفاء السهم الافتراضي */
+}
+
+.cancellation-details summary::-webkit-details-marker {
+    display: none; /* إخفاء السهم الافتراضي في Chrome */
+}
+
+.cancellation-details summary::before {
+    content: '◀'; /* استخدام سهم مخصص */
+    font-size: 0.7rem;
+    margin-left: 0.5rem;
+    transition: transform 0.2s ease;
+}
+
+.cancellation-details[open] > summary::before {
+    transform: rotate(90deg); /* تدوير السهم عند الفتح */
+}
+
+.cancellation-details .cancellation-reason {
+    margin-top: 0.5rem;
+    animation: fadeIn 0.3s ease;
+}
