@@ -118,50 +118,39 @@ function renderMyOrders(orders) {
     myOrdersTbody.innerHTML = '';
     
     if (orders.length === 0) {
-        myOrdersTbody.innerHTML = `<tr><td colspan="5" class="empty-state"><h3>لم تقم بأي طلبات بعد</h3></td></tr>`;
+        myOrdersTbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="empty-state">
+                    <i class="ph-bold ph-shopping-cart"></i>
+                    <h3>لم تقم بأي طلبات بعد</h3>
+                    <p>اكتشف خدماتنا وابدأ في تنمية حساباتك الآن!</p>
+                </td>
+            </tr>
+        `;
         return;
     }
     
     orders.forEach(order => {
         const row = document.createElement('tr');
-        row.dataset.orderId = order._id;
         
         const orderDate = new Date(order.createdAt).toLocaleDateString('ar-EG', {
             year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
         });
         
+        const formattedQuantity = order.quantity.toLocaleString('ar-EG');
+        const formattedPrice = order.price.toFixed(2);
+        
+        // 🚀🚀 المنطق الجديد هنا 🚀🚀
         let statusHTML = '';
-        if (order.status === 'ملغي (خطأ مستخدم)') {
-            let disputeSection = '';
-            
-            if (!order.dispute || !order.dispute.status) {
-                disputeSection = `<button class="dispute-btn pill-button secondary-button">الاعتراض على الخصم</button>`;
-            } else if (order.dispute.status === 'pending') {
-                disputeSection = `<div class="dispute-status pending">⏳ اعتراضك قيد المراجعة...</div>`;
-            } else if (order.dispute.status === 'approved') {
-                disputeSection = `<div class="dispute-status approved">✅ تمت الموافقة على اعتراضك وإعادة الخصم.</div>`;
-            } else if (order.dispute.status === 'rejected') {
-                disputeSection = `
-                    <div class="dispute-status rejected">
-                        ❌ تم رفض اعتراضك.
-                        <p class="admin-response">رد الإدارة: "${order.dispute.adminResponse}"</p>
-                    </div>
-                `;
-            }
-
-            // 🚀🚀 استخدام <details> و <summary> لإخفاء التفاصيل 🚀🚀
+        if (order.status === 'ملغي (خطأ مستخدم)' && order.cancellationReason) {
             statusHTML = `
                 <div class="status-with-reason">
                     <span class="status status-ملغي-خطأ-مستخدم">${order.status}</span>
-                    <details class="cancellation-details">
-                        <summary>عرض سبب الإلغاء</summary>
-                        <div class="cancellation-reason">
-                            <p><strong>نعتذر، تم إلغاء طلبك للسبب التالي:</strong></p>
-                            <p class="reason-text">"${order.cancellationReason}"</p>
-                            <p class="reminder-text">لتجنب ذلك مستقبلاً، يرجى التأكد من أن الحساب عام والرابط صحيح.</p>
-                        </div>
-                    </details>
-                    ${disputeSection}
+                    <div class="cancellation-reason">
+                        <p><strong>نعتذر، تم إلغاء طلبك للسبب التالي:</strong></p>
+                        <p class="reason-text">"${order.cancellationReason}"</p>
+                        <p class="reminder-text">لتجنب ذلك مستقبلاً، يرجى التأكد من أن الحساب عام والرابط صحيح.</p>
+                    </div>
                 </div>
             `;
         } else {
@@ -169,7 +158,6 @@ function renderMyOrders(orders) {
             statusHTML = `<span class="${statusClass}">${order.status}</span>`;
         }
         
-        // 🚀🚀 إصلاح عرض اسم الخدمة هنا 🚀🚀
         row.innerHTML = `
             <td data-label="الخدمة">
                 <div class="service-cell">
@@ -177,78 +165,18 @@ function renderMyOrders(orders) {
                     <span>${order.service}</span>
                 </div>
             </td>
-            <td data-label="الكمية">${order.quantity.toLocaleString('ar-EG')}</td>
-            <td data-label="السعر">${order.price.toFixed(2)} $</td>
+            <td data-label="الكمية">${formattedQuantity}</td>
+            <td data-label="السعر">${formattedPrice} $</td>
             <td data-label="تاريخ الطلب">${orderDate}</td>
             <td data-label="الحالة">${statusHTML}</td>
         `;
         myOrdersTbody.appendChild(row);
     });
     
-    document.querySelectorAll('.dispute-btn').forEach(btn => {
-        btn.addEventListener('click', handleDisputeButtonClick);
-    });
-
     document.getElementById('my-orders-loading').classList.add('hidden');
 }
 
-
-    // ... نهاية دالة renderMyOrders
-    document.getElementById('my-orders-loading').classList.add('hidden');
-
-
-// ==========================================================
-// 🚀🚀 أضف هذا الكود المفقود هنا 🚀🚀
-// ==========================================================
-
-// دالة يتم استدعاؤها عند النقر على زر الاعتراض
-function handleDisputeButtonClick(event) {
-    // الحصول على معرف الطلب من الصف الذي يحتوي على الزر
-    const orderId = event.target.closest('tr').dataset.orderId;
     
-    // طلب سبب الاعتراض من المستخدم عبر نافذة منبثقة
-    const reason = prompt('يرجى كتابة سبب اعتراضك بوضوح:', 'أعتقد أن الرابط كان صحيحاً والحساب كان عاماً.');
-
-    // إذا أدخل المستخدم سبباً ولم يضغط "إلغاء"
-    if (reason && reason.trim() !== '') {
-        // استدعاء دالة إرسال الاعتراض إلى الخادم
-        submitDispute(orderId, reason.trim(), event.target);
-    }
-}
-
-// دالة لإرسال الاعتراض إلى الواجهة الخلفية (Backend)
-async function submitDispute(orderId, reason, button) {
-    // تعطيل الزر وإظهار رسالة "جاري الإرسال"
-    button.disabled = true;
-    button.textContent = 'جاري الإرسال...';
-
-    try {
-        // إرسال الطلب إلى المسار الذي أنشأناه
-        const response = await apiFetch(`/api/orders/${orderId}/dispute`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reason })
-        });
-
-        const result = await response.json();
-        if (!response.ok) {
-            // إذا فشل الطلب، أظهر رسالة الخطأ من الخادم
-            throw new Error(result.message);
-        }
-
-        // إذا نجح الطلب، أبلغ المستخدم وقم بتحديث القائمة
-        alert(result.message);
-        fetchMyOrders(); // تحديث القائمة لإظهار حالة الاعتراض الجديدة ("قيد المراجعة")
-
-    } catch (error) {
-        // في حال حدوث أي خطأ، أبلغ المستخدم وأعد تفعيل الزر
-        alert(`خطأ: ${error.message}`);
-        button.disabled = false;
-        button.textContent = 'الاعتراض على الخصم';
-    }
-}
-
-
     // إخفاء دائرة التحميل بعد عرض البيانات
     const loadingElement = document.getElementById('my-orders-loading');
     if (loadingElement) {
