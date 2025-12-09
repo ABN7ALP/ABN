@@ -819,3 +819,56 @@ tr:hover td {
         font-size: 0.8rem; /* تصغير حجم الخط قليلاً */
     }
 }
+
+
+/* ======================================= */
+/* 💅 تنسيقات نظام الاعتراض 💅 */
+/* ======================================= */
+
+.dispute-btn {
+    margin-top: 1rem !important;
+    padding: 0.6rem 1rem !important;
+    font-size: 0.85rem !important;
+    width: auto !important;
+    display: inline-block !important;
+    background: var(--gray-bg) !important;
+    border: 1px solid var(--gray-border) !important;
+    color: var(--text-dark) !important;
+}
+
+.dispute-btn:hover {
+    background: var(--purple-light) !important;
+    color: var(--purple-main) !important;
+    border-color: var(--purple-main) !important;
+}
+
+.dispute-status {
+    margin-top: 1rem;
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius-input);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.dispute-status.pending {
+    background: #eff6ff;
+    color: #1e40af;
+}
+
+.dispute-status.approved {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.dispute-status.rejected {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.admin-response {
+    font-style: italic;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed #9ca3af;
+    font-size: 0.85rem;
+}
