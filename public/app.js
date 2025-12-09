@@ -2042,7 +2042,7 @@ async function updatePrice() {
     }
 
     // --- 6. معالجة إرسال الطلب وخيارات الدفع ---
-// 🔽🔽 استبدل الدالة بالكامل بهذا الكود 🔽🔽
+// 🔽🔽 استبدل الدالة الحالية بهذه النسخة الصحيحة 🔽🔽
 function handleFormSubmit(event) {
     event.preventDefault();
 
@@ -2068,9 +2068,13 @@ function handleFormSubmit(event) {
     // إظهار النافذة المنبثقة
     linkConfirmationPopup.classList.remove('hidden');
 }
+
     
     // 🆕 حساب السعر النهائي قبل المتابعة
+    // 🔽🔽 تأكد من وجود هذه الدالة كما هي 🔽🔽
+function proceedToPayment() {
     const quantity = parseInt(quantityInput.value, 10);
+    
     calculatePriceWithDiscount(
         serviceSelect.value,
         currentPlatform,
@@ -2082,7 +2086,7 @@ function handleFormSubmit(event) {
             service: serviceSelect.value, 
             link: linkInput.value, 
             quantity: quantity, 
-            price: priceData.finalPrice, // 🎯 استخدم السعر بعد الخصم
+            price: priceData.finalPrice,
             userId: userInfo ? userInfo._id : null 
         };
         
