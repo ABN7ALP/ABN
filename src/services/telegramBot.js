@@ -33,15 +33,16 @@ bot.on('message', async (msg) => {
     const originalMessageText = msg.reply_to_message.text || msg.reply_to_message.caption;
     if (!originalMessageText) return;
 
-    // 2. التحقق إذا كان الرد على رسالة اعتراض
     if (originalMessageText.includes('🚨 اعتراض جديد على خصم 🚨')) {
         try {
+            // ✅✅ الإصلاح: البحث عن المعرفات داخل backticks (`) ✅✅
             const orderIdMatch = originalMessageText.match(/رقم الطلب:\s*`(\w{24})`/);
             const userIdMatch = originalMessageText.match(/ID:\s*`(\w{24})`/);
 
             if (!orderIdMatch || !userIdMatch) {
-                return bot.sendMessage(msg.chat.id, "لم أتمكن من العثور على معرف الطلب أو المستخدم في الرسالة الأصلية.");
+                return bot.sendMessage(msg.chat.id, "لم أتمكن من العثور على معرف الطلب أو المستخدم في الرسالة الأصلية. تأكد من أنك ترد على الرسالة الصحيحة.");
             }
+
 
             const orderId = orderIdMatch[1];
             const userId = userIdMatch[1];
