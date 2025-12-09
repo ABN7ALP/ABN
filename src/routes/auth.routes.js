@@ -87,37 +87,48 @@ router.post('/register', registerLimiter, registerRules, async (req, res) => {
 });
 
 // --- POST /api/auth/login مع Rate Limiting ---
-// استبدل هذا المسار بالكامل
-router.post('/login', /* loginLimiter, */ loginRules, async (req, res) => {
+router.post('/login', loginRules, async (req, res) => {
     const { email, password } = req.body;
 
     try {
+        // 1. البحث عن المستخدم
         const user = await User.findOne({ email });
 
         if (!user) {
-            createLog('WARN', 'LOGIN_FAILURE', `Failed login for non-existent user: ${email}`, { ip: req.ip });
+            // إرسال رسالة عامة لتجنب كشف ما إذا كان البريد الإلكتروني مسجلاً أم لا
             return res.status(401).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' });
         }
 
-        const isPasswordCorrect = await user.matchPassword(password);
-
-        if (!isPasswordCorrect) {
-            console.warn(`SECURITY: Failed login attempt (wrong password) for user: ${user.username} (ID: ${user._id}) from IP: ${req.ip}`);
-            return res.status(401).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' });
-        }
-
-        // 🎯 التحقق من تفعيل الايميل
-        if (!user.emailVerified) {
-            createLog('WARN', 'LOGIN_FAILURE', `Wrong password for user: ${user.username}`, { userId: user._id, ip: req.ip });
-            return res.status(401).json({
-                message: 'يرجى تفعيل بريدك الإلكتروني أولاً. تحقق من بريدك الوارد.'
+        // 🚀🚀 التحسين الأول: التحقق من قفل الحساب أولاً 🚀🚀
+        if (user.isLocked) {
+            const lockTime = Math.round((user.lockUntil - Date.now()) / (1000 * 60));
+            return res.status(429).json({ 
+                message: `تم قفل الحساب مؤقتاً بسبب كثرة المحاولات الفاشلة. يرجى المحاولة مرة أخرى بعد ${lockTime} دقيقة.` 
             });
         }
 
-        // 🎯 تسجيل دخول ناجح — بالمكان الصحيح 100%
+        // 2. التحقق من كلمة المرور
+        const isPasswordCorrect = await user.matchPassword(password);
+
+        if (!isPasswordCorrect) {
+            // 🚀🚀 التحسين الثاني: إرسال رسالة خطأ واضحة 🚀🚀
+            // ملاحظة: دالة matchPassword تقوم بزيادة محاولات الدخول تلقائياً
+            return res.status(401).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' });
+        }
+
+        // 3. التحقق من تفعيل البريد الإلكتروني
+        if (!user.emailVerified) {
+            return res.status(401).json({
+                message: 'يرجى تفعيل بريدك الإلكتروني أولاً. تحقق من بريدك الوارد.',
+                requiresVerification: true, // إشارة للواجهة الأمامية
+                email: user.email
+            });
+        }
+
+        // 4. تسجيل دخول ناجح
         createLog('INFO', 'LOGIN_SUCCESS', `User logged in successfully: ${user.username}`, { userId: user._id, ip: req.ip });
         
-        // 🎯 إرسال بيانات المستخدم
+        // إرسال بيانات المستخدم
         return res.json({
             _id: user._id,
             username: user.username,
@@ -129,10 +140,11 @@ router.post('/login', /* loginLimiter, */ loginRules, async (req, res) => {
         });
 
     } catch (error) {
-        console.error("SECURITY: Login handler exception:", error);
-        return res.status(500).json({ message: 'حدث خطأ غير متوقع.' });
+        console.error("Login handler exception:", error);
+        return res.status(500).json({ message: 'حدث خطأ غير متوقع في الخادم.' });
     }
 });
+
 
 // GET /api/auth/me - جلب بيانات المستخدم المسجل دخوله حالياً
 router.get('/me', async (req, res) => {
