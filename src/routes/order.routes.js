@@ -610,7 +610,7 @@ router.delete('/offers/:id', authMiddleware, adminMiddleware, async (req, res, n
 // ==========================================================
 // 🚀🚀 المسار الجديد: تقديم اعتراض على خصم 🚀🚀
 // ==========================================================
-router.post('/:id/dispute', authMiddleware, validateObjectId('id'), async (req, res) => {
+router.post('/:id/dispute', async (req, res) => {
     try {
         const { reason } = req.body;
         const orderId = req.params.id;
