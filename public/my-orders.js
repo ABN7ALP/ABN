@@ -182,7 +182,7 @@ function renderMyOrders(orders) {
     if (loadingElement) {
         loadingElement.style.display = 'none';
     }
-}
+
 // 🔼 نهاية الإضافة 🔼    
 // دالة لجلب وعرض معاملات الشحن
 async function fetchMyDeposits() {
