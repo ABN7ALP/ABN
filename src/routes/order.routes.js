@@ -607,4 +607,59 @@ router.delete('/offers/:id', authMiddleware, adminMiddleware, async (req, res, n
     }
 });
 
+// ==========================================================
+// 🚀🚀 المسار الجديد: تقديم اعتراض على خصم 🚀🚀
+// ==========================================================
+router.post('/:id/dispute', authMiddleware, validateObjectId('id'), async (req, res) => {
+    try {
+        const { reason } = req.body;
+        const orderId = req.params.id;
+        const userId = req.user.id;
+
+        if (!reason) {
+            return res.status(400).json({ message: 'سبب الاعتراض مطلوب.' });
+        }
+
+        const order = await Order.findOne({ _id: orderId, user: userId });
+
+        if (!order) {
+            return res.status(404).json({ message: 'الطلب غير موجود أو لا يخصك.' });
+        }
+        if (order.status !== 'ملغي (خطأ مستخدم)') {
+            return res.status(400).json({ message: 'لا يمكن الاعتراض على هذا الطلب.' });
+        }
+        if (order.dispute && order.dispute.status) {
+            return res.status(400).json({ message: 'لقد قمت بتقديم اعتراض على هذا الطلب مسبقاً.' });
+        }
+
+        // تحديث الطلب بمعلومات الاعتراض
+        order.dispute = {
+            status: 'pending',
+            reason: reason,
+            date: new Date()
+        };
+        await order.save();
+
+        // إرسال رسالة إلى بوت التليجرام
+        const bot = require('../services/telegramBot');
+        const telegramMessage = `
+*🚨 اعتراض جديد على خصم 🚨*
+-----------------------------------
+*المستخدم:* ${req.user.username} (ID: \`${userId}\`)
+*رقم الطلب:* \`${orderId}\`
+*سبب الاعتراض:*
+_${reason}_
+-----------------------------------
+*للرد، استخدم "Reply" على هذه الرسالة واكتب "مقبول" أو "مرفوض" مع السبب.*
+        `;
+        bot.sendMessage(process.env.TELEGRAM_CHAT_ID, telegramMessage, { parse_mode: 'Markdown' });
+
+        res.status(200).json({ message: 'تم إرسال اعتراضك بنجاح. سيتم مراجعته قريباً.' });
+
+    } catch (error) {
+        console.error("Dispute submission error:", error);
+        res.status(500).json({ message: 'حدث خطأ أثناء إرسال الاعتراض.' });
+    }
+});
+
 module.exports = router;
