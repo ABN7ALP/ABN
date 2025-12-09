@@ -2390,7 +2390,6 @@ function handleFormSubmit(event) {
                 text.textContent = 'عرض المزيد من الطرق';
             }
         });
-    }
 
 // 🔽🔽 أضف هذا الكود الجديد 🔽🔽
 if (confirmBtnYes) {
