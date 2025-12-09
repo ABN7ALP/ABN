@@ -40,6 +40,7 @@ bot.on('message', async (msg) => {
             const userIdMatch = originalMessageText.match(/ID:\s*`(\w{24})`/);
 
             if (!orderIdMatch || !userIdMatch) {
+                // الآن هذه الرسالة ستظهر فقط إذا فشل البحث فعلاً
                 return bot.sendMessage(msg.chat.id, "لم أتمكن من العثور على معرف الطلب أو المستخدم في الرسالة الأصلية. تأكد من أنك ترد على الرسالة الصحيحة.");
             }
 
