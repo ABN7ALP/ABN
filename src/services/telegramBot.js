@@ -96,82 +96,97 @@ bot.on('message', async (msg) => {
 // ==========================================================
 // 🚀🚀 معالج ضغطات الأزرار التفاعلية (Callback Query) 🚀🚀
 // ==========================================================
+// 🔽🔽 استبدل معالج bot.on('callback_query', ...) بالكامل بهذا الكود النهائي 🔽🔽
+
 bot.on('callback_query', async (callbackQuery) => {
     const msg = callbackQuery.message;
-    const data = callbackQuery.data; // e.g., "dispute_approve_60d21b4667d0d8992e610c85"
-    const [actionType, action, orderId] = data.split('_');
-
-    if (actionType !== 'dispute') return;
+    const data = callbackQuery.data; // e.g., "dispute_approve_ORDERID" or "reason_private_ORDERID"
+    const [type, action, orderId] = data.split('_');
 
     try {
-        const order = await Order.findById(orderId).populate('user');
-        if (!order) {
-            return bot.answerCallbackQuery(callbackQuery.id, { text: 'الطلب لم يعد موجوداً.' });
+        // --- الجزء الأول: التعامل مع القبول أو الرفض الأولي ---
+        if (type === 'dispute') {
+            const order = await Order.findById(orderId);
+            if (!order || order.dispute.status !== 'pending') {
+                return bot.answerCallbackQuery(callbackQuery.id, { text: 'تمت معالجة هذا الاعتراض مسبقاً.' });
+            }
+
+            if (action === 'approve') {
+                // --- منطق قبول الاعتراض (يبقى كما هو) ---
+                const user = await User.findById(order.user);
+                const fee = 0.30;
+                user.balance += fee;
+                await user.save();
+
+                order.dispute.status = 'approved';
+                order.dispute.adminResponse = 'تمت الموافقة على الاعتراض.';
+                await order.save();
+
+                // ... (كود إرسال الإشعارات يبقى كما هو) ...
+                const notification = new Notification({ user: order.user, message: `🎉 تمت الموافقة على اعتراضك وتمت إعادة ${fee.toFixed(2)}$ لرصيدك.`, link: '/my-orders.html' });
+                await notification.save();
+                getIo().to(order.user.toString()).emit('new-notification', { userId: order.user.toString(), notification });
+                getIo().to(order.user.toString()).emit('dispute-resolved', order);
+
+                bot.editMessageText(`✅ تم قبول الاعتراض للطلب \`${orderId}\`.`, { chat_id: msg.chat.id, message_id: msg.message_id, parse_mode: 'Markdown' });
+                return bot.answerCallbackQuery(callbackQuery.id, { text: 'تم قبول الاعتراض!' });
+
+            } else if (action === 'reject') {
+                // --- 🚀🚀 المنطق الجديد: عرض أزرار أسباب الرفض 🚀🚀 ---
+                bot.editMessageText(msg.text + '\n\n*الرجاء تحديد سبب الرفض:*', {
+                    chat_id: msg.chat.id,
+                    message_id: msg.message_id,
+                    parse_mode: 'Markdown',
+                    reply_markup: {
+                        inline_keyboard: [
+                            [{ text: '🔒 حساب خاص', callback_data: `reason_private_${orderId}` }],
+                            [{ text: '🔗 رابط خاطئ', callback_data: `reason_link_${orderId}` }],
+                            [{ text: '📝 سبب آخر (عام)', callback_data: `reason_other_${orderId}` }]
+                        ]
+                    }
+                });
+                return bot.answerCallbackQuery(callbackQuery.id);
+            }
         }
-        if (order.dispute.status !== 'pending') {
-            return bot.answerCallbackQuery(callbackQuery.id, { text: `تمت معالجة هذا الاعتراض مسبقاً. الحالة: ${order.dispute.status}` });
-        }
 
-        const fee = 0.30;
-        const userId = order.user.id;
+        // --- الجزء الثاني: التعامل مع اختيار سبب الرفض ---
+        if (type === 'reason') {
+            const order = await Order.findById(orderId).populate('user');
+            if (!order || order.dispute.status !== 'pending') {
+                return bot.answerCallbackQuery(callbackQuery.id, { text: 'تمت معالجة هذا الاعتراض مسبقاً.' });
+            }
 
-        if (action === 'approve') {
-            // --- منطق قبول الاعتراض ---
-            order.user.balance += fee;
-            await order.user.save();
+            let reasonText = '';
+            if (action === 'private') {
+                reasonText = 'الحساب كان خاصاً وقت التحقق.';
+            } else if (action === 'link') {
+                reasonText = 'الرابط المقدم غير صحيح أو لا يعمل.';
+            } else {
+                reasonText = 'الخصم صحيح حسب سياسة الخدمة.';
+            }
 
-            order.dispute.status = 'approved';
-            order.dispute.adminResponse = 'تمت الموافقة على الاعتراض.';
+            order.dispute.status = 'rejected';
+            order.dispute.adminResponse = reasonText;
             await order.save();
 
+            // إرسال إشعار للمستخدم
             const notification = new Notification({
-                user: userId,
-                message: `🎉 تمت الموافقة على اعتراضك للطلب رقم ${orderId}. تم إعادة مبلغ الخصم ${fee.toFixed(2)}$ إلى رصيدك.`,
+                user: order.user.id,
+                message: `للأسف، تم رفض اعتراضك. السبب: ${reasonText}`,
                 link: '/my-orders.html'
             });
             await notification.save();
-            getIo().to(userId).emit('new-notification', { userId, notification });
-            getIo().to(userId).emit('dispute-resolved', order);
+            getIo().to(order.user.id.toString()).emit('new-notification', { userId: order.user.id.toString(), notification });
+            getIo().to(order.user.id.toString()).emit('dispute-resolved', order);
 
-            bot.editMessageText(`✅ تم قبول الاعتراض للطلب \`${orderId}\`.\nتم إعادة ${fee.toFixed(2)}$ إلى رصيد المستخدم ${order.user.username}.`, {
+            bot.editMessageText(`❌ تم رفض الاعتراض للطلب \`${orderId}\`.\n*السبب:* ${reasonText}`, {
                 chat_id: msg.chat.id,
                 message_id: msg.message_id,
                 parse_mode: 'Markdown'
             });
-            bot.answerCallbackQuery(callbackQuery.id, { text: 'تم قبول الاعتراض بنجاح!' });
-
-        } else if (action === 'reject') {
-            // --- منطق رفض الاعتراض ---
-            // عند الرفض، سنطلب من المدير إدخال السبب
-            bot.sendMessage(msg.chat.id, `يرجى إدخال سبب رفض الاعتراض للطلب \`${orderId}\` كرد (Reply) على هذه الرسالة.`, {
-                parse_mode: 'Markdown',
-                reply_markup: { force_reply: true } // يجبر المدير على الرد
-            }).then(sentMessage => {
-                // تسجيل مستمع لمرة واحدة فقط للرد على هذه الرسالة
-                bot.onReplyToMessage(sentMessage.chat.id, sentMessage.message_id, async (replyMsg) => {
-                    const reason = replyMsg.text || 'الخصم صحيح حسب سياسة الخدمة.';
-                    order.dispute.status = 'rejected';
-                    order.dispute.adminResponse = reason;
-                    await order.save();
-
-                    const notification = new Notification({
-                        user: userId,
-                        message: `للأسف، تم رفض اعتراضك للطلب رقم ${orderId}. السبب: ${reason}`,
-                        link: '/my-orders.html'
-                    });
-                    await notification.save();
-                    getIo().to(userId).emit('new-notification', { userId, notification });
-                    getIo().to(userId).emit('dispute-resolved', order);
-
-                    bot.editMessageText(`❌ تم رفض الاعتراض للطلب \`${orderId}\`.\nالسبب: ${reason}`, {
-                        chat_id: msg.chat.id,
-                        message_id: msg.message_id,
-                        parse_mode: 'Markdown'
-                    });
-                });
-            });
-            bot.answerCallbackQuery(callbackQuery.id, { text: 'الآن أدخل سبب الرفض.' });
+            return bot.answerCallbackQuery(callbackQuery.id, { text: 'تم تسجيل سبب الرفض!' });
         }
+
     } catch (error) {
         console.error('Callback query error:', error);
         bot.answerCallbackQuery(callbackQuery.id, { text: `حدث خطأ: ${error.message}` });
