@@ -1716,3 +1716,52 @@ notification-item.unread::before {
     justify-content: center;
     padding: 1rem;
 }
+
+
+
+/* ==========================================================
+   🚀 تحسينات لنافذة الإشعارات على الهواتف 🚀
+   ========================================================== */
+
+@media (max-width: 768px) {
+    .notifications-dropdown {
+        /* جعل النافذة ثابتة بالنسبة للشاشة بأكملها */
+        position: fixed;
+        
+        /* تحديد الموقع في الأعلى وفي المنتصف */
+        top: 5%; /* مسافة صغيرة من الأعلى */
+        left: 50%;
+        transform: translateX(-50%); /* توسيط أفقي دقيق */
+        
+        /* تعديل الحجم ليتناسب مع الشاشة */
+        width: 90vw; /* 90% من عرض الشاشة */
+        max-width: 400px; /* حد أقصى للعرض */
+        
+        /* تعديل الارتفاع ليكون ديناميكياً */
+        max-height: 80vh; /* 80% من ارتفاع الشاشة */
+        
+        /* تعديل الأنيميشن ليبدأ من الأعلى */
+        transform-origin: top center;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    /* تعديل حالة الفتح للأنيميشن الجديد */
+    .notification-bell.active .notifications-dropdown {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* إخفاء السهم الصغير الذي يشير للأعلى على الهواتف */
+    .notifications-dropdown::before {
+        display: none;
+    }
+
+    /* تحسين قائمة الإشعارات نفسها */
+    .notifications-list {
+        /* تأكد من أن القائمة تأخذ المساحة المتاحة */
+        max-height: calc(80vh - 60px); /* (ارتفاع النافذة - ارتفاع الهيدر) */
+    }
+}
+
+
