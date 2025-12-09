@@ -332,7 +332,9 @@ notification-item.unread::before {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 2rem;
     padding-bottom: 4rem;
+    margin-top: 1rem; /* 🚀🚀 هذا هو السطر الجديد (اختياري ولكنه جيد) 🚀🚀 */
 }
+
 
 .service-card {
     background: var(--white-pure);
@@ -918,7 +920,9 @@ notification-item.unread::before {
     padding: 2rem 0;
     background: var(--white-pure);
     border-bottom: 1px solid var(--gray-border);
+    margin-bottom: 3rem; /* 🚀🚀 هذا هو السطر الجديد 🚀🚀 */
 }
+
 
 .search-box {
     position: relative;
