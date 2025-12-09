@@ -176,6 +176,39 @@ function renderMyOrders(orders) {
     document.getElementById('my-orders-loading').classList.add('hidden');
 }
 
+
+
+    // 🚀🚀 إضافة دوال الاعتراض مرة أخرى 🚀🚀
+    function handleDisputeButtonClick(event) {
+        const orderId = event.target.closest('tr').dataset.orderId;
+        const reason = prompt('يرجى كتابة سبب اعتراضك بوضوح:', 'أعتقد أن الرابط كان صحيحاً والحساب كان عاماً.');
+        if (reason && reason.trim() !== '') {
+            submitDispute(orderId, reason.trim(), event.target);
+        }
+    }
+
+    async function submitDispute(orderId, reason, button) {
+        button.disabled = true;
+        button.textContent = 'جاري الإرسال...';
+        try {
+            const response = await apiFetch(`/api/orders/${orderId}/dispute`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reason })
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message);
+            alert(result.message);
+            fetchMyOrders();
+        } catch (error) {
+            alert(`خطأ: ${error.message}`);
+            button.disabled = false;
+            button.textContent = 'الاعتراض على الخصم';
+        }
+    
+
+
+    
     
     // إخفاء دائرة التحميل بعد عرض البيانات
     const loadingElement = document.getElementById('my-orders-loading');
@@ -290,12 +323,14 @@ function getMethodText(method) {
     });
 
     socket.on('dispute-resolved', (resolvedOrder) => {
-        if (userInfo && resolvedOrder.user === userInfo._id) {
+        if (userInfo && resolvedOrder.user.toString() === userInfo._id) {
             console.log('Dispute resolved, refreshing orders...');
             fetchMyOrders();
         }
     });
-    
+
+
+        
 
     // --- 6. بدء تشغيل كل شيء ---
     updateHeaderUI();
