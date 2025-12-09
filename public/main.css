@@ -1639,90 +1639,80 @@ notification-item.unread::before {
 
 
 
-/* --- أنماط نافذة تأكيد الرابط --- */
-.confirmation-details {
+/* ========================================== */
+/* 💅 CSS لنافذة تأكيد الطلب 💅 */
+/* ========================================== */
+
+.confirmation-item {
     background: var(--gray-bg);
-    padding: 1rem 1.5rem;
+    padding: 0.8rem 1.2rem;
     border-radius: var(--radius-input);
-    margin-bottom: 1.5rem;
-    border: 1px solid var(--gray-border);
+    margin-bottom: 1rem;
+    border-right: 3px solid var(--purple-main);
 }
 
-.confirmation-details p {
+.confirmation-item strong {
+    color: var(--text-dark);
+    margin-left: 0.5rem;
+}
+
+.confirmation-item.link a {
+    color: var(--info-blue);
     font-weight: 600;
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.confirmation-item.link a:hover {
+    text-decoration: underline;
+}
+
+.confirmation-divider {
+    border: none;
+    border-top: 1px dashed var(--gray-border);
+    margin: 2rem 0;
+}
+
+.warning-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--warning-orange);
+    font-size: 1.2rem;
     margin-bottom: 1rem;
+}
+
+.warning-list {
+    list-style: none;
+    padding-right: 1rem;
+    border-right: 2px solid var(--warning-orange);
+}
+
+.warning-list li {
+    margin-bottom: 1rem;
+    color: var(--text-light);
+}
+
+.warning-list li strong {
     color: var(--text-dark);
 }
 
-.confirmation-details ul {
-    list-style: none;
-    padding: 0;
-}
-
-.confirmation-details li {
-    margin-bottom: 0.8rem;
-    font-size: 0.95rem;
-}
-
-.confirmation-details li strong {
-    color: var(--purple-main);
-    min-width: 70px;
-    display: inline-block;
-}
-
-#confirm-link {
-    word-break: break-all;
-    direction: ltr;
-    text-align: left;
-    display: block;
-    background: var(--white-pure);
-    padding: 0.5rem;
-    border-radius: 8px;
-    margin-top: 0.3rem;
-}
-
-.confirmation-warning {
-    background: #FFFBEB; /* أصفر فاتح */
-    border: 1px solid #FBBF24;
-    border-right: 4px solid #F59E0B;
-    padding: 1.5rem;
+#refund-warning-text {
+    background: #fffbeb;
+    padding: 0.8rem;
     border-radius: var(--radius-input);
+    color: #b45309;
+}
+
+.confirmation-actions {
     display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-    margin-bottom: 2rem;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-top: 2rem;
 }
 
-.confirmation-warning i {
-    font-size: 2rem;
-    color: #F59E0B;
-}
-
-.confirmation-warning h4 {
-    margin: 0 0 0.5rem 0;
-    color: #B45309;
-    font-size: 1.1rem;
-}
-
-.confirmation-warning p {
-    margin: 0;
-    line-height: 1.6;
-    color: #78350F;
-    font-size: 0.9rem;
-}
-
-.confirmation-warning p strong {
-    font-weight: 900;
-}
-
-.confirmation-buttons {
-    display: flex;
-    gap: 1rem;
+.confirmation-actions .pill-button {
+    width: 100%;
     justify-content: center;
-    flex-wrap: wrap;
+    padding: 1rem;
 }
-
-.confirmation-buttons .pill-button {
-    flex-grow: 1;
-}
-
