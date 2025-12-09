@@ -225,7 +225,7 @@ router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
 });
 
 // --- PUT /api/orders/:id (لتحديث حالة الطلب - حماية إدارية) ---
-// 🔽🔽 استبدل دالة تحديث الطلب الحالية بهذه النسخة الكاملة والنهائية 🔽🔽
+// 🔽🔽 استبدل دالة تحديث الطلب الحالية بهذه النسخة الكاملة والنهائية 🔽
 
 router.put('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), async (req, res) => {
     try {
@@ -235,13 +235,14 @@ router.put('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), asyn
         }
 
         const oldStatus = order.status;
-        const newStatus = req.body.status;
+        // 🚀🚀 التعديل هنا: جلب الحالة والسبب من الطلب 🚀🚀
+        const { status: newStatus, reason: cancellationReason } = req.body;
 
         if (oldStatus === newStatus) {
             return res.json(order); // لا تغيير، أرجع الطلب كما هو
         }
 
-        // --- الحالة 1: إلغاء طلب نشط (إرجاع الرصيد) ---
+        // --- الحالة 1: إلغاء طلب نشط (إرجاع الرصيد كاملاً) ---
         if (newStatus === 'ملغي' && oldStatus !== 'ملغي' && order.user) {
             const user = await User.findById(order.user);
             if (user) {
@@ -255,35 +256,48 @@ router.put('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), asyn
                 });
                 await refundNotification.save();
                 req.io.emit('new-notification', { userId: user._id.toString(), notification: refundNotification });
-                req.io.emit('deposit-approved', { userId: user._id.toString() }); // لتحديث الرصيد في الواجهة
+                req.io.emit('deposit-approved', { userId: user._id.toString() });
             }
         }
+        
+        // 🚀🚀 الحالة الجديدة: إلغاء مع خصم بسبب خطأ المستخدم 🚀🚀
+        else if (newStatus === 'ملغي (خطأ مستخدم)' && oldStatus !== 'ملغي (خطأ مستخدم)' && order.user) {
+            const user = await User.findById(order.user);
+            if (user) {
+                const fee = 0.30; // رسوم الخدمة
+                const refundAmount = Math.max(0, order.price - fee); // المبلغ المسترد
+                
+                user.balance += refundAmount;
+                await user.save();
 
-        // --- 🎯 الحالة 2: إعادة تفعيل طلب ملغي (خصم الرصيد مجدداً) ---
-        if (oldStatus === 'ملغي' && newStatus !== 'ملغي' && order.user) {
+                const feeNotification = new Notification({
+                    user: user._id,
+                    message: `تم إلغاء طلبك بسبب خطأ. تم إرجاع ${refundAmount.toFixed(2)}$ إلى رصيدك بعد خصم رسوم خدمة ${fee.toFixed(2)}$.`,
+                    link: '/my-orders.html',
+                    type: 'user' // نوع خاص يمكن تمييزه
+                });
+                await feeNotification.save();
+                req.io.emit('new-notification', { userId: user._id.toString(), notification: feeNotification });
+                req.io.emit('deposit-approved', { userId: user._id.toString() });
+            }
+            // حفظ سبب الإلغاء
+            order.cancellationReason = cancellationReason || 'خطأ من طرف المستخدم.';
+        }
+
+        // --- الحالة 2: إعادة تفعيل طلب ملغي (خصم الرصيد مجدداً) ---
+        else if ((oldStatus === 'ملغي' || oldStatus === 'ملغي (خطأ مستخدم)') && newStatus !== 'ملغي' && newStatus !== 'ملغي (خطأ مستخدم)' && order.user) {
             const user = await User.findById(order.user);
             if (!user) {
                 return res.status(404).json({ message: 'المستخدم المرتبط بهذا الطلب غير موجود.' });
             }
 
-            // التحقق من الرصيد
             if (user.balance < order.price) {
-                // الرصيد غير كافٍ
-                const insufficientBalanceNotification = new Notification({
-                    user: user._id,
-                    message: `فشلت محاولة إعادة تفعيل طلبك للخدمة "${order.service}" لعدم كفاية الرصيد. الرصيد المطلوب: ${order.price.toFixed(2)}$.`,
-                    link: '/my-orders.html' // يمكن تغييره لرابط شحن الرصيد
-                });
-                await insufficientBalanceNotification.save();
-                req.io.emit('new-notification', { userId: user._id.toString(), notification: insufficientBalanceNotification });
-
-                // إرجاع رسالة خطأ للمدير وعدم تغيير الحالة
                 return res.status(400).json({ message: `فشل تحديث الطلب. رصيد المستخدم (${user.balance.toFixed(2)}$) غير كافٍ لتغطية تكلفة الطلب (${order.price.toFixed(2)}$).` });
             }
 
-            // الرصيد كافٍ، قم بالخصم
             user.balance -= order.price;
             await user.save();
+            order.cancellationReason = null; // إزالة سبب الإلغاء عند إعادة التفعيل
 
             const reactivateNotification = new Notification({
                 user: user._id,
@@ -292,15 +306,15 @@ router.put('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), asyn
             });
             await reactivateNotification.save();
             req.io.emit('new-notification', { userId: user._id.toString(), notification: reactivateNotification });
-            req.io.emit('deposit-approved', { userId: user._id.toString() }); // لتحديث الرصيد في الواجهة
+            req.io.emit('deposit-approved', { userId: user._id.toString() });
         }
 
         // --- تحديث حالة الطلب وحفظها ---
         order.status = newStatus;
         const updatedOrder = await order.save();
 
-        // إرسال إشعار عام بتحديث الحالة (إذا لم يتم إرسال إشعار خاص أعلاه)
-        if (oldStatus !== 'ملغي' && newStatus !== 'ملغي' && updatedOrder.user) {
+        // إرسال إشعار عام بتحديث الحالة (إذا لم يكن إلغاء)
+        if (!newStatus.includes('ملغي') && updatedOrder.user) {
             const notificationMessage = `تم تحديث حالة طلبك للخدمة "${updatedOrder.service}" إلى: ${newStatus}.`;
             const newNotification = new Notification({
                 user: updatedOrder.user,
