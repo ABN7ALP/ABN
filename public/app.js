@@ -1927,16 +1927,18 @@ async function updatePrice() {
     }, 300); // 🆕 انتظر 300ms بعد آخر كتابة
 }
 
-    function validateLink() {
-        const link = linkInput.value;
-        const platformData = servicesData[currentPlatform];
-        if (platformData && link.length > 0 && !platformData.validation.test(link)) {
-            linkError.textContent = `الرابط غير صحيح. يجب أن يكون رابط ${currentPlatform}.`;
-            return false;
-        }
-        linkError.textContent = '';
-        return true;
+    // 🔽 استبدل هذه الدالة بالكامل 🔽
+function validateLink() {
+    const link = linkInput.value.trim();
+    if (link.length === 0) {
+        linkError.textContent = `حقل الرابط مطلوب.`;
+        return false;
     }
+    // تم تعطيل التحقق من النطاق لزيادة المرونة
+    linkError.textContent = '';
+    return true;
+}
+
 
     function validateQuantity() {
         const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
@@ -1969,14 +1971,18 @@ async function updatePrice() {
     }
 
     // --- 6. معالجة إرسال الطلب وخيارات الدفع ---
-    function handleFormSubmit(event) {
+    // 🔽🔽 استبدل دالة handleFormSubmit القديمة بهذه النسخة الكاملة 🔽🔽
+
+function handleFormSubmit(event) {
     event.preventDefault();
+    
+    // 1. التحقق من المدخلات الأساسية
     if (!validateLink() || !validateQuantity()) {
         alert('الرجاء تصحيح الأخطاء في النموذج.');
         return;
     }
-    
-    // 🆕 حساب السعر النهائي قبل المتابعة
+
+    // 2. حساب السعر النهائي (مع الخصم إن وجد)
     const quantity = parseInt(quantityInput.value, 10);
     calculatePriceWithDiscount(
         serviceSelect.value,
@@ -1984,31 +1990,28 @@ async function updatePrice() {
         quantity,
         userInfo ? userInfo._id : null
     ).then(priceData => {
+        // 3. تخزين بيانات الطلب في متغير مؤقت
         currentOrderData = { 
             platform: currentPlatform, 
             service: serviceSelect.value, 
             link: linkInput.value, 
             quantity: quantity, 
-            price: priceData.finalPrice, // 🎯 استخدم السعر بعد الخصم
+            price: priceData.finalPrice, // استخدام السعر النهائي بعد الخصم
             userId: userInfo ? userInfo._id : null 
         };
         
-        orderFormContainer.classList.add('hidden');
-        paymentOptionsContainer.classList.remove('hidden');
-        finalPriceDisplay.textContent = `${currentOrderData.price.toFixed(2)} $`;
-        balanceError.textContent = '';
-        
-        if (userInfo && userInfo.balance >= currentOrderData.price) {
-            payWithBalanceBtn.disabled = false;
-        } else {
-            payWithBalanceBtn.disabled = true;
-            balanceError.textContent = userInfo ? 'رصيدك الحالي غير كافٍ.' : 'سجل الدخول للدفع بالرصيد.';
-        }
+        // 4. عرض نافذة التأكيد الجديدة بدلاً من الانتقال مباشرة للدفع
+        showConfirmationPopup(currentOrderData);
+
     }).catch(error => {
+        // في حال فشل حساب السعر، أبلغ المستخدم
         console.error('Error calculating final price:', error);
         alert('حدث خطأ في حساب السعر. يرجى المحاولة مرة أخرى.');
     });
 }
+
+// 🔼🔼 نهاية الاستبدال 🔼🔼
+
 
     async function executePayWithBalance() {
         try {
@@ -2064,6 +2067,66 @@ async function updatePrice() {
     function hidePopup() { 
         orderPopupOverlay.classList.add('hidden'); 
     }
+
+// ==========================================================
+// 🚀🚀 الكود الجديد: دوال التحكم بنافذة التأكيد 🚀🚀
+// ==========================================================
+
+function showConfirmationPopup(orderData) {
+    // تعبئة البيانات في نافذة التأكيد
+    document.getElementById('confirm-platform').textContent = orderData.platform;
+    document.getElementById('confirm-service').textContent = orderData.service;
+    
+    const linkElement = document.getElementById('confirm-link');
+    linkElement.textContent = orderData.link;
+    linkElement.href = orderData.link;
+
+    // إظهار تحذير الخصم فقط للمستخدمين المسجلين
+    const refundWarning = document.getElementById('refund-warning-text');
+    if (userInfo) {
+        refundWarning.classList.remove('hidden');
+    } else {
+        refundWarning.classList.add('hidden');
+    }
+
+    // إظهار نافذة التأكيد
+    document.getElementById('confirmation-popup-overlay').classList.remove('hidden');
+}
+
+function hideConfirmationPopup() {
+    document.getElementById('confirmation-popup-overlay').classList.add('hidden');
+}
+
+function proceedToPayment() {
+    hideConfirmationPopup(); // إخفاء نافذة التأكيد
+
+    // إظهار شاشة خيارات الدفع (الكود القديم)
+    orderFormContainer.classList.add('hidden');
+    paymentOptionsContainer.classList.remove('hidden');
+    finalPriceDisplay.textContent = `${currentOrderData.price.toFixed(2)} $`;
+    balanceError.textContent = '';
+
+    if (userInfo && userInfo.balance >= currentOrderData.price) {
+        payWithBalanceBtn.disabled = false;
+    } else {
+        payWithBalanceBtn.disabled = true;
+        balanceError.textContent = userInfo ? 'رصيدك الحالي غير كافٍ.' : 'سجل الدخول للدفع بالرصيد.';
+    }
+}
+
+// --- ربط الأحداث لأزرار نافذة التأكيد ---
+document.getElementById('close-confirmation-popup-btn').addEventListener('click', hideConfirmationPopup);
+document.getElementById('edit-order-btn').addEventListener('click', hideConfirmationPopup);
+document.getElementById('confirm-and-proceed-btn').addEventListener('click', proceedToPayment);
+
+// إغلاق النافذة عند النقر على الخلفية
+document.getElementById('confirmation-popup-overlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) {
+        hideConfirmationPopup();
+    }
+});
+
+
 
     // --- 6.5. نظام الإشعارات ---
     async function fetchNotifications() {
