@@ -306,7 +306,7 @@ async function fetchOrders(week = 0) { // 🎯 قبول بارامتر الأس�
                 <td data-label="الكمية">${order.quantity ? order.quantity.toLocaleString() : 'N/A'}</td>
                 <td data-label="السعر">${order.price ? order.price.toFixed(2) : '0.00'} $</td>
                 <td data-label="تاريخ الطلب">${order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG') : 'N/A'}</td>
-                <td data-label="الحالة"><div class="select-wrapper status-select-wrapper"><select class="status-select" data-order-id="${order._id}"><option value="قيد المراجعة" ${order.status === 'قيد المراجعة' ? 'selected' : ''}>قيد المراجعة</option><option value="قيد التنفيذ" ${order.status === 'قيد التنفيذ' ? 'selected' : ''}>قيد التنفيذ</option><option value="مكتمل" ${order.status === 'مكتمل' ? 'selected' : ''}>مكتمل</option><option value="ملغي" ${order.status === 'ملغي' ? 'selected' : ''}>ملغي</option></select></div></td>
+                <td data-label="الحالة"><div class="select-wrapper status-select-wrapper"><select class="status-select" data-order-id="${order._id}"><option value="قيد المراجعة" ${order.status === 'قيد المراجعة' ? 'selected' : ''}>قيد المراجعة</option><option value="قيد التنفيذ" ${order.status === 'قيد التنفيذ' ? 'selected' : ''}>قيد التنفيذ</option><option value="مكتمل" ${order.status === 'مكتمل' ? 'selected' : ''}>مكتمل</option><option value="ملغي" ${order.status === 'ملغي' ? 'selected' : ''}>ملغي (عام)</option><option value="ملغي (خطأ مستخدم)" ${order.status === 'ملغي (خطأ مستخدم)' ? 'selected' : ''}>ملغي (خطأ مستخدم)</option></select></div></td>
             `;
             ordersTbody.appendChild(row);
         });
@@ -371,32 +371,53 @@ async function handleStatusChange(event) {
     row.style.opacity = '0.5';
 
     try {
+        let cancellationReason = null;
+
+        // 🚀🚀 المنطق الجديد: إذا تم اختيار الإلغاء بسبب خطأ مستخدم 🚀🚀
+        if (newStatus === 'ملغي (خطأ مستخدم)') {
+            const reason = prompt('يرجى إدخال سبب الإلغاء (سيظهر للمستخدم):', 'الحساب خاص أو الرابط غير صحيح.');
+            
+            // إذا ضغط المدير "Cancel" في الـ prompt
+            if (reason === null) {
+                selectElement.value = row.dataset.originalStatus; // أعد الحالة الأصلية
+                throw new Error('تم إلغاء العملية.');
+            }
+            cancellationReason = reason;
+        }
+
+        // تخزين الحالة الأصلية في حال فشل التحديث
+        if (!row.dataset.originalStatus) {
+            row.dataset.originalStatus = selectElement.querySelector('option[selected]').value;
+        }
+
+        // 🚀🚀 إرسال السبب مع الطلب 🚀🚀
         const response = await apiFetch(`/api/orders/${orderId}`, { 
             method: 'PUT', 
             headers: getAuthHeaders(),
-            body: JSON.stringify({ status: newStatus }) 
+            body: JSON.stringify({ 
+                status: newStatus,
+                reason: cancellationReason // إرسال السبب هنا
+            }) 
         });
 
-        // 🎯🎯🎯 هذا هو الجزء الجديد والمهم 🎯🎯🎯
         if (!response.ok) {
-            // إذا فشل الطلب، اقرأ رسالة الخطأ من الخادم
             const errorData = await response.json();
-            // اعرض الرسالة الواضحة للمدير
             throw new Error(errorData.message || 'فشل تحديث حالة الطلب');
         }
-        // 🎯🎯🎯 نهاية الجزء الجديد 🎯🎯🎯
 
-        // إذا نجح الطلب، أظهر علامة النجاح
-        row.style.backgroundColor = '#d4edda'; // أخضر فاتح
+        row.style.backgroundColor = '#d4edda';
         setTimeout(() => { row.style.backgroundColor = ''; }, 1000);
+        // تحديث الحالة الأصلية بعد النجاح
+        row.dataset.originalStatus = newStatus;
 
     } catch (error) {
-        // اعرض رسالة الخطأ في تنبيه
         alert('⚠️ خطأ: ' + error.message);
-        // أعد تحميل قائمة الطلبات لتعود القائمة المنسدلة إلى حالتها الأصلية
-        fetchOrders(); 
+        // أعد القائمة المنسدلة إلى حالتها الأصلية عند الفشل
+        if (row.dataset.originalStatus) {
+            selectElement.value = row.dataset.originalStatus;
+        }
+        fetchOrders(); // إعادة تحميل لضمان التناسق
     } finally {
-        // هذا الجزء سيعمل دائماً، لكن fetchOrders سيعيد بناء كل شيء
         selectElement.disabled = false;
         row.style.opacity = '1';
     }
