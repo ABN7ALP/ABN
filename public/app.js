@@ -1989,15 +1989,18 @@ async function updatePrice() {
 }
 
     function validateLink() {
-        const link = linkInput.value;
-        const platformData = servicesData[currentPlatform];
-        if (platformData && link.length > 0 && !platformData.validation.test(link)) {
-            linkError.textContent = `الرابط غير صحيح. يجب أن يكون رابط ${currentPlatform}.`;
-            return false;
-        }
-        linkError.textContent = '';
-        return true;
+    const link = linkInput.value;
+    linkError.textContent = ''; // امسح أي خطأ قديم دائماً
+
+    if (link.trim() === '') {
+        linkError.textContent = 'حقل الرابط لا يمكن أن يكون فارغاً.';
+        return false;
     }
+    
+    // الدالة الآن تعيد "صحيح" دائماً إذا لم يكن الحقل فارغاً
+    return true; 
+}
+
 
     function validateQuantity() {
         const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
@@ -2032,10 +2035,44 @@ async function updatePrice() {
     // --- 6. معالجة إرسال الطلب وخيارات الدفع ---
     function handleFormSubmit(event) {
     event.preventDefault();
-    if (!validateLink() || !validateQuantity()) {
-        alert('الرجاء تصحيح الأخطاء في النموذج.');
+
+    // 1. قم بالتحقق الأساسي من الحقول
+    const isLinkValid = validateLink();
+    const isQuantityValid = validateQuantity();
+
+    if (!isLinkValid || !isQuantityValid) {
+        // لا تفعل شيئاً إذا كانت الحقول الأساسية غير صالحة
         return;
     }
+
+    // 2. استخراج البيانات لعرضها في رسالة التأكيد
+    const platformName = currentPlatform;
+    const serviceName = serviceSelect.value;
+    const linkValue = linkInput.value;
+
+    // 3. إنشاء رسالة التأكيد
+    const confirmationMessage = `
+        هل أنت متأكد من أن هذا الرابط صحيح؟
+        -----------------------------------
+        المنصة: ${platformName}
+        الخدمة: ${serviceName}
+        الرابط: ${linkValue.substring(0, 40)}...
+        -----------------------------------
+        أي خطأ في الرابط قد يؤدي إلى ضياع الطلب.
+    `;
+
+    // 4. إظهار نافذة التأكيد الأصلية للمتصفح (الأكثر أماناً وموثوقية)
+    if (confirm(confirmationMessage)) {
+        // ✅ إذا ضغط المستخدم "موافق" (OK)
+        console.log('User confirmed the link. Proceeding to payment...');
+        proceedToPayment(); // استدعاء دالة جديدة لمتابعة العملية
+    } else {
+        // ❌ إذا ضغط المستخدم "إلغاء" (Cancel)
+        console.log('User cancelled the link confirmation.');
+        // لا تفعل شيئاً، اسمح للمستخدم بتعديل الرابط
+    }
+}
+
     
     // 🆕 حساب السعر النهائي قبل المتابعة
     const quantity = parseInt(quantityInput.value, 10);
