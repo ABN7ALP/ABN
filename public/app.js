@@ -198,6 +198,15 @@ function fileToBase64(file) {
     const payWithWhatsappBtn = document.getElementById('pay-with-whatsapp-btn');
     const balanceError = document.getElementById('balance-error');
     const notificationBellContainer = document.getElementById('notification-bell-container');
+// 🔽🔽 أضف هذه المتغيرات الجديدة 🔽🔽
+const linkConfirmationPopup = document.getElementById('link-confirmation-popup');
+const confirmPlatform = document.getElementById('confirm-platform');
+const confirmService = document.getElementById('confirm-service');
+const confirmLink = document.getElementById('confirm-link');
+const refundPolicyText = document.getElementById('refund-policy-text');
+const confirmBtnYes = document.getElementById('confirm-btn-yes');
+const confirmBtnNo = document.getElementById('confirm-btn-no');
+    
 
     // --- 2. نظام المصادقة والقائمة المنسدلة ---
     function updateUIForAuth() {
@@ -2033,44 +2042,33 @@ async function updatePrice() {
     }
 
     // --- 6. معالجة إرسال الطلب وخيارات الدفع ---
-    function handleFormSubmit(event) {
+    // 🔽🔽 استبدل الدالة بالكامل بهذا الكود 🔽🔽
+function handleFormSubmit(event) {
     event.preventDefault();
 
-    // 1. قم بالتحقق الأساسي من الحقول
     const isLinkValid = validateLink();
     const isQuantityValid = validateQuantity();
 
     if (!isLinkValid || !isQuantityValid) {
-        // لا تفعل شيئاً إذا كانت الحقول الأساسية غير صالحة
         return;
     }
 
-    // 2. استخراج البيانات لعرضها في رسالة التأكيد
-    const platformName = currentPlatform;
-    const serviceName = serviceSelect.value;
-    const linkValue = linkInput.value;
+    // تعبئة بيانات النافذة المنبثقة
+    confirmPlatform.textContent = currentPlatform;
+    confirmService.textContent = serviceSelect.value;
+    confirmLink.textContent = linkInput.value;
 
-    // 3. إنشاء رسالة التأكيد
-    const confirmationMessage = `
-        هل أنت متأكد من أن هذا الرابط صحيح؟
-        -----------------------------------
-        المنصة: ${platformName}
-        الخدمة: ${serviceName}
-        الرابط: ${linkValue.substring(0, 40)}...
-        -----------------------------------
-        أي خطأ في الرابط قد يؤدي إلى ضياع الطلب.
-    `;
-
-    // 4. إظهار نافذة التأكيد الأصلية للمتصفح (الأكثر أماناً وموثوقية)
-    if (confirm(confirmationMessage)) {
-        // ✅ إذا ضغط المستخدم "موافق" (OK)
-        console.log('User confirmed the link. Proceeding to payment...');
-        proceedToPayment(); // استدعاء دالة جديدة لمتابعة العملية
+    // إظهار أو إخفاء نص سياسة الخصم
+    if (userInfo) {
+        refundPolicyText.style.display = 'block';
     } else {
-        // ❌ إذا ضغط المستخدم "إلغاء" (Cancel)
-        console.log('User cancelled the link confirmation.');
-        // لا تفعل شيئاً، اسمح للمستخدم بتعديل الرابط
+        refundPolicyText.style.display = 'none';
     }
+
+    // إظهار النافذة المنبثقة
+    linkConfirmationPopup.classList.remove('hidden');
+}
+
 
     
     // 🆕 حساب السعر النهائي قبل المتابعة
@@ -2393,6 +2391,20 @@ async function updatePrice() {
             }
         });
     }
+
+// 🔽🔽 أضف هذا الكود الجديد 🔽🔽
+if (confirmBtnYes) {
+    confirmBtnYes.addEventListener('click', () => {
+        linkConfirmationPopup.classList.add('hidden');
+        proceedToPayment(); // استدعاء الدالة التي تتابع للدفع
+    });
+}
+
+if (confirmBtnNo) {
+    confirmBtnNo.addEventListener('click', () => {
+        linkConfirmationPopup.classList.add('hidden');
+    });
+}
 
 
     // ... (داخل document.addEventListener('DOMContentLoaded', () => { ...
