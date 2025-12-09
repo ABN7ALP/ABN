@@ -610,16 +610,17 @@ router.delete('/offers/:id', authMiddleware, adminMiddleware, async (req, res, n
 // ==========================================================
 // 🚀🚀 المسار الجديد: تقديم اعتراض على خصم 🚀🚀
 // ==========================================================
-router.post('/:id/dispute', validateObjectId('id'), async (req, res) => {
+router.post('/:id/dispute', authMiddleware, validateObjectId('id'), async (req, res) => {
     try {
         const { reason } = req.body;
         const orderId = req.params.id;
-        const userId = req.user.id;
-        
+        const userId = req.user.id; // الآن req.user سيكون موجوداً بالتأكيد
+
         if (!reason) {
             return res.status(400).json({ message: 'سبب الاعتراض مطلوب.' });
         }
 
+        // ملاحظة: populate('user') ليس ضرورياً هنا لأننا نملك req.user بالفعل
         const order = await Order.findOne({ _id: orderId, user: userId });
 
         if (!order) {
@@ -641,7 +642,6 @@ router.post('/:id/dispute', validateObjectId('id'), async (req, res) => {
         await order.save();
 
         // إرسال رسالة إلى بوت التليجرام
-        const bot = require('../services/telegramBot');
         const telegramMessage = `
 *🚨 اعتراض جديد على خصم 🚨*
 -----------------------------------
@@ -652,7 +652,13 @@ _${reason}_
 -----------------------------------
 *للرد، استخدم "Reply" على هذه الرسالة واكتب "مقبول" أو "مرفوض" مع السبب.*
         `;
-        bot.sendMessage(process.env.TELEGRAM_CHAT_ID, telegramMessage, { parse_mode: 'Markdown' });
+        
+        // تأكد من أن البوت تم استيراده بشكل صحيح
+        if (bot && process.env.TELEGRAM_CHAT_ID) {
+            bot.sendMessage(process.env.TELEGRAM_CHAT_ID, telegramMessage, { parse_mode: 'Markdown' });
+        } else {
+            console.warn('Telegram bot is not configured to send dispute message.');
+        }
 
         res.status(200).json({ message: 'تم إرسال اعتراضك بنجاح. سيتم مراجعته قريباً.' });
 
@@ -661,5 +667,6 @@ _${reason}_
         res.status(500).json({ message: 'حدث خطأ أثناء إرسال الاعتراض.' });
     }
 });
+
 
 module.exports = router;
