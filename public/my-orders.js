@@ -114,43 +114,60 @@ async function fetchMyOrders() {
 
 // 🔽🔽 استبدل دالة renderMyOrders بالكامل بهذا الكود 🔽🔽
 
+// 🔽🔽 استبدل دالة renderMyOrders بالكامل بهذه النسخة المصححة 🔽🔽
+
 function renderMyOrders(orders) {
+    const myOrdersTbody = document.getElementById('my-orders-tbody');
+    if (!myOrdersTbody) return;
+
     myOrdersTbody.innerHTML = '';
     
     if (orders.length === 0) {
-        myOrdersTbody.innerHTML = `
-            <tr>
-                <td colspan="5" class="empty-state">
-                    <i class="ph-bold ph-shopping-cart"></i>
-                    <h3>لم تقم بأي طلبات بعد</h3>
-                    <p>اكتشف خدماتنا وابدأ في تنمية حساباتك الآن!</p>
-                </td>
-            </tr>
-        `;
+        myOrdersTbody.innerHTML = `<tr><td colspan="5" class="empty-state"><h3>لم تقم بأي طلبات بعد</h3></td></tr>`;
+        document.getElementById('my-orders-loading').classList.add('hidden');
         return;
     }
     
     orders.forEach(order => {
         const row = document.createElement('tr');
+        row.dataset.orderId = order._id;
         
         const orderDate = new Date(order.createdAt).toLocaleDateString('ar-EG', {
             year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
         });
         
-        const formattedQuantity = order.quantity.toLocaleString('ar-EG');
-        const formattedPrice = order.price.toFixed(2);
-        
-        // 🚀🚀 المنطق الجديد هنا 🚀🚀
         let statusHTML = '';
-        if (order.status === 'ملغي (خطأ مستخدم)' && order.cancellationReason) {
+        if (order.status === 'ملغي (خطأ مستخدم)') {
+            let disputeSection = '';
+            
+            if (!order.dispute || !order.dispute.status) {
+                // هذا هو الزر الذي لم يكن يظهر الحدث له
+                disputeSection = `<button class="dispute-btn pill-button secondary-button">الاعتراض على الخصم</button>`;
+            } else if (order.dispute.status === 'pending') {
+                disputeSection = `<div class="dispute-status pending">⏳ اعتراضك قيد المراجعة...</div>`;
+            } else if (order.dispute.status === 'approved') {
+                disputeSection = `<div class="dispute-status approved">✅ تمت الموافقة على اعتراضك وإعادة الخصم.</div>`;
+            } else if (order.dispute.status === 'rejected') {
+                disputeSection = `
+                    <div class="dispute-status rejected">
+                        ❌ تم رفض اعتراضك.
+                        <p class="admin-response">رد الإدارة: "${order.dispute.adminResponse}"</p>
+                    </div>
+                `;
+            }
+
             statusHTML = `
                 <div class="status-with-reason">
                     <span class="status status-ملغي-خطأ-مستخدم">${order.status}</span>
-                    <div class="cancellation-reason">
-                        <p><strong>نعتذر، تم إلغاء طلبك للسبب التالي:</strong></p>
-                        <p class="reason-text">"${order.cancellationReason}"</p>
-                        <p class="reminder-text">لتجنب ذلك مستقبلاً، يرجى التأكد من أن الحساب عام والرابط صحيح.</p>
-                    </div>
+                    <details class="cancellation-details">
+                        <summary>عرض سبب الإلغاء</summary>
+                        <div class="cancellation-reason">
+                            <p><strong>نعتذر، تم إلغاء طلبك للسبب التالي:</strong></p>
+                            <p class="reason-text">"${order.cancellationReason}"</p>
+                            <p class="reminder-text">لتجنب ذلك مستقبلاً، يرجى التأكد من أن الحساب عام والرابط صحيح.</p>
+                        </div>
+                    </details>
+                    ${disputeSection}
                 </div>
             `;
         } else {
@@ -165,16 +182,26 @@ function renderMyOrders(orders) {
                     <span>${order.service}</span>
                 </div>
             </td>
-            <td data-label="الكمية">${formattedQuantity}</td>
-            <td data-label="السعر">${formattedPrice} $</td>
+            <td data-label="الكمية">${order.quantity.toLocaleString('ar-EG')}</td>
+            <td data-label="السعر">${order.price.toFixed(2)} $</td>
             <td data-label="تاريخ الطلب">${orderDate}</td>
             <td data-label="الحالة">${statusHTML}</td>
         `;
         myOrdersTbody.appendChild(row);
     });
     
+    // ==========================================================
+    // 🚀🚀 هذا هو السطر الذي كان مفقوداً 🚀🚀
+    // ==========================================================
+    // بعد إنشاء كل الأزرار، نقوم بالبحث عنها وربط حدث النقر بها.
+    document.querySelectorAll('.dispute-btn').forEach(btn => {
+        btn.addEventListener('click', handleDisputeButtonClick);
+    });
+    // ==========================================================
+
     document.getElementById('my-orders-loading').classList.add('hidden');
 }
+
 
 
 
