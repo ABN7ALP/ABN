@@ -112,15 +112,18 @@ async function fetchMyOrders() {
     }
 }
 
+// 🔽🔽 استبدل دالة renderMyOrders بالكامل بهذا الكود 🔽🔽
+
 function renderMyOrders(orders) {
     myOrdersTbody.innerHTML = '';
     
     if (orders.length === 0) {
         myOrdersTbody.innerHTML = `
             <tr>
-                <td colspan="5" style="text-align:center; padding: 3rem; color: var(--text-light);">
-                    <i class="ph-bold ph-shopping-cart" style="font-size: 3rem; opacity: 0.5; display: block; margin-bottom: 1rem;"></i>
-                    لم تقم بأي طلبات خدمات بعد.
+                <td colspan="5" class="empty-state">
+                    <i class="ph-bold ph-shopping-cart"></i>
+                    <h3>لم تقم بأي طلبات بعد</h3>
+                    <p>اكتشف خدماتنا وابدأ في تنمية حساباتك الآن!</p>
                 </td>
             </tr>
         `;
@@ -130,48 +133,49 @@ function renderMyOrders(orders) {
     orders.forEach(order => {
         const row = document.createElement('tr');
         
-        // تنسيق التواريخ بشكل أفضل
-        const orderDate = order.createdAt ? 
-            new Date(order.createdAt).toLocaleDateString('ar-EG', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            }) : 'N/A';
+        const orderDate = new Date(order.createdAt).toLocaleDateString('ar-EG', {
+            year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
         
-        // تنسيق الأرقام
-        const formattedQuantity = order.quantity ? 
-            order.quantity.toLocaleString('ar-EG') : 'N/A';
+        const formattedQuantity = order.quantity.toLocaleString('ar-EG');
+        const formattedPrice = order.price.toFixed(2);
         
-        const formattedPrice = order.price ? 
-            order.price.toFixed(2) : '0.00';
-        
-        // استخدام التنسيقات الجديدة للحالات
-        const statusClass = `status status-${order.status.replace(/\s/g, '-')}`;
+        // 🚀🚀 المنطق الجديد هنا 🚀🚀
+        let statusHTML = '';
+        if (order.status === 'ملغي (خطأ مستخدم)' && order.cancellationReason) {
+            statusHTML = `
+                <div class="status-with-reason">
+                    <span class="status status-ملغي-خطأ-مستخدم">${order.status}</span>
+                    <div class="cancellation-reason">
+                        <p><strong>نعتذر، تم إلغاء طلبك للسبب التالي:</strong></p>
+                        <p class="reason-text">"${order.cancellationReason}"</p>
+                        <p class="reminder-text">لتجنب ذلك مستقبلاً، يرجى التأكد من أن الحساب عام والرابط صحيح.</p>
+                    </div>
+                </div>
+            `;
+        } else {
+            const statusClass = `status status-${order.status.replace(/\s/g, '-')}`;
+            statusHTML = `<span class="${statusClass}">${order.status}</span>`;
+        }
         
         row.innerHTML = `
             <td data-label="الخدمة">
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="ph-bold ph-${order.platform?.toLowerCase().replace(/\s/g, '')}-logo" style="color: var(--purple-main);"></i>
-                    <span>${order.service || 'N/A'}</span>
+                <div class="service-cell">
+                    <i class="ph-bold ph-${order.platform?.toLowerCase().replace(/\s/g, '')}-logo"></i>
+                    <span>${order.service}</span>
                 </div>
             </td>
-            <td data-label="الكمية" style="font-weight: 600; color: var(--text-dark);">
-                ${formattedQuantity}
-            </td>
-            <td data-label="السعر" style="font-weight: 700; color: var(--purple-main);">
-                ${formattedPrice} $
-            </td>
-            <td data-label="تاريخ الطلب" style="color: var(--text-light); font-size: 0.85rem;">
-                ${orderDate}
-            </td>
-            <td data-label="الحالة">
-                <span class="${statusClass}">${order.status}</span>
-            </td>
+            <td data-label="الكمية">${formattedQuantity}</td>
+            <td data-label="السعر">${formattedPrice} $</td>
+            <td data-label="تاريخ الطلب">${orderDate}</td>
+            <td data-label="الحالة">${statusHTML}</td>
         `;
         myOrdersTbody.appendChild(row);
     });
+    
+    document.getElementById('my-orders-loading').classList.add('hidden');
+}
+
     
     // إخفاء دائرة التحميل بعد عرض البيانات
     const loadingElement = document.getElementById('my-orders-loading');
