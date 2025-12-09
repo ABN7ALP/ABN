@@ -124,6 +124,69 @@
             </div>
         </div>
     </div>
+
+<!-- ========================================================== -->
+<!-- 🚀🚀 الإضافة الجديدة: نافذة تأكيد الطلب 🚀🚀 -->
+<!-- ========================================================== -->
+<div id="confirmation-popup-overlay" class="popup-overlay hidden">
+    <div class="popup-content">
+        <button id="close-confirmation-popup-btn" class="close-btn"><i class="ph-bold ph-x"></i></button>
+        
+        <div class="popup-header">
+            <i class="ph-bold ph-warning-circle" style="color: var(--warning-orange);"></i>
+            <h2>هل أنت متأكد؟</h2>
+        </div>
+
+        <div id="confirmation-details" style="text-align: right; line-height: 1.8;">
+            <p style="margin-bottom: 1.5rem; font-size: 1.1rem;">
+                يرجى التأكد من صحة المعلومات التالية قبل المتابعة:
+            </p>
+
+            <!-- سيتم ملء هذه البيانات ديناميكياً -->
+            <div class="confirmation-item">
+                <strong>المنصة:</strong> <span id="confirm-platform"></span>
+            </div>
+            <div class="confirmation-item">
+                <strong>الخدمة:</strong> <span id="confirm-service"></span>
+            </div>
+            <div class="confirmation-item link">
+                <strong>الرابط:</strong> <a id="confirm-link" href="#" target="_blank"></a>
+            </div>
+
+            <hr class="confirmation-divider">
+
+            <!-- قسم التحذيرات -->
+            <div id="confirmation-warnings">
+                <h4 class="warning-title">
+                    <i class="ph-bold ph-shield-warning"></i>
+                    تنبيهات هامة لضمان تنفيذ طلبك
+                </h4>
+                <ul class="warning-list">
+                    <li>تأكد من أن <strong>الحساب عام</strong> وليس خاصاً.</li>
+                    <li>تأكد من أن <strong>المنشور أو الرابط متاح للجميع</strong>.</li>
+                    <!-- هذا السطر سيظهر للمستخدمين المسجلين فقط -->
+                    <li id="refund-warning-text" class="hidden">
+                        في حال حدوث خطأ بسبب معلومات غير صحيحة من طرفك (مثل حساب خاص)، سيتم إلغاء الطلب مع <strong>خصم رسوم خدمة بقيمة 0.30$</strong> من المبلغ المسترد.
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- أزرار الإجراء -->
+        <div class="confirmation-actions">
+            <button id="confirm-and-proceed-btn" class="pill-button primary-button">
+                <i class="ph-bold ph-check-circle"></i>
+                <span>متأكد، أريد المتابعة</span>
+            </button>
+            <button id="edit-order-btn" class="pill-button secondary-button">
+                <i class="ph-bold ph-pencil-simple"></i>
+                <span>تعديل الطلب</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+    
     
     <!-- Auth Popups -->
 <div id="auth-popup-overlay" class="popup-overlay hidden">
