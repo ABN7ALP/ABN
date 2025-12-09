@@ -912,3 +912,22 @@ tr:hover td {
     margin-top: 0.5rem;
     animation: fadeIn 0.3s ease;
 }
+
+/* 🔽🔽 أضف هذا في نهاية my-orders.css 🔽🔽 */
+
+.admin-response {
+    font-style: normal; /* إزالة الخط المائل */
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed #d69aff; /* لون متناسق */
+    font-size: 0.85rem;
+    color: #581c87; /* لون أغمق للوضوح */
+    background-color: #f3e8ff; /* خلفية بنفسجية فاتحة */
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.dispute-status.rejected .admin-response::before {
+    content: 'رد الإدارة: ';
+    font-weight: bold;
+}
