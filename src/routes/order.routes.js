@@ -610,12 +610,12 @@ router.delete('/offers/:id', authMiddleware, adminMiddleware, async (req, res, n
 // ==========================================================
 // 🚀🚀 المسار الجديد: تقديم اعتراض على خصم 🚀🚀
 // ==========================================================
-router.post('/:id/dispute', async (req, res) => {
+router.post('/:id/dispute', validateObjectId('id'), async (req, res) => {
     try {
         const { reason } = req.body;
         const orderId = req.params.id;
         const userId = req.user.id;
-
+        
         if (!reason) {
             return res.status(400).json({ message: 'سبب الاعتراض مطلوب.' });
         }
