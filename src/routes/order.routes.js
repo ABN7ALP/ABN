@@ -336,6 +336,59 @@ router.put('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), asyn
 
 // 🔼🔼 نهاية الاستبدال 🔼🔼
 
+// ==========================================================
+// 🚀🚀 نظام الاعتراض الجديد بالأزرار التفاعلية 🚀🚀
+// ==========================================================
+router.post('/:id/dispute', authMiddleware, validateObjectId('id'), async (req, res) => {
+    try {
+        const { reason } = req.body;
+        const orderId = req.params.id;
+        const userId = req.user.id;
+
+        if (!reason) return res.status(400).json({ message: 'سبب الاعتراض مطلوب.' });
+
+        const order = await Order.findOne({ _id: orderId, user: userId });
+
+        if (!order) return res.status(404).json({ message: 'الطلب غير موجود.' });
+        if (order.status !== 'ملغي (خطأ مستخدم)') return res.status(400).json({ message: 'لا يمكن الاعتراض على هذا الطلب.' });
+        if (order.dispute && order.dispute.status) return res.status(400).json({ message: 'لقد قدمت اعتراضاً على هذا الطلب مسبقاً.' });
+
+        order.dispute = { status: 'pending', reason: reason, date: new Date() };
+        await order.save();
+
+        // --- إرسال رسالة مع أزرار تفاعلية إلى تليجرام ---
+        const bot = require('../services/telegramBot');
+        const telegramMessage = `
+*🚨 اعتراض جديد على خصم 🚨*
+-----------------------------------
+*المستخدم:* ${req.user.username}
+*رقم الطلب:* \`${orderId}\`
+*سبب الاعتراض:*
+_${reason}_
+        `;
+
+        // إنشاء الأزرار التفاعلية
+        const options = {
+            parse_mode: 'Markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    [
+                        { text: '✅ قبول الاعتراض', callback_data: `dispute_approve_${orderId}` },
+                        { text: '❌ رفض الاعتراض', callback_data: `dispute_reject_${orderId}` }
+                    ]
+                ]
+            }
+        };
+
+        bot.sendMessage(process.env.TELEGRAM_CHAT_ID, telegramMessage, options);
+
+        res.status(200).json({ message: 'تم إرسال اعتراضك بنجاح. سيتم مراجعته قريباً.' });
+
+    } catch (error) {
+        console.error("Dispute submission error:", error);
+        res.status(500).json({ message: 'حدث خطأ أثناء إرسال الاعتراض.' });
+    }
+});
 
 
 // --- GET /api/orders/my-orders - جلب طلبات المستخدم المسجل دخوله ---
