@@ -946,3 +946,25 @@ body.desktop-view-on-mobile .container {
     background: #2563eb;
     transform: scale(1.05);
 }
+
+
+
+/* ==========================================================
+   🚀 تنسيقات صندوق الموافقة على الشروط 🚀
+   ========================================================== */
+
+.checkbox-text {
+    font-size: 0.9rem;
+    color: #64748B; /* --text-light */
+    line-height: 1.5;
+}
+
+.checkbox-text a {
+    color: #7C1EFF; /* --purple-main */
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.checkbox-text a:hover {
+    text-decoration: underline;
+}
