@@ -1725,12 +1725,12 @@ function getPlatformIcon(platform, serviceName = '') {
     }
     // واتساب
     if (p.includes('whatsapp') || p.includes('واتساب') || p.includes('واتس اب') || p.includes('واتس')) {
-        return 'https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg';
+        return 'https://storage.perfectcdn.com/23mb5q/s24h67w7fhkyyk1c.gif';
     }
     // ديسكورد
     if (p.includes('discord') || p.includes('ديسكورد')) {
         // ✅ أيقونة بدون اسم
-        return 'https://i.ibb.co/LW9bchh/88d419fe6a6c79323df65ea11b9eaac6.jpg';
+        return 'https://storage.perfectcdn.com/23mb5q/wiykkz3ekcbyn0y0.gif';
     }
     // تيك توك
     if (p.includes('tiktok') || p.includes('تيك توك')) {
@@ -1740,7 +1740,7 @@ function getPlatformIcon(platform, serviceName = '') {
     // ثريدز
     if (p.includes('threads') || p.includes('ثريدز')) {
         // ✅ أيقونة جديدة
-        return 'https://i.ibb.co/wZT7cM4K/203a752779f46b53971bef4639c6043a.jpg';
+        return 'https://storage.perfectcdn.com/23mb5q/gweqhot46ht8zx4n.gif';
     }
     // سبوتيفاي
     if (p.includes('spotify') || p.includes('سبوتيفاي')) {
@@ -1748,7 +1748,7 @@ function getPlatformIcon(platform, serviceName = '') {
     }
     // كواي
     if (p.includes('kwai') || p.includes('كواي')) {
-        return 'https://i.ibb.co/hCM7NSJ/11.png'; // أيقونة مؤقتة
+        return 'https://storage.perfectcdn.com/23mb5q/dqrrhl84rhomyrxn.gif'; // أيقونة مؤقتة
     }
     // كيك
     if (p.includes('kick') || p.includes('كيك')) {
@@ -1756,11 +1756,11 @@ function getPlatformIcon(platform, serviceName = '') {
     }
     // لينكدإن
     if (p.includes('linkedin') || p.includes('لينكد')) {
-        return 'https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png';
+        return 'https://storage.perfectcdn.com/23mb5q/gd70r1tnot3crdn8.gif';
     }
     // ريديت
     if (p.includes('reddit') || p.includes('ريديت')) {
-        return 'https://upload.wikimedia.org/wikipedia/en/b/bd/Reddit_Logo_Icon.svg';
+        return 'https://storage.perfectcdn.com/23mb5q/u9haof7quq7krwj6.gif';
     }
     // جوجل
     if (p.includes('google') || p.includes('جوجل')) {
@@ -1772,7 +1772,7 @@ function getPlatformIcon(platform, serviceName = '') {
     if (p.includes('facebook') || p.includes('فيس بوك')) return 'https://storage.perfectcdn.com/kgcodj/3z7kylkenb7i121g.gif';
     if (p.includes('youtube') || p.includes('يوتيوب')) return 'https://storage.perfectcdn.com/kgcodj/0y8fkhw1iiheqocr.gif';
     if (p.includes('telegram') || p.includes('تيليجرام')) return 'https://storage.perfectcdn.com/kgcodj/zfcqfa652rzd4bam.gif';
-    if (p.includes('snapchat') || p.includes('سناب شات')) return 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg';
+    if (p.includes('snapchat') || p.includes('سناب شات')) return 'https://storage.perfectcdn.com/23mb5q/sxw3z02h57xwgnau.gif';
     
     // --- 4. أيقونة افتراضية ---
     try {
