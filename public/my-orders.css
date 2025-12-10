@@ -126,6 +126,25 @@ main.container {
     border: 1px solid var(--gray-border);
 }
 
+.table-container::before, .table-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+.table-container::before {
+    left: 0;
+    background: linear-gradient(to right, white, transparent);
+}
+.table-container::after {
+    right: 0;
+    background: linear-gradient(to left, white, transparent);
+}
+
+
 /* --- Tables Design - محسن --- */
 table {
     width: 100%;
