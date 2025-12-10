@@ -74,6 +74,33 @@ notificationsQueue.process('broadcast', 3, async (job) => {
 
 
 // ==========================================
+// ******** 🚀🚀 معالجات طابور الإيميلات (النسخة النهائية) 🚀🚀 ********
+// ==========================================
+
+// معالج إيميل تفعيل الحساب
+emailQueue.process('send-verification-email', 5, async (job) => {
+    const { email, code } = job.data;
+    if (!email || !code) {
+        throw new Error(`Missing data for job ${job.id}: email or code is undefined.`);
+    }
+    console.log(`📧 [Queue] Sending verification email to: ${email}`);
+    const result = await sendActivationEmail(email, code);
+    return { success: result, email: email };
+});
+
+// معالج إيميل إعادة تعيين كلمة المرور
+emailQueue.process('send-reset-password-email', 5, async (job) => {
+    const { email, code } = job.data;
+    if (!email || !code) {
+        throw new Error(`Missing data for job ${job.id}: email or code is undefined.`);
+    }
+    console.log(`🔑 [Queue] Sending reset password email to: ${email}`);
+    const result = await sendPasswordResetEmail(email, code);
+    return { success: result, email: email };
+});
+
+
+// ==========================================
 // ******** معالج الإيميلات ********
 // ==========================================
 emailQueue.process('send-email', 1, async (job) => {
@@ -93,7 +120,6 @@ emailQueue.process('send-email', 1, async (job) => {
         throw error;
     }
 });
-
 
 
 // ==========================================
@@ -165,26 +191,7 @@ notificationsQueue.process('price-update', 2, async (job) => {
     }
 });
 
-// ==========================================
-// ******** معالج الإيميلات ********
-// ==========================================
-emailQueue.process('send-email', 1, async (job) => {
-    console.log(`📧 معالجة إيميل (${job.id}): ${job.data.to}`);
-    
-    const { to, subject, html, type = 'general' } = job.data;
-    
-    try {
-        // هنا يمكنك إضافة منطق إرسال الإيميل
-        // يمكنك استخدام sendActivationEmail أو sendPasswordResetEmail
-        console.log(`✅ تمت معالجة إيميل لـ ${to}`);
-        
-        return { success: true, message: 'تم إرسال الإيميل' };
-        
-    } catch (error) {
-        console.error('❌ فشل إرسال الإيميل:', error);
-        throw error;
-    }
-});
+
 
 // ==========================================
 // ******** معالج إشعارات العرض الجديد ********
