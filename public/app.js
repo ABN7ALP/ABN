@@ -1721,7 +1721,7 @@ function getPlatformIcon(platform, serviceName = '') {
     // --- 2. البحث عن اسم المنصة (بروابط محسنة) ---
     // تويتر / X
     if (p.includes('twitter') || p.includes('تويتر') || p === 'x' || p === 'اكس') {
-        return 'https://i.ibb.co/5ghPT58L/5a7a34abbaf48383f76062a5b8a6a22b.jpg';
+        return 'https://storage.perfectcdn.com/kgcodj/xgyjzbkog3f6k18m.gif';
     }
     // واتساب
     if (p.includes('whatsapp') || p.includes('واتساب') || p.includes('واتس اب') || p.includes('واتس')) {
@@ -1735,7 +1735,7 @@ function getPlatformIcon(platform, serviceName = '') {
     // تيك توك
     if (p.includes('tiktok') || p.includes('تيك توك')) {
         // ✅ أيقونة بدون اسم
-        return 'https://i.ibb.co/ZzGx3V0m/94e9aed2396372bada54b9f4295e469a.jpg';
+        return 'https://storage.perfectcdn.com/kgcodj/ucyfuh8bjadfcbka.gif';
     }
     // ثريدز
     if (p.includes('threads') || p.includes('ثريدز')) {
@@ -1769,9 +1769,9 @@ function getPlatformIcon(platform, serviceName = '') {
     
     // --- 3. الأيقونات الأصلية (Fallback) ---
     if (p.includes('instagram') || p.includes('انستجرام')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
-    if (p.includes('facebook') || p.includes('فيس بوك')) return 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg';
-    if (p.includes('youtube') || p.includes('يوتيوب')) return 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg';
-    if (p.includes('telegram') || p.includes('تيليجرام')) return 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg';
+    if (p.includes('facebook') || p.includes('فيس بوك')) return 'https://storage.perfectcdn.com/kgcodj/3z7kylkenb7i121g.gif';
+    if (p.includes('youtube') || p.includes('يوتيوب')) return 'https://storage.perfectcdn.com/kgcodj/0y8fkhw1iiheqocr.gif';
+    if (p.includes('telegram') || p.includes('تيليجرام')) return 'https://storage.perfectcdn.com/kgcodj/zfcqfa652rzd4bam.gif';
     if (p.includes('snapchat') || p.includes('سناب شات')) return 'https://upload.wikimedia.org/wikipedia/en/c/c4/Snapchat_logo.svg';
     
     // --- 4. أيقونة افتراضية ---
