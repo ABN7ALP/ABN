@@ -968,3 +968,30 @@ body.desktop-view-on-mobile .container {
 .checkbox-text a:hover {
     text-decoration: underline;
 }
+
+/* ==========================================================
+   🚀 تحسينات بصرية لرسائل الخطأ في النماذج 🚀
+   ========================================================== */
+
+/* حالة الخطأ العامة للحقول */
+.form-group .error {
+    border-color: #EF4444 !important; /* --danger-red */
+    background-color: #fef2f2;
+}
+
+/* حالة الخطأ لصندوق الاختيار */
+.checkbox-label.error .checkmark {
+    border-color: #EF4444; /* --danger-red */
+    animation: shake 0.5s;
+}
+
+.checkbox-label.error .checkbox-text {
+    color: #EF4444; /* --danger-red */
+}
+
+/* أنيميشن اهتزاز لجذب الانتباه */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
