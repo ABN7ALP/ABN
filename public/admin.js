@@ -293,6 +293,7 @@ async function fetchOrders(week = 0) { // 🎯 قبول بارامتر الأس�
             const platformName = order.platform || 'غير محدد';
             const platformIcon = order.platform ? `ph-${order.platform.toLowerCase().replace(/\s/g, '')}-logo` : 'ph-question';
             row.innerHTML = `
+                <td data-label="رقم الطلب" style="font-weight: bold; color: var(--purple-main);">${order.orderId || 'N/A'}</td>
                 <td data-label="المنصة"><i class="ph-bold ${platformIcon}"></i> ${platformName}</td>
                 <td data-label="الخدمة">${order.service || 'N/A'}</td>
                 <td data-label="الرابط">
