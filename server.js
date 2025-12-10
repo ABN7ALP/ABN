@@ -24,6 +24,7 @@ const helmet = require('helmet'); // 🔽🔽 أضف هذا السطر 🔽🔽
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean'); 
 const hpp = require('hpp');
+const compression = require('compression'); // استيراد المكتبة
 
 const app = express();
 app.set('trust proxy', 1);
@@ -45,7 +46,7 @@ app.use(xss());
 // حماية من HTTP Parameter Pollution
 app.use(hpp());
 // ==========================================================
-
+app.use(compression());
 
 // 🔽🔽 أضف هذا الكود هنا 🔽🔽
 // ==========================================================
