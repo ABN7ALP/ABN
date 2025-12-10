@@ -298,11 +298,11 @@ const addNotificationJob = async (type, data, options = {}) => {
         ...options
     };
     
-    return await notificationsQueue.add(type, data, jobOptions);
+    return await notificationsQueue.add(type, data, options);
 };
 
-const addEmailJob = async (data, options = {}) => {
-    return await emailQueue.add('send-email', data, options);
+const addEmailJob = async (type, data, options = {}) => {
+    return await emailQueue.add(type, data, options);
 };
 
 // الحصول على إحصائيات الطابور
