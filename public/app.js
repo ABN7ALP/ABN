@@ -2864,13 +2864,7 @@ scrollTopBtn?.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-// --- روابط الفوتر القانونية ---
-document.querySelectorAll('#privacy-policy, #terms-service, #refund-policy, #faq-link').forEach(link => {
-    link?.addEventListener('click', (e) => {
-        e.preventDefault();
-        alert('🚧 هذه الصفحة قيد التطوير وستكون متاحة قريباً!');
-    });
-});
+
 
 // --- رابط شحن الرصيد في الفوتر ---
 const footerDepositLink = document.getElementById('footer-deposit-link');
