@@ -1,4 +1,4 @@
-
+const Counter = require('./counter.model');
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
@@ -64,6 +64,33 @@ const orderSchema = new mongoose.Schema({
 }, {
     timestamps: true 
 });
+
+
+orderSchema.pre('save', async function(next) {
+    
+    if (this.isNew) {
+        try {
+            
+            const counter = await Counter.findByIdAndUpdate(
+                { _id: 'orderId' },
+                { $inc: { seq: 1 } },
+                { new: true, upsert: true } 
+            );
+            
+            // قم بإنشاء المعرف الجديد (مثال: MX-1001)
+            this.orderId = `MX-${counter.seq}`;
+            next();
+        } catch (error) {
+            
+            next(error);
+        }
+    } else {
+        next();
+    }
+});
+
+
+
 
 const Order = mongoose.model('Order', orderSchema);
 module.exports = Order;
