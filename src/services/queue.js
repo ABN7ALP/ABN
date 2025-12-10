@@ -72,19 +72,77 @@ notificationsQueue.process('broadcast', 3, async (job) => {
 
 
 // ==========================================
-// ******** 🚀🚀 معالج الإيميلات الجديد 🚀🚀 ********
+// ******** 🚀🚀 معالج الإيميلات المصحح 🚀🚀 ********
 // ==========================================
-emailQueue.process('send-verification-email', async (job) => {
+
+// 🔽🔽 استبدل معالج الإيميلات القديم بهذا الكود 🔽🔽
+
+// معالج إيميل تفعيل الحساب
+emailQueue.process('send-verification-email', 5, async (job) => {
+    // 1. استخراج البيانات الصحيحة (email و code) من job.data
     const { email, code } = job.data;
+
+    // 2. التحقق من وجود البيانات قبل المتابعة
+    if (!email || !code) {
+        throw new Error(`Missing data for job ${job.id}: email or code is undefined.`);
+    }
+
     console.log(`📧 [Queue] Sending verification email to: ${email}`);
-    return await sendActivationEmail(email, code);
+    
+    // 3. استدعاء دالة الإرسال الصحيحة مع البيانات الصحيحة
+    const result = await sendActivationEmail(email, code);
+    
+    // 4. إرجاع نتيجة مفيدة
+    return { success: result, email: email };
 });
 
-emailQueue.process('send-reset-password-email', async (job) => {
+// معالج إيميل إعادة تعيين كلمة المرور
+emailQueue.process('send-reset-password-email', 5, async (job) => {
+    // 1. استخراج البيانات الصحيحة (email و code) من job.data
     const { email, code } = job.data;
+
+    // 2. التحقق من وجود البيانات
+    if (!email || !code) {
+        throw new Error(`Missing data for job ${job.id}: email or code is undefined.`);
+    }
+
     console.log(`🔑 [Queue] Sending reset password email to: ${email}`);
-    return await sendPasswordResetEmail(email, code);
+    
+    // 3. استدعاء دالة الإرسال الصحيحة مع البيانات الصحيحة
+    const result = await sendPasswordResetEmail(email, code);
+    
+    // 4. إرجاع نتيجة مفيدة
+    return { success: result, email: email };
 });
+
+// 🔼🔼 نهاية الاستبدال 🔼🔼
+
+
+// ==========================================
+// ******** مراقبة حالة الطوابير (مُحسّن) ********
+// ==========================================
+notificationsQueue.on('failed', (job, err) => {
+    console.error(`💥 [Notifications Queue] Job ${job.id} (${job.name}) failed:`, err.message);
+});
+
+emailQueue.on('failed', (job, err) => {
+    // 🆕 سجل خطأ أكثر تفصيلاً للإيميلات
+    console.error(`❌ [Email Queue] Job ${job.id} (${job.name}) failed for email: ${job.data.email}. Error:`, err.message);
+});
+
+notificationsQueue.on('completed', (job, result) => {
+    console.log(`✅ [Notifications Queue] Job ${job.id} (${job.name}) completed.`);
+});
+
+emailQueue.on('completed', (job, result) => {
+    // 🆕 سجل نجاح أكثر تفصيلاً للإيميلات
+    if (result.success) {
+        console.log(`✅ [Email Queue] Job ${job.id} completed successfully for: ${result.email}`);
+    } else {
+        console.warn(`⚠️ [Email Queue] Job ${job.id} completed but failed to send for: ${result.email}`);
+    }
+});
+
 
 
 // ==========================================
