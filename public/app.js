@@ -383,34 +383,42 @@ function setupPasswordStrength() {
     
     
 
-    // 🔽 استبدل الدالة الحالية بهذه الدالة المحدثة 🔽
+// 🔽🔽 استبدل الدالة بالكامل 🔽🔽
 async function registerHandler(e) {
     e.preventDefault();
-    const username = document.getElementById('register-username').value;
-    const email = document.getElementById('register-email').value;
-    const password = document.getElementById('register-password').value;
-    const profileImageInput = document.getElementById('register-profile-image');
     
-    registerPopupError.textContent = '';
-
+    // --- جلب العناصر ---
+    const usernameInput = document.getElementById('register-username');
+    const emailInput = document.getElementById('register-email');
+    const passwordInput = document.getElementById('register-password');
+    const profileImageInput = document.getElementById('register-profile-image');
+    const termsCheckboxLabel = document.querySelector('label[for="terms-agree"]');
     const termsCheckbox = document.getElementById('terms-agree');
+    const registerPopupError = document.getElementById('register-popup-error');
+
+    // --- إعادة تعيين حالات الخطأ ---
+    registerPopupError.textContent = '';
+    termsCheckboxLabel.classList.remove('error');
+    
+    // --- التحقق من الموافقة على الشروط (مع تحسين بصري) ---
     if (!termsCheckbox.checked) {
         registerPopupError.textContent = 'يجب عليك الموافقة على شروط الخدمة وسياسة الخصوصية للمتابعة.';
+        termsCheckboxLabel.classList.add('error'); // 🚀 تفعيل حالة الخطأ البصرية
         return; // إيقاف التنفيذ
     }
-    
 
-    // 🆕 التحقق من قوة كلمة المرور
-    const { strength } = checkPasswordStrength(password);
+    // --- التحقق من قوة كلمة المرور ---
+    const { strength } = checkPasswordStrength(passwordInput.value);
     if (strength < 3) {
         registerPopupError.textContent = 'كلمة المرور ضعيفة. يرجى اختيار كلمة مرور أقوى.';
+        // يمكنك إضافة كلاس error لحقل كلمة المرور هنا أيضاً إذا أردت
+        // passwordInput.classList.add('error');
         return;
     }
     
+    // --- معالجة الصورة والبيانات ---
     try {
         let profileImageBase64 = null;
-        
-        // 🆕 معالجة الصورة إذا تم اختيارها
         if (profileImageInput && profileImageInput.files[0]) {
             profileImageBase64 = await fileToBase64(profileImageInput.files[0]);
         }
@@ -419,10 +427,10 @@ async function registerHandler(e) {
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' }, 
             body: JSON.stringify({ 
-                username, 
-                email, 
-                password,
-                profileImage: profileImageBase64 // 🆕 إرسال الصورة
+                username: usernameInput.value, 
+                email: emailInput.value, 
+                password: passwordInput.value,
+                profileImage: profileImageBase64
             }) 
         });
         
@@ -432,6 +440,7 @@ async function registerHandler(e) {
             throw new Error(data.message || 'فشل إنشاء الحساب');
         }
         
+        // --- التعامل مع الاستجابة الناجحة ---
         if (data.requiresVerification) {
             showVerificationPopup(data.email);
         } else {
@@ -444,7 +453,8 @@ async function registerHandler(e) {
         registerPopupError.textContent = error.message; 
     }
 }
-// 🔼 نهاية الاستبدال 🔼
+// 🔼🔼 نهاية الاستبدال 🔼🔼
+
 
     function showVerificationPopup(email) {
     const registerFormContainer = document.getElementById('register-form-container');
