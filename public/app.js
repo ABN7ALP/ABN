@@ -1744,7 +1744,7 @@ function getPlatformIcon(platform, serviceName = '') {
     }
     // سبوتيفاي
     if (p.includes('spotify') || p.includes('سبوتيفاي')) {
-        return 'https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg';
+        return 'https://storage.perfectcdn.com/kgcodj/wqa7002fzjniq7te.gif';
     }
     // كواي
     if (p.includes('kwai') || p.includes('كواي')) {
@@ -1768,7 +1768,7 @@ function getPlatformIcon(platform, serviceName = '') {
     }
     
     // --- 3. الأيقونات الأصلية (Fallback) ---
-    if (p.includes('instagram') || p.includes('انستجرام')) return 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png';
+    if (p.includes('instagram') || p.includes('انستجرام')) return 'https://storage.perfectcdn.com/kgcodj/jobdmcyfy04m4y2j.gif';
     if (p.includes('facebook') || p.includes('فيس بوك')) return 'https://storage.perfectcdn.com/kgcodj/3z7kylkenb7i121g.gif';
     if (p.includes('youtube') || p.includes('يوتيوب')) return 'https://storage.perfectcdn.com/kgcodj/0y8fkhw1iiheqocr.gif';
     if (p.includes('telegram') || p.includes('تيليجرام')) return 'https://storage.perfectcdn.com/kgcodj/zfcqfa652rzd4bam.gif';
