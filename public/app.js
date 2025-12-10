@@ -393,6 +393,13 @@ async function registerHandler(e) {
     
     registerPopupError.textContent = '';
 
+    const termsCheckbox = document.getElementById('terms-agree');
+    if (!termsCheckbox.checked) {
+        registerPopupError.textContent = 'يجب عليك الموافقة على شروط الخدمة وسياسة الخصوصية للمتابعة.';
+        return; // إيقاف التنفيذ
+    }
+    
+
     // 🆕 التحقق من قوة كلمة المرور
     const { strength } = checkPasswordStrength(password);
     if (strength < 3) {
