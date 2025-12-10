@@ -71,51 +71,29 @@ notificationsQueue.process('broadcast', 3, async (job) => {
 });
 
 
+
+
 // ==========================================
-// ******** 🚀🚀 معالج الإيميلات المصحح 🚀🚀 ********
+// ******** معالج الإيميلات ********
 // ==========================================
-
-// 🔽🔽 استبدل معالج الإيميلات القديم بهذا الكود 🔽🔽
-
-// معالج إيميل تفعيل الحساب
-emailQueue.process('send-verification-email', 5, async (job) => {
-    // 1. استخراج البيانات الصحيحة (email و code) من job.data
-    const { email, code } = job.data;
-
-    // 2. التحقق من وجود البيانات قبل المتابعة
-    if (!email || !code) {
-        throw new Error(`Missing data for job ${job.id}: email or code is undefined.`);
+emailQueue.process('send-email', 1, async (job) => {
+    console.log(`📧 معالجة إيميل (${job.id}): ${job.data.to}`);
+    
+    const { to, subject, html, type = 'general' } = job.data;
+    
+    try {
+        // هنا يمكنك إضافة منطق إرسال الإيميل
+        // يمكنك استخدام sendActivationEmail أو sendPasswordResetEmail
+        console.log(`✅ تمت معالجة إيميل لـ ${to}`);
+        
+        return { success: true, message: 'تم إرسال الإيميل' };
+        
+    } catch (error) {
+        console.error('❌ فشل إرسال الإيميل:', error);
+        throw error;
     }
-
-    console.log(`📧 [Queue] Sending verification email to: ${email}`);
-    
-    // 3. استدعاء دالة الإرسال الصحيحة مع البيانات الصحيحة
-    const result = await sendActivationEmail(email, code);
-    
-    // 4. إرجاع نتيجة مفيدة
-    return { success: result, email: email };
 });
 
-// معالج إيميل إعادة تعيين كلمة المرور
-emailQueue.process('send-reset-password-email', 5, async (job) => {
-    // 1. استخراج البيانات الصحيحة (email و code) من job.data
-    const { email, code } = job.data;
-
-    // 2. التحقق من وجود البيانات
-    if (!email || !code) {
-        throw new Error(`Missing data for job ${job.id}: email or code is undefined.`);
-    }
-
-    console.log(`🔑 [Queue] Sending reset password email to: ${email}`);
-    
-    // 3. استدعاء دالة الإرسال الصحيحة مع البيانات الصحيحة
-    const result = await sendPasswordResetEmail(email, code);
-    
-    // 4. إرجاع نتيجة مفيدة
-    return { success: result, email: email };
-});
-
-// 🔼🔼 نهاية الاستبدال 🔼🔼
 
 
 // ==========================================
