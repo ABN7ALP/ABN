@@ -12,6 +12,7 @@ const {
     emailVerificationLimiter 
 } = require('../middleware/rateLimit');
 const { createLog } = require('../services/logging.service');
+const { addEmailJob } = require('../services/queue'); // 🆕 استيراد دالة الطابور
 
 // --- دالة لإنشاء توكن JWT ---
 const generateToken = (id) => {
@@ -66,7 +67,11 @@ router.post('/register', registerLimiter, registerRules, async (req, res) => {
         });
 
         // 🆕 إرسال إيميل تفعيل الحساب
-        const emailSent = await sendActivationEmail(email, verificationCode);
+        await addEmailJob('send-verification-email', { email, code: verificationCode }, {
+            delay: 1000, // تأخير ثانية واحدة
+            attempts: 3  // 3 محاولات في حال الفشل
+        });
+        const emailSent = true; // نفترض دائماً أنه تم إضافته للطابور بنجاح
         
         if (!emailSent) {
             console.log(`🔐 كود تفعيل الحساب للمستخدم ${email}: ${verificationCode}`);
@@ -252,7 +257,11 @@ router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
         await user.save();
 
         // 🆕 إرسال إيميل إعادة تعيين كلمة المرور (الجديد)
-        const emailSent = await sendPasswordResetEmail(email, resetToken);
+        await addEmailJob('send-reset-password-email', { email, code: resetToken }, {
+            delay: 1000,
+            attempts: 3
+        });
+        const emailSent = true;
         
         if (!emailSent) {
             console.log(`🔑 كود إعادة تعيين كلمة المرور لـ ${email}: ${resetToken}`);
