@@ -2,6 +2,7 @@
 const Queue = require('bull');
 const User = require('../models/user.model');
 const Notification = require('../models/notification.model');
+const { sendActivationEmail, sendPasswordResetEmail } = require('../routes/emailConfig'); // 🆕 
 
 // تهيئة Redis connection - استخدم متغير البيئة الخاص بك
 const redisConfig = {
@@ -68,6 +69,23 @@ notificationsQueue.process('broadcast', 3, async (job) => {
         throw error;
     }
 });
+
+
+// ==========================================
+// ******** 🚀🚀 معالج الإيميلات الجديد 🚀🚀 ********
+// ==========================================
+emailQueue.process('send-verification-email', async (job) => {
+    const { email, code } = job.data;
+    console.log(`📧 [Queue] Sending verification email to: ${email}`);
+    return await sendActivationEmail(email, code);
+});
+
+emailQueue.process('send-reset-password-email', async (job) => {
+    const { email, code } = job.data;
+    console.log(`🔑 [Queue] Sending reset password email to: ${email}`);
+    return await sendPasswordResetEmail(email, code);
+});
+
 
 // ==========================================
 // ******** معالج تحديثات الأسعار ********
