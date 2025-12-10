@@ -176,6 +176,7 @@ function renderMyOrders(orders) {
         }
         
         row.innerHTML = `
+            <td data-label="رقم الطلب" style="font-weight: bold; color: var(--purple-main);">${order.orderId || 'N/A'}</td>
             <td data-label="الخدمة">
                 <div class="service-cell">
                     <i class="ph-bold ph-${order.platform?.toLowerCase().replace(/\s/g, '')}-logo"></i>
@@ -188,16 +189,11 @@ function renderMyOrders(orders) {
             <td data-label="الحالة">${statusHTML}</td>
         `;
         myOrdersTbody.appendChild(row);
-    });
+    });    
     
-    // ==========================================================
-    // 🚀🚀 هذا هو السطر الذي كان مفقوداً 🚀🚀
-    // ==========================================================
-    // بعد إنشاء كل الأزرار، نقوم بالبحث عنها وربط حدث النقر بها.
     document.querySelectorAll('.dispute-btn').forEach(btn => {
         btn.addEventListener('click', handleDisputeButtonClick);
     });
-    // ==========================================================
 
     document.getElementById('my-orders-loading').classList.add('hidden');
 }
