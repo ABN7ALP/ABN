@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الأسئلة الشائعة - متجر MX GROUP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        h1 {
+            text-align: center;
+            color: #5a16ba;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+        }
+        .faq-item {
+            background-color: #fff;
+            margin-bottom: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #1E293B;
+        }
+        .faq-question:hover {
+            background-color: #f9fafb;
+        }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-in-out, padding 0.4s ease;
+            padding: 0 1.5rem;
+            color: #64748B;
+            border-top: 1px solid transparent;
+        }
+        .faq-item.active .faq-answer {
+            max-height: 300px; /* ارتفاع كافٍ لمعظم الإجابات */
+            padding: 1.5rem;
+            border-top-color: #e2e8f0;
+        }
+        .faq-toggle {
+            font-size: 1.5rem;
+            color: #7C1EFF;
+            transition: transform 0.4s ease;
+        }
+        .faq-item.active .faq-toggle {
+            transform: rotate(45deg);
+        }
+        .footer-link {
+            display: block;
+            text-align: center;
+            margin-top: 2rem;
+            font-weight: bold;
+            color: #7C1EFF;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>الأسئلة الشائعة</h1>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>كيف يمكنني البدء واستخدام خدماتكم؟</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <p>الأمر بسيط جداً! اتبع الخطوات التالية:</p>
+                <ol>
+                    <li><strong>أنشئ حساباً:</strong> قم بإنشاء حساب جديد في المتجر.</li>
+                    <li><strong>اشحن رصيدك:</strong> انتقل إلى قسم "شحن الرصيد" واختر طريقة الدفع المناسبة لك.</li>
+                    <li><strong>اختر الخدمة:</strong> تصفح خدماتنا واختر الخدمة التي تريدها.</li>
+                    <li><strong>قدم طلبك:</strong> أدخل الرابط والكمية المطلوبة، ثم قم بتأكيد الطلب باستخدام رصيدك.</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>ماذا يعني أن يكون الحساب "عام"؟ ولماذا هو ضروري؟</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <p>الحساب "العام" (Public) هو حساب يمكن لأي شخص رؤية محتواه. أما الحساب "الخاص" (Private) فلا يمكن رؤيته إلا من قبل المتابعين الذين توافق عليهم. هذا الشرط ضروري لأن أنظمتنا ومزودي الخدمات لا يمكنهم الوصول إلى الحسابات الخاصة لتقديم الخدمة المطلوبة (مثل إرسال المتابعين أو الإعجابات).</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>كم من الوقت يستغرق تنفيذ طلبي؟</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <p>يختلف وقت التنفيذ حسب نوع الخدمة والضغط على الخوادم. معظم الطلبات تبدأ في التنفيذ خلال دقائق إلى بضع ساعات. يمكنك دائماً متابعة حالة طلبك من خلال صفحة "طلباتي".</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>هل الخدمات التي تقدمونها آمنة لحسابي؟</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <p>نعم، خدماتنا آمنة. نحن لا نطلب أبداً كلمة المرور الخاصة بحسابك على أي منصة تواصل اجتماعي. كل ما نحتاجه هو رابط حسابك أو منشورك العام. نحن نتعامل مع مزودين موثوقين لضمان أمان حسابك.</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>ماذا يحدث إذا قمت بإدخال رابط خاطئ؟</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <p>أنت المسؤول عن صحة الرابط. إذا تم تقديم رابط خاطئ، سيتم إلغاء الطلب. وفقاً لسياستنا، قد يتم خصم رسوم خدمة بسيطة (0.30 دولار) من المبلغ المسترد إلى رصيدك. يرجى التأكد دائماً من صحة الرابط قبل تأكيد الطلب.</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>هل يمكنني إلغاء طلب بعد تقديمه؟</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <p>بمجرد تقديم الطلب ودخوله حيز التنفيذ، لا يمكن إلغاؤه من طرفك. إذا واجهت مشكلة، يرجى التواصل مع الدعم الفني فوراً، وسنحاول المساعدة قدر الإمكان.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>هل المتابعون حقيقيون؟ وهل يحدث نقص في العدد؟</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <p>تختلف جودة المتابعين حسب الخدمة المختارة (بعضها بجودة عالية وبعضها حسابات مختلطة). أما بالنسبة للنقص، فهو أمر وارد ويمكن أن يحدث بمرور الوقت بسبب تحديثات منصات التواصل الاجتماعي. نحن لا نقدم ضماناً ضد النقص بعد اكتمال الخدمة، ولكننا نسعى لتقديم خدمات ذات ثباتية عالية.</p>
+            </div>
+        </div>
+
+        <a href="/" class="footer-link">العودة إلى الصفحة الرئيسية</a>
+    </div>
+
+    <script>
+        document.querySelectorAll('.faq-question').forEach(button => {
+            button.addEventListener('click', () => {
+                const faqItem = button.parentElement;
+                faqItem.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+</html>
