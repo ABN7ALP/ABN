@@ -1,12 +1,16 @@
-// 🚀🚀 أضف هذا السطر في بداية الملف 🚀🚀
+
 const mongoose = require('mongoose');
 
-// 🔽🔽 الكود الحالي الخاص بك يبدأ من هنا 🔽🔽
 const orderSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: false 
+    },
+
+    orderId: {
+        type: String,
+        unique: true // يضمن عدم تكرار المعرف أبداً
     },
     platform: { 
         type: String, 
@@ -39,22 +43,21 @@ const orderSchema = new mongoose.Schema({
         trim: true,
         default: null
    },         
-     // 🚀🚀 الحقول الجديدة لنظام الاعتراض 🚀🚀
     dispute: {
         status: {
             type: String,
             enum: ['pending', 'approved', 'rejected', null], // pending: تم الاعتراض, approved: تمت الموافقة, rejected: تم الرفض
             default: null
         },
-        reason: { // سبب اعتراض المستخدم
+        reason: { 
             type: String,
             trim: true
         },
-        adminResponse: { // رد الأدمن
+        adminResponse: { 
             type: String,
             trim: true
         },
-        date: { // تاريخ تقديم الاعتراض
+        date: { 
             type: Date
         }
     }
