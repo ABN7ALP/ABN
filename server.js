@@ -223,11 +223,13 @@ app.use((err, req, res, next) => {
 });
 
 
-// تشغيل البوت
-require('./src/services/telegramBot');
-
 // تشغيل الخادم
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     console.log(`Redis URL: ${process.env.REDIS_URL ? 'محدد' : 'غير محدد'}`);
+
+  setTimeout(() => {
+        console.log('🤖 Initializing Telegram Bot...');
+        require('./src/services/telegramBot');
+    }, 1000); // تأخير لمدة ثانية واحدة (1000 ميلي ثانية)
 });
