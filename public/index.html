@@ -13,6 +13,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="https://unpkg.com/i18next/dist/umd/i18next.min.js"></script>
+    <script src="https://unpkg.com/i18next-browser-languagedetector/dist/umd/i18nextBrowserLanguageDetector.min.js"></script>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="main.css">
     <!-- Font Awesome للآيكونات -->
@@ -27,7 +29,7 @@
     <!-- Header -->
     <header class="main-header">
         <div class="container">
-            <div class="logo"> متجر MX GROUP</div>
+            <a href="/" class="logo" data-i18n="appName">متجر MX GROUP</a>
             <div class="header-actions">
              <!-- جرس الإشعارات سيوضع هنا بواسطة JavaScript -->
             <div id="notification-bell-container"></div>
@@ -39,8 +41,9 @@
     <!-- Main Content -->
     <main class="container">
         <section class="hero">
-            <h1>أفضل الخدمات الرقمية لمنصات التواصل الاجتماعي</h1>
-            <p>اختر المنصة التي تريدها وابدأ في تنمية حسابك اليوم!</p>
+            
+            <h1 data-i18n="heroTitle">أفضل الخدمات الرقمية لمنصات التواصل الاجتماعي</h1>
+            <p data-i18n="heroTitle">اختر المنصة التي تريدها وابدأ في تنمية حسابك اليوم!</p>
         </section>
 
        <!-- 🔍 قسم البحث -->
@@ -48,18 +51,19 @@
     <div class="container">
         <div class="search-box">
             <i class="ph-bold ph-magnifying-glass"></i>
-            <input type="text" id="services-search" placeholder="ابحث عن خدمة معينة... (مثال: انستغرام، متابعين، لايكات)">
+            <input type="text" id="services-search" data-i18n="searchPlaceholder" placeholder="ابحث عن خدمة معينة...">
             <button id="clear-search" class="clear-search-btn hidden">
                 <i class="ph-bold ph-x"></i>
             </button>
         </div>
         <div class="search-filters">
-            <button class="filter-btn active" data-filter="all">الكل</button>
-            <button class="filter-btn" data-filter="instagram">انستغرام</button>
-            <button class="filter-btn" data-filter="tiktok">تيك توك</button>
-            <button class="filter-btn" data-filter="facebook">فيسبوك</button>
-            <button class="filter-btn" data-filter="youtube">يوتيوب</button>
-            <button class="filter-btn" data-filter="twitter">تويتر</button>
+            
+            <button class="filter-btn active" data-filter="all" data-i18n="allFilter">الكل</button>
+            <button class="filter-btn" data-filter="instagram" data-i18n="allFilter">انستغرام</button>
+            <button class="filter-btn" data-filter="tiktok" data-i18n="allFilter">تيك توك</button>
+            <button class="filter-btn" data-filter="facebook"data-i18n="allFilter">فيسبوك</button>
+            <button class="filter-btn" data-filter="youtube" data-i18n="allFilter">يوتيوب</button>
+            <button class="filter-btn" data-filter="twitter" data-i18n="allFilter">تويتر</button>
         </div>
     </div>
 </section> 
