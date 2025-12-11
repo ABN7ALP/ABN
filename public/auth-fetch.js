@@ -42,10 +42,6 @@ async function apiFetch(url, options = {}) {
         headers['Authorization'] = `Bearer ${authToken}`;
     }
 
-
-    const currentLng = localStorage.getItem('i18nextLng') || 'ar';
-    headers['Accept-Language'] = currentLng;
-
     // تحديد نوع المحتوى تلقائياً
     if (!(options.body instanceof FormData)) {
         headers['Content-Type'] = 'application/json';
