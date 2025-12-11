@@ -3,69 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بشير الحسين - مطور ويب وخبير حلول رقمية</title>
+    <title>محمد نور الرحيم - مطور ويب وخبير حلول رقمية</title>
     <meta name="description" content="مطور ويب متخصص في بناء تطبيقات الويب الحديثة، المتاجر الإلكترونية، وتقديم حلول الصيانة والدعم التقني. شاهد بنفسك جودة الأمان، السرعة، والتصميم.">
-    <link rel="stylesheet" href="style.css">
+    
+    <!-- ========================================== -->
+    <!-- 🏆 الإصلاح رقم 1: استيراد الخطوط المطلوبة -->
+    <!-- ========================================== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        :root { --dev-bg: #0a092d; --dev-surface: #1e1b4b; --dev-border: #3a3768; }
-        body { background-color: var(--dev-bg); color: #fff; }
+        /* ========================================== */
+        /* 🏆 الإصلاح رقم 2: تعريف جميع المتغيرات */
+        /* ========================================== */
+        :root {
+            /* متغيرات التصميم الداكن للصفحة */
+            --dev-bg: #0a092d;
+            --dev-surface: #1e1b4b;
+            --dev-border: #3a3768;
+
+            /* متغيرات الألوان الرئيسية (كانت ناقصة) */
+            --purple-main: #7C1EFF;
+            --purple-dark: #5a16ba;
+            --purple-light: #f3e8ff;
+            --purple-gradient: linear-gradient(135deg, #7C1EFF 0%, #5a16ba 100%);
+            --text-dark: #1E293B;
+            --text-light: #64748B;
+            --white-pure: #FFFFFF;
+
+            /* متغيرات الأبعاد والأنيميشن (كانت ناقصة) */
+            --font-main: 'Cairo', sans-serif;
+            --radius-card: 20px;
+            --radius-button: 50px;
+            --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* التنسيقات العامة */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { 
+            background-color: var(--dev-bg); 
+            color: #fff; 
+            font-family: var(--font-main); /* تطبيق الخط المستورد */
+            line-height: 1.6;
+        }
+
+        /* باقي التنسيقات (تبقى كما هي) */
         .dev-header { text-align: center; padding: 4rem 1rem; background: linear-gradient(180deg, var(--dev-surface) 0%, var(--dev-bg) 100%); }
         .dev-avatar { width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--purple-main); box-shadow: 0 0 30px var(--purple-main); margin-bottom: 1rem; }
         .dev-header h1 { font-size: 2.5rem; color: #fff; margin: 0; }
         .dev-header p { font-size: 1.2rem; color: #cbd5e1; margin-top: 0.5rem; }
-        .container { max-width: 900px; }
+        .container { max-width: 900px; margin: 0 auto; }
         .section { padding: 3rem 1rem; }
         .section-title { text-align: center; font-size: 2rem; color: var(--purple-light); margin-bottom: 2rem; }
         
-        /* تصميم جديد لقسم "لماذا تختارني؟" */
         .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
         .feature-item { background: var(--dev-surface); padding: 2rem; border-radius: var(--radius-card); border: 1px solid var(--dev-border); transition: all var(--transition-smooth); position: relative; }
         .feature-item:hover { transform: translateY(-10px); box-shadow: 0 10px 30px rgba(124, 30, 255, 0.3); border-color: var(--purple-main); }
         .feature-item .icon { font-size: 2.5rem; color: var(--purple-main); margin-bottom: 1rem; }
         .feature-item h3 { font-size: 1.3rem; color: #fff; margin-bottom: 0.8rem; }
         .feature-item p { color: #cbd5e1; font-size: 0.95rem; line-height: 1.7; }
-        .feature-item .demo-btn { margin-top: 1.5rem; background: transparent; border: 2px solid var(--purple-main); color: var(--purple-main); }
+        
+        .pill-button { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; border-radius: var(--radius-button); font-weight: 700; font-size: 0.9rem; cursor: pointer; text-decoration: none; }
+        .feature-item .demo-btn { margin-top: 1.5rem; background: transparent; border: 2px solid var(--purple-main); color: var(--purple-main); transition: all var(--transition-smooth); }
         .feature-item .demo-btn:hover { background: var(--purple-main); color: #fff; }
 
         .cta-section { background: var(--purple-gradient); padding: 4rem 1rem; text-align: center; border-radius: var(--radius-card); margin: 2rem auto; max-width: 900px; }
         .cta-section h2 { font-size: 2.2rem; color: #fff; margin: 0 0 1.5rem 0; }
-        .cta-button { background: #fff; color: var(--purple-main); font-size: 1.2rem; padding: 1rem 2.5rem; }
+        .cta-button { background: #fff; color: var(--purple-main); font-size: 1.2rem; padding: 1rem 2.5rem; transition: all var(--transition-smooth); }
         .cta-button:hover { background: #f0e6ff; }
     </style>
 </head>
 <body>
 
     <header class="dev-header">
-        <img src="https://i.ibb.co/9mxLJYg/image.png" alt=" بشير الحسين" class="dev-avatar">
-        <h1>بشير الحسين</h1>
+        <img src="https://i.ibb.co/9mxLJYg/image.png" alt="محمد نور الرحيم" class="dev-avatar">
+        <h1>محمد نور الرحيم</h1>
         <p>مطور ويب متكامل | خبير حلول رقمية</p>
     </header>
-  
 
-
-      <main class="container">
-        <!-- ========================================== -->
-        <!-- 🏆 القسم الجديد: لماذا تختارني؟ (مع معاينة) -->
-        <!-- ========================================== -->
+    <main class="container">
         <section class="section">
             <h2 class="section-title">لماذا تختارني لبناء مشروعك القادم؟</h2>
             <div class="features-grid">
-                <!-- ميزة السرعة -->
                 <div class="feature-item">
                     <div class="icon"><i class="fas fa-rocket"></i></div>
                     <h3>أداء فائق السرعة</h3>
                     <p>أقوم ببناء مواقع وتطبيقات مُحسَّنة لسرعة التحميل القصوى، مما يحسن تجربة المستخدم وترتيبك في محركات البحث. هذا الموقع الذي تتصفحه الآن هو مثال حي على ذلك.</p>
                     <button onclick="testPageSpeed()" class="pill-button demo-btn">اختبر سرعة هذا الموقع</button>
                 </div>
-                <!-- ميزة الأمان -->
                 <div class="feature-item">
                     <div class="icon"><i class="fas fa-shield-alt"></i></div>
                     <h3>حماية وأمان متقدم</h3>
                     <p>أطبق أفضل الممارسات الأمنية لحماية موقعك من الهجمات الشائعة مثل XSS, CSRF, و NoSQL Injection. بياناتك وبيانات عملائك في أمان تام.</p>
                     <button onclick="showSecurityDemo()" class="pill-button demo-btn">شاهد محاكاة للحماية</button>
                 </div>
-                <!-- ميزة التصميم -->
                 <div class="feature-item">
                     <div class="icon"><i class="fas fa-palette"></i></div>
                     <h3>تصميم عصري ومتجاوب</h3>
@@ -84,13 +118,10 @@
         </section>
     </main>
 
-    <!-- ========================================== -->
-    <!-- 🏆 كود الجافاسكريبت الخاص بالمعاينات التفاعلية -->
-    <!-- ========================================== -->
     <script>
         function testPageSpeed() {
-            const url = `https://pagespeed.web.dev/report?url=${encodeURIComponent(window.location.href)}`;
-            alert('سيتم الآن فتح أداة Google PageSpeed في نافذة جديدة لاختبار سرعة هذه الصفحة. لاحظ النتائج الممتازة!');
+            const url = `https://pagespeed.web.dev/report?url=${encodeURIComponent(window.location.origin)}`;
+            alert('سيتم الآن فتح أداة Google PageSpeed في نافذة جديدة لاختبار سرعة هذا الموقع. لاحظ النتائج الممتازة!');
             window.open(url, '_blank');
         }
 
