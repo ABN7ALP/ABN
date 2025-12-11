@@ -231,5 +231,5 @@ server.listen(PORT, () => {
   setTimeout(() => {
         console.log('🤖 Initializing Telegram Bot...');
         require('./src/services/telegramBot');
-    }, 1000); // تأخير لمدة ثانية واحدة (1000 ميلي ثانية)
+    }, 3000); // تأخير لمدة ثانية واحدة (1000 ميلي ثانية)
 });
