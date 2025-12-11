@@ -111,7 +111,7 @@
 
             // ربط زر محاكاة الحماية
             document.getElementById('security-demo-btn').addEventListener('click', function() {
-                const attackAttempt = '<script>alert("XSS Attack!");</script>';
+                const attackAttempt = '&lt;script&gt;alert("XSS Attack!")&lt;/script&gt;';
                 alert("محاكاة هجوم: تخيل أن أحد المخترقين حاول إدخال هذا الكود الضار:\n\n" + attackAttempt + "\n\nبسبب الحماية التي أضفتها، يتم التعامل مع هذا الكود كنص عادي بدلاً من تنفيذه، مما يحمي موقعك.");
             });
 
