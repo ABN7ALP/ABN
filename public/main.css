@@ -1757,6 +1757,90 @@ body::after {
 
 
 /* ========================================== */
+/* 🏆 تصميم جديد لشعار المطور مع أنيميشن */
+/* ========================================== */
+
+/* 1. الرابط الرئيسي لشعار المطور */
+.developer-credit-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: var(--radius-card);
+    transition: all var(--transition-smooth);
+    background: var(--white-pure);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-border);
+    position: relative; /* ضروري للأنيميشن */
+    overflow: hidden; /* ضروري للأنيميشن */
+}
+
+/* 2. الأنيميشن: إضاءة خفيفة عند المرور */
+.developer-credit-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(124, 30, 255, 0.2), transparent);
+    transition: left 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.developer-credit-link:hover::before {
+    left: 100%;
+}
+
+.developer-credit-link:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 25px rgba(124, 30, 255, 0.3);
+    border-color: var(--purple-main);
+}
+
+/* 3. تنسيقات النصوص والصورة داخل الشعار */
+.developer-credit-link span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-light);
+}
+
+.developer-credit-link img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--purple-main);
+}
+
+.developer-credit-link strong {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+/* 4. التحكم في الترتيب على الشاشات المختلفة (الخدعة هنا) */
+
+/* على الهواتف (الشاشات الصغيرة) */
+@media (max-width: 768px) {
+    .contact-and-dev-column {
+        order: -1; /* اجعل هذا العمود يظهر أولاً في الأعلى */
+        text-align: center;
+    }
+    .developer-credit-wrapper {
+        margin-bottom: 2rem; /* مسافة بينه وبين "تواصل معنا" */
+    }
+}
+
+/* على الشاشات الكبيرة (الكمبيوتر) */
+@media (min-width: 769px) {
+    .developer-credit-wrapper {
+        margin-top: 2rem; /* مسافة لفصله عن روابط "تواصل معنا" */
+    }
+}
+
+
+/* ========================================== */
 /* 🏆 تصميم شعار المطور في الفوتر */
 /* ========================================== */
 .developer-credit {
