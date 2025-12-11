@@ -1754,3 +1754,37 @@ body::after {
     z-index: 1; /* يضمن أن الفوتر خلف الأزرار العائمة */
 }
 
+
+
+/* public/main.css (أضف هذا في النهاية) */
+
+/* 🚀 إصلاحات التصميم المتجاوب للهيدر */
+@media (max-width: 768px) {
+    .main-header .container {
+        flex-wrap: wrap; /* السماح للعناصر بالالتفاف إلى سطر جديد */
+        justify-content: space-between;
+        row-gap: 1rem; /* إضافة مسافة بين الأسطر */
+    }
+
+    .logo {
+        width: 100%; /* جعل اللوجو يأخذ عرض كامل في السطر الأول */
+        text-align: center; /* توسيط اللوجو */
+    }
+
+    .header-actions {
+        width: 100%; /* جعل حاوية الأزرار تأخذ عرض كامل */
+        justify-content: center; /* توسيط الأزرار */
+        gap: 1rem; /* تقليل المسافة بين الأزرار */
+    }
+}
+
+/* 🚀 إصلاحات لزر اللغة ليكون متناسقاً في كل الصفحات */
+.language-dropdown {
+    min-width: 120px; /* تحديد عرض أدنى للزر */
+}
+
+.language-dropdown-toggle {
+    width: 100%; /* جعل الزر يملأ الحاوية */
+}
+
+
