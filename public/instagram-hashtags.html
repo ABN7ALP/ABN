@@ -38,7 +38,98 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="main.css">
 
-    
+    <style>
+/* ============ الأساسيات ============ */
+body {
+    font-family: 'Tajawal', sans-serif;
+    background: #f3f3ff;
+    margin: 0;
+    padding: 0;
+    color: #2c2c2c;
+}
+
+/* ============ الهيدر بدون اسم ============ */
+.main-header {
+    background: #6a34f7;
+    padding: 18px 0;
+    text-align: center;
+    border-bottom: 3px solid #5123d1;
+}
+
+/* ============ صندوق المقال ============ */
+.article-container {
+    max-width: 850px;
+    margin: 2.5rem auto;
+    background: #fff;
+    padding: 2.4rem;
+    border-radius: 18px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+    animation: fadeIn 0.5s ease;
+}
+
+/* ============ عنوان المقال ============ */
+.article-header h1 {
+    font-size: 30px;
+    color: #6a34f7;
+    margin-bottom: 1.4rem;
+    text-align: center;
+    font-weight: 700;
+}
+
+/* ============ تنسيق العناوين الداخلية ============ */
+h3 {
+    color: #4c2bbf;
+    margin-top: 2rem;
+    font-size: 22px;
+    border-right: 4px solid #6a34f7;
+    padding-right: 10px;
+}
+
+/* ============ الفقرات ============ */
+.article-body p {
+    line-height: 1.9;
+    color: #444;
+    font-size: 17px;
+}
+
+/* ============ القوائم ============ */
+ul {
+    padding-right: 20px;
+}
+ul li {
+    margin-bottom: 8px;
+    font-size: 16px;
+    background: #f5f2ff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    display: inline-block;
+    margin: 6px;
+    border: 1px solid #e3ddff;
+}
+
+/* ============ الروابط ============ */
+a {
+    color: #6a34f7;
+    font-weight: bold;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+/* ============ الهشتاقات (إبراز ذهبي) ============ */
+ul li::before {
+    content: "# ";
+    color: #6a34f7;
+    font-weight: bold;
+}
+
+/* ============ أنيميشن ناعم ============ */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
 <body>
     <header class="main-header">
         <div class="container">
