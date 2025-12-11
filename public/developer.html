@@ -6,25 +6,16 @@
     <title>محمد نور الرحيم - مطور ويب وخبير حلول رقمية</title>
     <meta name="description" content="مطور ويب متخصص في بناء تطبيقات الويب الحديثة، المتاجر الإلكترونية، وتقديم حلول الصيانة والدعم التقني. شاهد بنفسك جودة الأمان، السرعة، والتصميم.">
     
-    <!-- ========================================== -->
-    <!-- 🏆 الإصلاح رقم 1: استيراد الخطوط المطلوبة -->
-    <!-- ========================================== -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* ========================================== */
-        /* 🏆 الإصلاح رقم 2: تعريف جميع المتغيرات */
-        /* ========================================== */
         :root {
-            /* متغيرات التصميم الداكن للصفحة */
             --dev-bg: #0a092d;
             --dev-surface: #1e1b4b;
             --dev-border: #3a3768;
-
-            /* متغيرات الألوان الرئيسية (كانت ناقصة) */
             --purple-main: #7C1EFF;
             --purple-dark: #5a16ba;
             --purple-light: #f3e8ff;
@@ -32,25 +23,14 @@
             --text-dark: #1E293B;
             --text-light: #64748B;
             --white-pure: #FFFFFF;
-
-            /* متغيرات الأبعاد والأنيميشن (كانت ناقصة) */
             --font-main: 'Cairo', sans-serif;
             --radius-card: 20px;
             --radius-button: 50px;
             --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        /* التنسيقات العامة */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
-        body { 
-            background-color: var(--dev-bg); 
-            color: #fff; 
-            font-family: var(--font-main); /* تطبيق الخط المستورد */
-            line-height: 1.6;
-        }
-
-        /* باقي التنسيقات (تبقى كما هي) */
+        body { background-color: var(--dev-bg); color: #fff; font-family: var(--font-main); line-height: 1.6; transition: all var(--transition-smooth); }
         .dev-header { text-align: center; padding: 4rem 1rem; background: linear-gradient(180deg, var(--dev-surface) 0%, var(--dev-bg) 100%); }
         .dev-avatar { width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--purple-main); box-shadow: 0 0 30px var(--purple-main); margin-bottom: 1rem; }
         .dev-header h1 { font-size: 2.5rem; color: #fff; margin: 0; }
@@ -58,23 +38,50 @@
         .container { max-width: 900px; margin: 0 auto; }
         .section { padding: 3rem 1rem; }
         .section-title { text-align: center; font-size: 2rem; color: var(--purple-light); margin-bottom: 2rem; }
-        
         .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
         .feature-item { background: var(--dev-surface); padding: 2rem; border-radius: var(--radius-card); border: 1px solid var(--dev-border); transition: all var(--transition-smooth); position: relative; }
         .feature-item:hover { transform: translateY(-10px); box-shadow: 0 10px 30px rgba(124, 30, 255, 0.3); border-color: var(--purple-main); }
         .feature-item .icon { font-size: 2.5rem; color: var(--purple-main); margin-bottom: 1rem; }
         .feature-item h3 { font-size: 1.3rem; color: #fff; margin-bottom: 0.8rem; }
         .feature-item p { color: #cbd5e1; font-size: 0.95rem; line-height: 1.7; }
-        
         .pill-button { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.5rem; border-radius: var(--radius-button); font-weight: 700; font-size: 0.9rem; cursor: pointer; text-decoration: none; }
         .feature-item .demo-btn { margin-top: 1.5rem; background: transparent; border: 2px solid var(--purple-main); color: var(--purple-main); transition: all var(--transition-smooth); }
         .feature-item .demo-btn:hover { background: var(--purple-main); color: #fff; }
-
         .cta-section { background: var(--purple-gradient); padding: 4rem 1rem; text-align: center; border-radius: var(--radius-card); margin: 2rem auto; max-width: 900px; }
         .cta-section h2 { font-size: 2.2rem; color: #fff; margin: 0 0 1.5rem 0; }
         .cta-button { background: #fff; color: var(--purple-main); font-size: 1.2rem; padding: 1rem 2.5rem; transition: all var(--transition-smooth); }
         .cta-button:hover { background: #f0e6ff; }
     </style>
+
+    <!-- ========================================== -->
+    <!-- 🏆 الإصلاح رقم 3: نقل السكربت إلى الـ head -->
+    <!-- ========================================== -->
+    <script>
+        function testPageSpeed() {
+            const url = `https://pagespeed.web.dev/report?url=${encodeURIComponent(window.location.origin)}`;
+            alert("سيتم الآن فتح أداة Google PageSpeed في نافذة جديدة لاختبار سرعة هذا الموقع. لاحظ النتائج الممتازة!");
+            window.open(url, '_blank');
+        }
+
+        function showSecurityDemo() {
+            const attackAttempt = '<script>alert("XSS Attack!");</script>';
+            // تم استخدام علامات الاقتباس المزدوجة لتجنب الخطأ
+            alert("محاكاة هجوم: تخيل أن أحد المخترقين حاول إدخال هذا الكود الضار:\n\n" + attackAttempt + "\n\nبسبب الحماية التي أضفتها، يتم التعامل مع هذا الكود كنص عادي بدلاً من تنفيذه، مما يحمي موقعك.");
+        }
+
+        function toggleResponsiveDemo() {
+            const body = document.body;
+            if (body.style.maxWidth === '400px') {
+                body.style.maxWidth = '';
+                body.style.margin = '';
+                alert("تم العودة إلى العرض الكامل. لاحظ كيف يتكيف التصميم بسلاسة.");
+            } else {
+                body.style.maxWidth = '400px';
+                body.style.margin = '2rem auto';
+                alert("تم تفعيل وضع محاكاة الهاتف. لاحظ كيف تغير التصميم ليلائم الشاشة الصغيرة.");
+            }
+        }
+    </script>
 </head>
 <body>
 
@@ -117,32 +124,6 @@
             </a>
         </section>
     </main>
-
-    <script>
-        function testPageSpeed() {
-            const url = `https://pagespeed.web.dev/report?url=${encodeURIComponent(window.location.origin)}`;
-            alert('سيتم الآن فتح أداة Google PageSpeed في نافذة جديدة لاختبار سرعة هذا الموقع. لاحظ النتائج الممتازة!');
-            window.open(url, '_blank');
-        }
-
-        function showSecurityDemo() {
-            const attackAttempt = '<script>alert("XSS Attack!");</script>';
-            alert(`محاكاة هجوم: تخيل أن أحد المخترقين حاول إدخال هذا الكود الضار:\n\n${attackAttempt}\n\nبسبب الحماية التي أضفتها، يتم التعامل مع هذا الكود كنص عادي بدلاً من تنفيذه، مما يحمي موقعك.`);
-        }
-
-        function toggleResponsiveDemo() {
-            const body = document.body;
-            if (body.style.maxWidth === '400px') {
-                body.style.maxWidth = '';
-                body.style.margin = '';
-                alert('تم العودة إلى العرض الكامل. لاحظ كيف يتكيف التصميم بسلاسة.');
-            } else {
-                body.style.maxWidth = '400px';
-                body.style.margin = '2rem auto';
-                alert('تم تفعيل وضع محاكاة الهاتف. لاحظ كيف تغير التصميم ليلائم الشاشة الصغيرة.');
-            }
-        }
-    </script>
 
 </body>
 </html>
