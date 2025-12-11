@@ -8,9 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script src="/socket.io/socket.io.js"></script> 
-    <script src="https://unpkg.com/i18next/dist/umd/i18next.min.js"></script>
-    <script src="https://unpkg.com/i18next-browser-languagedetector/dist/umd/i18nextBrowserLanguageDetector.min.js"></script>    
+    <script src="/socket.io/socket.io.js"></script>     
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="my-orders.css">
 </head>
@@ -18,17 +16,12 @@
     <div class="background-gradient"></div>
 
     <!-- Header -->
-<header class="main-header">
-    <div class="container">
-        <a href="/" class="logo" data-i18n="appName">متجر MX GROUP</a>
-        <div class="header-actions">
-            <div id="language-switcher" class="language-dropdown"></div>
-            <div id="notification-bell-container"></div>
+   <header class="main-header">
+        <div class="container">
+            <a href="/" class="logo">متجر الخدمات</a>
             <nav id="main-nav" class="main-nav"></nav>
         </div>
-    </div>
-</header>
-
+    </header>
     <!-- Main Content -->
     <main class="container">
         <section class="hero">
@@ -137,7 +130,7 @@
 
     <!-- ... نهاية body ... -->
     
-<script src="i18n.js"></script>
+
 <script src="auth-fetch.js"></script>
 <script src="my-orders.js"></script>
 </body>
