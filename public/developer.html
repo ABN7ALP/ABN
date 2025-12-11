@@ -52,36 +52,6 @@
         .cta-button { background: #fff; color: var(--purple-main); font-size: 1.2rem; padding: 1rem 2.5rem; transition: all var(--transition-smooth); }
         .cta-button:hover { background: #f0e6ff; }
     </style>
-
-    <!-- ========================================== -->
-    <!-- 🏆 الإصلاح رقم 3: نقل السكربت إلى الـ head -->
-    <!-- ========================================== -->
-    <script>
-        function testPageSpeed() {
-            const url = `https://pagespeed.web.dev/report?url=${encodeURIComponent(window.location.origin)}`;
-            alert("سيتم الآن فتح أداة Google PageSpeed في نافذة جديدة لاختبار سرعة هذا الموقع. لاحظ النتائج الممتازة!");
-            window.open(url, '_blank');
-        }
-
-        function showSecurityDemo() {
-            const attackAttempt = '<script>alert("XSS Attack!");</script>';
-            // تم استخدام علامات الاقتباس المزدوجة لتجنب الخطأ
-            alert("محاكاة هجوم: تخيل أن أحد المخترقين حاول إدخال هذا الكود الضار:\n\n" + attackAttempt + "\n\nبسبب الحماية التي أضفتها، يتم التعامل مع هذا الكود كنص عادي بدلاً من تنفيذه، مما يحمي موقعك.");
-        }
-
-        function toggleResponsiveDemo() {
-            const body = document.body;
-            if (body.style.maxWidth === '400px') {
-                body.style.maxWidth = '';
-                body.style.margin = '';
-                alert("تم العودة إلى العرض الكامل. لاحظ كيف يتكيف التصميم بسلاسة.");
-            } else {
-                body.style.maxWidth = '400px';
-                body.style.margin = '2rem auto';
-                alert("تم تفعيل وضع محاكاة الهاتف. لاحظ كيف تغير التصميم ليلائم الشاشة الصغيرة.");
-            }
-        }
-    </script>
 </head>
 <body>
 
@@ -99,19 +69,22 @@
                     <div class="icon"><i class="fas fa-rocket"></i></div>
                     <h3>أداء فائق السرعة</h3>
                     <p>أقوم ببناء مواقع وتطبيقات مُحسَّنة لسرعة التحميل القصوى، مما يحسن تجربة المستخدم وترتيبك في محركات البحث. هذا الموقع الذي تتصفحه الآن هو مثال حي على ذلك.</p>
-                    <button onclick="testPageSpeed()" class="pill-button demo-btn">اختبر سرعة هذا الموقع</button>
+                    <!-- ✅ الإصلاح: استخدام id بدلاً من onclick -->
+                    <button id="speed-test-btn" class="pill-button demo-btn">اختبر سرعة هذا الموقع</button>
                 </div>
                 <div class="feature-item">
                     <div class="icon"><i class="fas fa-shield-alt"></i></div>
                     <h3>حماية وأمان متقدم</h3>
                     <p>أطبق أفضل الممارسات الأمنية لحماية موقعك من الهجمات الشائعة مثل XSS, CSRF, و NoSQL Injection. بياناتك وبيانات عملائك في أمان تام.</p>
-                    <button onclick="showSecurityDemo()" class="pill-button demo-btn">شاهد محاكاة للحماية</button>
+                    <!-- ✅ الإصلاح: استخدام id بدلاً من onclick -->
+                    <button id="security-demo-btn" class="pill-button demo-btn">شاهد محاكاة للحماية</button>
                 </div>
                 <div class="feature-item">
                     <div class="icon"><i class="fas fa-palette"></i></div>
                     <h3>تصميم عصري ومتجاوب</h3>
                     <p>أصمم واجهات مستخدم جذابة وسهلة الاستخدام تعمل بشكل مثالي على جميع الأجهزة، من الهواتف الذكية إلى الشاشات الكبيرة، لتحقيق أفضل انطباع لدى زوارك.</p>
-                    <button onclick="toggleResponsiveDemo()" class="pill-button demo-btn">جرّب التصميم المتجاوب</button>
+                    <!-- ✅ الإصلاح: استخدام id بدلاً من onclick -->
+                    <button id="responsive-demo-btn" class="pill-button demo-btn">جرّب التصميم المتجاوب</button>
                 </div>
             </div>
         </section>
@@ -124,6 +97,40 @@
             </a>
         </section>
     </main>
+
+    <script>
+        // ✅ الطريقة الصحيحة والآمنة لربط الأحداث
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // ربط زر اختبار السرعة
+            document.getElementById('speed-test-btn').addEventListener('click', function() {
+                const url = `https://pagespeed.web.dev/report?url=${encodeURIComponent(window.location.origin)}`;
+                alert("سيتم الآن فتح أداة Google PageSpeed في نافذة جديدة لاختبار سرعة هذا الموقع. لاحظ النتائج الممتازة!");
+                window.open(url, '_blank');
+            });
+
+            // ربط زر محاكاة الحماية
+            document.getElementById('security-demo-btn').addEventListener('click', function() {
+                const attackAttempt = '<script>alert("XSS Attack!");</script>';
+                alert("محاكاة هجوم: تخيل أن أحد المخترقين حاول إدخال هذا الكود الضار:\n\n" + attackAttempt + "\n\nبسبب الحماية التي أضفتها، يتم التعامل مع هذا الكود كنص عادي بدلاً من تنفيذه، مما يحمي موقعك.");
+            });
+
+            // ربط زر التصميم المتجاوب
+            document.getElementById('responsive-demo-btn').addEventListener('click', function() {
+                const body = document.body;
+                if (body.style.maxWidth === '400px') {
+                    body.style.maxWidth = '';
+                    body.style.margin = '';
+                    alert("تم العودة إلى العرض الكامل. لاحظ كيف يتكيف التصميم بسلاسة.");
+                } else {
+                    body.style.maxWidth = '400px';
+                    body.style.margin = '2rem auto';
+                    alert("تم تفعيل وضع محاكاة الهاتف. لاحظ كيف تغير التصميم ليلائم الشاشة الصغيرة.");
+                }
+            });
+
+        });
+    </script>
 
 </body>
 </html>
