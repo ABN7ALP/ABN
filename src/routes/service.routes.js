@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const authMiddleware = require('../middleware/auth.middleware');
 const adminMiddleware = require('../middleware/admin.middleware');
 const { serviceRules } = require('../middleware/validators'); 
+const { translateText } = require('../services/translation.service'); // 🚀 1. استيراد خدمة الترجمة
 
 // 🆕 استيراد نظام الطابور
 const { addNotificationJob } = require('../services/queue');
@@ -14,12 +15,35 @@ const { addNotificationJob } = require('../services/queue');
 // GET كل الخدمات
 router.get('/', async (req, res) => {
     try {
-        const services = await Service.find({});
-        res.status(200).json(services);
+        // 2. تحديد اللغة من هيدر الطلب
+        const lang = req.headers['accept-language']?.startsWith('en') ? 'en-US' : 'ar';
+
+        const servicesFromDB = await Service.find({}).lean();
+
+        // 3. ترجمة البيانات إذا كانت اللغة المستهدفة هي الإنجليزية
+        if (lang === 'en-US') {
+            const translatedServices = await Promise.all(
+                servicesFromDB.map(async (service) => {
+                    return {
+                        ...service,
+                        name: await translateText(service.name, lang),
+                        // يمكنك إضافة ترجمة لحقول أخرى هنا
+                        // platform: await translateText(service.platform, lang),
+                    };
+                })
+            );
+            return res.status(200).json(translatedServices);
+        }
+
+        // إذا كانت اللغة هي العربية، أرسل البيانات كما هي
+        res.status(200).json(servicesFromDB);
+
     } catch (error) {
+        console.error('Error fetching services:', error);
         res.status(500).json({ message: 'فشل جلب الخدمات.' });
     }
 });
+
 
 // POST إضافة خدمة جديدة
 router.post('/', authMiddleware, adminMiddleware, serviceRules, async (req, res) => {
