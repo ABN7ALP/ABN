@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://abn-production-cbae.up.railway.app/sitemap.xml
