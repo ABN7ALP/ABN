@@ -15,27 +15,22 @@ const { addNotificationJob } = require('../services/queue');
 // GET كل الخدمات
 router.get('/', async (req, res) => {
     try {
-        // 2. تحديد اللغة من هيدر الطلب
-        const lang = req.headers['accept-language']?.startsWith('en') ? 'en-US' : 'ar';
+        // تحديد اللغة من هيدر الطلب، الافتراضي هو العربية
+        const lang = req.headers['accept-language'] || 'ar';
+        let targetLang;
+        if (lang.startsWith('en')) targetLang = 'en-US';
+        else if (lang.startsWith('tr')) targetLang = 'tr';
+        else targetLang = 'ar';
 
         const servicesFromDB = await Service.find({}).lean();
 
-        // 3. ترجمة البيانات إذا كانت اللغة المستهدفة هي الإنجليزية
-        if (lang === 'en-US') {
-            const translatedServices = await Promise.all(
-                servicesFromDB.map(async (service) => {
-                    return {
-                        ...service,
-                        name: await translateText(service.name, lang),
-                        // يمكنك إضافة ترجمة لحقول أخرى هنا
-                        // platform: await translateText(service.platform, lang),
-                    };
-                })
-            );
+        // ترجمة البيانات فقط إذا كانت اللغة ليست العربية
+        if (targetLang !== 'ar') {
+            const translatedServices = await translateItems(servicesFromDB, ['name'], targetLang);
             return res.status(200).json(translatedServices);
         }
 
-        // إذا كانت اللغة هي العربية، أرسل البيانات كما هي
+        // إذا كانت اللغة عربية، أرسل البيانات مباشرة
         res.status(200).json(servicesFromDB);
 
     } catch (error) {
