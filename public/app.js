@@ -1864,6 +1864,14 @@ function getPlatformIcon(platform, serviceName = '') {
     }
 }
 
+    if (originalUrl) {
+        // نزيل "https://" من الرابط الأصلي قبل إضافته
+        const cleanUrl = originalUrl.replace(/^https?:\/\//, '');
+        return `https://images.weserv.nl/?url=${cleanUrl}&output=webp&q=80&w=80&h=80&fit=contain`;
+    }
+
+    return ''; // إرجاع سلسلة فارغة في حالة عدم وجود رابط
+}
     function getPlatformValidation(platform) {
         const p = platform.toLowerCase().trim();
         if (p.includes('instagram') || p.includes('انستجرام') || p.includes('انستا')) return /instagram\.com/;
