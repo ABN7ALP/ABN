@@ -6,46 +6,23 @@ const User = require('../models/user.model');
 const { addNotificationJob } = require('../services/queue'); // 🆕 الاستيراد الجديد
 const authMiddleware = require('../middleware/auth.middleware');
 const adminMiddleware = require('../middleware/admin.middleware');
-const { translateItems } = require('../services/translation.service'); // 🚀 استيراد الدالة الجديدة
-
 
 // GET /api/offers/active - جلب العروض النشطة
 router.get('/active', async (req, res) => {
     try {
-        // 1. تحديد اللغة من هيدر الطلب
-        const lang = req.headers['accept-language'] || 'ar';
-        let targetLang;
-        if (lang.startsWith('en')) targetLang = 'en-US';
-        else if (lang.startsWith('tr')) targetLang = 'tr';
-        else targetLang = 'ar';
-
-        // 2. جلب العروض النشطة من قاعدة البيانات
         const now = new Date();
         const activeOffers = await Offer.find({
             isActive: true,
             startDate: { $lte: now },
             endDate: { $gte: now }
-        }).sort({ createdAt: -1 }).lean();
-
-        // 3. ترجمة البيانات إذا كانت اللغة ليست العربية
-        if (targetLang !== 'ar') {
-            const translatedOffers = await translateItems(
-                activeOffers,
-                ['title', 'description'], // 🚀 الحقول المراد ترجمتها
-                targetLang
-            );
-            return res.status(200).json(translatedOffers);
-        }
-
-        // 4. إذا كانت اللغة عربية، أرسل البيانات مباشرة
+        }).sort({ createdAt: -1 });
+        
         res.json(activeOffers);
-
     } catch (error) {
         console.error('Error fetching active offers:', error);
         res.status(500).json({ message: 'فشل جلب العروض' });
     }
 });
-
 
 // POST /api/offers - إنشاء عرض جديد (للمدير فقط)
 router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
