@@ -10,29 +10,39 @@ const { translateItems } = require('../services/translation.service'); // 🚀 �
 
 
 // GET /api/offers/active - جلب العروض النشطة
-router.get('/', async (req, res) => {
+router.get('/active', async (req, res) => {
     try {
-        // تحديد اللغة من هيدر الطلب، الافتراضي هو العربية
+        // 1. تحديد اللغة من هيدر الطلب
         const lang = req.headers['accept-language'] || 'ar';
         let targetLang;
         if (lang.startsWith('en')) targetLang = 'en-US';
         else if (lang.startsWith('tr')) targetLang = 'tr';
         else targetLang = 'ar';
 
-        const servicesFromDB = await Service.find({}).lean();
+        // 2. جلب العروض النشطة من قاعدة البيانات
+        const now = new Date();
+        const activeOffers = await Offer.find({
+            isActive: true,
+            startDate: { $lte: now },
+            endDate: { $gte: now }
+        }).sort({ createdAt: -1 }).lean();
 
-        // ترجمة البيانات فقط إذا كانت اللغة ليست العربية
+        // 3. ترجمة البيانات إذا كانت اللغة ليست العربية
         if (targetLang !== 'ar') {
-            const translatedServices = await translateItems(servicesFromDB, ['name'], targetLang);
-            return res.status(200).json(translatedServices);
+            const translatedOffers = await translateItems(
+                activeOffers,
+                ['title', 'description'], // 🚀 الحقول المراد ترجمتها
+                targetLang
+            );
+            return res.status(200).json(translatedOffers);
         }
 
-        // إذا كانت اللغة عربية، أرسل البيانات مباشرة
-        res.status(200).json(servicesFromDB);
+        // 4. إذا كانت اللغة عربية، أرسل البيانات مباشرة
+        res.json(activeOffers);
 
     } catch (error) {
-        console.error('Error fetching services:', error);
-        res.status(500).json({ message: 'فشل جلب الخدمات.' });
+        console.error('Error fetching active offers:', error);
+        res.status(500).json({ message: 'فشل جلب العروض' });
     }
 });
 
