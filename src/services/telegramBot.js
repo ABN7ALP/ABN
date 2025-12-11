@@ -11,7 +11,8 @@ const token = process.env.TELEGRAM_BOT_TOKEN;
 if (!token) {
     console.error('❌ Telegram Bot Token not found!');
     // في بيئة الإنتاج، من الأفضل إيقاف العملية إذا لم يكن التوكن موجوداً
-    process.exit(1); 
+    console.error('⚠️ Telegram Bot Token missing. Bot will not start.');
+return;
 }
 
 const bot = new TelegramBot(token, { polling: true });
