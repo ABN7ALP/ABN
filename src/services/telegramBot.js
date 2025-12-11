@@ -7,34 +7,23 @@ const Notification = require('../models/notification.model')
 const { getIo } = require('../config/socket');
 require('dotenv').config();
 
-let bot;
 const token = process.env.TELEGRAM_BOT_TOKEN;
-
 if (!token) {
-    console.warn('⚠️ تحذير: توكن بوت التلغرام غير موجود. سيتم تعطيل ميزات التلغرام.');
-    // إنشاء كائن "وهمي" لمنع توقف التطبيق
-    bot = {
-        sendMessage: (chatId, text) => console.warn(`[Bot الوهمي] لا يمكن إرسال رسالة: ${text}`),
-        sendPhoto: (chatId, photo) => console.warn(`[Bot الوهمي] لا يمكن إرسال صورة.`),
-        on: () => {},
-        answerCallbackQuery: () => Promise.resolve(),
-        editMessageText: () => Promise.resolve(),
-        getFileLink: () => Promise.resolve(''),
-        getMe: () => Promise.resolve({ id: 'disabled-bot', first_name: 'Disabled' })
-    };
+    console.error('❌ Telegram Bot Token not found!');
+    // في بيئة الإنتاج، من الأفضل إيقاف العملية إذا لم يكن التوكن موجوداً
+    process.exit(1); 
+}
 
-} else {
-    // إذا كان التوكن موجوداً، قم بإنشاء البوت الحقيقي
-    bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(token, { polling: true });
 
-    let botId = null;
-    bot.getMe().then((me) => {
-        botId = me.id;
-        console.log(`🤖 Telegram Bot "${me.first_name}" started (ID: ${botId})`);
-    }).catch(err => {
-        console.error("خطأ فادح: لم يتمكن من الحصول على معلومات البوت. تحقق من التوكن والشبكة.", err);
-    });
-
+let botId = null;
+bot.getMe().then((me) => {
+    botId = me.id;
+    console.log(`🤖 Telegram Bot "${me.first_name}" started (ID: ${botId})`);
+}).catch(err => {
+    console.error("Fatal: Could not get bot info. Check token and network.", err);
+    process.exit(1);
+});
 
 // ===================================================================
 // 🎯🎯🎯 تعريف واحد فقط لحدث 'message' 🎯🎯🎯
