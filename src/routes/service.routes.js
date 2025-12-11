@@ -13,24 +13,28 @@ const { translateText } = require('../services/translation.service'); // 🚀 1.
 const { addNotificationJob } = require('../services/queue');
 
 // GET كل الخدمات
+const { translateItems } = require('../services/translation.service'); // 🚀 تأكد من استيراد translateItems
+
 router.get('/', async (req, res) => {
     try {
-        // تحديد اللغة من هيدر الطلب، الافتراضي هو العربية
         const lang = req.headers['accept-language'] || 'ar';
         let targetLang;
-        if (lang.startsWith('en')) targetLang = 'en-US';
+        if (lang.startsWith('en')) targetLang = 'en-US'; // DeepL يفضل 'en-US' للإنجليزية الأمريكية
         else if (lang.startsWith('tr')) targetLang = 'tr';
         else targetLang = 'ar';
 
         const servicesFromDB = await Service.find({}).lean();
 
-        // ترجمة البيانات فقط إذا كانت اللغة ليست العربية
         if (targetLang !== 'ar') {
-            const translatedServices = await translateItems(servicesFromDB, ['name'], targetLang);
+            // 🚀 استخدم دالة translateItems التي تترجم مصفوفة كاملة
+            const translatedServices = await translateItems(
+                servicesFromDB, 
+                ['name'], // الحقول التي نريد ترجمتها
+                targetLang
+            );
             return res.status(200).json(translatedServices);
         }
 
-        // إذا كانت اللغة عربية، أرسل البيانات مباشرة
         res.status(200).json(servicesFromDB);
 
     } catch (error) {
@@ -38,7 +42,6 @@ router.get('/', async (req, res) => {
         res.status(500).json({ message: 'فشل جلب الخدمات.' });
     }
 });
-
 
 // POST إضافة خدمة جديدة
 router.post('/', authMiddleware, adminMiddleware, serviceRules, async (req, res) => {
