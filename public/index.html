@@ -12,12 +12,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js" async></script>
     <script type="application/ld+json" id="service-schema"></script>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="style.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="main.css" media="print" onload="this.media='all'">
+
     <!-- Font Awesome للآيكونات -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
     
     <!-- Desktop Mode للجوال -->
 
@@ -393,8 +394,8 @@
     <div class="developer-credit-wrapper">
         <a href="developer.html" target="_blank" title="اضغط لمعرفة المزيد عن المطور" class="developer-credit-link">
             <span>تصميم وتطوير</span>
-            <img src="https://i.ibb.co/9mxLJYg/image.png" alt="MOHAMED NOUR ALRAHIM">
-            <strong>MOHAMED NOUR ALRAHIM</strong>
+            <img src="https://i.ibb.co/PsVtrfp1/image.png" alt="MOHAMED NOUR ALRAHIM">
+            <strong>ABN.7ALP</strong>
         </a>
     </div>
 </div>
@@ -472,12 +473,12 @@
 <!-- 1. حاوية الأزرار العائمة -->
 <div class="floating-btn-container">
     <!-- زر الدعم الفني -->
-    <button id="support-chat-toggle" class="floating-btn support-float">
-        <i class="fas fa-headset"></i>
+    <button id="support-chat-toggle" class="floating-btn support-float" aria-label="فتح دردشة الدعم الفني">
+    <i class="fas fa-headset"></i>
     </button>
     <!-- زر الرجوع للأعلى -->
-    <button id="scroll-top" class="floating-btn scroll-top-float">
-        <i class="fas fa-arrow-up"></i>
+    <button id="scroll-top" class="floating-btn scroll-top-float" aria-label="الرجوع إلى أعلى الصفحة">
+    <i class="fas fa-arrow-up"></i>
     </button>
 </div>
 
