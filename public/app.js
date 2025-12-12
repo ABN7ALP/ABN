@@ -1123,18 +1123,17 @@ function renderOffers(offers) {
     
     // إخفاء القسم إذا لم يكن هناك عروض
     if (!offers || offers.length === 0) {
-        if (offersSection) offersSection.style.display = 'none';
-        offersContainer.innerHTML = `
-            <div class="no-offers" style="text-align: center; padding: 3rem; color: var(--text-light);">
-                <i class="ph-bold ph-gift" style="font-size: 3rem; opacity: 0.5; margin-bottom: 1rem; display: block;"></i>
-                <p>لا توجد عروض حالياً. تابعنا للحصول على أحدث العروض!</p>
-            </div>
-        `;
-        return;
-    } else {
-        if (offersSection) offersSection.style.display = 'block';
-    }
-    
+    // إذا لم تكن هناك عروض، اعرض رسالة "لا توجد عروض" داخل الحاوية
+    offersContainer.innerHTML = `
+        <div class="no-offers" style="text-align: center; padding: 3rem; color: var(--text-light);">
+            <i class="ph-bold ph-gift" style="font-size: 3rem; opacity: 0.5; margin-bottom: 1rem; display: block;"></i>
+            <p>لا توجد عروض حالياً. تابعنا للحصول على أحدث العروض!</p>
+        </div>
+    `;
+    // لا تقم بإخفاء offersSection
+    return;
+}
+  
     offersContainer.innerHTML = offers.map(offer => {
         const discountText = offer.discountPercentage ? 
             `خصم ${offer.discountPercentage}%` : 
