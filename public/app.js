@@ -1528,7 +1528,7 @@ function handlePaymentMethodSelect(event) {
 
 // 🆕 دالة فتح واتساب مع رسالة جاهزة
 function openWhatsAppContact() {
-    const phoneNumber = "905367893256"; // رقم الواتساب
+    const phoneNumber = "905433600754"; // رقم الواتساب
     const message = encodeURIComponent(`مرحباً، أريد معلومات حول الحوالة المكتبية لإيداع رصيد في المتجر.
     
 المبلغ الذي أريد إيداعه: [يرجى كتابة المبلغ]
