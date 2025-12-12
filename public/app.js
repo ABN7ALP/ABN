@@ -2798,7 +2798,7 @@ let attachedFile = null; // لتخزين الملف المرفق
 // دالة الفتح والتحميل (تبقى كما هي)
 async function openChatAndLoadHistory() {
     if (!userInfo) {
-        window.open('https://wa.me/905367893256', '_blank');
+        window.open('https://wa.me/905433600754', '_blank');
         return;
     }
     chatWindow.classList.remove('hidden');
