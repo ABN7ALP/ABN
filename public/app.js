@@ -1373,12 +1373,12 @@ function handlePaymentMethodSelect(event) {
         case 'bank': 
             detailsHTML = `
                 <p>يرجى تحويل المبلغ إلى الحساب التالي:</p>
-                <p><strong>الاسم:</strong> <span>MUHAMMED ERRAHIM</span></p>
+                <p><strong>الاسم:</strong> <span>Mahmud Rahim</span></p>
                 <p><strong>رقم الحساب (IBAN):</strong></p>
                 <div class="wallet-address" style="margin-top: 0.5rem;">
                         <div class="address-container">
-                            <span class="address-text">TR02 0082 9000 0949 2068 8015 66</span>
-                            <div class="copy-icon" data-address="TR02 0082 9000 0949 2068 8015 66">
+                            <span class="address-text">TR48 0001 0003 2294 5625 3450 01</span>
+                            <div class="copy-icon" data-address="TR48 0001 0003 2294 5625 3450 01">
                                 <i class="ph-bold ph-copy"></i>
                             </div>
                         </div>
