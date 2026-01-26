@@ -1463,9 +1463,9 @@ function handlePaymentMethodSelect(event) {
             `;
             break;
 
-            case 'payeer':
+            case 'papara':
             detailsHTML = `
-                <p><strong>💰 اسم العملية:</strong> PAPARA</p>
+                <p><strong>💰 اسم العملية:</strong>PAPARA</p>
                 <p><strong>🆔 رقم الحساب:</strong></p>
                 <div class="wallet-address">
                     <div class="address-container">
