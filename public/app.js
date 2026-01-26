@@ -2168,7 +2168,7 @@ function handleFormSubmit(event) {
         }
         
         const message = `*طلب جديد* 🎉\n---------------------\n*المنصة:* ${orderDataForWhatsapp.platform}\n*الخدمة:* ${orderDataForWhatsapp.service}\n*الكمية:* ${orderDataForWhatsapp.quantity}\n*السعر:* ${orderDataForWhatsapp.price.toFixed(2)}$\n*الرابط:* ${orderDataForWhatsapp.link}\n---------------------\n(رسالة منشأة تلقائياً)`;
-        const adminPhoneNumber = "905367893256";
+        const adminPhoneNumber = "905433600754";
         const encodedMessage = encodeURIComponent(message.trim());
         const whatsappUrl = `https://wa.me/${adminPhoneNumber}?text=${encodedMessage}`;
         
