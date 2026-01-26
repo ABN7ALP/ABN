@@ -1465,12 +1465,12 @@ function handlePaymentMethodSelect(event) {
 
             case 'payeer':
             detailsHTML = `
-                <p><strong>💰 اسم العملية:</strong> PAYEER</p>
+                <p><strong>💰 اسم العملية:</strong> PAPARA</p>
                 <p><strong>🆔 رقم الحساب:</strong></p>
                 <div class="wallet-address">
                     <div class="address-container">
-                        <span class="address-text">P1031685181</span>
-                        <div class="copy-icon" data-address="P1031685181">
+                        <span class="address-text">2068801566</span>
+                        <div class="copy-icon" data-address="2068801566">
                             <i class="ph-bold ph-copy"></i>
                         </div>
                     </div>
