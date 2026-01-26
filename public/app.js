@@ -1336,9 +1336,9 @@ function handlePaymentMethodSelect(event) {
             minAmount = 50;
             minMessage = 'الحد الأدنى للحوالة المكتبية: 50 دولار';
             break;
-         case 'payeer':
+         case 'papara':
             minAmount = 10;
-            minMessage = 'الحد الأدنى لـ PAYEER: 10$';
+            minMessage = 'الحد الأدنى لـ PAPARA: 10$';
             break;
          case 'binance-pay': 
             minAmount = 10;
@@ -1700,7 +1700,7 @@ function showCopySuccessMessage(message, isError = false) {
         case 'bank': minAmount = 10; break;
         case 'sham': minAmount = 5; break;
         case 'whatsapp': minAmount = 50; break; // 🎯 تم التحديث
-        case 'payeer': minAmount = 10; break; // 🎯 تم التحديث
+        case 'papara': minAmount = 10; break; // 🎯 تم التحديث
         case 'binance-pay': minAmount = 10; break; // 🎯 تم التحديث
         case 'usdt':
         case 'trx':
