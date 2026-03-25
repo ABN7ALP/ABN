@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- 0. تفعيل وضع سطح المكتب على الهواتف ---
     function suggestDesktopView() {
