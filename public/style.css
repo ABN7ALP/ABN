@@ -1005,3 +1005,65 @@ body.desktop-view-on-mobile .container {
     75% { transform: translateX(5px); }
 }
 
+/* ===== نظام الحزم للألعاب والتطبيقات ===== */
+.package-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.2rem;
+    border: 2px solid var(--gray-border);
+    border-radius: var(--radius-input);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    background: var(--white-pure);
+    gap: 1rem;
+}
+
+.package-option input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--purple-main);
+    flex-shrink: 0;
+    cursor: pointer;
+    padding: 0;
+    border: none;
+}
+
+.package-option.selected {
+    border-color: var(--purple-main);
+    background: var(--purple-light);
+}
+
+.package-option:hover {
+    border-color: var(--purple-main);
+}
+
+.package-info {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.package-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+}
+
+.package-instant {
+    font-size: 0.75rem;
+    color: var(--success-green);
+    font-weight: 600;
+    background: #dcfce7;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+}
+
+.package-price {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--purple-main);
+    white-space: nowrap;
+}
