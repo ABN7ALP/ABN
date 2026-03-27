@@ -2075,7 +2075,7 @@ window.showGamePackagesModal = function(platform, platformData) {
             priceDisplay.textContent = '';
         }
     });
-
+}
 
 window.proceedToGameOrder = function(platform) {
     const selectedInput = document.querySelector('input[name="game-package"]:checked');
