@@ -1972,7 +1972,7 @@ function getPlatformIcon(platform, serviceName = '') {
 
 let currentGameData = {}; // لتخزين بيانات الطلب الحالي
 
-function showGamePackagesModal(platform, platformData) {
+window.showGamePackagesModal = function(platform, platformData) {
     // إزالة أي نافذة قديمة
     const oldModal = document.getElementById('game-packages-modal');
     if (oldModal) oldModal.remove();
@@ -1989,7 +1989,25 @@ function showGamePackagesModal(platform, platformData) {
             </div>
             <span class="package-price">${pkg.price.toFixed(4)} $</span>
         </label>
-    `).join('');
+    `).join('') + `
+        <label class="package-option" data-index="custom">
+            <input type="radio" name="game-package" value="custom">
+            <div class="package-info">
+                <span class="package-name">كمية مخصصة</span>
+                <span class="package-instant">مرن</span>
+            </div>
+            <span class="package-price" style="color:var(--text-light);font-size:0.8rem;">أدخل الكمية</span>
+        </label>
+        <div id="custom-qty-container" style="display:none;padding:0.8rem;background:var(--gray-bg);border-radius:var(--radius-input);margin-top:0.5rem;">
+            <label style="font-weight:600;font-size:0.9rem;display:block;margin-bottom:0.5rem;">الكمية المطلوبة:</label>
+            <input type="number" id="custom-qty-input" placeholder="أدخل الكمية" min="1" 
+                style="width:100%;padding:0.7rem;border:2px solid var(--gray-border);border-radius:8px;">
+            <p style="font-size:0.8rem;color:var(--text-light);margin-top:0.5rem;">
+                السعر لكل 1000: <strong>${service.pricePer1000 || 0}$</strong>
+            </p>
+            <p id="custom-qty-price" style="font-weight:700;color:var(--purple-main);margin-top:0.3rem;"></p>
+        </div>
+    `;
 
     const modalHTML = `
         <div id="game-packages-modal" class="popup-overlay" style="display:flex;">
@@ -2032,17 +2050,57 @@ function showGamePackagesModal(platform, platformData) {
             document.querySelectorAll('.package-option').forEach(l => l.classList.remove('selected'));
             label.classList.add('selected');
             label.querySelector('input').checked = true;
+            
+            // إظهار/إخفاء حقل الكمية المخصصة
+            const customContainer = document.getElementById('custom-qty-container');
+            if (label.dataset.index === 'custom') {
+                customContainer.style.display = 'block';
+            } else {
+                customContainer.style.display = 'none';
+            }
         });
     });
-}
 
-function proceedToGameOrder(platform) {
+    // حساب السعر عند تغيير الكمية المخصصة
+    document.getElementById('custom-qty-input')?.addEventListener('input', function() {
+        const qty = parseInt(this.value);
+        const priceDisplay = document.getElementById('custom-qty-price');
+        const platformData = servicesData[platform];
+        const service = platformData?.services[0];
+        
+        if (qty > 0 && service && service.pricePer1000) {
+            const price = (service.pricePer1000 / 1000) * qty;
+            priceDisplay.textContent = `السعر الإجمالي: ${price.toFixed(4)}$`;
+        } else {
+            priceDisplay.textContent = '';
+        }
+    });
+
+
+window.proceedToGameOrder = function(platform) {
     const selectedInput = document.querySelector('input[name="game-package"]:checked');
     if (!selectedInput) return;
 
-    const packageIndex = parseInt(selectedInput.value);
     const service = servicesData[platform].services[0];
-    const selectedPackage = service.packages[packageIndex];
+    let selectedPackage;
+    
+    if (selectedInput.value === 'custom') {
+        // كمية مخصصة
+        const customQty = parseInt(document.getElementById('custom-qty-input')?.value);
+        if (!customQty || customQty <= 0) {
+            alert('يرجى إدخال كمية صحيحة');
+            return;
+        }
+        const customPrice = (service.pricePer1000 / 1000) * customQty;
+        selectedPackage = {
+            name: `كمية مخصصة (${customQty.toLocaleString()})`,
+            price: parseFloat(customPrice.toFixed(4)),
+            quantity: customQty
+        };
+    } else {
+        const packageIndex = parseInt(selectedInput.value);
+        selectedPackage = service.packages[packageIndex];
+    }
 
     // تخزين بيانات الحزمة المختارة
     currentGameData = {
@@ -2057,7 +2115,7 @@ function proceedToGameOrder(platform) {
     showGameIdModal(platform, selectedPackage, service);
 }
 
-function showGameIdModal(platform, selectedPackage, service) {
+window.showGameIdModal = function(platform, selectedPackage, service) {
     const oldModal = document.getElementById('game-id-modal');
     if (oldModal) oldModal.remove();
 
@@ -2107,12 +2165,12 @@ function showGameIdModal(platform, selectedPackage, service) {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
-function closeGameIdModal() {
+window.closeGameIdModal = function() {
     const modal = document.getElementById('game-id-modal');
     if (modal) modal.remove();
 }
 
-async function submitGameOrder() {
+window.submitGameOrder = async function() {
     const gameId = document.getElementById('game-id-input')?.value.trim();
     const errorEl = document.getElementById('game-id-error');
     const responseEl = document.getElementById('game-order-response');
