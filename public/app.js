@@ -1915,10 +1915,265 @@ function getPlatformIcon(platform, serviceName = '') {
     function showOrderForm(platform) {
     refreshUserData();
     currentPlatform = platform;
+
+    // التحقق من نوع الخدمة
+    const platformData = servicesData[platform];
+    const firstService = platformData?.services[0];
+
+    if (firstService && firstService.type === 'game') {
+        // خدمة لعبة أو تطبيق - اعرض نافذة الحزم
+        showGamePackagesModal(platform, platformData);
+        return;
+    }
+
+    // خدمة SMM عادية
     orderFormContainer.classList.remove('hidden');
     successMessageContainer.classList.add('hidden');
     paymentOptionsContainer.classList.add('hidden');
     formTitle.textContent = `طلب خدمة لـ ${platform}`;
+    
+    const updatePopupIcon = () => {
+        const selectedServiceName = serviceSelect.value;
+        const iconUrl = getPlatformIcon(platform, selectedServiceName);
+        popupIcon.innerHTML = `<img src="${iconUrl}" alt="${platform}" style="width: 32px; height: 32px; object-fit: contain;">`;
+        popupIcon.className = '';
+    };
+
+    serviceSelect.innerHTML = '';
+    servicesData[platform].services.forEach(service => {
+        const option = document.createElement('option');
+        option.value = service.name;
+        option.dataset.price = service.pricePer1000;
+        option.dataset.min = service.min;
+        option.dataset.max = service.max;
+        option.dataset.step = service.step || 1;
+        option.textContent = `${service.name}`;
+        serviceSelect.appendChild(option);
+    });
+
+    updatePopupIcon();
+    serviceSelect.addEventListener('change', updatePopupIcon);
+
+    const selectedService = servicesData[platform].services.find(s => s.name === serviceSelect.value);
+    if (selectedService) {
+        generateServiceSchema(selectedService);
+    }
+
+    orderForm.reset();
+    linkError.textContent = '';
+    quantityError.textContent = '';
+    orderPopupOverlay.classList.remove('hidden');
+    updateFormBasedOnService();
+}
+
+// ======================================================
+// نظام الألعاب والتطبيقات - الحزم
+// ======================================================
+
+let currentGameData = {}; // لتخزين بيانات الطلب الحالي
+
+function showGamePackagesModal(platform, platformData) {
+    // إزالة أي نافذة قديمة
+    const oldModal = document.getElementById('game-packages-modal');
+    if (oldModal) oldModal.remove();
+
+    const service = platformData.services[0];
+    const iconUrl = getPlatformIcon(platform);
+
+    const packagesHTML = service.packages.map((pkg, index) => `
+        <label class="package-option ${index === 0 ? 'selected' : ''}" data-index="${index}">
+            <input type="radio" name="game-package" value="${index}" ${index === 0 ? 'checked' : ''}>
+            <div class="package-info">
+                <span class="package-name">${pkg.name}</span>
+                <span class="package-instant">فوري</span>
+            </div>
+            <span class="package-price">${pkg.price.toFixed(4)} $</span>
+        </label>
+    `).join('');
+
+    const modalHTML = `
+        <div id="game-packages-modal" class="popup-overlay" style="display:flex;">
+            <div class="popup-content" style="max-width:480px; padding:0; overflow:hidden;">
+                <!-- هيدر -->
+                <div style="display:flex; align-items:center; gap:1rem; padding:1.2rem 1.5rem; border-bottom:1px solid var(--gray-border);">
+                    <button onclick="document.getElementById('game-packages-modal').remove()" 
+                        style="width:36px;height:36px;border-radius:50%;background:var(--gray-bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">✕</button>
+                    <img src="${iconUrl}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
+                    <div>
+                        <h3 style="margin:0;font-size:1.1rem;">${platform}</h3>
+                        <p style="margin:0;font-size:0.85rem;color:var(--text-light);">اختر الباقة</p>
+                    </div>
+                </div>
+                
+                <!-- قائمة الحزم -->
+                <div style="max-height:55vh;overflow-y:auto;padding:1rem;">
+                    <div id="packages-list" style="display:flex;flex-direction:column;gap:0.6rem;">
+                        ${packagesHTML}
+                    </div>
+                </div>
+                
+                <!-- زر الشراء -->
+                <div style="padding:1rem 1.5rem;border-top:1px solid var(--gray-border);">
+                    <button onclick="proceedToGameOrder('${platform}')" 
+                        class="pill-button primary-button" style="width:100%;justify-content:center;gap:0.5rem;">
+                        <i class="ph-bold ph-shopping-cart"></i>
+                        شراء الحزمة
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // ربط أحداث الاختيار
+    document.querySelectorAll('.package-option').forEach(label => {
+        label.addEventListener('click', () => {
+            document.querySelectorAll('.package-option').forEach(l => l.classList.remove('selected'));
+            label.classList.add('selected');
+            label.querySelector('input').checked = true;
+        });
+    });
+}
+
+function proceedToGameOrder(platform) {
+    const selectedInput = document.querySelector('input[name="game-package"]:checked');
+    if (!selectedInput) return;
+
+    const packageIndex = parseInt(selectedInput.value);
+    const service = servicesData[platform].services[0];
+    const selectedPackage = service.packages[packageIndex];
+
+    // تخزين بيانات الحزمة المختارة
+    currentGameData = {
+        platform: platform,
+        packageName: selectedPackage.name,
+        packagePrice: selectedPackage.price,
+        service: service
+    };
+
+    // إغلاق نافذة الحزم وفتح نافذة إدخال الـ ID
+    document.getElementById('game-packages-modal').remove();
+    showGameIdModal(platform, selectedPackage, service);
+}
+
+function showGameIdModal(platform, selectedPackage, service) {
+    const oldModal = document.getElementById('game-id-modal');
+    if (oldModal) oldModal.remove();
+
+    const iconUrl = getPlatformIcon(platform);
+
+    const modalHTML = `
+        <div id="game-id-modal" class="popup-overlay" style="display:flex;">
+            <div class="popup-content" style="max-width:480px;">
+                <button onclick="closeGameIdModal()" class="close-btn"><i class="ph-bold ph-x"></i></button>
+                
+                <div class="popup-header">
+                    <img src="${iconUrl}" style="width:50px;height:50px;border-radius:50%;margin:0 auto 0.5rem;display:block;">
+                    <h2 style="font-size:1rem;color:var(--purple-main);">${selectedPackage.name}</h2>
+                </div>
+
+                <div style="background:var(--purple-light);border-radius:var(--radius-input);padding:1rem;margin-bottom:1.5rem;text-align:center;">
+                    <span style="color:var(--text-light);font-size:0.9rem;">إجمالي سعر الطلب:</span>
+                    <span style="color:var(--purple-main);font-size:1.5rem;font-weight:800;margin-right:0.5rem;">${selectedPackage.price.toFixed(4)} $</span>
+                </div>
+
+                <div class="form-group">
+                    <label>${service.idLabel || 'أدخل رقم الـ ID'}</label>
+                    <input type="text" id="game-id-input" placeholder="${service.idPlaceholder || 'مثال: 123456789'}" required
+                        style="text-align:right;direction:rtl;">
+                    <p id="game-id-error" class="error-message"></p>
+                </div>
+
+                <p style="text-align:center;color:var(--success-green);font-size:0.85rem;font-weight:600;margin-bottom:1rem;">
+                    هذا المنتج ينفذ فوراً بعد التأكيد، ولا يمكن التراجع عن عملية الشراء لاحقاً
+                </p>
+
+                <div style="display:flex;gap:1rem;">
+                    <button onclick="submitGameOrder()" class="pill-button primary-button" style="flex:1;justify-content:center;">
+                        شراء
+                    </button>
+                    <button onclick="closeGameIdModal();showGamePackagesModal('${platform}', servicesData['${platform}'])" 
+                        class="pill-button secondary-button" style="flex:1;justify-content:center;">
+                        رجوع
+                    </button>
+                </div>
+
+                <p id="game-order-response" class="form-message" style="margin-top:1rem;text-align:center;"></p>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function closeGameIdModal() {
+    const modal = document.getElementById('game-id-modal');
+    if (modal) modal.remove();
+}
+
+async function submitGameOrder() {
+    const gameId = document.getElementById('game-id-input')?.value.trim();
+    const errorEl = document.getElementById('game-id-error');
+    const responseEl = document.getElementById('game-order-response');
+
+    if (!gameId) {
+        errorEl.textContent = 'يرجى إدخال رقم الـ ID';
+        return;
+    }
+
+    if (!userInfo) {
+        // إذا لم يكن مسجل دخول، افتح واتساب
+        const message = `*طلب شحن جديد* 🎮\n---\n*اللعبة:* ${currentGameData.platform}\n*الحزمة:* ${currentGameData.packageName}\n*السعر:* ${currentGameData.packagePrice.toFixed(4)}$\n*الـ ID:* ${gameId}`;
+        window.open(`https://wa.me/905433600754?text=${encodeURIComponent(message)}`, '_blank');
+        return;
+    }
+
+    // التحقق من الرصيد
+    if (userInfo.balance < currentGameData.packagePrice) {
+        errorEl.textContent = `رصيدك غير كافٍ. تحتاج ${currentGameData.packagePrice.toFixed(4)}$ ورصيدك ${userInfo.balance.toFixed(2)}$`;
+        return;
+    }
+
+    responseEl.textContent = 'جاري إرسال الطلب...';
+    responseEl.style.color = 'var(--text-light)';
+
+    try {
+        const orderData = {
+            platform: currentGameData.platform,
+            service: currentGameData.packageName,
+            link: `GAME_ID:${gameId}`,
+            quantity: 1,
+            price: currentGameData.packagePrice,
+            userId: userInfo._id,
+            orderType: 'game',
+            gameId: gameId
+        };
+
+        const response = await apiFetch('/api/orders/pay-with-balance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderData)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) throw new Error(result.message);
+
+        userInfo.balance = result.newBalance;
+        localStorage.setItem('userInfo', JSON.stringify(userInfo));
+        updateUIForAuth();
+
+        responseEl.textContent = '✅ تم إرسال طلبك بنجاح!';
+        responseEl.style.color = 'var(--success-green)';
+
+        setTimeout(() => closeGameIdModal(), 2500);
+
+    } catch (error) {
+        responseEl.textContent = error.message;
+        responseEl.style.color = 'var(--danger-red)';
+    }
+}
     
     // 🔽🔽 ابدأ التعديل من هنا 🔽🔽
     
