@@ -282,20 +282,71 @@
         </div>
     </div>
                 <form id="add-service-form" class="admin-form">
-                    <div class="form-row">
-                        <div class="form-group"><label>المنصة</label><input type="text" id="service-platform" placeholder="مثال: Instagram" required></div>
-                        <div class="form-group"><label>اسم الخدمة</label><input type="text" id="service-name" placeholder="مثال: متابعين" required></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>السعر لكل 1000</label><input type="number" id="service-price" placeholder="10.5" step="0.01" required></div>
-                        <div class="form-group"><label>الحد الأدنى</label><input type="number" id="service-min" placeholder="100" required></div>
-                        <div class="form-group"><label>الحد الأقصى</label><input type="number" id="service-max" placeholder="100000" required></div>
-                        <!-- ******** هذا هو الحقل الجديد ******** -->
-                        <div class="form-group"><label>الخطوة (المضاعف)</label><input type="number" id="service-step" placeholder="100" value="1" required></div>
-                        <!-- ******** نهاية الإضافة ******** -->
-                    </div>
-                    <button type="submit" class="pill-button primary-button">إضافة الخدمة</button>
-                </form>
+    <!-- نوع الخدمة -->
+    <div class="form-row">
+        <div class="form-group">
+            <label>نوع الخدمة</label>
+            <select id="service-type" onchange="toggleServiceType()">
+                <option value="smm">SMM - تواصل اجتماعي</option>
+                <option value="game">لعبة / تطبيق</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>المنصة (اسم اللعبة/التطبيق)</label>
+            <input type="text" id="service-platform" placeholder="مثال: PUBG Mobile" required>
+        </div>
+    </div>
+
+    <!-- حقول SMM -->
+    <div id="smm-fields">
+        <div class="form-row">
+            <div class="form-group"><label>اسم الخدمة</label><input type="text" id="service-name" placeholder="مثال: متابعين"></div>
+            <div class="form-group"><label>السعر لكل 1000</label><input type="number" id="service-price" placeholder="10.5" step="0.01"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>الحد الأدنى</label><input type="number" id="service-min" placeholder="100"></div>
+            <div class="form-group"><label>الحد الأقصى</label><input type="number" id="service-max" placeholder="100000"></div>
+            <div class="form-group"><label>الخطوة</label><input type="number" id="service-step" placeholder="1" value="1"></div>
+        </div>
+    </div>
+
+    <!-- حقول الألعاب -->
+    <div id="game-fields" style="display:none;">
+        <div class="form-row">
+            <div class="form-group">
+                <label>نص حقل الـ ID (مثال: أدخل رقم اللاعب)</label>
+                <input type="text" id="service-id-label" placeholder="أدخل رقم الـ ID">
+            </div>
+            <div class="form-group">
+                <label>Placeholder الـ ID</label>
+                <input type="text" id="service-id-placeholder" placeholder="مثال: 123456789">
+            </div>
+        </div>
+        
+        <!-- إضافة الحزم -->
+        <div class="admin-form" style="margin-top:1rem; background:var(--gray-bg);">
+            <h3 style="margin-bottom:1rem;">الحزم المتاحة</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>اسم الحزمة</label>
+                    <input type="text" id="pkg-name" placeholder="مثال: PUBG 60 UC">
+                </div>
+                <div class="form-group">
+                    <label>السعر ($)</label>
+                    <input type="number" id="pkg-price" placeholder="0.9078" step="0.0001">
+                </div>
+                <div class="form-group" style="display:flex;align-items:flex-end;">
+                    <button type="button" onclick="addPackageToList()" class="pill-button secondary-button">
+                        + إضافة حزمة
+                    </button>
+                </div>
+            </div>
+            <div id="packages-list-admin" style="display:flex;flex-direction:column;gap:0.5rem;margin-top:1rem;"></div>
+        </div>
+    </div>
+
+    <button type="submit" class="pill-button primary-button">إضافة الخدمة</button>
+</form>
                 <div id="service-form-response"></div>
                 <hr class="divider">
                 <h2><i class="ph-bold ph-list-bullets"></i> الخدمات الحالية</h2>
