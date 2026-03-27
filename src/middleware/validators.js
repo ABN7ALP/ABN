@@ -50,7 +50,7 @@ const createOrderRules = [
 const serviceRules = [
     body('platform').trim().notEmpty().withMessage('المنصة مطلوبة.'),
     body('name').trim().notEmpty().withMessage('اسم الخدمة مطلوب.'),
-    body('pricePer1000').isFloat({ min: 0.01 }).withMessage('السعر يجب أن يكون أكبر من صفر.'),
+    body('pricePer1000').isFloat({ min: 0 }).withMessage('السعر يجب أن يكون صفر أو أكثر.'),
     body('min').isInt({ min: 1 }).withMessage('الحد الأدنى يجب أن يكون 1 على الأقل.'),
     body('max').isInt({ min: 1 }).withMessage('الحد الأقصى يجب أن يكون 1 على الأقل.'),
     body('step').isInt({ min: 1 }).withMessage('الخطوة يجب أن تكون 1 على الأقل.'),
