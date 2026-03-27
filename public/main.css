@@ -329,17 +329,17 @@ notification-item.unread::before {
 /* --- Services Grid محسن --- */
 .services-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.8rem;
     padding-bottom: 4rem;
-    margin-top: 1rem; /* 🚀🚀 هذا هو السطر الجديد (اختياري ولكنه جيد) 🚀🚀 */
+    margin-top: 1rem;
 }
 
 
 .service-card {
     background: var(--white-pure);
-    border-radius: var(--radius-card);
-    padding: 2.5rem 2rem;
+    border-radius: 16px;
+    padding: 1rem 0.5rem;
     text-align: center;
     transition: all var(--transition-smooth);
     border: 1px solid transparent;
@@ -372,9 +372,9 @@ notification-item.unread::before {
 }
 
 .icon-wrapper {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 1.5rem;
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 0.8rem;
     border-radius: 50%;
     background: var(--purple-light);
     display: flex;
@@ -402,22 +402,18 @@ notification-item.unread::before {
 }
 
 .service-card h3 {
-    font-size: 1.3rem;
+    font-size: 0.85rem;
     font-weight: 700;
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.5rem;
     color: var(--text-dark);
 }
 
 .service-card p {
-    font-size: 0.95rem;
-    color: var(--text-light);
-    margin-bottom: 1.5rem;
-    line-height: 1.5;
+    display: none;
 }
 
 .get-button {
-    width: auto;
-    margin: 0 auto;
+    display: none;
 }
 
 /* --- Payment Methods محسن --- */
