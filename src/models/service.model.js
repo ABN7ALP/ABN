@@ -55,10 +55,18 @@ const serviceSchema = new mongoose.Schema({
         type: String,
         default: 'أدخل رقم الـ ID'
     },
-    idPlaceholder: {
+   idPlaceholder: {
         type: String,
         default: 'مثال: 123456789'
-    }
+    },
+    allowCustomQuantity: {
+        type: Boolean,
+        default: false
+    },
+    customPricePer1000: {
+        type: Number,
+        default: 0
+    } 
 });
 
 const Service = mongoose.model('Service', serviceSchema);
