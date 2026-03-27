@@ -1,5 +1,11 @@
 const mongoose = require('mongoose');
 
+const packageSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    price: { type: Number, required: true },
+    description: { type: String, default: '' }
+});
+
 const serviceSchema = new mongoose.Schema({
     id: {
         type: String,
@@ -16,26 +22,42 @@ const serviceSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    // نوع الخدمة: smm = خدمات تواصل اجتماعي, game = ألعاب وتطبيقات
+    type: {
+        type: String,
+        enum: ['smm', 'game'],
+        default: 'smm'
+    },
+    // حقول خاصة بخدمات SMM فقط
     pricePer1000: {
         type: Number,
-        required: true,
-        min: 0
+        min: 0,
+        default: 0
     },
     min: {
         type: Number,
-        required: true,
         default: 100
     },
     max: {
         type: Number,
-        required: true,
         default: 100000
     },
-    // ******** هذا هو الحقل الجديد ********
     step: {
         type: Number,
-        required: true,
-        default: 1 // القيمة الافتراضية 1 تعني قبول أي رقم صحيح
+        default: 1
+    },
+    // حقول خاصة بالألعاب والتطبيقات
+    packages: {
+        type: [packageSchema],
+        default: []
+    },
+    idLabel: {
+        type: String,
+        default: 'أدخل رقم الـ ID'
+    },
+    idPlaceholder: {
+        type: String,
+        default: 'مثال: 123456789'
     }
 });
 
