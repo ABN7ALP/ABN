@@ -50,10 +50,19 @@ async function calculateFinalPrice(serviceName, platform, quantity, userId = nul
         ]);
 
         // التحقق من وجود الخدمة
-        if (!service) {
+        // للألعاب: إذا لم توجد الخدمة بالاسم، ابحث بالمنصة فقط
+        let finalService = service;
+        if (!finalService) {
+            finalService = await Service.findOne({ platform: platform, type: 'game' });
+        }
+        
+        if (!finalService) {
             console.log('❌ الخدمة غير موجودة');
             return { originalPrice: 0, finalPrice: 0, discount: 0, hasDiscount: false };
         }
+        
+        // استخدم finalService بدلاً من service
+        service = finalService;
 
         console.log('✅ الخدمة موجودة:', service.name);
 
@@ -432,17 +441,20 @@ router.post('/pay-with-balance', async (req, res) => {
         if (!user) return res.status(404).json({ message: 'المستخدم غير موجود.' });
 
         // 🆕 جلب الخدمة للتحقق من القيود فقط (لا نحتاج سعرها)
-        const serviceDoc = await Service.findOne({ name: serviceName, platform: platform });
-        if (!serviceDoc) {
-            return res.status(404).json({ message: 'الخدمة غير متوفرة حالياً.' });
-        }
-
-        // التحقق من قيود الخدمة (min, max, step)
-        if (requestedQuantity < serviceDoc.min || requestedQuantity > serviceDoc.max) {
-            return res.status(400).json({ message: `الكمية المطلوبة يجب أن تكون بين ${serviceDoc.min} و ${serviceDoc.max}.` });
-        }
-        if (serviceDoc.step > 1 && requestedQuantity % serviceDoc.step !== 0) {
-            return res.status(400).json({ message: `الكمية يجب أن تكون مضاعفاً للخطوة: ${serviceDoc.step}.` });
+        // للطلبات العادية فقط - الألعاب لا تحتاج هذا التحقق
+        const orderType = req.body.orderType;
+        
+        if (orderType !== 'game') {
+            const serviceDoc = await Service.findOne({ name: serviceName, platform: platform });
+            if (!serviceDoc) {
+                return res.status(404).json({ message: 'الخدمة غير متوفرة حالياً.' });
+            }
+            if (requestedQuantity < serviceDoc.min || requestedQuantity > serviceDoc.max) {
+                return res.status(400).json({ message: `الكمية المطلوبة يجب أن تكون بين ${serviceDoc.min} و ${serviceDoc.max}.` });
+            }
+            if (serviceDoc.step > 1 && requestedQuantity % serviceDoc.step !== 0) {
+                return res.status(400).json({ message: `الكمية يجب أن تكون مضاعفاً للخطوة: ${serviceDoc.step}.` });
+            }
         }
 
         // 🆕 التحقق من الرصيد مع السعر بعد الخصم
@@ -462,9 +474,9 @@ router.post('/pay-with-balance', async (req, res) => {
             service: serviceName,
             link,
             quantity: requestedQuantity,
-            price: finalPrice, // 🎯 استخدم السعر بعد الخصم
+            price: finalPrice,
             user: userId,
-            status: 'قيد التنفيذ'
+            status: orderType === 'game' ? 'قيد المراجعة' : 'قيد التنفيذ'
         });
         await newOrder.save();
 
