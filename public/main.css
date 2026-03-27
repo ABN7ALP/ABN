@@ -470,12 +470,13 @@ notification-item.unread::before {
     }
     
     .services-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        padding: 0 0.3rem;
     }
     
     .service-card {
-        padding: 2rem 1.5rem;
+        padding: 0.7rem 0.3rem;
     }
     
     .hero h1 {
