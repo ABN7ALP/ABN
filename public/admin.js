@@ -7,6 +7,14 @@ function toggleServiceType() {
     document.getElementById('game-fields').style.display = type === 'game' ? 'block' : 'none';
 }
 
+// ربط حدث checkbox الكمية المخصصة
+document.addEventListener('change', function(e) {
+    if (e.target && e.target.id === 'service-allow-custom') {
+        document.getElementById('custom-price-field').style.display = 
+            e.target.checked ? 'block' : 'none';
+    }
+});
+
 function addPackageToList() {
     const name = document.getElementById('pkg-name').value.trim();
     const price = parseFloat(document.getElementById('pkg-price').value);
@@ -554,7 +562,9 @@ async function handleStatusChange(event) {
             serviceData.idLabel = document.getElementById('service-id-label').value || 'أدخل رقم الـ ID';
             serviceData.idPlaceholder = document.getElementById('service-id-placeholder').value || '123456789';
             serviceData.packages = currentPackages;
-            serviceData.pricePer1000 = 0;
+            serviceData.allowCustomQuantity = document.getElementById('service-allow-custom')?.checked || false;
+            serviceData.customPricePer1000 = parseFloat(document.getElementById('service-custom-price')?.value) || 0;
+            serviceData.pricePer1000 = serviceData.customPricePer1000;
             serviceData.min = 1;
             serviceData.max = 1;
             serviceData.step = 1;
