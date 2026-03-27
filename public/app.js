@@ -2173,7 +2173,7 @@ async function submitGameOrder() {
         responseEl.textContent = error.message;
         responseEl.style.color = 'var(--danger-red)';
     }
-}
+
     
     // 🔽🔽 ابدأ التعديل من هنا 🔽🔽
     
