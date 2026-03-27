@@ -1,3 +1,57 @@
+// ====== نظام الحزم في الإدمن ======
+let currentPackages = [];
+
+function toggleServiceType() {
+    const type = document.getElementById('service-type').value;
+    document.getElementById('smm-fields').style.display = type === 'smm' ? 'block' : 'none';
+    document.getElementById('game-fields').style.display = type === 'game' ? 'block' : 'none';
+}
+
+function addPackageToList() {
+    const name = document.getElementById('pkg-name').value.trim();
+    const price = parseFloat(document.getElementById('pkg-price').value);
+
+    if (!name || isNaN(price)) {
+        alert('يرجى إدخال اسم وسعر الحزمة');
+        return;
+    }
+
+    currentPackages.push({ name, price });
+
+    const listEl = document.getElementById('packages-list-admin');
+    listEl.innerHTML = currentPackages.map((pkg, i) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;
+            background:white;padding:0.8rem;border-radius:8px;border:1px solid var(--gray-border);">
+            <span style="font-weight:600;">${pkg.name}</span>
+            <span style="color:var(--purple-main);font-weight:700;">${pkg.price} $</span>
+            <button type="button" onclick="removePackage(${i})" 
+                style="background:var(--danger-red);color:white;border:none;border-radius:6px;
+                padding:0.3rem 0.7rem;cursor:pointer;">حذف</button>
+        </div>
+    `).join('');
+
+    document.getElementById('pkg-name').value = '';
+    document.getElementById('pkg-price').value = '';
+}
+
+function removePackage(index) {
+    currentPackages.splice(index, 1);
+    addPackageToList(); // إعادة رسم القائمة (بدون إضافة)
+    // في الواقع نحتاج إعادة رسم فقط
+    const listEl = document.getElementById('packages-list-admin');
+    listEl.innerHTML = currentPackages.map((pkg, i) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;
+            background:white;padding:0.8rem;border-radius:8px;border:1px solid var(--gray-border);">
+            <span style="font-weight:600;">${pkg.name}</span>
+            <span style="color:var(--purple-main);font-weight:700;">${pkg.price} $</span>
+            <button type="button" onclick="removePackage(${i})" 
+                style="background:var(--danger-red);color:white;border:none;border-radius:6px;
+                padding:0.3rem 0.7rem;cursor:pointer;">حذف</button>
+        </div>
+    `).join('');
+}
+
+
 // الصق الدالة هنا في الخارج لتصبح عامة
 function viewReceipt(base64Image) {
     const newWindow = window.open();
@@ -481,14 +535,37 @@ async function handleStatusChange(event) {
 
     addServiceForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const serviceData = {
+        
+        const serviceType = document.getElementById('service-type').value;
+        let serviceData = {
             platform: document.getElementById('service-platform').value.trim(),
-            name: document.getElementById('service-name').value.trim(),
-            pricePer1000: parseFloat(document.getElementById('service-price').value),
-            min: parseInt(document.getElementById('service-min').value),
-            max: parseInt(document.getElementById('service-max').value),
-            step: parseInt(document.getElementById('service-step').value) || 1
+            type: serviceType
         };
+
+        if (serviceType === 'smm') {
+            serviceData.name = document.getElementById('service-name').value.trim();
+            serviceData.pricePer1000 = parseFloat(document.getElementById('service-price').value);
+            serviceData.min = parseInt(document.getElementById('service-min').value);
+            serviceData.max = parseInt(document.getElementById('service-max').value);
+            serviceData.step = parseInt(document.getElementById('service-step').value) || 1;
+        } else {
+            // خدمة لعبة
+            serviceData.name = document.getElementById('service-platform').value.trim();
+            serviceData.idLabel = document.getElementById('service-id-label').value || 'أدخل رقم الـ ID';
+            serviceData.idPlaceholder = document.getElementById('service-id-placeholder').value || '123456789';
+            serviceData.packages = currentPackages;
+            serviceData.pricePer1000 = 0;
+            serviceData.min = 1;
+            serviceData.max = 1;
+            serviceData.step = 1;
+
+            if (currentPackages.length === 0) {
+                serviceFormResponse.textContent = 'يرجى إضافة حزمة واحدة على الأقل';
+                serviceFormResponse.style.color = 'red';
+                return;
+            }
+        }
+
         try {
             const response = await apiFetch('/api/services', { 
                 method: 'POST', 
@@ -500,6 +577,8 @@ async function handleStatusChange(event) {
             if (response.ok) {
                 serviceFormResponse.style.color = 'green';
                 addServiceForm.reset();
+                currentPackages = [];
+                document.getElementById('packages-list-admin').innerHTML = '';
             } else {
                 serviceFormResponse.style.color = 'red';
             }
