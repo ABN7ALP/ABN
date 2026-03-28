@@ -1853,6 +1853,65 @@ function getPlatformIcon(platform, serviceName = '') {
         originalUrl = 'https://storage.perfectcdn.com/23mb5q/sxw3z02h57xwgnau.gif';
     }
 
+     // --- 3.5 أيقونات الألعاب والتطبيقات ---
+    else if (p.includes('pubg') || p.includes('ببجي')) {
+        originalUrl = 'https://upload.wikimedia.org/wikipedia/en/6/6b/PUBG_MOBILE.jpg';
+    }
+    else if (p.includes('free fire') || p.includes('فري فاير') || p.includes('freefire')) {
+        originalUrl = 'https://upload.wikimedia.org/wikipedia/en/6/6e/Free_Fire_logo.jpg';
+    }
+    else if (p.includes('clash') || p.includes('كلاش')) {
+        originalUrl = 'https://upload.wikimedia.org/wikipedia/en/e/e1/Clash_of_Clans_Logo.jpg';
+    }
+    else if (p.includes('mobile legend') || p.includes('ملايين') || p.includes('mlbb')) {
+        originalUrl = 'https://upload.wikimedia.org/wikipedia/en/4/4b/Mobile_Legends_Bang_Bang_Logo.png';
+    }
+    else if (p.includes('fortnite') || p.includes('فورتنايت')) {
+        originalUrl = 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Fortnite_F_lettermark_logo.png';
+    }
+    else if (p.includes('roblox') || p.includes('روبلوكس')) {
+        originalUrl = 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Roblox_player_icon_black.svg';
+    }
+    else if (p.includes('minecraft') || p.includes('ماينكرافت')) {
+        originalUrl = 'https://upload.wikimedia.org/wikipedia/commons/4/4d/Minecraft_logo.svg';
+    }
+    else if (p.includes('call of duty') || p.includes('cod') || p.includes('كود')) {
+        originalUrl = 'https://upload.wikimedia.org/wikipedia/en/c/cd/Call_of_Duty_WWII_Logo.jpg';
+    }
+    else if (p.includes('genshin') || p.includes('جينشن')) {
+        originalUrl = 'https://upload.wikimedia.org/wikipedia/en/7/7f/Genshin_Impact_logo.png';
+    }
+    else if (p.includes('honor of king') || p.includes('arena of valor')) {
+        originalUrl = 'https://upload.wikimedia.org/wikipedia/en/e/e0/Arena_of_Valor_logo.png';
+    }
+    else if (p.includes('party star') || p.includes('بارتي')) {
+        originalUrl = 'https://ui-avatars.com/api/?name=PS&background=9b59b6&size=80&color=fff';
+    }
+    else if (p.includes('soulchill') || p.includes('soul chill')) {
+        originalUrl = 'https://ui-avatars.com/api/?name=SC&background=8e44ad&size=80&color=fff';
+    }
+    else if (p.includes('itunes') || p.includes('apple')) {
+        originalUrl = 'https://upload.wikimedia.org/wikipedia/commons/d/df/ITunes_logo.svg';
+    }
+    else if (p.includes('steam')) {
+        originalUrl = 'https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg';
+    }
+    else if (p.includes('netflix') || p.includes('نتفلكس')) {
+        originalUrl = 'https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg';
+    }
+    else if (p.includes('syriatel') || p.includes('سيريتل')) {
+        originalUrl = 'https://ui-avatars.com/api/?name=SY&background=e74c3c&size=80&color=fff';
+    }
+    else if (p.includes('mtn') || p.includes('ام تي ان')) {
+        originalUrl = 'https://upload.wikimedia.org/wikipedia/commons/9/9c/MTN_Logo.svg';
+    }
+    else if (p.includes('jawaker') || p.includes('جواكر')) {
+        originalUrl = 'https://ui-avatars.com/api/?name=JW&background=27ae60&size=80&color=fff';
+    }
+    else if (p.includes('sugo') || p.includes('سوقو')) {
+        originalUrl = 'https://ui-avatars.com/api/?name=SG&background=e67e22&size=80&color=fff';
+    }   
+
     // --- 4. أيقونة افتراضية ---
     else {
         try {
@@ -2062,15 +2121,23 @@ window.showGamePackagesModal = function(platform, platformData) {
     });
 
     // حساب السعر عند تغيير الكمية المخصصة
+    // حساب السعر عند تغيير الكمية المخصصة
     document.getElementById('custom-qty-input')?.addEventListener('input', function() {
         const qty = parseInt(this.value);
         const priceDisplay = document.getElementById('custom-qty-price');
         const platformData = servicesData[platform];
         const service = platformData?.services[0];
         
-        if (qty > 0 && service && service.pricePer1000) {
-            const price = (service.pricePer1000 / 1000) * qty;
+        // استخدم customPricePer1000 أو pricePer1000
+        const pricePerThousand = service?.customPricePer1000 || service?.pricePer1000 || 0;
+        
+        if (qty > 0 && pricePerThousand > 0) {
+            const price = (pricePerThousand / 1000) * qty;
             priceDisplay.textContent = `السعر الإجمالي: ${price.toFixed(4)}$`;
+            priceDisplay.style.color = 'var(--purple-main)';
+        } else if (qty > 0 && pricePerThousand === 0) {
+            priceDisplay.textContent = '⚠️ لم يُحدد سعر للكمية المخصصة، تواصل مع الإدمن';
+            priceDisplay.style.color = 'var(--danger-red)';
         } else {
             priceDisplay.textContent = '';
         }
@@ -2091,7 +2158,12 @@ window.proceedToGameOrder = function(platform) {
             alert('يرجى إدخال كمية صحيحة');
             return;
         }
-        const customPrice = (service.pricePer1000 / 1000) * customQty;
+        const pricePerThousand = service.customPricePer1000 || service.pricePer1000 || 0;
+        if (pricePerThousand === 0) {
+            alert('لم يُحدد سعر للكمية المخصصة. يرجى التواصل مع الإدمن.');
+            return;
+        }
+        const customPrice = (pricePerThousand / 1000) * customQty;
         selectedPackage = {
             name: `كمية مخصصة (${customQty.toLocaleString()})`,
             price: parseFloat(customPrice.toFixed(4)),
