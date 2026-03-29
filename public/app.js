@@ -1923,12 +1923,8 @@ function getPlatformIcon(platform, serviceName = '') {
     }
 
     // --- 5. [ميزة WebP] هنا مكانها الصحيح ---
-    if (originalUrl) {
-        const cleanUrl = originalUrl.replace(/^https?:\/\//, '');
-        return `https://images.weserv.nl/?url=${cleanUrl}&output=webp&q=80&w=80&h=80&fit=contain`;
-    }
-
-    return '';
+    // إرجاع الرابط مباشرة بدون proxy
+    return originalUrl || '';
 }
     function getPlatformValidation(platform) {
         const p = platform.toLowerCase().trim();
