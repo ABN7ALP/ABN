@@ -1955,8 +1955,10 @@ function getPlatformIcon(platform, serviceName = '') {
             const card = document.createElement('div');
             card.className = 'service-card';
             card.innerHTML = `
+                card.innerHTML = `
                 <div class="icon-wrapper">
-                    <img src="${data.icon}" alt="${platform} icon" onerror="this.style.display='none'">
+                    <img src="${data.icon}" alt="${platform} icon" 
+                         onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(platform.charAt(0).toUpperCase())}&background=7C1EFF&color=fff&size=80&bold=true'">
                 </div>
                 <h3>${platform}</h3>
                 <p>${data.description}</p>
