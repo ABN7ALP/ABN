@@ -1855,10 +1855,10 @@ function getPlatformIcon(platform, serviceName = '') {
 
      // --- 3.5 أيقونات الألعاب والتطبيقات ---
     else if (p.includes('pubg') || p.includes('ببجي')) {
-        originalUrl = 'https://ibb.co/ycG34kbJ"><img src="https://i.ibb.co/ycG34kbJ/image.png';
+        originalUrl = 'https://i.ibb.co/ycG34kbJ/image.png';
     }
     else if (p.includes('free fire') || p.includes('فري فاير') || p.includes('freefire')) {
-        originalUrl = 'https://upload.wikimedia.org/wikipedia/en/6/6e/Free_Fire_logo.jpg';
+        originalUrl = 'https://i.ibb.co/W4thHvXZ/2.png';
     }
     else if (p.includes('clash') || p.includes('كلاش')) {
         originalUrl = 'https://upload.wikimedia.org/wikipedia/en/e/e1/Clash_of_Clans_Logo.jpg';
