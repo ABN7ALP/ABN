@@ -10,29 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // إضافة CSS بسيط لتحسين العرض
             const style = document.createElement('style');
             style.textContent = `
-                /* تحسين العرض على الهواتف مع عرض سطح المكتب */
-                body {
-                    min-width: 100%;
-                }
-                .container {
-                    width: 100%;
-                    max-width: 1200px;
-                    margin: 0 auto;
-                }
-                
-                /* تحسين عرض البطاقات */
+                body { min-width: 100%; }
+                .container { width: 100%; max-width: 1200px; margin: 0 auto; }
                 .services-grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                    gap: 1.5rem;
+                    grid-template-columns: repeat(3, 1fr) !important;
+                    gap: 0.5rem !important;
                 }
-                
-                /* تحسين الهيدر */
-                .main-header .container {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
+                .main-header .container { display: flex; justify-content: space-between; align-items: center; }
             `;
             document.head.appendChild(style);
         }
@@ -2050,7 +2035,7 @@ window.showGamePackagesModal = function(platform, platformData) {
             </div>
             <span class="package-price">${pkg.price.toFixed(4)} $</span>
         </label>
-    `).join('') + `
+    `).join('') + (service.allowCustomQuantity ? `
         <label class="package-option" data-index="custom">
             <input type="radio" name="game-package" value="custom">
             <div class="package-info">
@@ -2064,11 +2049,11 @@ window.showGamePackagesModal = function(platform, platformData) {
             <input type="number" id="custom-qty-input" placeholder="أدخل الكمية" min="1" 
                 style="width:100%;padding:0.7rem;border:2px solid var(--gray-border);border-radius:8px;">
             <p style="font-size:0.8rem;color:var(--text-light);margin-top:0.5rem;">
-                السعر لكل 1000: <strong>${service.pricePer1000 || 0}$</strong>
+                السعر لكل 1000: <strong>${service.customPricePer1000 || service.pricePer1000 || 0}$</strong>
             </p>
             <p id="custom-qty-price" style="font-weight:700;color:var(--purple-main);margin-top:0.3rem;"></p>
         </div>
-    `;
+    ` : '');
 
     const modalHTML = `
         <div id="game-packages-modal" class="popup-overlay" style="display:flex;">
