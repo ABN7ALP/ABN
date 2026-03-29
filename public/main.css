@@ -1900,3 +1900,26 @@ body::after {
         order: 3;
     }
 }
+/* Force 3 columns on all screen sizes */
+.services-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.5rem !important;
+}
+
+@media (max-width: 400px) {
+    .services-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 0.3rem !important;
+    }
+    .service-card {
+        padding: 0.5rem 0.2rem !important;
+    }
+    .icon-wrapper {
+        width: 55px !important;
+        height: 55px !important;
+    }
+    .service-card h3 {
+        font-size: 0.75rem !important;
+    }
+}
