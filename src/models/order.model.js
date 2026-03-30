@@ -17,9 +17,13 @@ const orderSchema = new mongoose.Schema({
         required: true 
     },
     service: { 
-        type: String, 
-        required: true 
-    },
+    type: String, // سيحتوي على اسم اللعبة/المنصة الرئيسي
+    required: true 
+},
+serviceDetails: {
+    type: String, // سيحتوي على اسم الحزمة أو تفاصيل الخدمة المحددة
+    required: false
+},
     link: { 
         type: String, 
         required: true 
