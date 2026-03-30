@@ -420,30 +420,16 @@ router.get('/my-orders', async (req, res) => {
 // --- POST /api/orders/pay-with-balance (النسخة الآمنة والمكتملة) ---
 router.post('/pay-with-balance', async (req, res) => {
     try {
-        const { userId, service: serviceName, link, quantity, platform, orderType, price: requestedPrice } = req.body;
+        const { userId, service: serviceName, link, quantity, platform } = req.body;
 
         if (!userId) return res.status(401).json({ message: 'يجب تسجيل الدخول.' });
 
-        // حساب السعر بحسب نوع الطلب
-        let finalPrice;
-        let priceData = { hasDiscount: false, discount: 0, originalPrice: parseFloat(requestedPrice) || 0, finalPrice: parseFloat(requestedPrice) || 0 };
-
-        if (orderType === 'game') {
-            // للألعاب: استخدم السعر المرسل مباشرة بدون إعادة حساب
-            finalPrice = parseFloat(requestedPrice);
-            priceData.finalPrice = finalPrice;
-            if (!finalPrice || finalPrice <= 0) {
-                return res.status(400).json({ message: 'سعر الطلب غير صالح.' });
-            }
-        } else {
-            // للخدمات العادية: احسب السعر مع الخصم من قاعدة البيانات
-            const calculatedPrice = await calculateFinalPrice(serviceName, platform, parseInt(quantity), userId);
-            finalPrice = calculatedPrice.finalPrice;
-            priceData = calculatedPrice;
-        }
+        // 🆕 أولاً: حساب السعر مع الخصم
+        const priceData = await calculateFinalPrice(serviceName, platform, parseInt(quantity), userId);
+        const finalPrice = priceData.finalPrice;
 
         console.log('💰 السعر النهائي للدفع:', { finalPrice, originalPrice: priceData.originalPrice, discount: priceData.discount });
-        
+
         // التحقق من أن الكمية رقم صحيح وموجب
         const requestedQuantity = parseInt(quantity);
         if (isNaN(requestedQuantity) || requestedQuantity <= 0) {
