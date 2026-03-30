@@ -2267,7 +2267,8 @@ window.submitGameOrder = async function() {
     try {
         const orderData = {
             platform: currentGameData.platform,
-            service: currentGameData.packageName,
+            service: currentGameData.platform, // اسم اللعبة كخدمة رئيسية
+            serviceDetails: currentGameData.packageName, // اسم الحزمة كتفاصيل
             link: `GAME_ID:${gameId}`,
             quantity: 1,
             price: currentGameData.packagePrice,
