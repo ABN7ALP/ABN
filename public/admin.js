@@ -357,7 +357,7 @@ async function fetchOrders(week = 0) { // 🎯 قبول بارامتر الأس�
             row.innerHTML = `
                 <td data-label="رقم الطلب" style="font-weight: bold; color: var(--purple-main);">${order.orderId || 'N/A'}</td>
                 <td data-label="المنصة"><i class="ph-bold ${platformIcon}"></i> ${platformName}</td>
-                <td data-label="الخدمة">${order.service || 'N/A'}</td>
+                <td data-label="الخدمة">${order.service || 'N/A'} ${order.serviceDetails ? ` - ${order.serviceDetails}` : ''}</td>
                 <td data-label="الرابط">
                     <div class="link-container">
                         <a href="${order.link || '#'}" target="_blank" class="link-preview">عرض الرابط</a>
@@ -366,7 +366,7 @@ async function fetchOrders(week = 0) { // 🎯 قبول بارامتر الأس�
                         </button>
                     </div>
                 </td>
-                <td data-label="الكمية">${order.quantity ? order.quantity.toLocaleString() : 'N/A'}</td>
+                <td data-label="الكمية">${order.quantity ? order.quantity.toLocaleString('ar-EG') : 'N/A'}</td>
                 <td data-label="السعر">${order.price ? order.price.toFixed(2) : '0.00'} $</td>
                 <td data-label="تاريخ الطلب">${order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG') : 'N/A'}</td>
                 <td data-label="الحالة"><div class="select-wrapper status-select-wrapper"><select class="status-select" data-order-id="${order._id}"><option value="قيد المراجعة" ${order.status === 'قيد المراجعة' ? 'selected' : ''}>قيد المراجعة</option><option value="قيد التنفيذ" ${order.status === 'قيد التنفيذ' ? 'selected' : ''}>قيد التنفيذ</option><option value="مكتمل" ${order.status === 'مكتمل' ? 'selected' : ''}>مكتمل</option><option value="ملغي" ${order.status === 'ملغي' ? 'selected' : ''}>ملغي (عام)</option><option value="ملغي (خطأ مستخدم)" ${order.status === 'ملغي (خطأ مستخدم)' ? 'selected' : ''}>ملغي (خطأ مستخدم)</option></select></div></td>
