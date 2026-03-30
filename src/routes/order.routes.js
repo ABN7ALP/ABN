@@ -42,34 +42,37 @@ async function calculateFinalPrice(serviceName, platform, quantity, userId = nul
     try {
         console.log('🔍 حساب السعر - البيانات المستلمة:', { serviceName, platform, quantity, userId });
 
-        // 1. جلب البيانات بشكل متوازي لتحسين الأداء
-        const [service, user, activeOffers] = await Promise.all([
-            Service.findOne({ name: serviceName, platform: platform }),
-            userId ? User.findById(userId).select('createdAt') : Promise.resolve(null),
+                // 1. جلب البيانات بشكل متوازي لتحسين الأداء
+        const [serviceDoc, user, activeOffers] = await Promise.all([
+            Service.findOne({ platform: platform }), // ابحث عن الخدمة بالمنصة (اسم اللعبة)
+            userId ? User.findById(userId).select("createdAt") : Promise.resolve(null),
             getActiveOffers() // استخدام نظام الكاش
         ]);
 
-        // التحقق من وجود الخدمة
-        // للألعاب: إذا لم توجد الخدمة بالاسم، ابحث بالمنصة فقط
-        let finalService = service;
-        if (!finalService) {
-            finalService = await Service.findOne({ platform: platform, type: 'game' });
-        }
-        
-        if (!finalService) {
-            console.log('❌ الخدمة غير موجودة');
+        if (!serviceDoc) {
+            console.log('❌ الخدمة (المنصة) غير موجودة');
             return { originalPrice: 0, finalPrice: 0, discount: 0, hasDiscount: false };
         }
-        
-        // استخدم finalService بدلاً من service
-        service = finalService;
 
-        console.log('✅ الخدمة موجودة:', service.name);
+        let originalPrice = 0;
+        let serviceType = serviceDoc.type;
 
-        // 2. حساب السعر الأصلي
-        const pricePerUnit = service.pricePer1000 / 1000;
-        const originalPrice = pricePerUnit * quantity;
-        
+        if (serviceType === 'game') {
+            // إذا كانت خدمة لعبة، ابحث عن الحزمة داخل الـ packages
+            const gamePackage = serviceDoc.packages.find(pkg => pkg.name === serviceName);
+            if (!gamePackage) {
+                console.log('❌ حزمة اللعبة غير موجودة:', serviceName);
+                return { originalPrice: 0, finalPrice: 0, discount: 0, hasDiscount: false };
+            }
+            originalPrice = gamePackage.price * quantity; // سعر الحزمة مضروب في الكمية (عادة 1)
+            console.log('✅ حزمة اللعبة موجودة:', gamePackage.name, 'بسعر:', gamePackage.price);
+        } else {
+            // إذا كانت خدمة SMM عادية
+            const pricePerUnit = serviceDoc.pricePer1000 / 1000;
+            originalPrice = pricePerUnit * quantity;
+            console.log('✅ خدمة SMM موجودة:', serviceDoc.name);
+        }
+            
         console.log('💰 السعر الأصلي:', originalPrice);
 
         // 3. تحديد نوع المستخدم (إذا وجد)
@@ -469,9 +472,10 @@ router.post('/pay-with-balance', async (req, res) => {
         await user.save();
 
         // 🆕 إنشاء الطلب مع السعر النهائي (بعد الخصم)
-        const newOrder = new Order({
+                const newOrder = new Order({
             platform,
-            service: serviceName,
+            service: orderType === 'game' ? platform : serviceName, // اسم اللعبة/المنصة كخدمة رئيسية
+            serviceDetails: orderType === 'game' ? serviceName : null, // اسم الحزمة كتفاصيل
             link,
             quantity: requestedQuantity,
             price: finalPrice,
