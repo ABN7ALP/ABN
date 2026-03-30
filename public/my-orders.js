@@ -177,10 +177,10 @@ function renderMyOrders(orders) {
         
         row.innerHTML = `
             <td data-label="رقم الطلب" style="font-weight: bold; color: var(--purple-main);">${order.orderId || 'N/A'}</td>
-            <td data-label="الخدمة">
+               <td data-label="الخدمة">
                 <div class="service-cell">
                     <i class="ph-bold ph-${order.platform?.toLowerCase().replace(/\s/g, '')}-logo"></i>
-                    <span>${order.service}</span>
+                    <span>${order.service} ${order.serviceDetails ? ` - ${order.serviceDetails}` : ''}</span>
                 </div>
             </td>
             <td data-label="الكمية">${order.quantity.toLocaleString('ar-EG')}</td>
