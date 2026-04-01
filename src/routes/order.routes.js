@@ -428,11 +428,22 @@ router.post('/pay-with-balance', async (req, res) => {
         if (!userId) return res.status(401).json({ message: 'يجب تسجيل الدخول.' });
 
         // 🆕 أولاً: حساب السعر مع الخصم
-        const priceData = await calculateFinalPrice(serviceName, platform, parseInt(quantity), userId);
-        const finalPrice = priceData.finalPrice;
+        const orderType = req.body.orderType;
+        let finalPrice;
+        let priceData = { hasDiscount: false, discount: 0 };
 
-        console.log('💰 السعر النهائي للدفع:', { finalPrice, originalPrice: priceData.originalPrice, discount: priceData.discount });
-
+        if (orderType === 'game') {
+            // للألعاب: السعر يأتي مباشرة من الواجهة
+            finalPrice = parseFloat(req.body.price);
+            if (!finalPrice || isNaN(finalPrice) || finalPrice <= 0) {
+                return res.status(400).json({ message: 'سعر الحزمة غير صالح.' });
+            }
+            console.log('🎮 طلب لعبة - السعر المباشر:', finalPrice);
+        } else {
+            priceData = await calculateFinalPrice(serviceName, platform, parseInt(quantity), userId);
+            finalPrice = priceData.finalPrice;
+            console.log('💰 السعر بعد الخصم:', finalPrice);
+        }
         // التحقق من أن الكمية رقم صحيح وموجب
         const requestedQuantity = parseInt(quantity);
         if (isNaN(requestedQuantity) || requestedQuantity <= 0) {
@@ -445,7 +456,7 @@ router.post('/pay-with-balance', async (req, res) => {
 
         // 🆕 جلب الخدمة للتحقق من القيود فقط (لا نحتاج سعرها)
         // للطلبات العادية فقط - الألعاب لا تحتاج هذا التحقق
-        const orderType = req.body.orderType;
+       // const orderType = req.body.orderType;
         
         if (orderType !== 'game') {
             const serviceDoc = await Service.findOne({ name: serviceName, platform: platform });
