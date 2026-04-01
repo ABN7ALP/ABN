@@ -564,7 +564,7 @@ async function handleStatusChange(event) {
             serviceData.packages = currentPackages;
             serviceData.allowCustomQuantity = document.getElementById('service-allow-custom')?.checked || false;
             serviceData.customPricePer1000 = parseFloat(document.getElementById('service-custom-price')?.value) || 0;
-           // serviceData.pricePer1000 = serviceData.customPricePer1000;
+            serviceData.pricePer1000 = serviceData.customPricePer1000;
             serviceData.min = 1;
             serviceData.max = 1;
             serviceData.step = 1;
