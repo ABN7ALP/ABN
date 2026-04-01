@@ -175,15 +175,19 @@ function renderMyOrders(orders) {
             statusHTML = `<span class="${statusClass}">${order.status}</span>`;
         }
         
+        const isGameOrder = order.link && order.link.startsWith('GAME_ID:');
+
         row.innerHTML = `
             <td data-label="رقم الطلب" style="font-weight: bold; color: var(--purple-main);">${order.orderId || 'N/A'}</td>
-               <td data-label="الخدمة">
-                <div class="service-cell">
-                    <i class="ph-bold ph-${order.platform?.toLowerCase().replace(/\s/g, '')}-logo"></i>
-                    <span>${order.service} ${order.serviceDetails ? ` - ${order.serviceDetails}` : ''}</span>
-                </div>
+            <td data-label="الخدمة">
+                <span style="font-weight:700;">${order.platform || order.service || 'N/A'}</span>
             </td>
-            <td data-label="الكمية">${order.quantity.toLocaleString('ar-EG')}</td>
+            <td data-label="الكمية/الباقة">
+                ${isGameOrder && order.serviceDetails
+                    ? `<span style="font-size:0.85rem;font-weight:700;color:var(--purple-main);background:var(--purple-light);padding:0.3rem 0.7rem;border-radius:8px;display:inline-block;">${order.serviceDetails}</span>`
+                    : `<span style="font-weight:600;">${order.quantity.toLocaleString('ar-EG')}</span>`
+                }
+            </td>
             <td data-label="السعر">${order.price.toFixed(2)} $</td>
             <td data-label="تاريخ الطلب">${orderDate}</td>
             <td data-label="الحالة">${statusHTML}</td>
