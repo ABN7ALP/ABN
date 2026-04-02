@@ -530,7 +530,7 @@ router.post('/pay-with-balance', async (req, res) => {
 `;
             }
             
-            await bot.sendMessage(process.env.TELEGRAM_BOT_TOKEN, telegramMsg, { parse_mode: 'Markdown' });
+            await bot.sendMessage(process.env.TELEGRAM_CHAT_ID, telegramMsg, { parse_mode: 'Markdown' });
             console.log('✅ تم إرسال إشعار الطلب إلى تيليجرام');
         } catch (telegramError) {
             console.error('⚠️ فشل إرسال إشعار تيليجرام:', telegramError.message);
