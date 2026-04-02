@@ -363,7 +363,7 @@ function generateServiceSchema(service) {
         "description": `احصل على أفضل خدمة ${service.name} لمنصة ${service.platform} بجودة عالية وأسعار تنافسية تبدأ من ${service.pricePer1000}$ لكل 1000.`,
         "brand": {
             "@type": "Brand",
-            "name": "MX GROUP"
+            "name": "abn.7alp"
         },
         // 3. إضافة بيانات السعر (Offers)
         "offers": {
@@ -1320,12 +1320,12 @@ function handlePaymentMethodSelect(event) {
     
     switch (selectedMethod) {
         case 'bank':
-            minAmount = 10;
-            minMessage = 'الحد الأدنى للتحويل البنكي: 10 دولار';
+            minAmount = 50;
+            minMessage = 'الحد الأدنى للتحويل البنكي: 50 دولار';
             break;
         case 'sham':
-            minAmount = 5;
-            minMessage = 'الحد الأدنى لشام كاش: 5 دولار';
+            minAmount = 50;
+            minMessage = 'الحد الأدنى لشام كاش: 50 دولار';
             break;
         case 'usdt':
         case 'trx':
@@ -1374,12 +1374,12 @@ function handlePaymentMethodSelect(event) {
         case 'bank': 
             detailsHTML = `
                 <p>يرجى تحويل المبلغ إلى الحساب التالي:</p>
-                <p><strong>الاسم:</strong> <span>MUHAMMED ERRAHIM</span></p>
+                <p><strong>الاسم:</strong> <span>BESSAR ELHUSEIN</span></p>
                 <p><strong>رقم الحساب (IBAN):</strong></p>
                 <div class="wallet-address" style="margin-top: 0.5rem;">
                         <div class="address-container">
-                            <span class="address-text">TR02 0082 9000 0949 2068 8015 66</span>
-                            <div class="copy-icon" data-address="TR02 0082 9000 0949 2068 8015 66">
+                            <span class="address-text">TR33 0001 0000 6289 4417 5150 01</span>
+                            <div class="copy-icon" data-address="TR33 0001 0000 6289 4417 5150 01">
                                 <i class="ph-bold ph-copy"></i>
                             </div>
                         </div>
@@ -1394,19 +1394,19 @@ function handlePaymentMethodSelect(event) {
                 
                 <!-- 1. مسح الباركود -->
                 <div style="text-align: center; margin-bottom: 1.5rem;">
-                    <img src="https://i.ibb.co/Y43J4f7y/IMG-20251205-WA0016.jpg" alt="Sham Cash QR Code" style="max-width: 220px; height: auto; border-radius: 12px; margin: 0.5rem auto; display: block; border: 1px solid var(--gray-border);">
+                    <img src="https://i.ibb.co/tpt1dYRC/WA-1775141686687.jpg" alt="Sham Cash QR Code" style="max-width: 220px; height: auto; border-radius: 12px; margin: 0.5rem auto; display: block; border: 1px solid var(--gray-border);">
                     <small style="color: var(--text-light);">امسح الرمز للدفع السريع</small>
                 </div>
 
                 <!-- 2. النسخ اليدوي -->
                 <div>
                     <p style="margin-bottom: 0.5rem;">أو أرسل إلى الحساب التالي يدوياً:</p>
-                    <p><strong>الاسم:</strong> <span>Mohamed Nour Al Rahim</span></p>
+                    <p><strong>الاسم:</strong> <span>abn.7alp</span></p>
                     <p><strong>كود الحساب:</strong></p>
                     <div class="wallet-address" style="margin-top: 0.5rem;">
                         <div class="address-container">
-                            <span class="address-text">0bc3c408794e5087db1ba11924b2003a</span>
-                            <div class="copy-icon" data-address="0bc3c408794e5087db1ba11924b2003a">
+                            <span class="address-text">bfa34fae23d4f3b4089e6d615bbd07d7</span>
+                            <div class="copy-icon" data-address="bfa34fae23d4f3b4089e6d615bbd07d7">
                                 <i class="ph-bold ph-copy"></i>
                             </div>
                         </div>
@@ -1428,90 +1428,7 @@ function handlePaymentMethodSelect(event) {
                     </p>
                 </div>
             `; 
-            break;
-            
-        case 'usdt':
-            detailsHTML = `
-                <p><strong>💰 اسم العملية:</strong> USDT</p>
-                <p><strong>🌐 اسم الشبكة:</strong> Tron (TRC20)</p>
-                <p><strong>📍 عنوان الدفع:</strong></p>
-                <div class="wallet-address">
-                    <div class="address-container">
-                        <span class="address-text">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
-                        <div class="copy-icon" data-address="TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM">
-                            <i class="ph-bold ph-copy"></i>
-                        </div>
-                    </div>
-                </div>
-                <p class="warning-note">⚠️ تأكد من إرسال USDT فقط عبر شبكة TRC20</p>
-            `;
-            break;
-            
-        case 'trx':
-            detailsHTML = `
-                <p><strong>💰 اسم العملية:</strong> TRX</p>
-                <p><strong>🌐 اسم الشبكة:</strong> Tron (TRC20)</p>
-                <p><strong>📍 عنوان الدفع:</strong></p>
-                <div class="wallet-address">
-                    <div class="address-container">
-                        <span class="address-text">TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM</span>
-                        <div class="copy-icon" data-address="TUx6cUrvy34Fh1jeYG8AQxrperJaWRhGhM">
-                            <i class="ph-bold ph-copy"></i>
-                        </div>
-                    </div>
-                </div>                
-                <p class="warning-note">⚠️ تأكد من إرسال TRX فقط عبر شبكة TRC20</p>
-            `;
-            break;
-
-            case 'papara':
-            detailsHTML = `
-                <p><strong>💰 اسم العملية:</strong>PAPARA</p>
-                <p><strong>🆔 رقم الحساب:</strong></p>
-                <div class="wallet-address">
-                    <div class="address-container">
-                        <span class="address-text">2068801566</span>
-                        <div class="copy-icon" data-address="2068801566">
-                            <i class="ph-bold ph-copy"></i>
-                        </div>
-                    </div>
-                </div>
-                <p class="warning-note">⚠️ تأكد من إرسال المبلغ بالدولار الأمريكي (USD).</p>
-            `;
-            break;
-
-            case 'binance-pay':
-            detailsHTML = `
-                <p><strong>💰 اسم العملية:</strong>  Binance Pay</p>
-                <p><strong>🆔 معرف الدفع (Pay ID):</strong></p>
-                <div class="wallet-address">
-                    <div class="address-container">
-                        <span class="address-text">338952269</span>
-                        <div class="copy-icon" data-address="338952269">
-                            <i class="ph-bold ph-copy"></i>
-                        </div>
-                    </div>
-                </div>
-                <p class="warning-note">⚠️ تأكد من إرسال المبلغ بعملة USDT.</p>
-            `;
-            break;
-
-        case 'bnb':
-            detailsHTML = `
-                <p><strong>💰 اسم العملية:</strong> BNB</p>
-                <p><strong>🌐 اسم الشبكة:</strong> BNB Smart Chain (BEP20)</p>
-                <p><strong>📍 عنوان الدفع:</strong></p>
-                <div class="wallet-address">
-                    <div class="address-container">
-                        <span class="address-text">0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd</span>
-                        <div class="copy-icon" data-address="0x2de85d9b65a9eae384ae42d785d9d6ca2a379fbd">
-                            <i class="ph-bold ph-copy"></i>
-                        </div>
-                    </div>
-                </div>
-                <p class="warning-note">⚠️ تأكد من إرسال BNB فقط عبر شبكة BEP20</p>
-            `;
-            break;
+            break;    
     }
     
     paymentDetailsContainer.innerHTML = detailsHTML;
@@ -1529,12 +1446,12 @@ function handlePaymentMethodSelect(event) {
 
 // 🆕 دالة فتح واتساب مع رسالة جاهزة
 function openWhatsAppContact() {
-    const phoneNumber = "905433600754"; // رقم الواتساب
+    const phoneNumber = "905367893256"; // رقم الواتساب
     const message = encodeURIComponent(`مرحباً، أريد معلومات حول الحوالة المكتبية لإيداع رصيد في المتجر.
     
-المبلغ الذي أريد إيداعه: [يرجى كتابة المبلغ]
+اكتب المبلغ الذي أريد إيداعه: [يرجى كتابة المبلغ] 
 الطريقة: حوالة مكتبية
-اسمي: [اسمك]`);
+اكتب اسمك هنا: [اسمك]`);
 
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
     window.open(whatsappUrl, '_blank');
@@ -1698,8 +1615,8 @@ function showCopySuccessMessage(message, isError = false) {
     
     // 🎯🎯🎯 التعديلات هنا 🎯🎯🎯
     switch (method) {
-        case 'bank': minAmount = 10; break;
-        case 'sham': minAmount = 5; break;
+        case 'bank': minAmount = 50; break;
+        case 'sham': minAmount = 50; break;
         case 'whatsapp': minAmount = 50; break; // 🎯 تم التحديث
         case 'papara': minAmount = 10; break; // 🎯 تم التحديث
         case 'binance-pay': minAmount = 10; break; // 🎯 تم التحديث
