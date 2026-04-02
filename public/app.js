@@ -1777,8 +1777,8 @@ function getPlatformIcon(platform, serviceName = '') {
     else if (p.includes('free fire') || p.includes('فري فاير') || p.includes('freefire')) {
         originalUrl = 'https://i.ibb.co/W4thHvXZ/2.png';
     }
-    else if (p.includes('clash') || p.includes('كلاش')) {
-        originalUrl = 'https://upload.wikimedia.org/wikipedia/en/e/e1/Clash_of_Clans_Logo.jpg';
+    else if (p.includes('JAWAKER') || p.includes('جواكر')) {
+        originalUrl = 'https://i.ibb.co/99y7wjQp/image.png';
     }
     else if (p.includes('mobile legend') || p.includes('ملايين') || p.includes('mlbb')) {
         originalUrl = 'https://upload.wikimedia.org/wikipedia/en/4/4b/Mobile_Legends_Bang_Bang_Logo.png';
