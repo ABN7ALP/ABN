@@ -483,10 +483,13 @@ router.post('/pay-with-balance', async (req, res) => {
         await user.save();
 
         // 🆕 إنشاء الطلب مع السعر النهائي (بعد الخصم)
-                const newOrder = new Order({
+                // استخراج gameId من الرابط
+        const gameId = req.body.gameId || (link && link.startsWith('GAME_ID:') ? link.replace('GAME_ID:', '') : null);
+        
+        const newOrder = new Order({
             platform,
-            service: orderType === 'game' ? platform : serviceName, // اسم اللعبة/المنصة كخدمة رئيسية
-            serviceDetails: orderType === 'game' ? serviceName : null, // اسم الحزمة كتفاصيل
+            service: orderType === 'game' ? platform : serviceName,
+            serviceDetails: orderType === 'game' ? (req.body.serviceDetails || serviceName) : null,
             link,
             quantity: requestedQuantity,
             price: finalPrice,
@@ -494,6 +497,45 @@ router.post('/pay-with-balance', async (req, res) => {
             status: orderType === 'game' ? 'قيد المراجعة' : 'قيد التنفيذ'
         });
         await newOrder.save();
+
+        // 🔔 إرسال إشعار تيليجرام لكل طلب جديد
+        try {
+            const bot = require('../services/telegramBot');
+            const userDoc = await User.findById(userId).select('username');
+            
+            let telegramMsg = '';
+            
+            if (orderType === 'game') {
+                telegramMsg = `
+*🎮 طلب شحن جديد*
+━━━━━━━━━━━━━━━━━━
+*المنصة:* ${platform}
+*الحزمة:* ${req.body.serviceDetails || serviceName}
+*المستخدم:* ${userDoc ? userDoc.username : userId}
+*السعر:* ${finalPrice.toFixed(4)}$
+*الـ ID:* \`${gameId || 'غير محدد'}\`
+━━━━━━━━━━━━━━━━━━
+`;
+            } else {
+                telegramMsg = `
+*🛒 طلب خدمة جديد*
+━━━━━━━━━━━━━━━━━━
+*المنصة:* ${platform}
+*الخدمة:* ${serviceName}
+*المستخدم:* ${userDoc ? userDoc.username : userId}
+*الكمية:* ${requestedQuantity.toLocaleString()}
+*السعر:* ${finalPrice.toFixed(2)}$
+*الرابط:* ${link}
+━━━━━━━━━━━━━━━━━━
+`;
+            }
+            
+            await bot.sendMessage(process.env.TELEGRAM_BOT_TOKEN, telegramMsg, { parse_mode: 'Markdown' });
+            console.log('✅ تم إرسال إشعار الطلب إلى تيليجرام');
+        } catch (telegramError) {
+            console.error('⚠️ فشل إرسال إشعار تيليجرام:', telegramError.message);
+            // لا نوقف العملية إذا فشل الإشعار
+        }
 
         // إشعار للمدير والعميل
         req.io.emit('new-order');
