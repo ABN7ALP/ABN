@@ -1778,7 +1778,7 @@ function getPlatformIcon(platform, serviceName = '') {
         originalUrl = 'https://i.ibb.co/W4thHvXZ/2.png';
     }
     else if (p.includes('JAWAKER') || p.includes('جواكر')) {
-        originalUrl = 'https://i.ibb.co/99y7wjQp/image.png';
+        originalUrl = 'https://i.ibb.co/pB6bKZkw/image.png';
     }
     else if (p.includes('mobile legend') || p.includes('ملايين') || p.includes('mlbb')) {
         originalUrl = 'https://upload.wikimedia.org/wikipedia/en/4/4b/Mobile_Legends_Bang_Bang_Logo.png';
