@@ -1771,10 +1771,10 @@ function getPlatformIcon(platform, serviceName = '') {
     }
 
      // --- 3.5 أيقونات الألعاب والتطبيقات ---
-    else if (p.includes('pubg') || p.includes('ببجي')) {
+    else if (p.includes('Pubg') || p.includes('ببجي')) {
         originalUrl = 'https://i.ibb.co/ycG34kbJ/image.png';
     }
-    else if (p.includes('free fire') || p.includes('فري فاير') || p.includes('freefire')) {
+    else if (p.includes('Free Fire') || p.includes('فري فاير') || p.includes('freefire')) {
         originalUrl = 'https://i.ibb.co/W4thHvXZ/2.png';
     }
     else if (p.includes('JAWAKER') || p.includes('جواكر')) {
@@ -1783,50 +1783,50 @@ function getPlatformIcon(platform, serviceName = '') {
     else if (p.includes('MTN') || p.includes('MTN') || p.includes('mlbb')) {
         originalUrl = 'https://i.ibb.co/fG4MKGvw/MTN-Logo-svg.png';
     }
-    else if (p.includes('syriatelo') || p.includes('syriatel')) {
-        originalUrl = 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Fortnite_F_lettermark_logo.png';
+    else if (p.includes('Syriatel') || p.includes('سرياتيل')) {
+        originalUrl = 'https://i.ibb.co/pBK5ynz3/Syriatel.jpg';
     }
-    else if (p.includes('roblox') || p.includes('روبلوكس')) {
-        originalUrl = 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Roblox_player_icon_black.svg';
+    else if (p.includes('Soulchill') || p.includes('سوشيل')) {
+        originalUrl = 'https://i.ibb.co/5h5CVJKf/images.jpg';
     }
-    else if (p.includes('minecraft') || p.includes('ماينكرافت')) {
-        originalUrl = 'https://upload.wikimedia.org/wikipedia/commons/4/4d/Minecraft_logo.svg';
+    else if (p.includes('PARTY STAR') || p.includes('بارتي')) {
+        originalUrl = 'https://i.ibb.co/67gR5s6c/images-1.jpg';
     }
-    else if (p.includes('call of duty') || p.includes('cod') || p.includes('كود')) {
-        originalUrl = 'https://upload.wikimedia.org/wikipedia/en/c/cd/Call_of_Duty_WWII_Logo.jpg';
+    else if (p.includes('BIGO LIVE') || p.includes('بيجو لايف') || p.includes('كود')) {
+        originalUrl = 'https://i.ibb.co/YB2g1w2j/unnamed.png';
     }
-    else if (p.includes('genshin') || p.includes('جينشن')) {
-        originalUrl = 'https://upload.wikimedia.org/wikipedia/en/7/7f/Genshin_Impact_logo.png';
+    else if (p.includes('XENA LIVE') || p.includes('اكسينا لايف')) {
+        originalUrl = 'https://i.ibb.co/994Qzpwk/unnamed.webp';
     }
-    else if (p.includes('honor of king') || p.includes('arena of valor')) {
-        originalUrl = 'https://upload.wikimedia.org/wikipedia/en/e/e0/Arena_of_Valor_logo.png';
+    else if (p.includes('SUGO CHAT') || p.includes('سوجو شات')) {
+        originalUrl = 'https://i.ibb.co/2Y54s3Gr/unnamed.jpg';
     }
-    else if (p.includes('party star') || p.includes('بارتي')) {
-        originalUrl = 'https://ui-avatars.com/api/?name=PS&background=9b59b6&size=80&color=fff';
+    else if (p.includes('HONEY JAR') || p.includes('هاوني جار')) {
+        originalUrl = 'https://i.ibb.co/rG180v74/images-2.jpg';
     }
-    else if (p.includes('soulchill') || p.includes('soul chill')) {
-        originalUrl = 'https://ui-avatars.com/api/?name=SC&background=8e44ad&size=80&color=fff';
+    else if (p.includes('4FUN CHAT') || p.includes('4FUN CHAT')) {
+        originalUrl = 'https://i.ibb.co/MkTLz5J4/WUymjuu3ipn-Xdz-B28b-Z6l-Ivx-EFIypy1bi-JZPVWw-Q.png';
     }
-    else if (p.includes('itunes') || p.includes('apple')) {
-        originalUrl = 'https://upload.wikimedia.org/wikipedia/commons/d/df/ITunes_logo.svg';
+    else if (p.includes('SUGO TR 🇹🇷') || p.includes('SUGO TR 🇹🇷')) {
+        originalUrl = 'https://i.ibb.co/2Y54s3Gr/unnamed.jpg';
     }
-    else if (p.includes('steam')) {
-        originalUrl = 'https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg';
+    else if (p.includes('TANGO')) {
+        originalUrl = 'https://i.ibb.co/C3dkTd9C/unnamed-1.jpg';
     }
-    else if (p.includes('netflix') || p.includes('نتفلكس')) {
-        originalUrl = 'https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg';
+    else if (p.includes('Jaco Chat') || p.includes('جاكو شات')) {
+        originalUrl = 'https://i.ibb.co/fV8gWsy0/images.png';
     }
-    else if (p.includes('syriatel') || p.includes('سيريتل')) {
-        originalUrl = 'https://ui-avatars.com/api/?name=SY&background=e74c3c&size=80&color=fff';
+    else if (p.includes('Hoki Chat') || p.includes('هوكي شات')) {
+        originalUrl = 'https://i.ibb.co/HTYR8Z39/ISPo-Mr70v8-TIe6k-L0-XEJUQj-WSEXx-C9e-AV0-ZIgg8-N.png';
     }
-    else if (p.includes('mtn') || p.includes('ام تي ان')) {
-        originalUrl = 'https://upload.wikimedia.org/wikipedia/commons/9/9c/MTN_Logo.svg';
+    else if (p.includes('Rooh') || p.includes('روح')) {
+        originalUrl = 'https://i.ibb.co/gXWxkc6/unnamed-1.webp';
     }
-    else if (p.includes('jawaker') || p.includes('جواكر')) {
-        originalUrl = 'https://ui-avatars.com/api/?name=JW&background=27ae60&size=80&color=fff';
+    else if (p.includes('Tayyb Chat') || p.includes('Tayyb Chat')) {
+        originalUrl = 'https://i.ibb.co/VcNFFKXQ/unnamed-1.png';
     }
-    else if (p.includes('sugo') || p.includes('سوقو')) {
-        originalUrl = 'https://ui-avatars.com/api/?name=SG&background=e67e22&size=80&color=fff';
+    else if (p.includes('Yoso Farm') || p.includes('Yoso Farm')) {
+        originalUrl = 'https://i.ibb.co/99792Bfd/unnamed-2.png';
     }   
 
     // --- 4. أيقونة افتراضية ---
