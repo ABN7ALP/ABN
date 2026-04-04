@@ -1771,61 +1771,61 @@ function getPlatformIcon(platform, serviceName = '') {
     }
 
      // --- 3.5 أيقونات الألعاب والتطبيقات ---
-    else if (p.includes('Pubg') || p.includes('ببجي')) {
+    else if (p.includes('pubg') || p.includes('ببجي')) {
         originalUrl = 'https://i.ibb.co/ycG34kbJ/image.png';
     }
-    else if (p.includes('Free Fire') || p.includes('فري فاير') || p.includes('freefire')) {
+    else if (p.includes('free fire') || p.includes('فري فاير') || p.includes('freefire')) {
         originalUrl = 'https://i.ibb.co/W4thHvXZ/2.png';
     }
-    else if (p.includes('JAWAKER') || p.includes('جواكر')) {
+    else if (p.includes('jawaker') || p.includes('جواكر')) {
         originalUrl = 'https://i.ibb.co/pB6bKZkw/image.png';
     }
-    else if (p.includes('MTN') || p.includes('MTN') || p.includes('mlbb')) {
+    else if (p.includes('mtn') || p.includes('mtn') || p.includes('mlbb')) {
         originalUrl = 'https://i.ibb.co/fG4MKGvw/MTN-Logo-svg.png';
     }
-    else if (p.includes('Syriatel') || p.includes('سرياتيل')) {
+    else if (p.includes('syriatel') || p.includes('سرياتيل')) {
         originalUrl = 'https://i.ibb.co/pBK5ynz3/Syriatel.jpg';
     }
-    else if (p.includes('Soulchill') || p.includes('سوشيل')) {
+    else if (p.includes('soulchill') || p.includes('سوشيل')) {
         originalUrl = 'https://i.ibb.co/5h5CVJKf/images.jpg';
     }
-    else if (p.includes('PARTY STAR') || p.includes('بارتي')) {
+    else if (p.includes('party star') || p.includes('بارتي')) {
         originalUrl = 'https://i.ibb.co/67gR5s6c/images-1.jpg';
     }
-    else if (p.includes('BIGO LIVE') || p.includes('بيجو لايف') || p.includes('كود')) {
+    else if (p.includes('bigo live') || p.includes('بيجو لايف') || p.includes('كود')) {
         originalUrl = 'https://i.ibb.co/YB2g1w2j/unnamed.png';
     }
-    else if (p.includes('XENA LIVE') || p.includes('اكسينا لايف')) {
+    else if (p.includes('xena live') || p.includes('اكسينا لايف')) {
         originalUrl = 'https://i.ibb.co/994Qzpwk/unnamed.webp';
     }
-    else if (p.includes('SUGO CHAT') || p.includes('سوجو شات')) {
+    else if (p.includes('sugo chat') || p.includes('سوجو شات')) {
         originalUrl = 'https://i.ibb.co/2Y54s3Gr/unnamed.jpg';
     }
-    else if (p.includes('HONEY JAR') || p.includes('هاوني جار')) {
+    else if (p.includes('honey jar') || p.includes('هاوني جار')) {
         originalUrl = 'https://i.ibb.co/rG180v74/images-2.jpg';
     }
-    else if (p.includes('4FUN CHAT') || p.includes('4FUN CHAT')) {
+    else if (p.includes('4fun chat') || p.includes('4FUN CHAT')) {
         originalUrl = 'https://i.ibb.co/MkTLz5J4/WUymjuu3ipn-Xdz-B28b-Z6l-Ivx-EFIypy1bi-JZPVWw-Q.png';
     }
-    else if (p.includes('SUGO TR 🇹🇷') || p.includes('SUGO TR 🇹🇷')) {
+    else if (p.includes('sugo tr 🇹🇷') || p.includes('sugo tr 🇹🇷')) {
         originalUrl = 'https://i.ibb.co/2Y54s3Gr/unnamed.jpg';
     }
-    else if (p.includes('TANGO')) {
+    else if (p.includes('tango')) {
         originalUrl = 'https://i.ibb.co/C3dkTd9C/unnamed-1.jpg';
     }
-    else if (p.includes('Jaco Chat') || p.includes('جاكو شات')) {
+    else if (p.includes('jaco chat') || p.includes('جاكو شات')) {
         originalUrl = 'https://i.ibb.co/fV8gWsy0/images.png';
     }
-    else if (p.includes('Hoki Chat') || p.includes('هوكي شات')) {
+    else if (p.includes('hoki chat') || p.includes('هوكي شات')) {
         originalUrl = 'https://i.ibb.co/HTYR8Z39/ISPo-Mr70v8-TIe6k-L0-XEJUQj-WSEXx-C9e-AV0-ZIgg8-N.png';
     }
-    else if (p.includes('Rooh') || p.includes('روح')) {
+    else if (p.includes('rooh') || p.includes('روح')) {
         originalUrl = 'https://i.ibb.co/gXWxkc6/unnamed-1.webp';
     }
-    else if (p.includes('Tayyb Chat') || p.includes('Tayyb Chat')) {
+    else if (p.includes('tayyb chat') || p.includes('Tayyb Chat')) {
         originalUrl = 'https://i.ibb.co/VcNFFKXQ/unnamed-1.png';
     }
-    else if (p.includes('Yoso Farm') || p.includes('Yoso Farm')) {
+    else if (p.includes('yoso farm') || p.includes('yoso farm')) {
         originalUrl = 'https://i.ibb.co/99792Bfd/unnamed-2.png';
     }   
 
