@@ -1780,10 +1780,10 @@ function getPlatformIcon(platform, serviceName = '') {
     else if (p.includes('JAWAKER') || p.includes('جواكر')) {
         originalUrl = 'https://i.ibb.co/pB6bKZkw/image.png';
     }
-    else if (p.includes('mobile legend') || p.includes('ملايين') || p.includes('mlbb')) {
-        originalUrl = 'https://upload.wikimedia.org/wikipedia/en/4/4b/Mobile_Legends_Bang_Bang_Logo.png';
+    else if (p.includes('MTN') || p.includes('MTN') || p.includes('mlbb')) {
+        originalUrl = 'https://i.ibb.co/fG4MKGvw/MTN-Logo-svg.png';
     }
-    else if (p.includes('fortnite') || p.includes('فورتنايت')) {
+    else if (p.includes('syriatelo') || p.includes('syriatel')) {
         originalUrl = 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Fortnite_F_lettermark_logo.png';
     }
     else if (p.includes('roblox') || p.includes('روبلوكس')) {
