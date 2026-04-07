@@ -3,7 +3,7 @@ const { MailerSend, EmailParams, Sender, Recipient } = require("mailersend");
 const mailersend = new MailerSend({
   apiKey: process.env.RESEND_API_KEY,
 });
-
+ 
 // 🆕 دالة لإرسال إيميل تفعيل الحساب
 const sendActivationEmail = async (email, verificationCode) => {
   try {
