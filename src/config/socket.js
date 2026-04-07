@@ -7,6 +7,7 @@ let io;
 function initSocket(httpServer) {
     // 🎯 قائمة النطاقات المسموح بها (تم تحديثها)
     const allowedOrigins = [
+        "https://www-al-basher.up.railway.app", // ✅ تم إضافة نطاقك الجديد هنا
         "https://abn-production-cbae.up.railway.app", // ✅ تم إضافة نطاقك الجديد هنا
         "https://bae.up.railway.app",                 // النطاق القديم (من الجيد إبقاؤه)
         "http://localhost:3000",                     // نطاق التطوير المحلي
