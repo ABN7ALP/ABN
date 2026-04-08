@@ -70,6 +70,14 @@ app.use(
 // Middlewares
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
+const session = require('express-session');
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'fallback_secret',
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(require('passport').initialize());
+
 //تعديل جديد 
 app.use(cookieParser());
 
