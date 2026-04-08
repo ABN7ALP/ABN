@@ -41,6 +41,9 @@
     "morgan": "^1.10.0",
     "deepl-node": "^1.11.0",
     "cookie-parser": "^1.4.6",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "express-session": "^1.17.3",
     "express-validator": "^7.0.1"
   }
 }
