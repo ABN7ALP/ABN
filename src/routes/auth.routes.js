@@ -326,5 +326,38 @@ router.post('/reset-password', passwordResetLimiter, async (req, res) => {
     }
 });
 
+// GET /api/auth/google
+router.get('/google',
+    passport.authenticate('google', { 
+        scope: ['profile', 'email'],
+        session: false 
+    })
+);
+
+// GET /api/auth/google/callback
+router.get('/google/callback',
+    passport.authenticate('google', { 
+        failureRedirect: '/?error=google_failed',
+        session: false 
+    }),
+    (req, res) => {
+        const user = req.user;
+        const token = generateToken(user._id);
+        
+        const userData = {
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            profileImage: user.profileImage,
+            balance: user.balance,
+            isAdmin: user.isAdmin,
+            token
+        };
+        
+        // إرسال البيانات للواجهة عبر URL
+        const encodedData = encodeURIComponent(JSON.stringify(userData));
+        res.redirect(`/?auth=${encodedData}`);
+    }
+);
 
 module.exports = router;
