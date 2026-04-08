@@ -357,6 +357,6 @@ router.get('/google/callback',
         const encodedData = encodeURIComponent(JSON.stringify(userData));
         res.redirect(`/?auth=${encodedData}`);
     }
-);
+});
 
 module.exports = router;
