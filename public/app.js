@@ -2168,7 +2168,7 @@ window.submitGameOrder = async function() {
     if (!userInfo) {
         // إذا لم يكن مسجل دخول، افتح واتساب
         const message = `*طلب شحن جديد* 🎮\n---\n*اللعبة:* ${currentGameData.platform}\n*الحزمة:* ${currentGameData.packageName}\n*السعر:* ${currentGameData.packagePrice.toFixed(4)}$\n*الـ ID:* ${gameId}`;
-        window.open(`https://wa.me/905433600754?text=${encodeURIComponent(message)}`, '_blank');
+        window.open(`https://wa.me/905367893256?text=${encodeURIComponent(message)}`, '_blank');
         return;
     }
 
