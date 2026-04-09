@@ -218,6 +218,13 @@
                 <a href="#" id="forgot-password-link">نسيت كلمة المرور؟</a>
             </div>
             <button type="submit" class="pill-button primary-button">دخول</button>
+
+            <div style="text-align:center;margin:1rem 0;color:var(--text-light);font-size:0.9rem;">أو</div>
+            <a href="/api/auth/google" class="pill-button" style="background:#fff;border:2px solid var(--gray-border);color:var(--text-dark);width:100%;justify-content:center;gap:0.8rem;text-decoration:none;">
+                <img src="https://www.google.com/favicon.ico" width="20" height="20">
+                تسجيل الدخول عبر جوجل
+            </a>
+            
             <p id="login-popup-error" class="error-message"></p>
             <p class="switch-form-text">ليس لديك حساب؟ <a href="#" id="show-register">أنشئ حساباً جديداً</a></p>
         </form>
@@ -284,6 +291,12 @@
 <!-- 🔼🔼 نهاية الكود الجديد 🔼🔼 -->
 
 <button type="submit" class="pill-button primary-button">إنشاء الحساب</button>
+
+            <div style="text-align:center;margin:1rem 0;color:var(--text-light);font-size:0.9rem;">أو</div>
+            <a href="/api/auth/google" class="pill-button" style="background:#fff;border:2px solid var(--gray-border);color:var(--text-dark);width:100%;justify-content:center;gap:0.8rem;text-decoration:none;">
+                <img src="https://www.google.com/favicon.ico" width="20" height="20">
+                إنشاء حساب عبر جوجل
+            </a>
 
             <p id="register-popup-error" class="error-message"></p>
             <p class="switch-form-text">لديك حساب بالفعل؟ <a href="#" id="show-login">سجل الدخول</a></p>
