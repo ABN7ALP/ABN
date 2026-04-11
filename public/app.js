@@ -3003,6 +3003,44 @@ function setupOffersToggle() {
     }
 }
 
+
+    // معالجة تسجيل الدخول عبر جوجل
+    function handleGoogleAuthCallback() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const authData = urlParams.get('auth');
+        const error = urlParams.get('error');
+        
+        if (error) {
+            console.error('Google auth failed:', error);
+            showAuthPopup('login');
+            return;
+        }
+        
+        if (authData) {
+            try {
+                const userData = JSON.parse(decodeURIComponent(authData));
+                localStorage.setItem('token', userData.token);
+                localStorage.setItem('userInfo', JSON.stringify(userData));
+                
+                // إزالة الـ query string من URL
+                window.history.replaceState({}, document.title, '/');
+                
+                // توجيه المستخدم
+                if (userData.isAdmin) {
+                    window.location.href = '/admin.html';
+                } else {
+                    updateUIForAuth();
+                }
+            } catch (e) {
+                console.error('Failed to parse auth data:', e);
+            }
+        }
+    }
+    
+    handleGoogleAuthCallback();
+
+    
+
     // --- 9. البدء بتشغيل كل شيء ---
     updateUIForAuth();
     loadServices();
