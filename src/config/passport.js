@@ -13,8 +13,10 @@ async (accessToken, refreshToken, profile, done) => {
         const email = profile.emails[0].value;
         const profileImage = profile.photos[0]?.value;
 
-        // البحث عن مستخدم موجود
-        let user = await User.findOne({ email });
+        // البحث عن مستخدم موجود بالإيميل أو googleId
+        let user = await User.findOne({ 
+            $or: [{ email }, { googleId: profile.id }] 
+        });
 
         if (user) {
             // تحديث صورة البروفايل إذا لم تكن موجودة
