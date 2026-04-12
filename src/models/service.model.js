@@ -66,7 +66,15 @@ const serviceSchema = new mongoose.Schema({
     customPricePer1000: {
         type: Number,
         default: 0
-    } 
+    },
+    customMin: {
+        type: Number,
+        default: 1
+    },
+    customMax: {
+        type: Number,
+        default: 100000
+    }
 });
 
 const Service = mongoose.model('Service', serviceSchema);
