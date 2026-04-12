@@ -74,6 +74,10 @@ const serviceSchema = new mongoose.Schema({
     customMax: {
         type: Number,
         default: 100000
+    },
+    isVisible: {
+        type: Boolean,
+        default: true
     }
 });
 
