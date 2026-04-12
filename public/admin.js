@@ -517,15 +517,23 @@ async function handleStatusChange(event) {
             const max = service.max ? service.max.toLocaleString() : '-';
             const step = service.step || service.step === 0 ? service.step : (service.multiple || 1);
 
+            const isVisible = service.isVisible !== false;
             row.innerHTML = `
-                <td data-label="المنصة">${platform}</td>
+                <td data-label="المنصة">
+                    ${!isVisible ? '<span style="color:var(--danger-red);font-size:0.75rem;">[مخفي] </span>' : ''}
+                    ${platform}
+                </td>
                 <td data-label="الخدمة">${name}</td>
                 <td data-label="السعر/1000">${price} $</td>
                 <td data-label="أدنى/أقصى حد">${min} / ${max}</td>
                 <td data-label="الخطوة">${step}</td>
                 <td data-label="إجراءات" class="action-buttons">
-                    <button class="edit-btn pill-button" title="تعديل"><i class="ph-bold ph-pencil-simple"></i><span class="sr-only">تعديل</span></button>
-                    <button class="delete-btn pill-button" title="حذف"><i class="ph-bold ph-trash"></i><span class="sr-only">حذف</span></button>
+                    <button class="toggle-visibility-btn pill-button" title="${isVisible ? 'إخفاء' : 'إظهار'}"
+                        style="background:${isVisible ? 'var(--warning-orange)' : 'var(--success-green)'}">
+                        <i class="ph-bold ph-${isVisible ? 'eye-slash' : 'eye'}"></i>
+                    </button>
+                    <button class="edit-btn pill-button" title="تعديل"><i class="ph-bold ph-pencil-simple"></i></button>
+                    <button class="delete-btn pill-button" title="حذف"><i class="ph-bold ph-trash"></i></button>
                 </td>
             `;
             servicesTbody.appendChild(row);
@@ -540,6 +548,26 @@ async function handleStatusChange(event) {
             btn.addEventListener('click', handleOpenEditPopup);
         });
     }
+
+
+    document.querySelectorAll('.toggle-visibility-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const row = e.currentTarget.closest('tr');
+                const service = JSON.parse(row.dataset.service);
+                const newVisibility = service.isVisible === false ? true : false;
+                
+                try {
+                    await apiFetch(`/api/services/${service.id}`, {
+                        method: 'PUT',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({ ...service, isVisible: newVisibility })
+                    });
+                    fetchServices();
+                } catch (err) {
+                    alert('فشل تغيير حالة الخدمة');
+                }
+            });
+        });
 
     addServiceForm.addEventListener('submit', async (e) => {
         e.preventDefault();
