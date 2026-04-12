@@ -1923,3 +1923,39 @@ body::after {
         font-size: 0.75rem !important;
     }
 }
+
+/* بانرات ترويجية */
+.banners-slider {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: none;
+}
+.banners-slider::-webkit-scrollbar { display: none; }
+
+.banner-item {
+    flex-shrink: 0;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: transform var(--transition-smooth);
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.banner-item:hover { transform: scale(1.02); }
+
+.banner-item img {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .banner-item { max-width: 100%; }
+    .banner-item img { max-height: 150px; }
+}
