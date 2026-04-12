@@ -49,6 +49,7 @@
                 <a href="#users" class="nav-link"><i class="ph-bold ph-users"></i><span>المستخدمين</span></a>
                 <a href="#offers" class="nav-link"><i class="ph-bold ph-gift"></i><span>العروض</span></a>
                 <a href="#logs" class="nav-link"><i class="ph-bold ph-shield-warning"></i><span>السجلات</span></a>
+                <a href="#banners" class="nav-link"><i class="ph-bold ph-image"></i><span>البانرات</span></a>
                 <a href="/" class="nav-link logout-link"><i class="ph-bold ph-sign-out"></i><span>الموقع</span></a>
             </nav>
         </aside>
@@ -60,6 +61,46 @@
                 <div class="section-header"><h2><i class="ph-bold ph-chart-pie-slice"></i> نظرة عامة</h2></div>
                 <div id="stats-cards-container" class="stats-grid"></div>
             </section>
+
+
+
+            <!-- Banners Section -->
+<section id="banners-section" class="admin-section">
+    <div class="section-header">
+        <h2><i class="ph-bold ph-image"></i> إدارة البانرات الترويجية</h2>
+    </div>
+    
+    <form id="add-banner-form" class="admin-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label>صورة البانر</label>
+                <input type="file" id="banner-image" accept="image/*" required>
+            </div>
+            <div class="form-group">
+                <label>الرابط عند الضغط (اختياري)</label>
+                <input type="text" id="banner-link" placeholder="https://...">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>العنوان (اختياري)</label>
+                <input type="text" id="banner-title" placeholder="عرض خاص">
+            </div>
+            <div class="form-group">
+                <label>الترتيب</label>
+                <input type="number" id="banner-order" value="0" min="0">
+            </div>
+        </div>
+        <button type="submit" class="pill-button primary-button">
+            <i class="ph-bold ph-plus-circle"></i> إضافة بانر
+        </button>
+    </form>
+    <div id="banner-form-response"></div>
+    
+    <hr class="divider">
+    <h2>البانرات الحالية</h2>
+    <div id="banners-admin-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;margin-top:1rem;"></div>
+</section>
 
 <!-- Orders Section -->
 <section id="orders-section" class="admin-section">
