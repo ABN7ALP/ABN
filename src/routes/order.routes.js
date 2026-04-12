@@ -93,8 +93,8 @@ async function calculateFinalPrice(serviceName, platform, quantity, userId = nul
         for (const offer of activeOffers) {
             // التحقق السريع من تضمين الخدمة
             const isServiceIncluded = offer.services.length === 0 || 
-                                    offer.services.includes(service.id) ||
-                                    offer.services.includes(service._id.toString());
+                                    offer.services.includes(serviceDoc.id) ||
+                                    offer.services.includes(serviceDoc._id.toString());
 
             if (!isServiceIncluded) continue;
 
