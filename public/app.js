@@ -3052,6 +3052,32 @@ function setupOffersToggle() {
             }
         }
     }
+
+
+    // تحميل البانرات
+async function loadBanners() {
+    try {
+        const response = await apiFetch('/api/banners/active');
+        if (!response.ok) return;
+        const banners = await response.json();
+        
+        const section = document.getElementById('banners-section');
+        const container = document.getElementById('banners-container');
+        
+        if (!banners.length || !container) return;
+        
+        section.style.display = 'block';
+        container.innerHTML = banners.map(banner => `
+            <a href="${banner.link || '#'}" class="banner-item" ${banner.link && banner.link !== '#' ? 'target="_blank"' : ''}>
+                <img src="${banner.imageUrl}" alt="${banner.title || 'عرض'}" loading="lazy">
+            </a>
+        `).join('');
+    } catch (error) {
+        console.error('فشل تحميل البانرات:', error);
+    }
+}
+
+    
     
     handleGoogleAuthCallback();
 
@@ -3064,6 +3090,7 @@ function setupOffersToggle() {
    fetchActiveOffers();
    setupOffersToggle();
    setupSearchSystem();
+    loadBanners();
 
 // وأيضاً استمع لتحديثات العروض
 socket.on('broadcast-notification', (data) => {
