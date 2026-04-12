@@ -611,33 +611,146 @@ async function handleStatusChange(event) {
         } catch (error) { alert('فشل الاتصال بالخادم.'); }
     }
 
+    let editPackages = [];
+
     function handleOpenEditPopup(event) {
         const row = event.currentTarget.closest('tr');
         const service = JSON.parse(row.dataset.service);
-        editServiceForm.innerHTML = `
-            <input type="hidden" id="edit-service-id" value="${service.id}">
-            <div class="form-group"><label>المنصة</label><input type="text" id="edit-platform" value="${service.platform}" required></div>
-            <div class="form-group"><label>اسم الخدمة</label><input type="text" id="edit-name" value="${service.name}" required></div>
-            <div class="form-group"><label>السعر لكل 1000</label><input type="number" id="edit-price" value="${service.pricePer1000}" step="0.01" required></div>
-            <div class="form-group"><label>الحد الأدنى</label><input type="number" id="edit-min" value="${service.min}" required></div>
-            <div class="form-group"><label>الحد الأقصى</label><input type="number" id="edit-max" value="${service.max}" required></div>
-            <div class="form-group"><label>الخطوة (المضاعف)</label><input type="number" id="edit-step" value="${service.step || 1}" required></div>
-            <button type="submit" class="pill-button primary-button">حفظ التغييرات</button>
-        `;
+        
+        if (service.type === 'game') {
+            // نموذج تعديل خدمة الألعاب
+            editPackages = service.packages ? [...service.packages] : [];
+            
+            editServiceForm.innerHTML = `
+                <input type="hidden" id="edit-service-id" value="${service.id}">
+                <div class="form-group"><label>المنصة</label><input type="text" id="edit-platform" value="${service.platform}" required></div>
+                <div class="form-group"><label>نص حقل الـ ID</label><input type="text" id="edit-id-label" value="${service.idLabel || 'أدخل رقم الـ ID'}"></div>
+                <div class="form-group"><label>Placeholder الـ ID</label><input type="text" id="edit-id-placeholder" value="${service.idPlaceholder || ''}"></div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="edit-allow-custom" ${service.allowCustomQuantity ? 'checked' : ''} style="width:auto;margin-left:0.5rem;">
+                        السماح بكمية مخصصة
+                    </label>
+                </div>
+                <div class="form-group" id="edit-custom-price-field" style="display:${service.allowCustomQuantity ? 'block' : 'none'}">
+                    <label>السعر لكل 1000 (للكمية المخصصة)</label>
+                    <input type="number" id="edit-custom-price" value="${service.customPricePer1000 || 0}" step="0.0001">
+                </div>
+                <div class="form-group" id="edit-custom-limits-field" style="display:${service.allowCustomQuantity ? 'block' : 'none'}">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                        <div><label>الحد الأدنى للكمية</label><input type="number" id="edit-custom-min" value="${service.customMin || 1}" min="1"></div>
+                        <div><label>الحد الأقصى للكمية</label><input type="number" id="edit-custom-max" value="${service.customMax || 100000}" min="1"></div>
+                    </div>
+                </div>
+
+                <hr style="margin:1rem 0;">
+                <h4 style="margin-bottom:1rem;">الحزم المتاحة</h4>
+                <div id="edit-packages-list"></div>
+                
+                <div style="background:var(--gray-bg);padding:1rem;border-radius:var(--radius-input);margin-top:1rem;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:0.5rem;align-items:end;">
+                        <div><label style="font-size:0.85rem;">اسم الحزمة</label><input type="text" id="edit-pkg-name" placeholder="مثال: 60 UC"></div>
+                        <div><label style="font-size:0.85rem;">السعر ($)</label><input type="number" id="edit-pkg-price" placeholder="0.90" step="0.0001"></div>
+                        <button type="button" onclick="addEditPackage()" class="pill-button secondary-button" style="padding:0.7rem 1rem;">+ إضافة</button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="pill-button primary-button" style="margin-top:1rem;">حفظ التغييرات</button>
+            `;
+            
+            renderEditPackages();
+            
+            // ربط حدث checkbox
+            document.getElementById('edit-allow-custom').addEventListener('change', function() {
+                document.getElementById('edit-custom-price-field').style.display = this.checked ? 'block' : 'none';
+                document.getElementById('edit-custom-limits-field').style.display = this.checked ? 'block' : 'none';
+            });
+            
+        } else {
+            // نموذج تعديل خدمة SMM
+            editServiceForm.innerHTML = `
+                <input type="hidden" id="edit-service-id" value="${service.id}">
+                <div class="form-group"><label>المنصة</label><input type="text" id="edit-platform" value="${service.platform}" required></div>
+                <div class="form-group"><label>اسم الخدمة</label><input type="text" id="edit-name" value="${service.name}" required></div>
+                <div class="form-group"><label>السعر لكل 1000 (مستخدم عادي)</label><input type="number" id="edit-price" value="${service.pricePer1000}" step="0.01" required></div>
+                <div class="form-group"><label>السعر لكل 1000 (صاحب محل)</label><input type="number" id="edit-shop-price" value="${service.shopPricePer1000 || 0}" step="0.01"></div>
+                <div class="form-group"><label>الحد الأدنى</label><input type="number" id="edit-min" value="${service.min}" required></div>
+                <div class="form-group"><label>الحد الأقصى</label><input type="number" id="edit-max" value="${service.max}" required></div>
+                <div class="form-group"><label>الخطوة (المضاعف)</label><input type="number" id="edit-step" value="${service.step || 1}" required></div>
+                <button type="submit" class="pill-button primary-button">حفظ التغييرات</button>
+            `;
+        }
+        
         editServicePopup.classList.remove('hidden');
     }
+    
+    function renderEditPackages() {
+        const listEl = document.getElementById('edit-packages-list');
+        if (!listEl) return;
+        listEl.innerHTML = editPackages.map((pkg, i) => `
+            <div style="display:flex;justify-content:space-between;align-items:center;
+                background:white;padding:0.8rem;border-radius:8px;border:1px solid var(--gray-border);margin-bottom:0.5rem;">
+                <span style="font-weight:600;">${pkg.name}</span>
+                <span style="color:var(--purple-main);font-weight:700;">${pkg.price} $</span>
+                <button type="button" onclick="removeEditPackage(${i})" 
+                    style="background:var(--danger-red);color:white;border:none;border-radius:6px;padding:0.3rem 0.7rem;cursor:pointer;">حذف</button>
+            </div>
+        `).join('');
+    }
+    
+    window.addEditPackage = function() {
+        const name = document.getElementById('edit-pkg-name').value.trim();
+        const price = parseFloat(document.getElementById('edit-pkg-price').value);
+        if (!name || isNaN(price)) { alert('يرجى إدخال اسم وسعر الحزمة'); return; }
+        editPackages.push({ name, price });
+        renderEditPackages();
+        document.getElementById('edit-pkg-name').value = '';
+        document.getElementById('edit-pkg-price').value = '';
+    };
+    
+    window.removeEditPackage = function(index) {
+        editPackages.splice(index, 1);
+        renderEditPackages();
+    };
 
     editServiceForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const id = document.getElementById('edit-service-id').value;
-        const updatedData = {
-            platform: document.getElementById('edit-platform').value.trim(),
-            name: document.getElementById('edit-name').value.trim(),
-            pricePer1000: parseFloat(document.getElementById('edit-price').value),
-            min: parseInt(document.getElementById('edit-min').value),
-            max: parseInt(document.getElementById('edit-max').value),
-            step: parseInt(document.getElementById('edit-step').value) || 1
-        };
+        
+        // تحقق إذا كانت خدمة لعبة
+        const isGame = !!document.getElementById('edit-id-label');
+        
+        let updatedData;
+        
+        if (isGame) {
+            updatedData = {
+                platform: document.getElementById('edit-platform').value.trim(),
+                name: document.getElementById('edit-platform').value.trim(),
+                idLabel: document.getElementById('edit-id-label').value,
+                idPlaceholder: document.getElementById('edit-id-placeholder').value,
+                allowCustomQuantity: document.getElementById('edit-allow-custom').checked,
+                customPricePer1000: parseFloat(document.getElementById('edit-custom-price').value) || 0,
+                customMin: parseInt(document.getElementById('edit-custom-min')?.value) || 1,
+                customMax: parseInt(document.getElementById('edit-custom-max')?.value) || 100000,
+                packages: editPackages,
+                pricePer1000: parseFloat(document.getElementById('edit-custom-price').value) || 0,
+                min: 1,
+                max: 1,
+                step: 1
+            };
+        } else {
+            updatedData = {
+                platform: document.getElementById('edit-platform').value.trim(),
+                name: document.getElementById('edit-name').value.trim(),
+                pricePer1000: parseFloat(document.getElementById('edit-price').value),
+                shopPricePer1000: parseFloat(document.getElementById('edit-shop-price')?.value) || 0,
+                min: parseInt(document.getElementById('edit-min').value),
+                max: parseInt(document.getElementById('edit-max').value),
+                step: parseInt(document.getElementById('edit-step').value) || 1
+            };
+        }
+        
         try {
             const response = await apiFetch(`/api/services/${id}`, { 
                 method: 'PUT', 
@@ -648,7 +761,8 @@ async function handleStatusChange(event) {
                 editServicePopup.classList.add('hidden');
                 fetchServices();
             } else {
-                alert('فشل تعديل الخدمة.');
+                const err = await response.json();
+                alert('فشل تعديل الخدمة: ' + (err.message || ''));
             }
         } catch (error) { alert('فشل الاتصال بالخادم.'); }
     });
