@@ -108,6 +108,7 @@ const authRoutes = require('./src/routes/auth.routes.js');
 const notificationRoutes = require('./src/routes/notification.routes');
 const queueRoutes = require('./src/routes/queue.routes'); // أضف هذا
 const supportRoutes = require('./src/routes/support.routes');
+const bannerRoutes = require('./src/routes/banner.routes');
 
 const PORT = process.env.PORT || 3000;
 
@@ -159,6 +160,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/offers', offerRoutes);
 app.use('/api/queue', queueRoutes);
 app.use('/api/', generalLimiter);
+app.use('/api/banners', bannerRoutes);
 // ==========================================================
 // 🔼🔼 نهاية الاستبدال 🔼🔼
 
