@@ -426,6 +426,8 @@ router.post('/pay-with-balance', async (req, res) => {
         const { userId, service: serviceName, link, quantity, platform } = req.body;
 
         if (!userId) return res.status(401).json({ message: 'يجب تسجيل الدخول.' });
+        
+        console.log('📦 بيانات الطلب:', { userId, serviceName, platform, orderType: req.body.orderType });
 
         // 🆕 أولاً: حساب السعر مع الخصم
         const orderType = req.body.orderType;
