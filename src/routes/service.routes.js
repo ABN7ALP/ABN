@@ -12,9 +12,13 @@ const { serviceRules } = require('../middleware/validators');
 const { addNotificationJob } = require('../services/queue');
 
 // GET كل الخدمات
+// GET كل الخدمات
 router.get('/', async (req, res) => {
     try {
-        const services = await Service.find({});
+        // الإدمن يرى الكل، المستخدمون يرون المرئية فقط
+        const isAdmin = req.headers.authorization ? true : false;
+        const query = isAdmin ? {} : { isVisible: { $ne: false } };
+        const services = await Service.find(query);
         res.status(200).json(services);
     } catch (error) {
         res.status(500).json({ message: 'فشل جلب الخدمات.' });
