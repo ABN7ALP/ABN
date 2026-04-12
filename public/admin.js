@@ -257,6 +257,95 @@ function loadDashboardData() {
     initOffersLock(); // هذه بدلاً من fetchOffers() المباشرة
 }
 
+
+    // --- إدارة البانرات ---
+    async function fetchBanners() {
+        try {
+            const response = await apiFetch('/api/banners', { headers: getAuthHeaders() });
+            const banners = await response.json();
+            renderBanners(banners);
+        } catch (e) { console.error(e); }
+    }
+
+    function renderBanners(banners) {
+        const container = document.getElementById('banners-admin-list');
+        if (!container) return;
+        
+        if (!banners.length) {
+            container.innerHTML = '<p style="color:var(--text-light);">لا توجد بانرات حالياً.</p>';
+            return;
+        }
+        
+        container.innerHTML = banners.map(banner => `
+            <div style="background:white;border-radius:var(--radius-card);overflow:hidden;box-shadow:var(--shadow-sm);">
+                <img src="${banner.imageUrl}" style="width:100%;height:150px;object-fit:cover;">
+                <div style="padding:1rem;">
+                    <p style="font-size:0.85rem;color:var(--text-light);">${banner.title || 'بدون عنوان'}</p>
+                    <div style="display:flex;gap:0.5rem;margin-top:0.8rem;">
+                        <button onclick="toggleBanner('${banner._id}', ${!banner.isActive})" 
+                            class="pill-button" style="flex:1;justify-content:center;background:${banner.isActive ? 'var(--warning-orange)' : 'var(--success-green)'}">
+                            ${banner.isActive ? 'إخفاء' : 'إظهار'}
+                        </button>
+                        <button onclick="deleteBanner('${banner._id}')" 
+                            class="pill-button" style="flex:1;justify-content:center;background:var(--danger-red);">
+                            حذف
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    window.toggleBanner = async (id, isActive) => {
+        await apiFetch(`/api/banners/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ isActive }) });
+        fetchBanners();
+    };
+
+    window.deleteBanner = async (id) => {
+        if (!confirm('حذف هذا البانر؟')) return;
+        await apiFetch(`/api/banners/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+        fetchBanners();
+    };
+
+    const addBannerForm = document.getElementById('add-banner-form');
+    if (addBannerForm) {
+        addBannerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const file = document.getElementById('banner-image').files[0];
+            const responseEl = document.getElementById('banner-form-response');
+            
+            if (!file) { responseEl.textContent = 'يرجى اختيار صورة'; return; }
+            
+            responseEl.textContent = 'جاري الرفع...';
+            
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                try {
+                    const response = await apiFetch('/api/banners', {
+                        method: 'POST',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({
+                            imageBase64: ev.target.result,
+                            link: document.getElementById('banner-link').value,
+                            title: document.getElementById('banner-title').value,
+                            order: parseInt(document.getElementById('banner-order').value) || 0
+                        })
+                    });
+                    const result = await response.json();
+                    responseEl.textContent = result.message;
+                    responseEl.style.color = response.ok ? 'green' : 'red';
+                    if (response.ok) { addBannerForm.reset(); fetchBanners(); }
+                } catch (err) {
+                    responseEl.textContent = 'فشل الاتصال';
+                    responseEl.style.color = 'red';
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        fetchBanners();
+    }
+
     // دالة التحقق من صلاحيات الأدمن والتوكن
     function checkAdminAccess() {
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
