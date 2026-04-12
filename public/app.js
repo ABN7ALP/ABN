@@ -1972,10 +1972,15 @@ window.showGamePackagesModal = function(platform, platformData) {
         </label>
         <div id="custom-qty-container" style="display:none;padding:0.8rem;background:var(--gray-bg);border-radius:var(--radius-input);margin-top:0.5rem;">
             <label style="font-weight:600;font-size:0.9rem;display:block;margin-bottom:0.5rem;">الكمية المطلوبة:</label>
-            <input type="number" id="custom-qty-input" placeholder="أدخل الكمية" min="1" 
+            <input type="number" id="custom-qty-input" 
+                placeholder="أدخل الكمية (${(service.customMin||1).toLocaleString()} - ${(service.customMax||100000).toLocaleString()})" 
+                min="${service.customMin || 1}" 
+                max="${service.customMax || 100000}"
                 style="width:100%;padding:0.7rem;border:2px solid var(--gray-border);border-radius:8px;">
             <p style="font-size:0.8rem;color:var(--text-light);margin-top:0.5rem;">
-                السعر لكل 1000: <strong>${service.pricePer1000 || 0}$</strong>
+                الحد الأدنى: <strong>${(service.customMin||1).toLocaleString()}</strong> | 
+                الحد الأقصى: <strong>${(service.customMax||100000).toLocaleString()}</strong> | 
+                السعر/1000: <strong>${service.customPricePer1000 || service.pricePer1000 || 0}$</strong>
             </p>
             <p id="custom-qty-price" style="font-weight:700;color:var(--purple-main);margin-top:0.3rem;"></p>
         </div>
@@ -2067,8 +2072,19 @@ window.proceedToGameOrder = function(platform) {
     if (selectedInput.value === 'custom') {
         // كمية مخصصة
         const customQty = parseInt(document.getElementById('custom-qty-input')?.value);
+        const minQty = service.customMin || 1;
+        const maxQty = service.customMax || 100000;
+        
         if (!customQty || customQty <= 0) {
             alert('يرجى إدخال كمية صحيحة');
+            return;
+        }
+        if (customQty < minQty) {
+            alert(`الحد الأدنى للكمية هو ${minQty.toLocaleString()}`);
+            return;
+        }
+        if (customQty > maxQty) {
+            alert(`الحد الأقصى للكمية هو ${maxQty.toLocaleString()}`);
             return;
         }
         const pricePerThousand = service.customPricePer1000 || service.pricePer1000 || 0;
