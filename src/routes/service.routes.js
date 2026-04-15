@@ -15,8 +15,18 @@ const { addNotificationJob } = require('../services/queue');
 // GET كل الخدمات
 router.get('/', async (req, res) => {
     try {
-        // الإدمن يرى الكل، المستخدمون يرون المرئية فقط
-        const isAdmin = req.headers.authorization ? true : false;
+        // فحص إذا كان المستخدم إدمن
+        let isAdmin = false;
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            try {
+                const token = authHeader.split(' ')[1];
+                const decoded = require('jsonwebtoken').verify(token, process.env.JWT_SECRET);
+                const User = require('../models/user.model');
+                const user = await User.findById(decoded.userId).select('isAdmin');
+                isAdmin = user?.isAdmin === true;
+            } catch(e) {}
+        }
         const query = isAdmin ? {} : { isVisible: { $ne: false } };
         const services = await Service.find(query);
         res.status(200).json(services);
