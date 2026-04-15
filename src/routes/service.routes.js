@@ -15,8 +15,18 @@ const { addNotificationJob } = require('../services/queue');
 // GET كل الخدمات
 router.get('/', async (req, res) => {
     try {
-        // الإدمن يرى الكل، المستخدمون يرون المرئية فقط
-        const isAdmin = req.headers.authorization ? true : false;
+        // فحص إذا كان المستخدم إدمن
+        let isAdmin = false;
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            try {
+                const token = authHeader.split(' ')[1];
+                const decoded = require('jsonwebtoken').verify(token, process.env.JWT_SECRET);
+                const User = require('../models/user.model');
+                const user = await User.findById(decoded.userId).select('isAdmin');
+                isAdmin = user?.isAdmin === true;
+            } catch(e) {}
+        }
         const query = isAdmin ? {} : { isVisible: { $ne: false } };
         const services = await Service.find(query);
         res.status(200).json(services);
@@ -72,6 +82,21 @@ router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
 // PUT تعديل خدمة
 router.put('/:id', authMiddleware, adminMiddleware, serviceRules, async (req, res) => {
     try {
+
+        // السماح صريح بتحديث isVisible
+        const allowedFields = ['platform', 'name', 'pricePer1000', 'shopPricePer1000',
+            'min', 'max', 'step', 'packages', 'type', 'idLabel', 'idPlaceholder',
+            'allowCustomQuantity', 'customPricePer1000', 'customMin', 'customMax', 
+            'isVisible', 'description'];
+        const updateData = {};
+        allowedFields.forEach(field => {
+            if (req.body[field] !== undefined) updateData[field] = req.body[field];
+        });
+        const updatedService = await Service.findByIdAndUpdate(req.params.id, updateData, { new: true });
+        return res.json({ message: 'تم تعديل الخدمة', service: updatedService });
+
+ 
+        
         // جلب الخدمة القديمة لمقارنة السعر
         const oldService = await Service.findOne({ id: req.params.id });
         
