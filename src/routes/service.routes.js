@@ -70,7 +70,7 @@ router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
 });
 
 // PUT تعديل خدمة
-router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
+router.put('/:id', authMiddleware, adminMiddleware,  serviceRules, async (req, res) => {
     try {
         const allowedFields = [
             'name', 'platform', 'pricePer1000', 'shopPricePer1000',
