@@ -15,18 +15,8 @@ const { addNotificationJob } = require('../services/queue');
 // GET كل الخدمات
 router.get('/', async (req, res) => {
     try {
-        // فحص إذا كان المستخدم إدمن
-        let isAdmin = false;
-        const authHeader = req.headers.authorization;
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-            try {
-                const token = authHeader.split(' ')[1];
-                const decoded = require('jsonwebtoken').verify(token, process.env.JWT_SECRET);
-                const User = require('../models/user.model');
-                const user = await User.findById(decoded.userId).select('isAdmin');
-                isAdmin = user?.isAdmin === true;
-            } catch(e) {}
-        }
+        // الإدمن يرى الكل، المستخدمون يرون المرئية فقط
+        const isAdmin = req.headers.authorization ? true : false;
         const query = isAdmin ? {} : { isVisible: { $ne: false } };
         const services = await Service.find(query);
         res.status(200).json(services);
@@ -80,20 +70,32 @@ router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
 });
 
 // PUT تعديل خدمة
-router.put('/:id', authMiddleware, adminMiddleware, serviceRules, async (req, res) => {
+router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        // جلب الخدمة القديمة لمقارنة السعر
-        const oldService = await Service.findOne({ id: req.params.id });
+        const allowedFields = [
+            'name', 'platform', 'pricePer1000', 'shopPricePer1000',
+            'min', 'max', 'step', 'type', 'packages', 'idLabel', 'idPlaceholder',
+            'allowCustomQuantity', 'customPricePer1000', 'customMin', 'customMax',
+            'isVisible'  // ✅ أضف هذا
+        ];
         
-        const updatedService = await Service.findOneAndUpdate(
-            { id: req.params.id }, 
-            req.body, 
-            { new: true }
+        const updateData = {};
+        allowedFields.forEach(field => {
+            if (req.body[field] !== undefined) updateData[field] = req.body[field];
+        });
+        
+        const service = await Service.findByIdAndUpdate(
+            req.params.id,
+            { $set: updateData },
+            { new: true, runValidators: true }
         );
-
-        if (!updatedService) {
-            return res.status(404).json({ message: 'الخدمة غير موجودة' });
-        }
+        
+        if (!service) return res.status(404).json({ message: 'الخدمة غير موجودة' });
+        res.json({ message: 'تم التعديل بنجاح', service });
+    } catch (error) {
+        res.status(500).json({ message: 'فشل التعديل', error: error.message });
+    }
+});
 
         // 🆕 تحسين إشعارات تغيير السعر باستخدام الطابور
         if (oldService && oldService.pricePer1000 !== updatedService.pricePer1000) {
