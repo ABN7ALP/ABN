@@ -3055,6 +3055,7 @@ function setupOffersToggle() {
 
 
     // تحميل البانرات
+// تحميل البانرات
 async function loadBanners() {
     try {
         const response = await apiFetch('/api/banners/active');
@@ -3063,15 +3064,27 @@ async function loadBanners() {
         
         const section = document.getElementById('banners-section');
         const container = document.getElementById('banners-container');
-        
         if (!banners.length || !container) return;
         
         section.style.display = 'block';
-        container.innerHTML = banners.map(banner => `
-            <a href="${banner.link || '#'}" class="banner-item" ${banner.link && banner.link !== '#' ? 'target="_blank"' : ''}>
-                <img src="${banner.imageUrl}" alt="${banner.title || 'عرض'}" loading="lazy">
-            </a>
-        `).join('');
+        container.innerHTML = banners.map(banner => {
+            const hasLink = banner.link && banner.link !== '#';
+            const tag = hasLink ? 'a' : 'div';
+            const href = hasLink ? `href="${banner.link}" target="_blank"` : '';
+            
+            return `
+            <${tag} ${href} class="banner-item">
+                <div class="banner-img-wrap">
+                    <img src="${banner.imageUrl}" alt="${banner.title || 'بانر ترويجي'}" loading="lazy">
+                </div>
+                <div class="banner-info">
+                    ${banner.title ? `<h3 class="banner-title">${banner.title}</h3>` : ''}
+                    ${banner.subtitle ? `<p class="banner-subtitle">${banner.subtitle}</p>` : ''}
+                    ${hasLink ? `<span class="banner-cta"><i class="ph-bold ph-arrow-left"></i> اعرف المزيد</span>` : ''}
+                </div>
+                <div class="banner-accent"></div>
+            </${tag}>`;
+        }).join('');
     } catch (error) {
         console.error('فشل تحميل البانرات:', error);
     }
