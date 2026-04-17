@@ -434,18 +434,62 @@ router.post('/pay-with-balance', async (req, res) => {
         let finalPrice;
         let priceData = { hasDiscount: false, discount: 0 };
 
-        if (orderType === 'game') {
-            // للألعاب: السعر يأتي مباشرة من الواجهة
-            finalPrice = parseFloat(req.body.price);
-            if (!finalPrice || isNaN(finalPrice) || finalPrice <= 0) {
-                return res.status(400).json({ message: 'سعر الحزمة غير صالح.' });
+        // 🎮 معالجة طلبات الألعاب (مع تطبيق العروض)
+if (orderType === 'game') {
+    let originalPrice = parseFloat(req.body.price);
+    if (!originalPrice || isNaN(originalPrice) || originalPrice <= 0) {
+        return res.status(400).json({ message: 'سعر الحزمة غير صالح.' });
+    }
+
+    // تطبيق العروض على الألعاب
+    finalPrice = originalPrice; // نبدأ بالسعر الأصلي
+    try {
+        const now = new Date();
+        // 🚀 نستخدم دالة getActiveOffers() الموجودة في أعلى الملف لتوفير الأداء (بدل البحث المباشر)
+        const activeOffers = await getActiveOffers(); 
+        
+        for (const offer of activeOffers) {
+            // التحقق مما إذا كان العرض يشمل هذه الخدمة/المنصة
+            const isServiceIncluded = offer.services.length === 0 || 
+                offer.services.some(s => 
+                    s.toString() === platform || // المقارنة بـ ID الخدمة
+                    s.toString() === serviceName // المقارنة بالاسم
+                );
+
+            if (!isServiceIncluded) continue;
+
+            // تطبيق الخصم
+            let discountAmount = 0;
+            if (offer.discountPercentage) {
+                discountAmount = (originalPrice * offer.discountPercentage) / 100;
+            } else if (offer.discountAmount) {
+                discountAmount = offer.discountAmount;
             }
-            console.log('🎮 طلب لعبة - السعر المباشر:', finalPrice);
-        } else {
-            priceData = await calculateFinalPrice(serviceName, platform, parseInt(quantity), userId);
-            finalPrice = priceData.finalPrice;
-            console.log('💰 السعر بعد الخصم:', finalPrice);
+            
+            finalPrice = Math.max(0, originalPrice - discountAmount);
+            console.log(`✅ عرض مطبق على اللعبة: ${offer.title} | السعر بعد الخصم: ${finalPrice}`);
+            break; // تطبيق أول عرض متاح فقط (أفضل عرض)
         }
+        
+        finalPrice = Math.round(finalPrice * 10000) / 10000; // تقريب لأقرب 4 خانات
+        priceData = { 
+            hasDiscount: finalPrice < originalPrice, 
+            discount: originalPrice - finalPrice 
+        };
+        
+        console.log(`🎮 طلب لعبة - السعر الأصلي: ${originalPrice} | السعر النهائي: ${finalPrice}`);
+        
+    } catch (offerErr) {
+        console.error('⚠️ خطأ في تطبيق العروض على اللعبة:', offerErr);
+        finalPrice = originalPrice; // استخدام السعر الأصلي في حال حدوث خطأ
+    }
+    
+} else {
+    // 🛒 معالجة طلبات الخدمات العادية
+    priceData = await calculateFinalPrice(serviceName, platform, parseInt(quantity), userId);
+    finalPrice = priceData.finalPrice;
+    console.log('💰 السعر بعد الخصم:', finalPrice);
+}
         // التحقق من أن الكمية رقم صحيح وموجب
         const requestedQuantity = parseInt(quantity);
         if (isNaN(requestedQuantity) || requestedQuantity <= 0) {
