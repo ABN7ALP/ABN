@@ -1924,38 +1924,125 @@ body::after {
     }
 }
 
-/* بانرات ترويجية */
+/* ===========================
+   بانرات ترويجية - تصميم جديد
+   =========================== */
+#banners-section {
+    padding: 1.5rem 0;
+}
+
 .banners-slider {
     display: flex;
+    flex-direction: column;
     gap: 1rem;
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
-    scrollbar-width: none;
 }
-.banners-slider::-webkit-scrollbar { display: none; }
 
 .banner-item {
-    flex-shrink: 0;
-    border-radius: var(--radius-card);
+    display: flex;
+    align-items: stretch;
+    background: linear-gradient(135deg, var(--card-bg, #1e1b4b) 0%, #312e81 100%);
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: var(--shadow-md);
-    transition: transform var(--transition-smooth);
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    min-height: 120px;
+    border: 1px solid rgba(255,255,255,0.1);
+    position: relative;
 }
 
-.banner-item:hover { transform: scale(1.02); }
+.banner-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+}
 
-.banner-item img {
+.banner-img-wrap {
+    flex-shrink: 0;
+    width: 180px;
+    position: relative;
+    overflow: hidden;
+}
+
+.banner-img-wrap img {
     width: 100%;
-    height: auto;
-    max-height: 200px;
+    height: 100%;
     object-fit: cover;
     display: block;
+    transition: transform 0.4s ease;
 }
 
-@media (max-width: 768px) {
-    .banner-item { max-width: 100%; }
-    .banner-item img { max-height: 150px; }
+.banner-item:hover .banner-img-wrap img {
+    transform: scale(1.05);
+}
+
+.banner-info {
+    flex: 1;
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.banner-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.banner-subtitle {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.75);
+    margin: 0;
+}
+
+.banner-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    padding: 0.4rem 1rem;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    color: #fff;
+    font-size: 0.85rem;
+    width: fit-content;
+    transition: background 0.2s;
+}
+
+.banner-item:hover .banner-cta {
+    background: rgba(255,255,255,0.25);
+}
+
+/* شريط لوني ديكوري */
+.banner-accent {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--purple-main, #7c3aed), var(--blue-accent, #2563eb));
+    border-radius: 0 0 0 4px;
+}
+
+/* شاشات صغيرة */
+@media (max-width: 600px) {
+    .banner-item {
+        flex-direction: column;
+        min-height: unset;
+    }
+    .banner-img-wrap {
+        width: 100%;
+        height: 140px;
+    }
+    .banner-info {
+        padding: 1rem;
+    }
+    .banner-title { font-size: 1rem; }
 }
