@@ -328,6 +328,7 @@ function loadDashboardData() {
                             imageBase64: ev.target.result,
                             link: document.getElementById('banner-link').value,
                             title: document.getElementById('banner-title').value,
+                            subtitle: document.getElementById('banner-subtitle')?.value || '',
                             order: parseInt(document.getElementById('banner-order').value) || 0
                         })
                     });
