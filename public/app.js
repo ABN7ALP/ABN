@@ -1959,7 +1959,10 @@ window.showGamePackagesModal = function(platform, platformData) {
                 <span class="package-name">${pkg.name}</span>
                 <span class="package-instant">فوري</span>
             </div>
-            <span class="package-price">${pkg.price.toFixed(4)} $</span>
+            <span class="package-price" id="pkg-price-${index}">
+    ${pkg.price.toFixed(4)} $
+    ${pkg.taxPercent > 0 ? `<small style="color:var(--text-light);font-size:0.75rem;display:block;">+ ضريبة ${pkg.taxPercent}%</small>` : ''}
+</span>
         </label>
     `).join('') + `
         <label class="package-option" data-index="custom">
