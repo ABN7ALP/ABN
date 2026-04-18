@@ -2286,7 +2286,6 @@ window.submitGameOrder = async function() {
         responseEl.textContent = error.message;
         responseEl.style.color = 'var(--danger-red)';
     }
-}
 
     
     // 🔽🔽 ابدأ التعديل من هنا 🔽🔽
