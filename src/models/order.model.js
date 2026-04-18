@@ -24,6 +24,14 @@ serviceDetails: {
     type: String, // سيحتوي على اسم الحزمة أو تفاصيل الخدمة المحددة
     required: false
 },
+taxAmount: {
+    type: Number,
+    default: 0
+},
+priceBeforeTax: {
+    type: Number,
+    default: 0
+},
     link: { 
         type: String, 
         required: true 
