@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const packageSchema = new mongoose.Schema({
     name: { type: String, required: true },
     price: { type: Number, required: true },
-    description: { type: String, default: '' }
+    description: { type: String, default: '' },
+    taxPercent: { type: Number, default: 0 }
 });
 
 const serviceSchema = new mongoose.Schema({
