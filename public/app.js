@@ -2099,18 +2099,26 @@ window.proceedToGameOrder = function(platform) {
         selectedPackage = {
             name: `كمية مخصصة (${customQty.toLocaleString()})`,
             price: parseFloat(customPrice.toFixed(4)),
-            quantity: customQty
+            quantity: customQty,
+            taxPercent: service.taxPercent || 0  // 🆕 إضافة الضريبة للكمية المخصصة
         };
     } else {
         const packageIndex = parseInt(selectedInput.value);
         selectedPackage = service.packages[packageIndex];
     }
 
-    // تخزين بيانات الحزمة المختارة
+    // 🆕 حساب الضريبة
+    const taxAmount = selectedPackage.taxPercent > 0 ? (selectedPackage.price * selectedPackage.taxPercent / 100) : 0;
+    const totalPrice = selectedPackage.price + taxAmount;
+
+    // تخزين بيانات الحزمة المختارة (مع الضريبة)
     currentGameData = {
         platform: platform,
         packageName: selectedPackage.name,
         packagePrice: selectedPackage.price,
+        packageTaxPercent: selectedPackage.taxPercent || 0,  // 🆕 نسبة الضريبة
+        packageTaxAmount: taxAmount,                          // 🆕 مبلغ الضريبة
+        packageTotalPrice: totalPrice,                        // 🆕 السعر الكامل
         service: service
     };
 
@@ -2124,6 +2132,34 @@ window.showGameIdModal = function(platform, selectedPackage, service) {
     if (oldModal) oldModal.remove();
 
     const iconUrl = getPlatformIcon(platform);
+    
+    // 🆕 حساب الضريبة للعرض
+    const taxAmount = selectedPackage.taxPercent > 0 ? (selectedPackage.price * selectedPackage.taxPercent / 100) : 0;
+    const totalPrice = selectedPackage.price + taxAmount;
+
+    // 🆕 قسم عرض السعر مع تفاصيل الضريبة
+    const priceDetailsHTML = selectedPackage.taxPercent > 0 ? `
+        <div style="background:var(--purple-light);border-radius:var(--radius-input);padding:1rem;margin-bottom:1.5rem;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;">
+                <span style="color:var(--text-light);">سعر الحزمة:</span>
+                <strong>${selectedPackage.price.toFixed(4)} $</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;">
+                <span style="color:var(--text-light);">ضريبة (${selectedPackage.taxPercent}%):</span>
+                <strong style="color:var(--warning-orange);">+ ${taxAmount.toFixed(4)} $</strong>
+            </div>
+            <hr style="border:1px solid var(--gray-border);margin:0.7rem 0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-weight:700;color:var(--text-dark);">الإجمالي:</span>
+                <strong style="color:var(--purple-main);font-size:1.3rem;">${totalPrice.toFixed(4)} $</strong>
+            </div>
+        </div>
+    ` : `
+        <div style="background:var(--purple-light);border-radius:var(--radius-input);padding:1rem;margin-bottom:1.5rem;text-align:center;">
+            <span style="color:var(--text-light);font-size:0.9rem;">إجمالي سعر الطلب:</span>
+            <span style="color:var(--purple-main);font-size:1.5rem;font-weight:800;margin-right:0.5rem;">${selectedPackage.price.toFixed(4)} $</span>
+        </div>
+    `;
 
     const modalHTML = `
         <div id="game-id-modal" class="popup-overlay" style="display:flex;">
@@ -2132,13 +2168,10 @@ window.showGameIdModal = function(platform, selectedPackage, service) {
                 
                 <div class="popup-header">
                     <img src="${iconUrl}" style="width:50px;height:50px;border-radius:50%;margin:0 auto 0.5rem;display:block;">
-                    <h2 style="font-size:1rem;color:var(--purple-main);">${selectedPackage.name}</h2>
+                    <h2 style="font-size:1.1rem;color:var(--purple-main);">${selectedPackage.name}</h2>
                 </div>
 
-                <div style="background:var(--purple-light);border-radius:var(--radius-input);padding:1rem;margin-bottom:1.5rem;text-align:center;">
-                    <span style="color:var(--text-light);font-size:0.9rem;">إجمالي سعر الطلب:</span>
-                    <span style="color:var(--purple-main);font-size:1.5rem;font-weight:800;margin-right:0.5rem;">${selectedPackage.price.toFixed(4)} $</span>
-                </div>
+                ${priceDetailsHTML}
 
                 <div class="form-group">
                     <label>${service.idLabel || 'أدخل رقم الـ ID'}</label>
@@ -2184,16 +2217,26 @@ window.submitGameOrder = async function() {
         return;
     }
 
+    // 🆕 استخدام السعر الكامل مع الضريبة
+    const packagePrice = currentGameData.packagePrice;
+    const taxPercent = currentGameData.packageTaxPercent || 0;
+    const taxAmount = currentGameData.packageTaxAmount || 0;
+    const totalPrice = currentGameData.packageTotalPrice || packagePrice;
+
     if (!userInfo) {
         // إذا لم يكن مسجل دخول، افتح واتساب
-        const message = `*طلب شحن جديد* 🎮\n---\n*اللعبة:* ${currentGameData.platform}\n*الحزمة:* ${currentGameData.packageName}\n*السعر:* ${currentGameData.packagePrice.toFixed(4)}$\n*الـ ID:* ${gameId}`;
+        let message = `*طلب شحن جديد* 🎮\n---\n*اللعبة:* ${currentGameData.platform}\n*الحزمة:* ${currentGameData.packageName}\n*السعر:* ${totalPrice.toFixed(4)}$`;
+        if (taxPercent > 0) {
+            message += `\n*السعر قبل الضريبة:* ${packagePrice.toFixed(4)}$\n*الضريبة (${taxPercent}%):* ${taxAmount.toFixed(4)}$`;
+        }
+        message += `\n*الـ ID:* ${gameId}`;
         window.open(`https://wa.me/905367893256?text=${encodeURIComponent(message)}`, '_blank');
         return;
     }
 
-    // التحقق من الرصيد
-    if (userInfo.balance < currentGameData.packagePrice) {
-        errorEl.textContent = `رصيدك غير كافٍ. تحتاج ${currentGameData.packagePrice.toFixed(4)}$ ورصيدك ${userInfo.balance.toFixed(2)}$`;
+    // التحقق من الرصيد (باستخدام السعر الكامل)
+    if (userInfo.balance < totalPrice) {
+        errorEl.textContent = `رصيدك غير كافٍ. تحتاج ${totalPrice.toFixed(4)}$ ورصيدك ${userInfo.balance.toFixed(2)}$`;
         return;
     }
 
@@ -2201,13 +2244,20 @@ window.submitGameOrder = async function() {
     responseEl.style.color = 'var(--text-light)';
 
     try {
+        // 🆕 إعداد serviceDetails مع معلومات الضريبة
+        const serviceDetails = taxPercent > 0 
+            ? `${currentGameData.packageName} (شامل ضريبة ${taxPercent}%)`
+            : currentGameData.packageName;
+
         const orderData = {
             platform: currentGameData.platform,
-            service: currentGameData.platform, // اسم اللعبة كخدمة رئيسية
-            serviceDetails: currentGameData.packageName, // اسم الحزمة كتفاصيل
+            service: currentGameData.platform,           // اسم اللعبة كخدمة رئيسية
+            serviceDetails: serviceDetails,               // اسم الحزمة مع تفاصيل الضريبة
             link: `GAME_ID:${gameId}`,
             quantity: 1,
-            price: currentGameData.packagePrice,
+            price: totalPrice,                            // 🆕 السعر الكامل مع الضريبة
+            priceBeforeTax: packagePrice,                 // 🆕 السعر قبل الضريبة
+            taxAmount: taxAmount,                         // 🆕 مبلغ الضريبة
             userId: userInfo._id,
             orderType: 'game',
             gameId: gameId
@@ -2236,6 +2286,7 @@ window.submitGameOrder = async function() {
         responseEl.textContent = error.message;
         responseEl.style.color = 'var(--danger-red)';
     }
+}
 
     
     // 🔽🔽 ابدأ التعديل من هنا 🔽🔽
