@@ -1401,7 +1401,7 @@ function handlePaymentMethodSelect(event) {
                 <!-- 2. النسخ اليدوي -->
                 <div>
                     <p style="margin-bottom: 0.5rem;">أو أرسل إلى الحساب التالي يدوياً:</p>
-                    <p><strong>الاسم:</strong> <span>abn.7alp</span></p>
+                    <p><strong>الاسم:</strong> <span>بشار حسين الحسين</span></p>
                     <p><strong>كود الحساب:</strong></p>
                     <div class="wallet-address" style="margin-top: 0.5rem;">
                         <div class="address-container">
