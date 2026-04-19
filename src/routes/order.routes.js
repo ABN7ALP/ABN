@@ -532,16 +532,22 @@ if (orderType === 'game') {
                 // استخراج gameId من الرابط
         const gameId = req.body.gameId || (link && link.startsWith('GAME_ID:') ? link.replace('GAME_ID:', '') : null);
         
-        const newOrder = new Order({
-            platform,
-            service: orderType === 'game' ? platform : serviceName,
-            serviceDetails: orderType === 'game' ? (req.body.serviceDetails || serviceName) : null,
-            link,
-            quantity: requestedQuantity,
-            price: finalPrice,
-            user: userId,
-            status: orderType === 'game' ? 'قيد المراجعة' : 'قيد التنفيذ'
-        });
+        // 🆕 استخراج بيانات الضريبة من الطلب
+const taxAmount = req.body.taxAmount || 0;
+const priceBeforeTax = req.body.priceBeforeTax || finalPrice;
+
+const newOrder = new Order({
+    platform,
+    service: orderType === 'game' ? platform : serviceName,
+    serviceDetails: orderType === 'game' ? (req.body.serviceDetails || serviceName) : null,
+    link,
+    quantity: requestedQuantity,
+    price: finalPrice,                           // السعر النهائي (يشمل الضريبة)
+    priceBeforeTax: priceBeforeTax,              // 🆕 السعر قبل الضريبة
+    taxAmount: taxAmount,                        // 🆕 مبلغ الضريبة
+    user: userId,
+    status: orderType === 'game' ? 'قيد المراجعة' : 'قيد التنفيذ'
+});
         await newOrder.save();
 
         // 🔔 إرسال إشعار تيليجرام لكل طلب جديد
