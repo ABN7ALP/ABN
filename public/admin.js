@@ -18,20 +18,24 @@ document.addEventListener('change', function(e) {
 function addPackageToList() {
     const name = document.getElementById('pkg-name').value.trim();
     const price = parseFloat(document.getElementById('pkg-price').value);
+    const taxPercent = parseFloat(document.getElementById('pkg-tax')?.value) || 0;  // 🆕 قراءة الضريبة
 
     if (!name || isNaN(price)) {
         alert('يرجى إدخال اسم وسعر الحزمة');
         return;
     }
 
-    currentPackages.push({ name, price });
+    currentPackages.push({ name, price, taxPercent });  // 🆕 إضافة الضريبة
 
     const listEl = document.getElementById('packages-list-admin');
     listEl.innerHTML = currentPackages.map((pkg, i) => `
         <div style="display:flex;justify-content:space-between;align-items:center;
             background:white;padding:0.8rem;border-radius:8px;border:1px solid var(--gray-border);">
             <span style="font-weight:600;">${pkg.name}</span>
-            <span style="color:var(--purple-main);font-weight:700;">${pkg.price} $</span>
+            <div style="text-align:center;">
+                <span style="color:var(--purple-main);font-weight:700;">${pkg.price} $</span>
+                ${pkg.taxPercent > 0 ? `<small style="display:block;color:var(--warning-orange);">+${pkg.taxPercent}% ضريبة</small>` : ''}
+            </div>
             <button type="button" onclick="removePackage(${i})" 
                 style="background:var(--danger-red);color:white;border:none;border-radius:6px;
                 padding:0.3rem 0.7rem;cursor:pointer;">حذف</button>
@@ -40,18 +44,20 @@ function addPackageToList() {
 
     document.getElementById('pkg-name').value = '';
     document.getElementById('pkg-price').value = '';
+    document.getElementById('pkg-tax').value = '0';  // 🆕 مسح حقل الضريبة
 }
-
 function removePackage(index) {
     currentPackages.splice(index, 1);
-    addPackageToList(); // إعادة رسم القائمة (بدون إضافة)
-    // في الواقع نحتاج إعادة رسم فقط
+    // إعادة رسم القائمة
     const listEl = document.getElementById('packages-list-admin');
     listEl.innerHTML = currentPackages.map((pkg, i) => `
         <div style="display:flex;justify-content:space-between;align-items:center;
             background:white;padding:0.8rem;border-radius:8px;border:1px solid var(--gray-border);">
             <span style="font-weight:600;">${pkg.name}</span>
-            <span style="color:var(--purple-main);font-weight:700;">${pkg.price} $</span>
+            <div style="text-align:center;">
+                <span style="color:var(--purple-main);font-weight:700;">${pkg.price} $</span>
+                ${pkg.taxPercent > 0 ? `<small style="display:block;color:var(--warning-orange);">+${pkg.taxPercent}% ضريبة</small>` : ''}
+            </div>
             <button type="button" onclick="removePackage(${i})" 
                 style="background:var(--danger-red);color:white;border:none;border-radius:6px;
                 padding:0.3rem 0.7rem;cursor:pointer;">حذف</button>
@@ -766,12 +772,12 @@ async function handleStatusChange(event) {
                 <h4 style="margin-bottom:1rem;">الحزم المتاحة</h4>
                 <div id="edit-packages-list"></div>
                 
-                <div style="background:var(--gray-bg);padding:1rem;border-radius:var(--radius-input);margin-top:1rem;">
-                    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:0.5rem;align-items:end;">
-                        <div><label style="font-size:0.85rem;">اسم الحزمة</label><input type="text" id="edit-pkg-name" placeholder="مثال: 60 UC"></div>
-                        <div><label style="font-size:0.85rem;">السعر ($)</label><input type="number" id="edit-pkg-price" placeholder="0.90" step="0.0001"></div>
-                        <button type="button" onclick="addEditPackage()" class="pill-button secondary-button" style="padding:0.7rem 1rem;">+ إضافة</button>
-                    </div>
+                <div style="display:grid;grid-template-columns:2fr 1fr 0.8fr auto;gap:0.5rem;align-items:end;">
+    <div><label style="font-size:0.85rem;">اسم الحزمة</label><input type="text" id="edit-pkg-name" placeholder="مثال: 60 UC"></div>
+    <div><label style="font-size:0.85rem;">السعر ($)</label><input type="number" id="edit-pkg-price" placeholder="0.90" step="0.0001"></div>
+    <div><label style="font-size:0.85rem;">ضريبة (%)</label><input type="number" id="edit-pkg-tax" placeholder="0" step="0.1" min="0" value="0"></div>
+    <button type="button" onclick="addEditPackage()" class="pill-button secondary-button" style="padding:0.7rem 1rem;">+ إضافة</button>
+</div>
                 </div>
                 
                 <button type="submit" class="pill-button primary-button" style="margin-top:1rem;">حفظ التغييرات</button>
@@ -804,28 +810,39 @@ async function handleStatusChange(event) {
     }
     
     function renderEditPackages() {
-        const listEl = document.getElementById('edit-packages-list');
-        if (!listEl) return;
-        listEl.innerHTML = editPackages.map((pkg, i) => `
-            <div style="display:flex;justify-content:space-between;align-items:center;
-                background:white;padding:0.8rem;border-radius:8px;border:1px solid var(--gray-border);margin-bottom:0.5rem;">
-                <span style="font-weight:600;">${pkg.name}</span>
+    const listEl = document.getElementById('edit-packages-list');
+    if (!listEl) return;
+    listEl.innerHTML = editPackages.map((pkg, i) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;
+            background:white;padding:0.8rem;border-radius:8px;border:1px solid var(--gray-border);margin-bottom:0.5rem;">
+            <span style="font-weight:600;">${pkg.name}</span>
+            <div style="text-align:center;">
                 <span style="color:var(--purple-main);font-weight:700;">${pkg.price} $</span>
-                <button type="button" onclick="removeEditPackage(${i})" 
-                    style="background:var(--danger-red);color:white;border:none;border-radius:6px;padding:0.3rem 0.7rem;cursor:pointer;">حذف</button>
+                ${pkg.taxPercent > 0 ? `<small style="display:block;color:var(--warning-orange);">+${pkg.taxPercent}% ضريبة</small>` : ''}
             </div>
-        `).join('');
-    }
+            <button type="button" onclick="removeEditPackage(${i})" 
+                style="background:var(--danger-red);color:white;border:none;border-radius:6px;padding:0.3rem 0.7rem;cursor:pointer;">حذف</button>
+        </div>
+    `).join('');
+}
     
     window.addEditPackage = function() {
-        const name = document.getElementById('edit-pkg-name').value.trim();
-        const price = parseFloat(document.getElementById('edit-pkg-price').value);
-        if (!name || isNaN(price)) { alert('يرجى إدخال اسم وسعر الحزمة'); return; }
-        editPackages.push({ name, price });
-        renderEditPackages();
-        document.getElementById('edit-pkg-name').value = '';
-        document.getElementById('edit-pkg-price').value = '';
-    };
+    const name = document.getElementById('edit-pkg-name').value.trim();
+    const price = parseFloat(document.getElementById('edit-pkg-price').value);
+    const taxPercent = parseFloat(document.getElementById('edit-pkg-tax')?.value) || 0;  // 🆕 قراءة الضريبة
+    
+    if (!name || isNaN(price)) { 
+        alert('يرجى إدخال اسم وسعر الحزمة'); 
+        return; 
+    }
+    
+    editPackages.push({ name, price, taxPercent });  // 🆕 إضافة الضريبة
+    renderEditPackages();
+    
+    document.getElementById('edit-pkg-name').value = '';
+    document.getElementById('edit-pkg-price').value = '';
+    document.getElementById('edit-pkg-tax').value = '0';  // 🆕 مسح حقل الضريبة
+};
     
     window.removeEditPackage = function(index) {
         editPackages.splice(index, 1);
